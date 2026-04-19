@@ -14,6 +14,8 @@ import { ScrollReveal } from '../directives/scroll-reveal.js';
                    every code block you see is the truth of what's running beside it.</p>
             </header>
 
+            <slider-example scroll-reveal></slider-example>
+            <color-playground scroll-reveal></color-playground>
             <nesting-example scroll-reveal></nesting-example>
         </div>
     `,

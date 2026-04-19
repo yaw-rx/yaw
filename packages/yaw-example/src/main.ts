@@ -11,6 +11,9 @@ import './components/page-footer.js';
 import { ExamplesPage } from './components/examples-page.js';
 import './components/nested-level.js';
 import './components/nesting-example.js';
+import './components/color-playground.js';
+import './components/yaw-slider.js';
+import './components/slider-example.js';
 import './components/page-echo.js';
 
 bootstrap({
