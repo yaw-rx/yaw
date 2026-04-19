@@ -14,6 +14,7 @@ import './components/nesting-example.js';
 import './components/color-playground.js';
 import './components/yaw-slider.js';
 import './components/slider-example.js';
+import './components/signal-meter.js';
 import './components/page-echo.js';
 
 bootstrap({

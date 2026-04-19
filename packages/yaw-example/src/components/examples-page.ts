@@ -16,6 +16,7 @@ import { ScrollReveal } from '../directives/scroll-reveal.js';
 
             <slider-example scroll-reveal></slider-example>
             <color-playground scroll-reveal></color-playground>
+            <signal-meter scroll-reveal></signal-meter>
             <nesting-example scroll-reveal></nesting-example>
         </div>
     `,
