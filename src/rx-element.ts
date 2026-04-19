@@ -1,14 +1,17 @@
 import { type Subscription } from 'rxjs';
-import { getTemplate, getProviders } from './component.js';
+import { getTemplate, getProviders, getDirectives, getGlobalDirectives } from './component.js';
 import { Injector } from './di/injector.js';
 import { runConnectHooks, runDisconnectHooks } from './registry.js';
 import { type Observables } from './observable.js';
+import { getDirectiveSelector, type Directive } from './directive.js';
+import { DirectiveInstantiationError, InvalidSelectorError } from './errors.js';
 
 export class RxElementBase extends HTMLElement {
     parentRef: RxElementBase | undefined;
     __injector: Injector | undefined;
     readonly rxChildren = new Set<RxElementBase>();
     private readonly bindings: Subscription[] = [];
+    private readonly directives: Directive[] = [];
 
     static resolveInjector(el: Element): Injector {
         let node: Element | null = el;
@@ -40,6 +43,31 @@ export class RxElementBase extends HTMLElement {
             this.__injector = RxElementBase.resolveInjector(this).child(providers);
         }
 
+        const declaredDirectives = [
+            ...getGlobalDirectives(),
+            ...(this.parentRef !== undefined ? getDirectives(this.parentRef.constructor) ?? [] : []),
+        ];
+        for (const ctor of declaredDirectives) {
+            const selector = getDirectiveSelector(ctor);
+            if (selector === undefined) continue;
+            if (!selector.startsWith('[') || !selector.endsWith(']')) {
+                throw new InvalidSelectorError(ctor.name, selector);
+            }
+            const attrName = selector.slice(1, -1);
+            if (!this.hasAttribute(attrName)) continue;
+            let directive: Directive;
+            try {
+                directive = RxElementBase.resolveInjector(this).instantiate(ctor);
+            } catch (e) {
+                throw new DirectiveInstantiationError(ctor.name, this.tagName, e);
+            }
+            directive.host = this;
+            const raw = this.getAttribute(attrName) ?? '';
+            directive.parsed = directive.parseExpr ? directive.parseExpr(raw) : { expr: raw };
+            directive.onInit();
+            this.directives.push(directive);
+        }
+
         const template = getTemplate(this.constructor);
         if (template !== undefined) {
             this.innerHTML = template;
@@ -53,6 +81,9 @@ export class RxElementBase extends HTMLElement {
         this.bindings.length = 0;
 
         runDisconnectHooks(this, this.parentRef);
+
+        for (const directive of this.directives) directive.onDestroy();
+        this.directives.length = 0;
 
         this.parentRef?.rxChildren.delete(this);
         this.parentRef = undefined;
