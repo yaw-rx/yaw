@@ -26,10 +26,10 @@ import { TocService } from './toc.js';
         </main>
     `,
     styles: `
-        :host { display: block; background: #000; min-height: 100vh;
+        :host { display: flex; background: #000; min-height: 100vh;
                 color: #ccc; box-sizing: border-box; }
-        .content { box-sizing: border-box;
-                   padding: 6rem 2rem 4rem calc(220px + 2rem); }
+        .content { flex: 1 1 0; min-width: 0; box-sizing: border-box;
+                   padding: 6rem 2rem 4rem 2rem; }
         .content > [id] { scroll-margin-top: 5rem; display: block; }
         .intro { margin-bottom: 2.5rem; }
         h1 { color: #fff; font-size: 2.5rem; font-weight: 900;

@@ -83,11 +83,12 @@ const groupOf = (id: string): string => {
     `,
     styles: `
         :host { display: block; box-sizing: border-box;
-                position: fixed; top: 4rem; bottom: 0; left: 0;
-                width: 220px;
+                flex: 0 0 220px;
+                position: sticky; top: 4rem;
+                align-self: flex-start;
+                height: calc(100vh - 4rem);
                 padding: 1.25rem 1.5rem;
-                border-right: 1px solid #151515;
-                background: #000; z-index: 50; }
+                border-right: 1px solid #151515; }
 
         aside { display: flex; flex-direction: column; gap: 1rem; }
 
@@ -139,9 +140,7 @@ export class DocsSidebar extends RxElement<{ activeId: string }> {
     }
 
     goto(id: string): void {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        this.activeId = id;
+        const toc = RxElement.resolveInjector(this).resolve(TocService);
+        toc.scrollTo(id);
     }
 }

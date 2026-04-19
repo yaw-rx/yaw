@@ -3,25 +3,50 @@ import { BehaviorSubject } from 'rxjs';
 import { Directive, Injectable, RxElement } from 'yaw';
 import type { RxElementLike } from 'yaw';
 
+const TOP_OFFSET = 80;
+
 @Injectable()
 export class TocService {
     readonly activeId$ = new BehaviorSubject<string>('');
+    private readonly registry = new Map<string, HTMLElement>();
     private observer: IntersectionObserver | undefined;
 
-    getObserver(): IntersectionObserver {
+    register(id: string, header: HTMLElement): void {
+        this.registry.set(id, header);
+        this.getObserver().observe(header);
+        this.recompute();
+    }
+
+    unregister(id: string): void {
+        const el = this.registry.get(id);
+        if (el) this.getObserver().unobserve(el);
+        this.registry.delete(id);
+    }
+
+    scrollTo(id: string): void {
+        const el = this.registry.get(id);
+        if (!el) return;
+        const y = window.scrollY + el.getBoundingClientRect().top - TOP_OFFSET;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+
+    private recompute(): void {
+        const vh = window.innerHeight;
+        const items = [...this.registry.entries()]
+            .map(([id, el]) => ({ id, top: el.getBoundingClientRect().top }))
+            .sort((a, b) => a.top - b.top);
+        if (items.length === 0) return;
+        let activeId = items[0]!.id;
+        for (const item of items) {
+            if (item.top < vh) activeId = item.id;
+            else break;
+        }
+        if (activeId !== this.activeId$.value) this.activeId$.next(activeId);
+    }
+
+    private getObserver(): IntersectionObserver {
         if (this.observer) return this.observer;
-        this.observer = new IntersectionObserver(
-            (entries) => {
-                const visible = entries.filter((e) => e.isIntersecting);
-                if (visible.length === 0) return;
-                visible.sort(
-                    (a, b) => a.boundingClientRect.top - b.boundingClientRect.top,
-                );
-                const id = (visible[0]!.target as HTMLElement).id;
-                if (id) this.activeId$.next(id);
-            },
-            { rootMargin: '-80px 0px -65% 0px', threshold: 0 },
-        );
+        this.observer = new IntersectionObserver(() => { this.recompute(); });
         return this.observer;
     }
 }
@@ -30,13 +55,20 @@ export class TocService {
 export class TocSection {
     host!: RxElementLike;
     private toc: TocService | undefined;
+    private id: string | undefined;
 
     onInit(): void {
+        const host = this.host as unknown as HTMLElement;
+        const header = host.querySelector('h1, h2') as HTMLElement | null;
+        const tracked = header ?? host;
+        tracked.style.scrollMarginTop = `${TOP_OFFSET}px`;
+        this.id = host.id;
+        if (!this.id) return;
         this.toc = RxElement.resolveInjector(this.host).resolve(TocService);
-        this.toc.getObserver().observe(this.host);
+        this.toc.register(this.id, tracked);
     }
 
     onDestroy(): void {
-        this.toc?.getObserver().unobserve(this.host);
+        if (this.id) this.toc?.unregister(this.id);
     }
 }
