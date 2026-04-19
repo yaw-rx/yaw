@@ -13,7 +13,12 @@ export default tseslint.config(
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        project: './tsconfig.json',
+        project: [
+          './packages/yaw-common/tsconfig.json',
+          './packages/yaw/tsconfig.json',
+          './packages/yaw-transformer/tsconfig.json',
+          './packages/yaw-example/tsconfig.json',
+        ],
         tsconfigRootDir: import.meta.dirname,
         ecmaVersion: 'latest',
         sourceType: 'module',
@@ -42,7 +47,7 @@ export default tseslint.config(
       '@typescript-eslint/prefer-readonly-parameter-types': 'off',
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/explicit-module-boundary-types': 'error',
-      '@typescript-eslint/explicit-member-accessibility': 'error',
+      '@typescript-eslint/explicit-member-accessibility': ['error', { accessibility: 'no-public' }],
       '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/consistent-type-exports': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
@@ -62,6 +67,7 @@ export default tseslint.config(
         { selector: 'import', format: ['camelCase', 'PascalCase'] },
       ],
 
+      'new-cap': ['error', { capIsNew: false }],
       'no-console': 'error',
       'no-alert': 'error',
       'no-debugger': 'error',

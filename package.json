@@ -1,28 +1,24 @@
 {
-  "name": "youre-all-wrong",
+  "name": "yaw-monorepo",
   "version": "0.1.0",
-  "type": "module",
   "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "tsc",
-    "typecheck": "tsc --noEmit",
+    "build": "tsc --build packages/yaw-common packages/yaw packages/yaw-transformer && npm run build -w packages/yaw-example",
+    "typecheck": "tsc --build --dry packages/yaw-common packages/yaw packages/yaw-transformer",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
-  },
-  "dependencies": {
-    "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1",
-    "ts-patch": "^3.3.0",
-    "typescript-transform-paths": "^3.5.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.1.1",
     "@types/node": "^20.12.7",
     "eslint": "^9.1.1",
     "prettier": "^3.2.5",
-    "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
     "typescript-eslint": "^8.0.0"
   }

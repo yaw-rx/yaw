@@ -1,0 +1,1 @@
+{"root":["./src/main.ts","./src/components/app-root.ts","./src/components/code-block.ts","./src/components/hero-section.ts","./src/components/manifesto-page.ts","./src/components/manifesto-section.ts","./src/components/nav-bar.ts","./src/components/page-footer.ts","./src/components/stat-counter.ts","./src/directives/scroll-reveal.ts"],"version":"5.9.3"}

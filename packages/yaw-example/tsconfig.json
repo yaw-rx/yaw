@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "paths": {
+      "yaw": ["../yaw/src/index.ts"],
+      "yaw-common": ["../yaw-common/src/index.ts"],
+      "yaw-transformer": ["../yaw-transformer/src/index.ts"]
+    }
+  },
+  "references": [
+    { "path": "../yaw-common" },
+    { "path": "../yaw" },
+    { "path": "../yaw-transformer" }
+  ],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

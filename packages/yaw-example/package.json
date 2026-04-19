@@ -1,0 +1,19 @@
+{
+  "name": "yaw-example",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "rxjs": "^7.8.1",
+    "yaw": "*",
+    "yaw-transformer": "*"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
