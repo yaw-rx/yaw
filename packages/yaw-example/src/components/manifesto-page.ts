@@ -2,6 +2,18 @@ import 'reflect-metadata';
 import { Component, RxElement } from 'yaw';
 import { ScrollReveal } from '../directives/scroll-reveal.js';
 
+const REACT_SNIPPET = `
+    // React: 140KB to call appendChild
+    const [count, setCount] = useState(0);
+    useEffect(() => { document.title = count; }, [count]);
+`;
+
+const YAW_SNIPPET = `
+    // YAW: 4KB. Direct. Honest.
+    @observable count = 0;
+    // That's it. The DOM updates. No diff. No reconciliation.
+`;
+
 @Component({
     selector: 'manifesto-page',
     directives: [ScrollReveal],
@@ -14,9 +26,7 @@ import { ScrollReveal } from '../directives/scroll-reveal.js';
                 JavaScript replicas of it. Angular shipped Zone.js to monkey-patch every async API
                 in the browser. React asks you to pretend the DOM doesn't exist, then builds a
                 virtual one, diffs it, and finally touches the real thing. The virtual part is pure tax.
-                <code-block>// React: 140KB to call appendChild
-const [count, setCount] = useState(0);
-useEffect(() => { document.title = count; }, [count]);</code-block>
+                <code-block lang="ts"><script type="text/plain">${REACT_SNIPPET}</script></code-block>
             </manifesto-section>
 
             <manifesto-section heading="The Lie of Sophistication">
@@ -29,13 +39,10 @@ useEffect(() => { document.title = count; }, [count]);</code-block>
 
             <manifesto-section heading="Our Heresy">
                 We reject Zone.js — we can unsubscribe. We reject the virtual DOM — we can read.
-                We write <code>{{count}}</code> and <code>[label]="status"</code> because no one
-                wants to write <code>count$.subscribe(v =&gt; el.textContent = v)</code> inline.
-                The template is the abstraction that earns its keep: it compiles to exactly those
-                subscriptions and nothing else.
-                <code-block>// YAW: 4KB. Direct. Honest.
-@observable count = 0;
-// That's it. The DOM updates. No diff. No reconciliation.</code-block>
+                We write inline text bindings and attribute bindings because no one wants to write
+                subscriptions inline. The template is the abstraction that earns its keep: it compiles
+                to exactly those subscriptions and nothing else.
+                <code-block lang="ts"><script type="text/plain">${YAW_SNIPPET}</script></code-block>
             </manifesto-section>
 
             <manifesto-section heading="The Platform Is Enough">
