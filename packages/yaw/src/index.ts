@@ -4,6 +4,7 @@ export { Router, ROUTES } from './router.js';
 export { Directive } from './directive.js';
 export { observable } from './observable.js';
 export { Injectable } from './di/injectable.js';
+export { Inject } from './di/inject.js';
 export { Injector } from './di/injector.js';
 export * from './errors.js';
 export type { Route } from './component.js';

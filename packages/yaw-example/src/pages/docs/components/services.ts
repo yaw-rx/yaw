@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { BehaviorSubject } from 'rxjs';
-import { Component, Injectable, RxElement, observable } from 'yaw';
+import { Component, Inject, Injectable, RxElement, observable } from 'yaw';
 import { escape } from '../../../shared/lib/code-highlight.js';
 import { DOC_STYLES } from '../../../shared/lib/doc-styles.js';
 
@@ -24,10 +24,10 @@ export class Clock {
 })
 export class ClockReadout extends RxElement<{ now: string }> {
     @observable now = '';
+    @Inject(Clock) private readonly clock!: Clock;
 
     override onInit(): void {
-        const clock = RxElement.resolveInjector(this).resolve(Clock);
-        clock.tick$.subscribe((t) => { this.now = t; });
+        this.clock.tick$.subscribe((t) => { this.now = t; });
     }
 }
 
@@ -56,17 +56,24 @@ bootstrap({
     providers: [Clock, Router, ...],
 });`;
 
-const RESOLVE_SOURCE = `@Component({
+const RESOLVE_SOURCE = `// components: @Inject(Token) on a field
+@Component({
     selector: 'clock-readout',
     template: '<span>{{now}}</span>',
 })
 export class ClockReadout extends RxElement<{ now: string }> {
     @observable now = '';
+    @Inject(Clock) private readonly clock!: Clock;
 
     override onInit(): void {
-        const clock = RxElement.resolveInjector(this).resolve(Clock);
-        clock.tick$.subscribe((t) => { this.now = t; });
+        this.clock.tick$.subscribe((t) => { this.now = t; });
     }
+}
+
+// services & directives: @Injectable([Tokens]) + constructor args
+@Injectable([Clock])
+export class Analytics {
+    constructor(private readonly clock: Clock) {}
 }`;
 
 const LIVE_USAGE = `<clock-readout></clock-readout>`;
@@ -78,10 +85,11 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
         <h1>Services</h1>
         <p class="lede">A service is any class registered with an
            <code class="inline">Injector</code>. Decorate it with
-           <code class="inline">@Injectable</code>, declare it in a
-           <code class="inline">providers</code> array, resolve it from any
-           element with <code class="inline">RxElement.resolveInjector(el).resolve(Token)</code>.
-           The injector tree walks up the DOM — child providers shadow parents.</p>
+           <code class="inline">@Injectable</code>, put it in a
+           <code class="inline">providers</code> array, declare the dependency and
+           the framework wires it — constructor args for services and directives,
+           <code class="inline">@Inject()</code> on a field for components. The
+           injector tree walks up the DOM; child providers shadow parents.</p>
 
         <section class="host" id="services-a" toc-section>
             <h2>A service</h2>
@@ -100,11 +108,16 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
         </section>
 
         <section class="host" id="services-resolve" toc-section>
-            <h2>Resolving it</h2>
-            <p class="note"><code class="inline">RxElement.resolveInjector(this)</code>
-               walks <code class="inline">parentElement</code> until it finds an
-               injector. Resolution is lazy: services are instantiated on first
-               <code class="inline">.resolve()</code>.</p>
+            <h2>Injecting it</h2>
+            <p class="note">Two shapes, both token-driven. Services and directives
+               list their deps in <code class="inline">@Injectable([...])</code>
+               and the injector passes them as constructor arguments. Components
+               can't use ctor args (the browser constructs custom elements), so
+               declare a field and tag it with
+               <code class="inline">@Inject(Token)</code> — the framework assigns
+               it before <code class="inline">onInit</code> runs. Explicit tokens
+               because Vite/esbuild doesn't emit TypeScript decorator metadata;
+               no magic, no build-time plugin needed.</p>
             <code-block lang="ts">${escape`${RESOLVE_SOURCE}`}</code-block>
         </section>
 
@@ -112,8 +125,9 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
             <h2>Live</h2>
             <p class="note">This section registers <code class="inline">Clock</code>
                in its own <code class="inline">providers</code>. The readout below
-               resolves it and subscribes. A single service emitting to a single
-               observer — no global state, no singleton module.</p>
+               declares <code class="inline">@Inject() clock!: Clock</code> and
+               subscribes in <code class="inline">onInit</code>. A single service
+               emitting to a single observer — no global state, no singleton module.</p>
             <div class="split">
                 <code-block lang="html">${escape`${LIVE_USAGE}`}</code-block>
                 <div class="live"><clock-readout></clock-readout></div>

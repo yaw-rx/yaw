@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { map, type Observable } from 'rxjs';
-import { Component, RxElement, observable, Router } from 'yaw';
+import { Component, Inject, RxElement, observable, Router } from 'yaw';
 
 @Component({
     selector: 'nav-bar',
@@ -32,10 +32,9 @@ import { Component, RxElement, observable, Router } from 'yaw';
 })
 export class NavBar extends RxElement<{ route: string }> {
     @observable route = '/';
-    private router!: Router;
+    @Inject(Router) private readonly router!: Router;
 
     override onInit(): void {
-        this.router = RxElement.resolveInjector(this).resolve(Router);
         this.router.route$.subscribe((r) => { this.route = r; });
     }
 

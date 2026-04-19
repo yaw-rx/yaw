@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { map, type Observable } from 'rxjs';
-import { Component, RxElement, observable } from 'yaw';
+import { Component, Inject, RxElement, observable } from 'yaw';
 import { TocService } from '../toc.js';
 
 type TocChild = { id: string; label: string };
@@ -39,7 +39,7 @@ const TOC: TocGroup[] = [
         children: [
             { id: 'services-a', label: 'A service' },
             { id: 'services-register', label: 'Registering' },
-            { id: 'services-resolve', label: 'Resolving' },
+            { id: 'services-resolve', label: 'Injecting' },
             { id: 'services-live', label: 'Live' },
         ],
     },
@@ -125,10 +125,10 @@ const groupOf = (id: string): string => {
 })
 export class DocsSidebar extends RxElement<{ activeId: string }> {
     @observable activeId = TOC[0]!.id;
+    @Inject(TocService) private readonly toc!: TocService;
 
     override onInit(): void {
-        const toc = RxElement.resolveInjector(this).resolve(TocService);
-        toc.activeId$.subscribe((id) => { if (id) this.activeId = id; });
+        this.toc.activeId$.subscribe((id) => { if (id) this.activeId = id; });
     }
 
     inGroup(group: string): Observable<boolean> {
@@ -140,7 +140,6 @@ export class DocsSidebar extends RxElement<{ activeId: string }> {
     }
 
     goto(id: string): void {
-        const toc = RxElement.resolveInjector(this).resolve(TocService);
-        toc.scrollTo(id);
+        this.toc.scrollTo(id);
     }
 }

@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Component, RxElement, Router, observable } from 'yaw';
+import { Component, Inject, RxElement, Router, observable } from 'yaw';
 import { escape } from '../../../shared/lib/code-highlight.js';
 import { DOC_STYLES } from '../../../shared/lib/doc-styles.js';
 
@@ -37,10 +37,9 @@ import { DOC_STYLES } from '../../../shared/lib/doc-styles.js';
 })
 export class RouteDisplay extends RxElement<{ route: string }> {
     @observable route = '/';
-    private router!: Router;
+    @Inject(Router) private readonly router!: Router;
 
     override onInit(): void {
-        this.router = RxElement.resolveInjector(this).resolve(Router);
         this.router.route$.subscribe((r) => { this.route = r; });
     }
 
@@ -74,10 +73,9 @@ export class AppRoot extends RxElement {}`;
 const NAVIGATE_SOURCE = `@Component({ selector: 'route-display', ... })
 export class RouteDisplay extends RxElement<{ route: string }> {
     @observable route = '/';
-    private router!: Router;
+    @Inject(Router) private readonly router!: Router;
 
     override onInit(): void {
-        this.router = RxElement.resolveInjector(this).resolve(Router);
         this.router.route$.subscribe((r) => { this.route = r; });
     }
 
@@ -124,8 +122,9 @@ const LIVE_USAGE = `<route-display></route-display>`;
 
         <section class="host" id="navigation-navigate" toc-section>
             <h2>Navigating</h2>
-            <p class="note">Resolve <code class="inline">Router</code> from DI,
-               subscribe to <code class="inline">route$</code>, call
+            <p class="note">Declare <code class="inline">@Inject() router!: Router</code>
+               on a field, subscribe to <code class="inline">route$</code> in
+               <code class="inline">onInit</code>, call
                <code class="inline">navigate(path)</code> when you want to move.
                That's the whole API.</p>
             <code-block lang="ts">${escape`${NAVIGATE_SOURCE}`}</code-block>

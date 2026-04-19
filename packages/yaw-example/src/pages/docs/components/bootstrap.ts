@@ -7,7 +7,6 @@ const HTML_SOURCE = `<!doctype html>
 <html>
     <head><meta charset="utf-8"><title>YAW</title></head>
     <body>
-        <app-root></app-root>
         <script type="module" src="/src/main.ts"></script>
     </body>
 </html>`;
@@ -47,13 +46,14 @@ export class AppRoot extends RxElement {}`;
         <p class="lede">One call. A root component, a flat provider list, and the
            built-in global directives. <code class="inline">bootstrap()</code> creates
            the root injector, registers every imported <code class="inline">@Component</code>
-           as a custom element, and upgrades <code class="inline">&lt;app-root&gt;</code>
-           in the DOM. No modules, no zones.</p>
+           as a custom element, then mounts the root component on
+           <code class="inline">document.body</code> itself. No modules, no zones.</p>
 
         <section class="host" id="bootstrap-html" toc-section>
             <h2>index.html</h2>
-            <p class="note">The HTML entry. One root element, one module script —
-               the browser does the rest.</p>
+            <p class="note">The HTML entry is empty — just a module script.
+               <code class="inline">bootstrap()</code> creates and appends the root
+               element from the component's selector; you don't place it by hand.</p>
             <code-block lang="html">${escape`${HTML_SOURCE}`}</code-block>
         </section>
 
@@ -70,9 +70,11 @@ export class AppRoot extends RxElement {}`;
 
         <section class="host" id="bootstrap-root" toc-section>
             <h2>The root component</h2>
-            <p class="note">Usually nothing but a shell: navigation and the outlet
-               the router fills. Nothing special about it — it's just the first
-               component mounted.</p>
+            <p class="note">An ordinary <code class="inline">@Component</code> — no
+               flag, no magic. <code class="inline">bootstrap()</code> reads its selector,
+               does <code class="inline">document.body.appendChild(document.createElement(selector))</code>,
+               and the custom-element upgrade path takes over. Usually nothing but a
+               shell: navigation and the outlet the router fills.</p>
             <code-block lang="ts">${escape`${APP_ROOT_SOURCE}`}</code-block>
         </section>
     `,

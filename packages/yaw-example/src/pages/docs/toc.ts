@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { BehaviorSubject } from 'rxjs';
-import { Directive, Injectable, RxElement } from 'yaw';
+import { Directive, Injectable } from 'yaw';
 import type { RxElementLike } from 'yaw';
 
 const TOP_OFFSET = 80;
@@ -52,23 +52,31 @@ export class TocService {
 }
 
 @Directive({ selector: '[toc-section]' })
+@Injectable([TocService])
 export class TocSection {
     host!: RxElementLike;
-    private toc: TocService | undefined;
+    private readonly toc: TocService;
     private id: string | undefined;
 
+    constructor(toc: TocService) {
+        this.toc = toc;
+    }
+
     onInit(): void {
-        const host = this.host as unknown as HTMLElement;
+        const { host } = this;
         const header = host.querySelector('h1, h2') as HTMLElement | null;
-        const tracked = header ?? host;
-        tracked.style.scrollMarginTop = `${TOP_OFFSET}px`;
+        const tracked: HTMLElement = header ?? host;
+        tracked.style.scrollMarginTop = `${String(TOP_OFFSET)}px`;
         this.id = host.id;
-        if (!this.id) return;
-        this.toc = RxElement.resolveInjector(this.host).resolve(TocService);
+        if (!this.id) {
+            return;
+        }
         this.toc.register(this.id, tracked);
     }
 
     onDestroy(): void {
-        if (this.id) this.toc?.unregister(this.id);
+        if (this.id) {
+            this.toc.unregister(this.id);
+        }
     }
 }

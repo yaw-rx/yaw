@@ -1,6 +1,7 @@
 import { getTemplate, getProviders, getDirectives, getGlobalDirectives } from './component.js';
 import { mirrorCtors } from './components/rx-elements.js';
 import { Injector } from './di/injector.js';
+import { getPropDeps } from './di/inject.js';
 import { type Observables } from './observable.js';
 import { getDirectiveSelector, matchesSelector, type Directive } from './directive.js';
 import { DirectiveInstantiationError, InvalidSelectorError } from './errors.js';
@@ -35,6 +36,14 @@ export class RxElementBase extends HTMLElement {
         const providers = getProviders(this.constructor);
         if (providers !== undefined) {
             this.__injector = RxElementBase.resolveInjector(this).child(providers);
+        }
+
+        const propDeps = getPropDeps(this.constructor);
+        if (propDeps !== undefined) {
+            const injector = RxElementBase.resolveInjector(this);
+            for (const [prop, token] of propDeps) {
+                (this as unknown as Record<string | symbol, unknown>)[prop] = injector.resolve(token);
+            }
         }
 
         const declaredDirectives = [

@@ -1,21 +1,22 @@
 import { type Subscription } from 'rxjs';
 import { Component, getSelector } from '../component.js';
 import { RxElementBase } from '../rx-element.js';
+import { Inject } from '../di/inject.js';
 import { Router } from '../router.js';
 
 @Component({ selector: 'rx-router-outlet' })
 export class RxRouterOutlet extends RxElementBase {
+    @Inject(Router) private readonly router!: Router;
     private sub: Subscription | undefined;
     private current: Element | undefined;
 
     override onInit(): void {
-        const router = RxElementBase.resolveInjector(this).resolve(Router);
-        this.sub = router.route$.subscribe((path) => { this.render(router, path); });
+        this.sub = this.router.route$.subscribe((path) => { this.render(path); });
     }
 
-    private render(router: Router, path: string): void {
+    private render(path: string): void {
         this.current?.remove();
-        const ctor = router.resolve(path);
+        const ctor = this.router.resolve(path);
         if (ctor === undefined) return;
         const selector = getSelector(ctor);
         if (selector === undefined) return;
