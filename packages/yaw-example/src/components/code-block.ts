@@ -22,10 +22,8 @@ import { dedent, escapeHtml, highlightTs } from './code-highlight.js';
 })
 export class CodeBlock extends RxElement {
     override onInit(): void {
-        const script = this.querySelector('script');
-        const source = script === null ? this.textContent : script.textContent;
-        const raw = dedent(source);
-        const content = this.getAttribute('lang') === 'ts' ? highlightTs(raw) : escapeHtml(raw);
+        const source = dedent(this.textContent);
+        const content = this.getAttribute('lang') === 'ts' ? highlightTs(source) : escapeHtml(source);
         this.innerHTML = `<pre class="cb"><code>${content}</code></pre>`;
     }
 }

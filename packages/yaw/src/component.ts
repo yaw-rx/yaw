@@ -31,12 +31,14 @@ export interface Route {
 }
 
 const templateCache = new Map<Function, string>();
+const rawTemplateCache = new Map<CustomElementConstructor, string>();
 const selectorCache = new Map<Function, string>();
 const providersCache = new Map<Function, readonly Provider[]>();
 const directivesCache = new Map<Function, readonly DirectiveCtor[]>();
 const stylesCache = new Map<Function, CSSStyleSheet>();
 
 export const getTemplate = (ctor: Function): string | undefined => templateCache.get(ctor);
+export const getRawTemplate = (ctor: CustomElementConstructor): string | undefined => rawTemplateCache.get(ctor);
 export const getSelector = (ctor: Function): string | undefined => selectorCache.get(ctor);
 export const getProviders = (ctor: Function): readonly Provider[] | undefined => providersCache.get(ctor);
 export const getDirectives = (ctor: Function): readonly DirectiveCtor[] | undefined => directivesCache.get(ctor);
@@ -45,7 +47,10 @@ export const getStyles = (ctor: Function): CSSStyleSheet | undefined => stylesCa
 export const Component = (options: ComponentOptions) =>
     (ctor: CustomElementConstructor): void => {
         const { template } = options;
-        if (template !== undefined) templateCache.set(ctor, transformTemplate(template));
+        if (template !== undefined) {
+            rawTemplateCache.set(ctor, template);
+            templateCache.set(ctor, transformTemplate(template));
+        }
         selectorCache.set(ctor, options.selector);
         if (options.providers !== undefined) providersCache.set(ctor, options.providers);
         if (options.directives !== undefined) directivesCache.set(ctor, options.directives);

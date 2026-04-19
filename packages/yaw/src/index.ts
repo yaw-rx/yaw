@@ -1,5 +1,5 @@
 export { RxElement } from './rx-element.js';
-export { Component, bootstrap } from './component.js';
+export { Component, bootstrap, getRawTemplate } from './component.js';
 export { Router, ROUTES } from './router.js';
 export { Directive } from './directive.js';
 export { observable } from './observable.js';
