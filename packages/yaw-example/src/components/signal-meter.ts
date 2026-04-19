@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { map, type Observable } from 'rxjs';
 import { Component, RxElement, observable } from 'yaw';
 import { escape } from './code-highlight.js';
+import { DOC_STYLES } from './doc-styles.js';
 
 const METER_TEMPLATE = `
     <div class="meter" [style]="meterStyle()">
@@ -17,27 +18,8 @@ const METER_TEMPLATE = `
     <yaw-slider for="strength" min="0" max="100"></yaw-slider>
 `;
 
-const styles = `
-    :host { display: block; color: #ccc; }
-    h1 { color: #fff; font-size: 2rem; font-weight: 900;
-         letter-spacing: -1px; margin: 0 0 0.75rem; }
-    .lede { color: #888; line-height: 1.7; margin-bottom: 2rem; max-width: 72ch; }
-    .inline { background: #111; padding: 0.1rem 0.4rem;
-              border-radius: 3px; font-size: 0.9em; color: #8af; }
-    h2 { color: #fff; font-size: 1.1rem; font-weight: 700;
-         margin: 0 0 1rem; letter-spacing: 0.02em; }
-    .host, .ex { margin-bottom: 1.5rem; padding: 1.25rem;
-                 background: #0a0a0a; border: 1px solid #1a1a1a;
-                 border-radius: 8px; }
-    .note { color: #888; font-size: 0.9rem; line-height: 1.6;
-            margin: 0 0 1rem; max-width: 72ch; }
-    .split { display: grid;
-             grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-             gap: 1rem; align-items: stretch; }
-    .split > * { min-width: 0; }
-    .live { display: flex; flex-direction: column; align-items: center;
-            gap: 1.25rem; padding: 1.75rem; background: #050505;
-            border: 1px solid #1a1a1a; border-radius: 8px; }
+const METER_STYLES = `
+    :host { display: block; }
     .meter { position: relative; width: 14rem; height: 14rem; }
     .ring { width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
     .track { fill: none; stroke: #161616; stroke-width: 6; }
@@ -56,13 +38,19 @@ const styles = `
              text-shadow: 0 0 18px hsl(calc(140 + var(--pct, 0) * 200), 90%, 60%);
              transition: color 0.35s ease, text-shadow 0.35s ease; }
     .unit { font-size: 1rem; color: #555; font-family: monospace; margin-top: 1rem; }
+`;
+
+const WRAPPER_STYLES = `
+    .live { display: flex; flex-direction: column; align-items: center;
+            gap: 1.25rem; padding: 1.75rem; background: #050505;
+            border: 1px solid #1a1a1a; border-radius: 8px; }
     .live yaw-slider { width: 100%; max-width: 22rem; }
 `;
 
 const HOST_SOURCE = `@Component({
     selector: 'signal-meter',
     template: \`${METER_TEMPLATE}\`,
-    styles: \`${styles}\`,
+    styles: \`${METER_STYLES}\`,
 })
 export class SignalMeter extends RxElement<{ strength: number }> {
     @observable strength = 65;
@@ -102,7 +90,7 @@ export class SignalMeter extends RxElement<{ strength: number }> {
             </div>
         </section>
     `,
-    styles,
+    styles: `${METER_STYLES}\n${WRAPPER_STYLES}\n${DOC_STYLES}`,
 })
 export class SignalMeter extends RxElement<{ strength: number }> {
     @observable strength = 65;
