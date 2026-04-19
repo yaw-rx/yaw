@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Component, RxElementBase } from 'yaw';
+import { Component, RxElement } from 'yaw';
 
 @Component({
     selector: 'app-root',
@@ -11,4 +11,4 @@ import { Component, RxElementBase } from 'yaw';
         app-root { display: block; }
     `
 })
-export class AppRoot extends RxElementBase {}
+export class AppRoot extends RxElement {}

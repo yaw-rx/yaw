@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Component, RxElementBase, observable } from 'yaw';
+import { Component, RxElement, observable } from 'yaw';
 import { ScrollReveal } from '../directives/scroll-reveal.js';
 
 @Component({
@@ -22,7 +22,7 @@ import { ScrollReveal } from '../directives/scroll-reveal.js';
         .revealed { opacity: 1; transform: none; }
     `
 })
-export class ManifestoSection extends RxElementBase {
+export class ManifestoSection extends RxElement<{ heading: string }> {
     @observable heading = '';
     override onInit(): void {
         this.heading = this.getAttribute('heading') ?? '';

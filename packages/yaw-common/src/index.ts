@@ -94,9 +94,43 @@ const rewriteSelectorTags = (selectors: string): string =>
 export const transformStyles = (css: string): string =>
     css.replace(/([^{}]*)\{/g, (_m, sel: string) => `${rewriteSelectorTags(sel)}{`);
 
-const prefix = (expr: string, depth: number): string => {
-    const trimmed = expr.trim();
-    return depth === 0 ? trimmed : `${'^'.repeat(depth)}.${trimmed}`;
+const KEYWORDS = new Set(['true', 'false', 'null', '$event']);
+
+const injectCarets = (expr: string, depth: number): string => {
+    if (depth === 0) return expr;
+    const caret = `${'^'.repeat(depth)}.`;
+    const n = expr.length;
+    let out = '';
+    let i = 0;
+    while (i < n) {
+        const c = expr[i]!;
+        if (/\s/.test(c)) { out += c; i++; continue; }
+        if (c === "'" || c === '"') {
+            const quote = c;
+            out += c; i++;
+            while (i < n && expr[i] !== quote) { out += expr[i]; i++; }
+            if (i < n) { out += expr[i]; i++; }
+            continue;
+        }
+        if (/\d/.test(c) || (c === '-' && i + 1 < n && /\d/.test(expr[i + 1]!))) {
+            if (c === '-') { out += c; i++; }
+            while (i < n && /[\d.]/.test(expr[i]!)) { out += expr[i]; i++; }
+            continue;
+        }
+        if (/[a-zA-Z_$]/.test(c)) {
+            const start = i;
+            i++;
+            while (i < n && /[\w$]/.test(expr[i]!)) i++;
+            const ident = expr.slice(start, i);
+            const lastMeaningful = out.replace(/\s+$/, '').slice(-1);
+            const isContinuation = lastMeaningful === '.';
+            if (!KEYWORDS.has(ident) && !isContinuation) out += caret;
+            out += ident;
+            continue;
+        }
+        out += c; i++;
+    }
+    return out;
 };
 
 const transformTextNode = (node: Text, depth: number): void => {
@@ -115,7 +149,7 @@ const transformTextNode = (node: Text, depth: number): void => {
         found = true;
         if (m.index > last) frag.appendChild(doc.createTextNode(text.slice(last, m.index)));
         const rxText = doc.createElement('rx-text');
-        rxText.setAttribute('bind', prefix(m[1]!, depth));
+        rxText.setAttribute('bind', injectCarets(m[1]!, depth));
         frag.appendChild(rxText);
         last = m.index + m[0].length;
     }
@@ -132,21 +166,21 @@ const transformAttributes = (el: Element, depth: number): void => {
 
         const classMatch = /^\[class\.(.+)\]$/.exec(name);
         if (classMatch !== null) {
-            rewrites.push({ remove: name, add: [`data-rx-class-${classMatch[1]}`, prefix(value, depth)] });
+            rewrites.push({ remove: name, add: [`data-rx-class-${classMatch[1]}`, injectCarets(value, depth)] });
             continue;
         }
         const bindMatch = /^\[(.+)\]$/.exec(name);
         if (bindMatch !== null) {
-            rewrites.push({ remove: name, add: [`data-rx-bind-${bindMatch[1]}`, prefix(value, depth)] });
+            rewrites.push({ remove: name, add: [`data-rx-bind-${bindMatch[1]}`, injectCarets(value, depth)] });
             continue;
         }
         const onMatch = /^on(.+)$/.exec(name);
         if (onMatch !== null && value !== '') {
-            rewrites.push({ remove: name, add: [`data-rx-on-${onMatch[1]}`, prefix(value, depth)] });
+            rewrites.push({ remove: name, add: [`data-rx-on-${onMatch[1]}`, injectCarets(value, depth)] });
             continue;
         }
         if (name.startsWith('#')) {
-            rewrites.push({ remove: name, add: ['data-rx-ref', prefix(name.slice(1), depth)] });
+            rewrites.push({ remove: name, add: ['data-rx-ref', injectCarets(name.slice(1), depth)] });
             continue;
         }
     }

@@ -1,5 +1,6 @@
 import 'reflect-metadata';
-import { Component, RxElementBase, observable, Router } from 'yaw';
+import { map, type Observable } from 'rxjs';
+import { Component, RxElement, observable, Router } from 'yaw';
 
 @Component({
     selector: 'nav-bar',
@@ -7,9 +8,10 @@ import { Component, RxElementBase, observable, Router } from 'yaw';
         <nav>
             <a class="logo" onclick="navigateHome">YAW</a>
             <div class="links">
-                <a [class.active]="route === '/'" onclick="navigateHome">Manifesto</a>
-                <a [class.active]="route === '/react'" onclick="navigateReact">vs React</a>
-                <a [class.active]="route === '/angular'" onclick="navigateAngular">vs Angular</a>
+                <a [class.active]="isActive('/')" onclick="navigateHome">Manifesto</a>
+                <a [class.active]="isActive('/examples')" onclick="navigateExamples">Examples</a>
+                <a [class.active]="isActive('/react')" onclick="navigateReact">vs React</a>
+                <a [class.active]="isActive('/angular')" onclick="navigateAngular">vs Angular</a>
             </div>
         </nav>
     `,
@@ -27,16 +29,21 @@ import { Component, RxElementBase, observable, Router } from 'yaw';
         .links a.active { color: #fff; border-bottom: 2px solid #fff; padding-bottom: 2px; }
     `
 })
-export class NavBar extends RxElementBase {
+export class NavBar extends RxElement<{ route: string }> {
     @observable route = '/';
     private router!: Router;
 
     override onInit(): void {
-        this.router = RxElementBase.resolveInjector(this).resolve(Router);
+        this.router = RxElement.resolveInjector(this).resolve(Router);
         this.router.route$.subscribe((r) => { this.route = r; });
     }
 
+    isActive(path: string): Observable<boolean> {
+        return this.route$.pipe(map((r) => r === path));
+    }
+
     navigateHome(): void { this.router.navigate('/'); }
+    navigateExamples(): void { this.router.navigate('/examples'); }
     navigateReact(): void { this.router.navigate('/react'); }
     navigateAngular(): void { this.router.navigate('/angular'); }
 }

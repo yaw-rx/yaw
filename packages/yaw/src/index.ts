@@ -1,4 +1,4 @@
-export { RxElement, RxElementBase } from './rx-element.js';
+export { RxElement } from './rx-element.js';
 export { Component, bootstrap } from './component.js';
 export { Router, ROUTES } from './router.js';
 export { Directive } from './directive.js';

@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Component, RxElementBase } from 'yaw';
+import { Component, RxElement } from 'yaw';
 import { ScrollReveal } from '../directives/scroll-reveal.js';
 
 @Component({
@@ -53,4 +53,4 @@ useEffect(() => { document.title = count; }, [count]);</code-block>
         .sections { padding: 2rem 0; }
     `
 })
-export class ManifestoPage extends RxElementBase {}
+export class ManifestoPage extends RxElement {}

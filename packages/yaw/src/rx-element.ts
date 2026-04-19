@@ -94,6 +94,7 @@ export type RxElement<S = unknown> = RxElementBase & Observables<S>;
 
 interface RxElementCtor {
     new <S = unknown>(): RxElement<S>;
+    resolveInjector(el: Element): Injector;
 }
 
 export const RxElement: RxElementCtor = RxElementBase as unknown as RxElementCtor;

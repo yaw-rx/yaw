@@ -1,5 +1,5 @@
 import { Directive } from '../directive.js';
-import { parseBind, resolveMethodOnScope } from '../expression/bind.js';
+import { parseBind, resolveEventHandler } from '../expression/bind.js';
 import type { RxElementLike } from '../directive.js';
 
 @Directive({ selector: '[data-rx-on-*]' })
@@ -12,8 +12,8 @@ export class EventsDirective {
             if (!attr.name.startsWith('data-rx-on-')) continue;
             const event = attr.name.slice('data-rx-on-'.length);
             const parsed = parseBind(attr.value);
-            const { scope, fn } = resolveMethodOnScope(this.host, parsed);
-            const listener: EventListener = (e) => { fn.call(scope, e); };
+            const handler = resolveEventHandler(this.host, parsed);
+            const listener: EventListener = (e) => { handler.invoke(e); };
             this.host.addEventListener(event, listener);
             this.listeners.push({ event, fn: listener });
         }

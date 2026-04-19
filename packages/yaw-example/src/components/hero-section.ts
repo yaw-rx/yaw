@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Component, RxElementBase } from 'yaw';
+import { Component, RxElement } from 'yaw';
 
 @Component({
     selector: 'hero-section',
@@ -24,4 +24,4 @@ import { Component, RxElementBase } from 'yaw';
         .stats { display: flex; gap: 4rem; justify-content: center; }
     `
 })
-export class HeroSection extends RxElementBase {}
+export class HeroSection extends RxElement {}

@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Component, RxElementBase } from 'yaw';
+import { Component, RxElement } from 'yaw';
 
 @Component({
     selector: 'code-block',
@@ -13,4 +13,4 @@ import { Component, RxElementBase } from 'yaw';
                font-size: 0.875rem; color: #ddd; line-height: 1.6; white-space: pre; background: none; }
     `
 })
-export class CodeBlock extends RxElementBase {}
+export class CodeBlock extends RxElement {}

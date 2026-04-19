@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Component, RxElementBase, observable } from 'yaw';
+import { Component, RxElement, observable } from 'yaw';
 
 @Component({
     selector: 'stat-counter',
@@ -13,7 +13,7 @@ import { Component, RxElementBase, observable } from 'yaw';
                  text-transform: uppercase; margin-top: 0.5rem; }
     `
 })
-export class StatCounter extends RxElementBase {
+export class StatCounter extends RxElement<{ count: number; label: string }> {
     @observable count = 0;
     @observable label = '';
     private target = 0;

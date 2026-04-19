@@ -8,11 +8,17 @@ import { ManifestoPage } from './components/manifesto-page.js';
 import './components/manifesto-section.js';
 import './components/code-block.js';
 import './components/page-footer.js';
+import { ExamplesPage } from './components/examples-page.js';
+import './components/nested-level.js';
+import './components/page-echo.js';
 
 bootstrap({
     root: AppRoot,
     providers: [
-        { provide: ROUTES, useValue: [{ path: '/', component: ManifestoPage }] },
+        { provide: ROUTES, useValue: [
+            { path: '/', component: ManifestoPage },
+            { path: '/examples', component: ExamplesPage },
+        ] },
         Router,
     ],
     globalDirectives: DefaultGlobalDirectives,

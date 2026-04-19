@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Component, RxElementBase } from 'yaw';
+import { Component, RxElement } from 'yaw';
 
 @Component({
     selector: 'page-footer',
@@ -20,4 +20,4 @@ import { Component, RxElementBase } from 'yaw';
         .copy { color: #333; font-size: 0.8rem; }
     `
 })
-export class PageFooter extends RxElementBase {}
+export class PageFooter extends RxElement {}
