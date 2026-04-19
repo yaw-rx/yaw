@@ -34,11 +34,13 @@ const templateCache = new Map<Function, string>();
 const selectorCache = new Map<Function, string>();
 const providersCache = new Map<Function, readonly Provider[]>();
 const directivesCache = new Map<Function, readonly DirectiveCtor[]>();
+const stylesCache = new Map<Function, CSSStyleSheet>();
 
 export const getTemplate = (ctor: Function): string | undefined => templateCache.get(ctor);
 export const getSelector = (ctor: Function): string | undefined => selectorCache.get(ctor);
 export const getProviders = (ctor: Function): readonly Provider[] | undefined => providersCache.get(ctor);
 export const getDirectives = (ctor: Function): readonly DirectiveCtor[] | undefined => directivesCache.get(ctor);
+export const getStyles = (ctor: Function): CSSStyleSheet | undefined => stylesCache.get(ctor);
 
 export const Component = (options: ComponentOptions) =>
     (ctor: CustomElementConstructor): void => {
@@ -50,6 +52,7 @@ export const Component = (options: ComponentOptions) =>
         if (options.styles !== undefined) {
             const sheet = new CSSStyleSheet();
             sheet.replaceSync(options.styles);
+            stylesCache.set(ctor, sheet);
             document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
         }
         customElements.define(options.selector, ctor);

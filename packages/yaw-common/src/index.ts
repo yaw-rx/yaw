@@ -22,6 +22,22 @@ export const htmlTags = [
     'wbr',
 ] as const;
 
+export const mirrorDisplay: ReadonlyMap<string, string> = new Map([
+    ...(['address', 'article', 'aside', 'blockquote', 'dd', 'details', 'dialog', 'div',
+        'dl', 'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form',
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'legend', 'li',
+        'main', 'menu', 'nav', 'ol', 'p', 'pre', 'search', 'section', 'summary', 'ul',
+    ] as const).map((t) => [t, 'block'] as const),
+    ...(['button', 'img', 'input', 'label', 'meter', 'progress', 'select', 'textarea',
+        'audio', 'video', 'canvas', 'iframe',
+    ] as const).map((t) => [t, 'inline-block'] as const),
+    ['table', 'table'], ['caption', 'table-caption'], ['col', 'table-column'],
+    ['colgroup', 'table-column-group'], ['tbody', 'table-row-group'],
+    ['td', 'table-cell'], ['tfoot', 'table-footer-group'], ['th', 'table-cell'],
+    ['thead', 'table-header-group'], ['tr', 'table-row'],
+    ['slot', 'contents'],
+]);
+
 const htmlTagSet = new Set(htmlTags);
 
 const rewriteTags = (template: string): string =>

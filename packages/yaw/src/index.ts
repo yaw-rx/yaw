@@ -16,3 +16,4 @@ export { RxIf, RxFor };
 export const DefaultGlobalDirectives: readonly DirectiveCtor[] = [RxIf, RxFor];
 
 export { RxRouterOutlet } from './components/rx-router-outlet.js';
+export { RxText } from './components/rx-text.js';

@@ -1,4 +1,5 @@
 import { getTemplate, getProviders, getDirectives, getGlobalDirectives } from './component.js';
+import { mirrorCtors } from './components/rx-elements.js';
 import { Injector } from './di/injector.js';
 import { type Observables } from './observable.js';
 import { getDirectiveSelector, matchesSelector, type Directive } from './directive.js';
@@ -23,7 +24,7 @@ export class RxElementBase extends HTMLElement {
     connectedCallback(): void {
         let node = this.parentElement;
         while (node !== null) {
-            if (node instanceof RxElementBase) {
+            if (node instanceof RxElementBase && !mirrorCtors.has(node.constructor)) {
                 this.parentRef = node;
                 node.rxChildren.add(this);
                 break;
@@ -66,7 +67,11 @@ export class RxElementBase extends HTMLElement {
 
         const template = getTemplate(this.constructor);
         if (template !== undefined) {
+            const projected = document.createDocumentFragment();
+            while (this.firstChild !== null) { projected.appendChild(this.firstChild); }
             this.innerHTML = template;
+            const slot = this.querySelector('rx-slot');
+            if (slot !== null) { slot.replaceWith(projected); }
         }
 
         this.onInit();
