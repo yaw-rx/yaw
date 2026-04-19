@@ -7,7 +7,7 @@ import { EventsDirective } from './directives/events.js';
 import { RefsDirective } from './directives/refs.js';
 import { BootstrapError } from './errors.js';
 import { registerHtmlMirrors } from './components/rx-elements.js';
-import { transformTemplate } from 'yaw-common';
+import { transformTemplate, transformStyles } from 'yaw-common';
 
 const systemDirectives: readonly DirectiveCtor[] = [
     BindDirective,
@@ -51,7 +51,7 @@ export const Component = (options: ComponentOptions) =>
         if (options.directives !== undefined) directivesCache.set(ctor, options.directives);
         if (options.styles !== undefined) {
             const sheet = new CSSStyleSheet();
-            sheet.replaceSync(options.styles);
+            sheet.replaceSync(transformStyles(options.styles));
             stylesCache.set(ctor, sheet);
             document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
         }

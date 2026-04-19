@@ -91,6 +91,14 @@ const rewriteTags = (template: string): string =>
         htmlTagSet.has(tag as (typeof htmlTags)[number]) ? `<${slash}rx-${tag}` : match
     );
 
+const rewriteSelectorTags = (selectors: string): string =>
+    selectors.replace(/(^|[\s>+~,(])([a-z][a-z0-9]*)\b/g, (match, prefix: string, tag: string) =>
+        htmlTagSet.has(tag as (typeof htmlTags)[number]) ? `${prefix}rx-${tag}` : match
+    );
+
+export const transformStyles = (css: string): string =>
+    css.replace(/([^{}]*)\{/g, (_m, sel: string) => `${rewriteSelectorTags(sel)}{`);
+
 export const transformTemplate = (template: string): string =>
     rewriteTags(template)
         .replace(/\{\{(.+?)\}\}/g, '<rx-text bind="$1"></rx-text>')
