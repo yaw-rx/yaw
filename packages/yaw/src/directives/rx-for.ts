@@ -1,42 +1,34 @@
 import { type Subscription } from 'rxjs';
-import { Directive, type ParsedExpr } from '../directive.js';
-import { ExpressionParseError, MissingParentError, ObservableNotFoundError } from '../errors.js';
+import { Directive } from '../directive.js';
+import { BindParseError } from '../errors.js';
+import { parseBind, subscribeBind } from '../expression/bind.js';
 import type { RxElementLike } from '../directive.js';
 
 @Directive({ selector: '[rx-for]' })
 export class RxFor {
     host!: RxElementLike;
-    parsed?: ParsedExpr;
     private sub: Subscription | undefined;
     private key = 'id';
     private content = '';
     private nodes = new Map<unknown, Element>();
 
-    parseExpr(raw: string): ParsedExpr {
-        const parts = raw.split(' by ');
-        if (parts[0] === undefined || parts[0].trim() === '') {
-            throw new ExpressionParseError('rx-for', this.host.tagName, raw, 'expected "expr by key"');
-        }
-        return { expr: parts[0].trim(), key: parts[1]?.trim() ?? 'id' };
-    }
-
     onInit(): void {
-        if (this.host.parentRef === undefined) throw new MissingParentError('rx-for', this.host.tagName);
-
-        this.key = this.parsed?.['key'] ?? 'id';
+        const raw = this.host.getAttribute('rx-for') ?? '';
+        const [exprPart, keyPart] = raw.split(' by ');
+        if (exprPart === undefined || exprPart.trim() === '') {
+            throw new BindParseError(raw, 'rx-for expected "expr by key"');
+        }
+        this.key = keyPart?.trim() ?? 'id';
         this.content = this.host.innerHTML;
         this.host.replaceChildren();
 
-        const expr = this.parsed?.expr ?? '';
-        const ctx = this.host.parentRef as unknown as Record<string, unknown>;
-        const subject = ctx[`${expr}$`];
-
-        if (subject === null || typeof subject !== 'object' || !('subscribe' in subject)) {
-            throw new ObservableNotFoundError('rx-for', this.host.tagName, expr);
-        }
-
-        this.sub = (subject as { subscribe: (fn: (v: unknown[]) => void) => Subscription })
-            .subscribe((items) => { this.update(items); });
+        const parsed = parseBind(exprPart.trim());
+        this.sub = subscribeBind(this.host, parsed, (v) => {
+            if (!Array.isArray(v)) {
+                throw new BindParseError(parsed.raw, `rx-for expected array, got ${typeof v}`);
+            }
+            this.update(v);
+        });
     }
 
     private update(incoming: unknown[]): void {

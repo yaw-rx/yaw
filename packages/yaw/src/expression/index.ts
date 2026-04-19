@@ -1,3 +1,2 @@
-export { tokenise } from './tokeniser.js';
-export { identifiers } from './identifiers.js';
-export { evaluate, evaluateHandler } from './evaluate.js';
+export { parseBind, subscribeBind, resolveMethodOnScope, resolveRefTarget } from './bind.js';
+export type { ParsedBind } from './bind.js';

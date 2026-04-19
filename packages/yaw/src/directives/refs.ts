@@ -1,4 +1,5 @@
 import { Directive } from '../directive.js';
+import { parseBind, resolveRefTarget } from '../expression/bind.js';
 import type { RxElementLike } from '../directive.js';
 
 @Directive({ selector: '[data-rx-ref]' })
@@ -6,16 +7,18 @@ export class RefsDirective {
     host!: RxElementLike;
 
     onInit(): void {
-        const ref = this.host.getAttribute('data-rx-ref');
-        if (ref !== null && this.host.parentRef !== undefined) {
-            (this.host.parentRef as unknown as Record<string, unknown>)[ref] = this.host;
-        }
+        const raw = this.host.getAttribute('data-rx-ref');
+        if (raw === null) return;
+        const parsed = parseBind(raw);
+        const { scope, key } = resolveRefTarget(this.host, parsed);
+        (scope as unknown as Record<string, unknown>)[key] = this.host;
     }
 
     onDestroy(): void {
-        const ref = this.host.getAttribute('data-rx-ref');
-        if (ref !== null && this.host.parentRef !== undefined) {
-            (this.host.parentRef as unknown as Record<string, unknown>)[ref] = undefined;
-        }
+        const raw = this.host.getAttribute('data-rx-ref');
+        if (raw === null) return;
+        const parsed = parseBind(raw);
+        const { scope, key } = resolveRefTarget(this.host, parsed);
+        (scope as unknown as Record<string, unknown>)[key] = undefined;
     }
 }

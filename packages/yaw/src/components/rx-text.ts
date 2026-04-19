@@ -1,32 +1,20 @@
 import { type Subscription } from 'rxjs';
 import { Component } from '../component.js';
-import { evaluate, identifiers } from '../expression/index.js';
+import { parseBind, subscribeBind } from '../expression/bind.js';
 import { RxElement } from '../rx-element.js';
 
 @Component({ selector: 'rx-text', template: '' })
 export class RxText extends RxElement {
-    private subs: Subscription[] = [];
+    private sub: Subscription | undefined;
 
     override onInit(): void {
-        const expr = this.getAttribute('bind');
-        if (expr === null || this.parentRef === undefined) return;
-
-        const parent = this.parentRef as unknown as Record<string, unknown>;
-
-        const update = (): void => { this.textContent = String(evaluate(expr, parent)); };
-
-        for (const id of identifiers(expr)) {
-            const subject = parent[`${id}$`];
-            if (subject !== null && typeof subject === 'object' && 'subscribe' in subject) {
-                this.subs.push(
-                    (subject as { subscribe: (fn: () => void) => Subscription }).subscribe(update)
-                );
-            }
-        }
+        const raw = this.getAttribute('bind');
+        if (raw === null) return;
+        const parsed = parseBind(raw);
+        this.sub = subscribeBind(this, parsed, (v) => { this.textContent = String(v); });
     }
 
     override onDestroy(): void {
-        for (const sub of this.subs) sub.unsubscribe();
-        this.subs.length = 0;
+        this.sub?.unsubscribe();
     }
 }

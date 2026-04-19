@@ -86,11 +86,6 @@ export const mirrorStyles: ReadonlyMap<string, string> = new Map<string, string>
 
 const htmlTagSet = new Set(htmlTags);
 
-const rewriteTags = (template: string): string =>
-    template.replace(/<(\/?)([\w-]+)/g, (match, slash, tag) =>
-        htmlTagSet.has(tag as (typeof htmlTags)[number]) ? `<${slash}rx-${tag}` : match
-    );
-
 const rewriteSelectorTags = (selectors: string): string =>
     selectors.replace(/(^|[\s>+~,(])([a-z][a-z0-9]*)\b/g, (match, prefix: string, tag: string) =>
         htmlTagSet.has(tag as (typeof htmlTags)[number]) ? `${prefix}rx-${tag}` : match
@@ -99,10 +94,98 @@ const rewriteSelectorTags = (selectors: string): string =>
 export const transformStyles = (css: string): string =>
     css.replace(/([^{}]*)\{/g, (_m, sel: string) => `${rewriteSelectorTags(sel)}{`);
 
-export const transformTemplate = (template: string): string =>
-    rewriteTags(template)
-        .replace(/\{\{(.+?)\}\}/g, '<rx-text bind="$1"></rx-text>')
-        .replace(/\[class\.([^\]]+)\]="([^"]+)"/g, 'data-rx-class-$1="$2"')
-        .replace(/\[([^\]]+)\]="([^"]+)"/g, 'data-rx-bind-$1="$2"')
-        .replace(/on(\w+)="(\w+)"/g, 'data-rx-on-$1="$2"')
-        .replace(/#(\w+)/g, 'data-rx-ref="$1"');
+const prefix = (expr: string, depth: number): string => {
+    const trimmed = expr.trim();
+    return depth === 0 ? trimmed : `${'^'.repeat(depth)}.${trimmed}`;
+};
+
+const transformTextNode = (node: Text, depth: number): void => {
+    const text = node.data;
+    if (!text.includes('{{')) return;
+    const parent = node.parentNode;
+    if (parent === null) return;
+
+    const doc = node.ownerDocument!;
+    const frag = doc.createDocumentFragment();
+    const re = /\{\{([^}]+)\}\}/g;
+    let last = 0;
+    let m: RegExpExecArray | null;
+    let found = false;
+    while ((m = re.exec(text)) !== null) {
+        found = true;
+        if (m.index > last) frag.appendChild(doc.createTextNode(text.slice(last, m.index)));
+        const rxText = doc.createElement('rx-text');
+        rxText.setAttribute('bind', prefix(m[1]!, depth));
+        frag.appendChild(rxText);
+        last = m.index + m[0].length;
+    }
+    if (!found) return;
+    if (last < text.length) frag.appendChild(doc.createTextNode(text.slice(last)));
+    parent.replaceChild(frag, node);
+};
+
+const transformAttributes = (el: Element, depth: number): void => {
+    const rewrites: Array<{ remove: string; add?: [string, string] }> = [];
+    for (const attr of Array.from(el.attributes)) {
+        const name = attr.name;
+        const value = attr.value;
+
+        const classMatch = /^\[class\.(.+)\]$/.exec(name);
+        if (classMatch !== null) {
+            rewrites.push({ remove: name, add: [`data-rx-class-${classMatch[1]}`, prefix(value, depth)] });
+            continue;
+        }
+        const bindMatch = /^\[(.+)\]$/.exec(name);
+        if (bindMatch !== null) {
+            rewrites.push({ remove: name, add: [`data-rx-bind-${bindMatch[1]}`, prefix(value, depth)] });
+            continue;
+        }
+        const onMatch = /^on(.+)$/.exec(name);
+        if (onMatch !== null && value !== '') {
+            rewrites.push({ remove: name, add: [`data-rx-on-${onMatch[1]}`, prefix(value, depth)] });
+            continue;
+        }
+        if (name.startsWith('#')) {
+            rewrites.push({ remove: name, add: ['data-rx-ref', prefix(name.slice(1), depth)] });
+            continue;
+        }
+    }
+    for (const { remove, add } of rewrites) {
+        el.removeAttribute(remove);
+        if (add !== undefined) el.setAttribute(add[0], add[1]);
+    }
+};
+
+const renameElement = (el: Element, newTag: string): Element => {
+    const doc = el.ownerDocument!;
+    const next = doc.createElement(newTag);
+    for (const attr of Array.from(el.attributes)) next.setAttribute(attr.name, attr.value);
+    while (el.firstChild !== null) next.appendChild(el.firstChild);
+    el.replaceWith(next);
+    return next;
+};
+
+const walk = (node: Node, depth: number): void => {
+    if (node.nodeType === 3) {
+        transformTextNode(node as Text, depth);
+        return;
+    }
+    if (node.nodeType !== 1) return;
+
+    let el = node as Element;
+    const tag = el.tagName.toLowerCase();
+    const isHtml = htmlTagSet.has(tag as (typeof htmlTags)[number]);
+
+    transformAttributes(el, depth);
+
+    if (isHtml) el = renameElement(el, `rx-${tag}`);
+
+    const childDepth = isHtml ? depth : depth + 1;
+    for (const child of Array.from(el.childNodes)) walk(child, childDepth);
+};
+
+export const transformTemplate = (template: string): string => {
+    const doc = new DOMParser().parseFromString(`<body>${template}</body>`, 'text/html');
+    for (const child of Array.from(doc.body.childNodes)) walk(child, 0);
+    return doc.body.innerHTML;
+};
