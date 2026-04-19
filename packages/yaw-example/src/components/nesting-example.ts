@@ -4,30 +4,30 @@ import { Component, RxElement, observable } from 'yaw';
 import { escape } from './code-highlight.js';
 
 const styles = `
-    nesting-example { display: block; color: #ccc; }
-    nesting-example h2 { color: #fff; font-size: 1.1rem; font-weight: 700;
-                         margin: 0 0 1rem; letter-spacing: 0.02em; }
-    nesting-example .inline { background: #111; padding: 0.1rem 0.4rem;
-                              border-radius: 3px; font-size: 0.9em; color: #8af; }
-    nesting-example .host, nesting-example .ex { margin-bottom: 1.5rem; padding: 1.25rem;
-                                                 background: #0a0a0a; border: 1px solid #1a1a1a;
-                                                 border-radius: 8px; }
-    nesting-example .split { display: grid;
-                             grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-                             gap: 1rem; align-items: stretch; }
-    nesting-example .split > * { min-width: 0; }
-    nesting-example .live { display: flex; flex-direction: column; gap: 0.5rem;
-                            padding: 1.25rem; background: #050505;
-                            border: 1px solid #1a1a1a; border-radius: 8px; }
-    nesting-example .note { color: #888; font-size: 0.9rem; line-height: 1.6;
-                            margin: 0 0 1rem; max-width: 72ch; }
-    nesting-example .state { margin: 0.75rem 0 0; font-family: monospace;
-                             color: #888; font-size: 0.85rem; }
-    nesting-example .state .status { color: #8af; }
-    nesting-example button { background: #111; border: 1px solid #333; color: #fff;
-                             padding: 0.5rem 1rem; font: inherit; font-size: 0.9rem;
-                             cursor: pointer; border-radius: 6px; margin: 0.15rem; }
-    nesting-example button:hover { background: #1a1a1a; border-color: #555; }
+    :host { display: block; color: #ccc; }
+    h2 { color: #fff; font-size: 1.1rem; font-weight: 700;
+         margin: 0 0 1rem; letter-spacing: 0.02em; }
+    .inline { background: #111; padding: 0.1rem 0.4rem;
+              border-radius: 3px; font-size: 0.9em; color: #8af; }
+    .host, .ex { margin-bottom: 1.5rem; padding: 1.25rem;
+                 background: #0a0a0a; border: 1px solid #1a1a1a;
+                 border-radius: 8px; }
+    .split { display: grid;
+             grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+             gap: 1rem; align-items: stretch; }
+    .split > * { min-width: 0; }
+    .live { display: flex; flex-direction: column; gap: 0.5rem;
+            padding: 1.25rem; background: #050505;
+            border: 1px solid #1a1a1a; border-radius: 8px; }
+    .note { color: #888; font-size: 0.9rem; line-height: 1.6;
+            margin: 0 0 1rem; max-width: 72ch; }
+    .state { margin: 0.75rem 0 0; font-family: monospace;
+             color: #888; font-size: 0.85rem; }
+    .state .status { color: #8af; }
+    button { background: #111; border: 1px solid #333; color: #fff;
+             padding: 0.5rem 1rem; font: inherit; font-size: 0.9rem;
+             cursor: pointer; border-radius: 6px; margin: 0.15rem; }
+    button:hover { background: #1a1a1a; border-color: #555; }
 `;
 
 const DEPTH_1 = `<!-- depth 0: author writes increment(1); compiled stays increment(1) -->
@@ -63,7 +63,7 @@ ${DEPTH_3}
 const HOST_SOURCE = `@Component({
     selector: 'nesting-example',
     template: \`${NESTING_TEMPLATE}\`,
-    styles,
+    styles: \`${styles}\`,
 })
 export class NestingExample extends RxElement<{ count: number }> {
     @observable count = 0;

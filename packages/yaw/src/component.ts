@@ -56,7 +56,7 @@ export const Component = (options: ComponentOptions) =>
         if (options.directives !== undefined) directivesCache.set(ctor, options.directives);
         if (options.styles !== undefined) {
             const sheet = new CSSStyleSheet();
-            sheet.replaceSync(transformStyles(options.styles));
+            sheet.replaceSync(transformStyles(options.styles, options.selector));
             stylesCache.set(ctor, sheet);
             document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
         }

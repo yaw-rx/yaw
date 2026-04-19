@@ -15,8 +15,8 @@ import { Component, RxElement } from 'yaw';
         </div>
     `,
     styles: `
-        hero-section { display: block; min-height: 100vh; display: flex; align-items: center;
-                       justify-content: center; background: #000; padding: 6rem 2rem 4rem; }
+        :host { display: block; min-height: 100vh; display: flex; align-items: center;
+                justify-content: center; background: #000; padding: 6rem 2rem 4rem; }
         .hero { max-width: 800px; text-align: center; }
         .title { font-size: clamp(3rem, 10vw, 7rem); font-weight: 900; color: #fff;
                  letter-spacing: -4px; line-height: 1; margin: 0 0 1.5rem; }

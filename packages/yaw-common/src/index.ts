@@ -91,8 +91,23 @@ const rewriteSelectorTags = (selectors: string): string =>
         htmlTagSet.has(tag as (typeof htmlTags)[number]) ? `${prefix}rx-${tag}` : match
     );
 
-export const transformStyles = (css: string): string =>
-    css.replace(/([^{}]*)\{/g, (_m, sel: string) => `${rewriteSelectorTags(sel)}{`);
+const scopeSelector = (sel: string, host: string): string => {
+    const trimmed = sel.trim();
+    if (trimmed === '' || trimmed.startsWith('@')) return sel;
+    return sel.split(',').map((part) => {
+        const t = part.trim();
+        if (t === '') return part;
+        if (t === ':host') return host;
+        if (t.startsWith(':host')) return `${host}${t.slice(5)}`;
+        return `${host} ${t}`;
+    }).join(', ');
+};
+
+export const transformStyles = (css: string, host?: string): string =>
+    css.replace(/([^{}]*)\{/g, (_m, sel: string) => {
+        const rewritten = rewriteSelectorTags(sel);
+        return `${host !== undefined ? scopeSelector(rewritten, host) : rewritten}{`;
+    });
 
 const KEYWORDS = new Set(['true', 'false', 'null', '$event']);
 

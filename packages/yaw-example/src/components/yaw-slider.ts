@@ -13,27 +13,27 @@ export const SLIDER_TEMPLATE = `
 `;
 
 const styles = `
-    yaw-slider { display: block; padding: 0.5rem 0.6rem; }
-    yaw-slider .track { position: relative; height: 0.5rem; background: #1a1a1a;
-                        border: 1px solid #222; border-radius: 1rem;
-                        cursor: pointer; touch-action: none; user-select: none; }
-    yaw-slider .fill { position: absolute; top: 0; bottom: 0; left: 0;
-                       background: linear-gradient(90deg, #557 0%, #8af 100%);
-                       border-radius: 1rem; pointer-events: none; }
-    yaw-slider .thumb { position: absolute; top: 50%;
-                        width: 1.2rem; height: 1.2rem;
-                        background: #fff; border: 2px solid #8af; border-radius: 50%;
-                        transform: translate(-50%, -50%);
-                        box-shadow: 0 0 10px rgba(136, 170, 255, 0.55);
-                        pointer-events: none;
-                        transition: box-shadow 0.15s ease; }
-    yaw-slider .track:active .thumb { box-shadow: 0 0 14px rgba(136, 170, 255, 0.9); }
+    :host { display: block; padding: 0.5rem 0.6rem; }
+    .track { position: relative; height: 0.5rem; background: #1a1a1a;
+             border: 1px solid #222; border-radius: 1rem;
+             cursor: pointer; touch-action: none; user-select: none; }
+    .fill { position: absolute; top: 0; bottom: 0; left: 0;
+            background: linear-gradient(90deg, #557 0%, #8af 100%);
+            border-radius: 1rem; pointer-events: none; }
+    .thumb { position: absolute; top: 50%;
+             width: 1.2rem; height: 1.2rem;
+             background: #fff; border: 2px solid #8af; border-radius: 50%;
+             transform: translate(-50%, -50%);
+             box-shadow: 0 0 10px rgba(136, 170, 255, 0.55);
+             pointer-events: none;
+             transition: box-shadow 0.15s ease; }
+    .track:active .thumb { box-shadow: 0 0 14px rgba(136, 170, 255, 0.9); }
 `;
 
 export const SLIDER_SOURCE = `@Component({
     selector: 'yaw-slider',
     template: \`${SLIDER_TEMPLATE}\`,
-    styles,
+    styles: \`${styles}\`,
 })
 export class YawSlider extends RxElement<{ value: number }> {
     @observable value = 0;

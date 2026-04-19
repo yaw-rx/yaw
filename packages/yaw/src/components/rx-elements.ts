@@ -13,7 +13,7 @@ export const registerHtmlMirrors = (): void => {
         const ctor = class extends RxElementBase {};
         mirrorCtors.add(ctor);
         const options = style !== undefined
-            ? { selector, styles: `${selector}{${style}}` }
+            ? { selector, styles: `:host{${style}}` }
             : { selector };
         Component(options)(ctor);
     }

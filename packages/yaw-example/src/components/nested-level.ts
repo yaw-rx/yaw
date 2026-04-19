@@ -10,7 +10,7 @@ import { Component, RxElement } from 'yaw';
         </div>
     `,
     styles: `
-        nested-level { display: block; }
+        :host { display: block; }
         .nested { border: 1px dashed #333; border-radius: 6px;
                   padding: 0.5rem 0.75rem 0.6rem; margin: 0.3rem 0; background: #070707; }
         .tag { color: #555; font-size: 0.65rem; letter-spacing: 0.08em;

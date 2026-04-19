@@ -8,7 +8,7 @@ import { Component, RxElement } from 'yaw';
         <rx-router-outlet></rx-router-outlet>
     `,
     styles: `
-        app-root { display: block; }
+        :host { display: block; }
     `
 })
 export class AppRoot extends RxElement {}

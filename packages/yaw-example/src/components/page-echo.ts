@@ -18,7 +18,7 @@ import { Component, RxElement } from 'yaw';
         </div>
     `,
     styles: `
-        page-echo { display: block; }
+        :host { display: block; }
         .echo { background: #0a1128; border: 1px solid #1a2352; border-radius: 6px;
                 padding: 1rem; color: #8af; font-family: monospace; font-size: 0.85rem; }
         .label { color: #556; font-size: 0.7rem; letter-spacing: 0.08em;
