@@ -10,6 +10,7 @@ import { Component, RxElement, observable, Router } from 'yaw';
             <div class="links">
                 <a [class.active]="isActive('/')" onclick="navigateHome">Manifesto</a>
                 <a [class.active]="isActive('/examples')" onclick="navigateExamples">Examples</a>
+                <a [class.active]="isActive('/docs')" onclick="navigateDocs">Docs</a>
                 <a [class.active]="isActive('/react')" onclick="navigateReact">vs React</a>
                 <a [class.active]="isActive('/angular')" onclick="navigateAngular">vs Angular</a>
             </div>
@@ -44,6 +45,7 @@ export class NavBar extends RxElement<{ route: string }> {
 
     navigateHome(): void { this.router.navigate('/'); }
     navigateExamples(): void { this.router.navigate('/examples'); }
+    navigateDocs(): void { this.router.navigate('/docs'); }
     navigateReact(): void { this.router.navigate('/react'); }
     navigateAngular(): void { this.router.navigate('/angular'); }
 }

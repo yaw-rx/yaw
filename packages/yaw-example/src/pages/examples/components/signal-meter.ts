@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { map, type Observable } from 'rxjs';
 import { Component, RxElement, observable } from 'yaw';
-import { escape } from './code-highlight.js';
-import { DOC_STYLES } from './doc-styles.js';
+import { escape } from '../../../shared/lib/code-highlight.js';
+import { DOC_STYLES } from '../../../shared/lib/doc-styles.js';
 
 const METER_TEMPLATE = `
     <div class="meter" [style]="meterStyle()">

@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { Component, RxElement, observable } from 'yaw';
-import { escape } from './code-highlight.js';
+import { escape } from '../../../shared/lib/code-highlight.js';
 import { SLIDER_SOURCE } from './yaw-slider.js';
-import { DOC_STYLES } from './doc-styles.js';
+import { DOC_STYLES } from '../../../shared/lib/doc-styles.js';
 
 const USAGE = `<yaw-slider for="value" min="0" max="100"></yaw-slider>
 <p>value = {{value}}</p>`;

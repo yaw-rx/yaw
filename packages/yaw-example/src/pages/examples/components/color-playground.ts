@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { combineLatest, map, type Observable } from 'rxjs';
 import { Component, RxElement, observable } from 'yaw';
-import { escape } from './code-highlight.js';
-import { DOC_STYLES } from './doc-styles.js';
+import { escape } from '../../../shared/lib/code-highlight.js';
+import { DOC_STYLES } from '../../../shared/lib/doc-styles.js';
 
 const PALETTE_TEMPLATE = `
     <label>H <em>{{hue}}°</em></label>

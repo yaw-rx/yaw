@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Component, RxElement } from 'yaw';
-import { dedent, escapeHtml, highlightTs } from './code-highlight.js';
+import { dedent, escapeHtml, highlightTs } from '../lib/code-highlight.js';
 
 @Component({
     selector: 'code-block',

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Component, RxElement } from 'yaw';
-import { ScrollReveal } from '../directives/scroll-reveal.js';
+import { ScrollReveal } from '../../shared/directives/scroll-reveal.js';
 
 const REACT_SNIPPET = `
     // React: 140KB to call appendChild

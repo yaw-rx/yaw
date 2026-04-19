@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Component, RxElement, observable } from 'yaw';
-import { escape } from './code-highlight.js';
-import { DOC_STYLES } from './doc-styles.js';
+import { escape } from '../../../shared/lib/code-highlight.js';
+import { DOC_STYLES } from '../../../shared/lib/doc-styles.js';
 
 const FIREHOSE_TEMPLATE = `
     <div class="controls">

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Component, RxElement, observable } from 'yaw';
-import { ScrollReveal } from '../directives/scroll-reveal.js';
+import { ScrollReveal } from '../../../shared/directives/scroll-reveal.js';
 
 @Component({
     selector: 'manifesto-section',

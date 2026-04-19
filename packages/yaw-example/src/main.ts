@@ -1,31 +1,44 @@
 import 'reflect-metadata';
 import { bootstrap, Router, ROUTES, DefaultGlobalDirectives } from 'yaw';
-import { AppRoot } from './components/app-root.js';
-import './components/nav-bar.js';
-import './components/hero-section.js';
-import './components/stat-counter.js';
-import { ManifestoPage } from './components/manifesto-page.js';
-import './components/manifesto-section.js';
-import './components/code-block.js';
-import './components/page-footer.js';
-import { ExamplesPage } from './components/examples-page.js';
-import './components/nested-level.js';
-import './components/nesting-example.js';
-import './components/color-playground.js';
-import './components/yaw-slider.js';
-import './components/slider-example.js';
-import './components/signal-meter.js';
-import './components/row-firehose.js';
-import './components/page-echo.js';
+
+import { AppRoot } from './shared/components/app-root.js';
+import './shared/components/nav-bar.js';
+import './shared/components/code-block.js';
+
+import { ManifestoPage } from './pages/manifesto/manifesto-page.js';
+import './pages/manifesto/components/hero-section.js';
+import './pages/manifesto/components/stat-counter.js';
+import './pages/manifesto/components/manifesto-section.js';
+import './pages/manifesto/components/page-footer.js';
+
+import { ExamplesPage } from './pages/examples/examples-page.js';
+import './pages/examples/components/nested-level.js';
+import './pages/examples/components/nesting-example.js';
+import './pages/examples/components/color-playground.js';
+import './pages/examples/components/yaw-slider.js';
+import './pages/examples/components/slider-example.js';
+import './pages/examples/components/signal-meter.js';
+import './pages/examples/components/row-firehose.js';
+import './pages/examples/components/page-echo.js';
+
+import { DocsPage } from './pages/docs/page.js';
+import { TocSection } from './pages/docs/toc.js';
+import './pages/docs/components/sidebar.js';
+import './pages/docs/components/bootstrap.js';
+import './pages/docs/components/components.js';
+import './pages/docs/components/directives.js';
+import './pages/docs/components/services.js';
+import './pages/docs/components/navigation.js';
 
 bootstrap({
     root: AppRoot,
     providers: [
         { provide: ROUTES, useValue: [
-            { path: '/', component: ManifestoPage },
+            { path: '/',         component: ManifestoPage },
             { path: '/examples', component: ExamplesPage },
+            { path: '/docs',     component: DocsPage },
         ] },
         Router,
     ],
-    globalDirectives: DefaultGlobalDirectives,
+    globalDirectives: [...DefaultGlobalDirectives, TocSection],
 });
