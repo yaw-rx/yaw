@@ -13,7 +13,7 @@ const styles = `
                                                  background: #0a0a0a; border: 1px solid #1a1a1a;
                                                  border-radius: 8px; }
     nesting-example .split { display: grid;
-                             grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                             grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
                              gap: 1rem; align-items: stretch; }
     nesting-example .split > * { min-width: 0; }
     nesting-example .live { display: flex; flex-direction: column; gap: 0.5rem;
@@ -28,9 +28,6 @@ const styles = `
                              padding: 0.5rem 1rem; font: inherit; font-size: 0.9rem;
                              cursor: pointer; border-radius: 6px; margin: 0.15rem; }
     nesting-example button:hover { background: #1a1a1a; border-color: #555; }
-    @media (max-width: 960px) {
-        nesting-example .split { grid-template-columns: 1fr; }
-    }
 `;
 
 const DEPTH_1 = `<!-- depth 0: author writes increment(1); compiled stays increment(1) -->

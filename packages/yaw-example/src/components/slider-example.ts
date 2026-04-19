@@ -57,7 +57,7 @@ const USAGE = `<yaw-slider for="value" min="0" max="100"></yaw-slider>
         slider-example .note { color: #888; font-size: 0.9rem; line-height: 1.6;
                                margin: 0 0 1rem; max-width: 72ch; }
         slider-example .split { display: grid;
-                                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                                grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
                                 gap: 1rem; align-items: stretch; }
         slider-example .split > * { min-width: 0; }
         slider-example .live { display: flex; flex-direction: column; gap: 1rem;
@@ -65,9 +65,6 @@ const USAGE = `<yaw-slider for="value" min="0" max="100"></yaw-slider>
                                border: 1px solid #1a1a1a; border-radius: 8px; }
         slider-example .state { margin: 0; font-family: monospace; color: #888; font-size: 0.85rem; }
         slider-example .state .status { color: #8af; }
-        @media (max-width: 960px) {
-            slider-example .split { grid-template-columns: 1fr; }
-        }
     `,
 })
 export class SliderExample extends RxElement<{ value: number }> {

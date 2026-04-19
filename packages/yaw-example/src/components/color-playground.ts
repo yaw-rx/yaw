@@ -32,7 +32,7 @@ const styles = `
     color-playground .note { color: #888; font-size: 0.9rem; line-height: 1.6;
                              margin: 0 0 1rem; max-width: 72ch; }
     color-playground .split { display: grid;
-                              grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                              grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
                               gap: 1rem; align-items: stretch; }
     color-playground .split > * { min-width: 0; }
     color-playground .live { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1rem;
@@ -50,9 +50,6 @@ const styles = `
                                      border: 1px solid #1a1a1a; min-height: 6rem;
                                      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.35);
                                      transition: background 0.1s linear; }
-    @media (max-width: 960px) {
-        color-playground .split { grid-template-columns: 1fr; }
-    }
 `;
 
 const HOST_SOURCE = `@Component({
