@@ -41,6 +41,19 @@ export class HelloCounter extends RxElement<{ count: number }> {
     dec(): void { this.count -= 1; }
 }
 
+const ESCAPE_SNIPPET = [
+    "import { escape } from 'yaw-common';",
+    '',
+    '// literal mustache in prose: show the binding syntax without binding',
+    '<p>read the value back with <code>${escape`{{ }}`}</code></p>',
+    '',
+    '// literal HTML in prose: show a tag without it being parsed / mirrored',
+    '<p>wrap with ${escape`<my-el>`} to nest.</p>',
+    '',
+    '// block form: source rendered verbatim inside a code-block',
+    '<code-block lang="ts">${escape`${SOURCE}`}</code-block>',
+].join('\n');
+
 const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
 <p>hello, {{name}}</p>
 
@@ -93,6 +106,25 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
             <p class="note">The full vocabulary. Every binding compiles to a
                subscription on a resolved observable — no other runtime.</p>
             <code-block lang="html">${escape`${BINDINGS_SNIPPET}`}</code-block>
+        </section>
+
+        <section class="host" id="components-escape" toc-section>
+            <h2>Escaping mustaches and HTML</h2>
+            <p class="note">The walker rewrites <code class="inline">${escape`{{ }}`}</code>
+               into text subscriptions and built-in HTML tags into
+               <code class="inline">rx-*</code> mirrors. When you want a literal --
+               showing the binding syntax in prose, naming a tag without
+               rendering it, or displaying source verbatim inside a
+               <code class="inline">code-block</code> -- wrap it with
+               <code class="inline">escape</code> from
+               <code class="inline">yaw-common</code>. It HTML-escapes
+               <code class="inline">${escape`<`}</code>,
+               <code class="inline">${escape`>`}</code>,
+               <code class="inline">&amp;</code> and marks the subtree inert so
+               the walker skips it. An empty or whitespace-only binding that
+               reaches the walker throws <code class="inline">TemplateWalkError</code>,
+               pointing you here.</p>
+            <code-block lang="ts">${escape`${ESCAPE_SNIPPET}`}</code-block>
         </section>
 
         <section class="host" id="components-lifecycle" toc-section>

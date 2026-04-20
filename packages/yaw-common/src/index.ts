@@ -156,20 +156,22 @@ const transformTextNode = (node: Text, depth: number): void => {
 
     const doc = node.ownerDocument!;
     const frag = doc.createDocumentFragment();
-    const re = /(\\?)\{\{([^}]+)\}\}/g;
+    const re = /\{\{([^}]+)\}\}/g;
     let last = 0;
     let m: RegExpExecArray | null;
     let found = false;
     while ((m = re.exec(text)) !== null) {
+        const expr = m[1]!;
+        if (expr.trim() === '') {
+            throw new TemplateWalkError(
+                `empty binding "{{${expr}}}" -- wrap the literal with escape\`...\` to display, or provide an expression to bind.`
+            );
+        }
         found = true;
         if (m.index > last) frag.appendChild(doc.createTextNode(text.slice(last, m.index)));
-        if (m[1] === '\\') {
-            frag.appendChild(doc.createTextNode(`{{${m[2]!}}}`));
-        } else {
-            const rxText = doc.createElement('rx-text');
-            rxText.setAttribute('bind', injectCarets(m[2]!, depth));
-            frag.appendChild(rxText);
-        }
+        const rxText = doc.createElement('rx-text');
+        rxText.setAttribute('bind', injectCarets(expr, depth));
+        frag.appendChild(rxText);
         last = m.index + m[0].length;
     }
     if (!found) return;
@@ -237,8 +239,74 @@ const walk = (node: Node, depth: number): void => {
     for (const child of Array.from(el.childNodes)) walk(child, childDepth);
 };
 
+/**
+ * Thrown by the template walker when input cannot be compiled to a valid binding.
+ * The message names the offending syntax and points to the intended fix.
+ */
+export class TemplateWalkError extends Error {
+    constructor(message: string) {
+        super(`yaw template: ${message}`);
+        this.name = 'TemplateWalkError';
+    }
+}
+
+/**
+ * Compiles a template string into its runtime form.
+ *
+ * The walker performs these rewrites on the parsed DOM:
+ *   - Text nodes:  {{expr}}              => <rx-text bind="expr">
+ *   - Attributes:  [attr]="expr"         => data-rx-bind-{attr}
+ *                  [class.name]="expr"   => data-rx-class-{name}
+ *                  onEvent="handler"     => data-rx-on-{event}
+ *                  #ref                  => data-rx-ref="ref"
+ *   - Tags:        built-in HTML tags    => rx-{tag} (mirror elements)
+ *   - Expressions: up-walk carets "^" are injected for nested custom-element scopes.
+ *
+ * To display content verbatim (without any of the above), wrap it with {@link escape}
+ * and read it with {@link readInert}. The walker does not traverse <template>.content.
+ */
 export const transformTemplate = (template: string): string => {
     const doc = new DOMParser().parseFromString(`<body>${template}</body>`, 'text/html');
     for (const child of Array.from(doc.body.childNodes)) walk(child, 0);
     return doc.body.innerHTML;
 };
+
+/**
+ * Stage 2 -- HTML-parse escape. Encodes &, <, > as entities so the HTML parser
+ * treats the content as text rather than markup.
+ */
+export const escapeHtml = (s: string): string =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+/**
+ * Stage 3 -- walker escape (block mode). Tagged template that wraps content in
+ * <template>, whose children live in a detached DocumentFragment and are
+ * therefore invisible to {@link transformTemplate}. Content is joined raw (no
+ * HTML escaping) -- use this when you already have safe HTML to shield from
+ * the walker. For arbitrary source text, use {@link escape}.
+ *
+ * Pair with {@link readInert} at the consumer.
+ */
+const inert = (html: string): string => `<template>${html}</template>`;
+
+/**
+ * Stage 4 -- inert read protocol. Returns the textContent of an element's
+ * <template> child (as produced by {@link inert} / {@link escape}), falling
+ * back to the element's own textContent if no template child is present.
+ */
+export const readInert = (el: Element): string => {
+    const tpl = el.querySelector(':scope > template');
+    if (tpl instanceof HTMLTemplateElement) return tpl.content.textContent ?? '';
+    return el.textContent ?? '';
+};
+
+/**
+ * Tagged template for display-safe content. Composes {@link escapeHtml} (stage 2)
+ * with {@link inert} (stage 3) so the output is inert to both HTML parsing and
+ * template walking. Intended pair: {@link readInert} at the consumer side.
+ *
+ * @example
+ *   <code-block lang="ts">${escape`${source}`}</code-block>
+ */
+export const escape = (strings: TemplateStringsArray, ...values: readonly unknown[]): string =>
+    inert(escapeHtml(String.raw({ raw: strings }, ...values)));

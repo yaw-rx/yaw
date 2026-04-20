@@ -8,11 +8,8 @@ const KEYWORDS = new Set([
     'undefined', 'null', 'true', 'false', 'typeof', 'instanceof', 'in', 'of',
 ]);
 
-export const escapeHtml = (s: string): string =>
-    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-export const escape = (strings: TemplateStringsArray, ...values: readonly unknown[]): string =>
-    escapeHtml(String.raw({ raw: strings }, ...values)).replace(/\{\{/g, '\\{{');
+import { escape, escapeHtml } from 'yaw-common';
+export { escape, escapeHtml };
 
 export const dedent = (s: string): string => {
     const body = s.replace(/^\n+/, '').replace(/\s+$/, '');

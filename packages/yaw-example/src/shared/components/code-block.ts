@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { Component, RxElement } from 'yaw';
+import { readInert } from 'yaw-common';
 import { dedent, escapeHtml, highlightHtml, highlightTs } from '../lib/code-highlight.js';
 
 @Component({
@@ -25,7 +26,7 @@ import { dedent, escapeHtml, highlightHtml, highlightTs } from '../lib/code-high
 })
 export class CodeBlock extends RxElement {
     override onInit(): void {
-        const source = dedent(this.textContent);
+        const source = dedent(readInert(this));
         const lang = this.getAttribute('lang');
         const content = lang === 'ts' ? highlightTs(source)
             : lang === 'html' ? highlightHtml(source)

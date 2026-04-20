@@ -31,7 +31,7 @@ const USAGE = `<yaw-slider for="value" min="0" max="100"></yaw-slider>
             <h2>In use</h2>
             <p class="note">Declare an <code class="inline">@observable</code> on the parent,
                point the slider at it with <code class="inline">for</code>, and read the
-               value back through the usual <code class="inline">\\{{ }}</code> binding —
+               value back through the usual <code class="inline">${escape`{{ }}`}</code> binding —
                pointer gestures push into the parent's subject, so everything reading it
                updates for free.</p>
             <div class="split">

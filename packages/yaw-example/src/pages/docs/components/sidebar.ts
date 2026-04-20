@@ -21,6 +21,7 @@ const TOC: TocGroup[] = [
             { id: 'components-whole', label: 'A whole component' },
             { id: 'components-use', label: 'In use' },
             { id: 'components-bindings', label: 'Template bindings' },
+            { id: 'components-escape', label: 'Escaping mustaches and HTML' },
             { id: 'components-lifecycle', label: 'Lifecycle' },
         ],
     },
