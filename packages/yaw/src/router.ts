@@ -17,6 +17,7 @@ export class Router {
     navigate(path: string): void {
         window.history.pushState(null, '', path);
         this.route$.next(path);
+        window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
     resolve(path: string): CustomElementConstructor | undefined {

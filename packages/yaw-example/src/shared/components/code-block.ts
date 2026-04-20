@@ -17,7 +17,9 @@ import { dedent, escapeHtml, highlightHtml, highlightTs } from '../lib/code-high
         .tk-number { color: #f78c6c; }
         .tk-comment { color: #546e7a; font-style: italic; }
         .tk-decorator { color: #ffcb6b; }
-        .tk-type { color: #82aaff; }
+        .tk-type { color: #ffcb6b; }
+        .tk-fn { color: #82aaff; }
+        .tk-const { color: #f78c6c; }
         .tk-ident { color: #eeffff; }
         .tk-tag { color: #f07178; }
         .tk-attr { color: #ffcb6b; }

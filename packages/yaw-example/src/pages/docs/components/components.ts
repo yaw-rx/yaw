@@ -44,14 +44,19 @@ export class HelloCounter extends RxElement<{ count: number }> {
 const ESCAPE_SNIPPET = [
     "import { escape } from 'yaw-common';",
     '',
-    '// literal mustache in prose: show the binding syntax without binding',
-    '<p>read the value back with <code>${escape`{{ }}`}</code></p>',
+    '@Component({',
+    '    template: `',
+    '        <!-- show a mustache literal, without binding to it -->',
+    '        <p>binding syntax: ${escape`{{ }}`}</p>',
     '',
-    '// literal HTML in prose: show a tag without it being parsed / mirrored',
-    '<p>wrap with ${escape`<my-el>`} to nest.</p>',
+    '        <!-- show an HTML tag, without parsing or mirroring it -->',
+    '        <p>a custom element: ${escape`<my-el>`}</p>',
     '',
-    '// block form: source rendered verbatim inside a code-block',
-    '<code-block lang="ts">${escape`${SOURCE}`}</code-block>',
+    '        <!-- render arbitrary source verbatim inside a code-block -->',
+    '        <code-block lang="ts">${escape`${SOURCE}`}</code-block>',
+    '    `,',
+    '})',
+    'export class EscapeDemo extends RxElement {}',
 ].join('\n');
 
 const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
@@ -110,20 +115,18 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
 
         <section class="host" id="components-escape" toc-section>
             <h2>Escaping mustaches and HTML</h2>
-            <p class="note">The walker rewrites <code class="inline">${escape`{{ }}`}</code>
-               into text subscriptions and built-in HTML tags into
-               <code class="inline">rx-*</code> mirrors. When you want a literal --
-               showing the binding syntax in prose, naming a tag without
-               rendering it, or displaying source verbatim inside a
-               <code class="inline">code-block</code> -- wrap it with
+            <p class="note">A template compiles its mustache expressions into
+               observable bindings, and rewrites built-in HTML tags into their
+               reactive mirrors. To show those characters as literal text --
+               documenting the binding syntax, naming a tag without rendering
+               it, or dumping source verbatim into a
+               <code class="inline">code-block</code> -- wrap the content with
                <code class="inline">escape</code> from
-               <code class="inline">yaw-common</code>. It HTML-escapes
-               <code class="inline">${escape`<`}</code>,
-               <code class="inline">${escape`>`}</code>,
-               <code class="inline">&amp;</code> and marks the subtree inert so
-               the walker skips it. An empty or whitespace-only binding that
-               reaches the walker throws <code class="inline">TemplateWalkError</code>,
-               pointing you here.</p>
+               <code class="inline">yaw-common</code>. It escapes HTML entities
+               and marks the subtree so the compiler leaves it alone. An empty
+               or whitespace-only mustache that survives compilation throws
+               <code class="inline">TemplateWalkError</code>, pointing you
+               here.</p>
             <code-block lang="ts">${escape`${ESCAPE_SNIPPET}`}</code-block>
         </section>
 

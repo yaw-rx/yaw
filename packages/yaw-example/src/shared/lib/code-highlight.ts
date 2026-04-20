@@ -23,7 +23,36 @@ export const dedent = (s: string): string => {
 
 const TOKEN_RE = /(\/\/[^\n]*)|(\/\*[\s\S]*?\*\/)|(`(?:\\.|[^`\\])*`)|('(?:\\.|[^'\\])*')|("(?:\\.|[^"\\])*")|(@[A-Za-z_$][\w$]*)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)/g;
 
+const IMPORT_RE = /import\s+([\s\S]*?)\s+from\s+['"][^'"]+['"]/g;
+
+const collectImportNames = (src: string): Set<string> => {
+    const names = new Set<string>();
+    IMPORT_RE.lastIndex = 0;
+    let m: RegExpExecArray | null;
+    while ((m = IMPORT_RE.exec(src)) !== null) {
+        const clause = m[1]!;
+        const ns = /^\*\s+as\s+([A-Za-z_$][\w$]*)/.exec(clause);
+        if (ns !== null) { names.add(ns[1]!); continue; }
+        if (!clause.startsWith('{')) {
+            const def = /^([A-Za-z_$][\w$]*)/.exec(clause);
+            if (def !== null) names.add(def[1]!);
+        }
+        const braces = /\{([\s\S]*?)\}/.exec(clause);
+        if (braces !== null) {
+            for (const raw of braces[1]!.split(',')) {
+                const trimmed = raw.trim();
+                if (trimmed === '') continue;
+                const parts = trimmed.split(/\s+as\s+/);
+                const name = parts[parts.length - 1]!.trim();
+                if (name !== '') names.add(name);
+            }
+        }
+    }
+    return names;
+};
+
 export const highlightTs = (src: string): string => {
+    const imports = collectImportNames(src);
     let out = '';
     let last = 0;
     let m: RegExpExecArray | null;
@@ -37,7 +66,10 @@ export const highlightTs = (src: string): string => {
         else if (m[6] !== undefined) cls = 'tk-decorator';
         else if (m[7] !== undefined) cls = 'tk-number';
         else if (KEYWORDS.has(text)) cls = 'tk-keyword';
+        else if (/^[A-Z][A-Z0-9_]*$/.test(text)) cls = 'tk-const';
         else if (/^[A-Z]/.test(text)) cls = 'tk-type';
+        else if (imports.has(text)) cls = 'tk-fn';
+        else if (/^\s*\(/.test(src.slice(m.index + text.length))) cls = 'tk-fn';
         else cls = 'tk-ident';
         out += `<span class="${cls}">${escapeHtml(text)}</span>`;
         last = m.index + text.length;
