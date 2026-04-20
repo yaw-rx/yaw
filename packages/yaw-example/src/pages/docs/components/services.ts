@@ -136,10 +136,8 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
     `,
     styles: `
         :host { display: block; }
-        .live { display: flex; align-items: center; justify-content: center;
-                padding: 1.5rem; background: #050505;
-                border: 1px solid #1a1a1a; border-radius: 8px; }
         ${DOC_STYLES}
+        .live { display: flex; align-items: center; justify-content: center; }
     `,
 })
 export class DocsServices extends RxElement {}

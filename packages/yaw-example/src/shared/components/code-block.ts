@@ -1,14 +1,14 @@
 import 'reflect-metadata';
 import { Component, RxElement } from 'yaw';
-import { dedent, escapeHtml, highlightTs } from '../lib/code-highlight.js';
+import { dedent, escapeHtml, highlightHtml, highlightTs } from '../lib/code-highlight.js';
 
 @Component({
     selector: 'code-block',
     styles: `
-        :host { display: block; }
+        :host { display: flex; min-height: 0; }
         .cb { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
               border-radius: 8px; padding: 1.25rem; overflow-x: auto; margin: 0;
-              backdrop-filter: blur(4px); }
+              backdrop-filter: blur(4px); flex: 1; box-sizing: border-box; min-width: 0; }
         code { font-family: 'Fira Code', 'Cascadia Code', monospace;
                font-size: 0.8rem; color: #ddd; line-height: 1.55; white-space: pre; background: none; }
         .tk-keyword { color: #c792ea; }
@@ -18,12 +18,18 @@ import { dedent, escapeHtml, highlightTs } from '../lib/code-highlight.js';
         .tk-decorator { color: #ffcb6b; }
         .tk-type { color: #82aaff; }
         .tk-ident { color: #eeffff; }
+        .tk-tag { color: #f07178; }
+        .tk-attr { color: #ffcb6b; }
+        .tk-punct { color: #89ddff; }
     `
 })
 export class CodeBlock extends RxElement {
     override onInit(): void {
         const source = dedent(this.textContent);
-        const content = this.getAttribute('lang') === 'ts' ? highlightTs(source) : escapeHtml(source);
+        const lang = this.getAttribute('lang');
+        const content = lang === 'ts' ? highlightTs(source)
+            : lang === 'html' ? highlightHtml(source)
+            : escapeHtml(source);
         this.innerHTML = `<pre class="cb"><code>${content}</code></pre>`;
     }
 }

@@ -110,6 +110,10 @@ override onDestroy(): void {
 }`}</code-block>
         </section>
     `,
-    styles: `:host { display: block; }\n${DOC_STYLES}\n.live { padding: 1.5rem; background: #050505; border: 1px solid #1a1a1a; border-radius: 8px; }`,
+    styles: `
+        :host { display: block; }
+        ${DOC_STYLES}
+        .live { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; }
+    `,
 })
 export class DocsComponents extends RxElement {}

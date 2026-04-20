@@ -45,12 +45,10 @@ const USAGE = `<yaw-slider for="value" min="0" max="100"></yaw-slider>
     `,
     styles: `
         :host { display: block; }
-        .live { display: flex; flex-direction: column; gap: 1rem;
-                justify-content: center; padding: 1.5rem; background: #050505;
-                border: 1px solid #1a1a1a; border-radius: 8px; }
+        ${DOC_STYLES}
+        .live { display: flex; flex-direction: column; gap: 1rem; }
         .state { margin: 0; font-family: monospace; color: #888; font-size: 0.85rem; }
         .state .status { color: #8af; }
-        ${DOC_STYLES}
     `,
 })
 export class SliderExample extends RxElement<{ value: number }> {

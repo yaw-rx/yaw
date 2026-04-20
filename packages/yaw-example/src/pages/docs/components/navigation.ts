@@ -149,9 +149,9 @@ const LIVE_USAGE = `<route-display></route-display>`;
     `,
     styles: `
         :host { display: block; }
-        .live { padding: 1.5rem; background: #050505;
-                border: 1px solid #1a1a1a; border-radius: 8px; }
         ${DOC_STYLES}
+        .live { display: flex; align-items: center; justify-content: center; }
+        .live > * { width: 100%; }
     `,
 })
 export class DocsNavigation extends RxElement {}
