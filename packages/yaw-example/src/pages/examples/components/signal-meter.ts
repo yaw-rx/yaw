@@ -85,7 +85,7 @@ export class SignalMeter extends RxElement<{ strength: number }> {
                spectrum, the glow chases the stroke. The only thing the JS writes is the
                percentage.</p>
             <div class="split">
-                <code-block lang="html">${escape`${METER_TEMPLATE}`}</code-block>
+                <code-block lang="html">${escape`<signal-meter></signal-meter>`}</code-block>
                 <div class="live">${METER_TEMPLATE}</div>
             </div>
         </section>

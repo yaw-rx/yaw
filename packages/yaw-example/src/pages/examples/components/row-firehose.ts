@@ -148,7 +148,7 @@ export class RowFirehose extends RxElement<{ amount: number; seconds: number; co
             <p class="note">Drag the sliders, press flood, scroll. Press flood again — it
                appends to whatever's already there.</p>
             <div class="split">
-                <code-block lang="html">${escape`${FIREHOSE_TEMPLATE}`}</code-block>
+                <code-block lang="html">${escape`<row-firehose></row-firehose>`}</code-block>
                 <div class="live">${FIREHOSE_TEMPLATE}</div>
             </div>
         </section>

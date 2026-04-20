@@ -111,32 +111,39 @@ export const transformStyles = (css: string, host?: string): string =>
 
 const KEYWORDS = new Set(['true', 'false', 'null', '$event']);
 
+const PARENT_REF_PREFIX = /^(\s*)((?:parentRef\s*\.\s*)+)(.*)$/s;
+
 const injectCarets = (expr: string, depth: number): string => {
-    if (depth === 0) return expr;
-    const caret = `${'^'.repeat(depth)}.`;
-    const n = expr.length;
-    let out = '';
+    const m = PARENT_REF_PREFIX.exec(expr);
+    const lead = m?.[1] ?? '';
+    const extraHops = m !== null ? (m[2]!.match(/parentRef/g) ?? []).length : 0;
+    const body = m?.[3] ?? expr;
+    const totalDepth = depth + extraHops;
+    if (totalDepth === 0) return expr;
+    const caret = `${'^'.repeat(totalDepth)}.`;
+    const n = body.length;
+    let out = lead;
     let i = 0;
     while (i < n) {
-        const c = expr[i]!;
+        const c = body[i]!;
         if (/\s/.test(c)) { out += c; i++; continue; }
         if (c === "'" || c === '"') {
             const quote = c;
             out += c; i++;
-            while (i < n && expr[i] !== quote) { out += expr[i]; i++; }
-            if (i < n) { out += expr[i]; i++; }
+            while (i < n && body[i] !== quote) { out += body[i]; i++; }
+            if (i < n) { out += body[i]; i++; }
             continue;
         }
-        if (/\d/.test(c) || (c === '-' && i + 1 < n && /\d/.test(expr[i + 1]!))) {
+        if (/\d/.test(c) || (c === '-' && i + 1 < n && /\d/.test(body[i + 1]!))) {
             if (c === '-') { out += c; i++; }
-            while (i < n && /[\d.]/.test(expr[i]!)) { out += expr[i]; i++; }
+            while (i < n && /[\d.]/.test(body[i]!)) { out += body[i]; i++; }
             continue;
         }
         if (/[a-zA-Z_$]/.test(c)) {
             const start = i;
             i++;
-            while (i < n && /[\w$]/.test(expr[i]!)) i++;
-            const ident = expr.slice(start, i);
+            while (i < n && /[\w$]/.test(body[i]!)) i++;
+            const ident = body.slice(start, i);
             const lastMeaningful = out.replace(/\s+$/, '').slice(-1);
             const isContinuation = lastMeaningful === '.';
             if (!KEYWORDS.has(ident) && !isContinuation) out += caret;
