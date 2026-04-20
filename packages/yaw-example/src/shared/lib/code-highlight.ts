@@ -12,7 +12,7 @@ export const escapeHtml = (s: string): string =>
     s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 export const escape = (strings: TemplateStringsArray, ...values: readonly unknown[]): string =>
-    escapeHtml(String.raw({ raw: strings }, ...values));
+    escapeHtml(String.raw({ raw: strings }, ...values)).replace(/\{\{/g, '\\{{');
 
 export const dedent = (s: string): string => {
     const body = s.replace(/^\n+/, '').replace(/\s+$/, '');

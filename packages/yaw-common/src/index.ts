@@ -156,16 +156,20 @@ const transformTextNode = (node: Text, depth: number): void => {
 
     const doc = node.ownerDocument!;
     const frag = doc.createDocumentFragment();
-    const re = /\{\{([^}]+)\}\}/g;
+    const re = /(\\?)\{\{([^}]+)\}\}/g;
     let last = 0;
     let m: RegExpExecArray | null;
     let found = false;
     while ((m = re.exec(text)) !== null) {
         found = true;
         if (m.index > last) frag.appendChild(doc.createTextNode(text.slice(last, m.index)));
-        const rxText = doc.createElement('rx-text');
-        rxText.setAttribute('bind', injectCarets(m[1]!, depth));
-        frag.appendChild(rxText);
+        if (m[1] === '\\') {
+            frag.appendChild(doc.createTextNode(`{{${m[2]!}}}`));
+        } else {
+            const rxText = doc.createElement('rx-text');
+            rxText.setAttribute('bind', injectCarets(m[2]!, depth));
+            frag.appendChild(rxText);
+        }
         last = m.index + m[0].length;
     }
     if (!found) return;

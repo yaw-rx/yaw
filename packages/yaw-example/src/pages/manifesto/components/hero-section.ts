@@ -15,10 +15,10 @@ import { Component, RxElement } from 'yaw';
         </div>
     `,
     styles: `
-        :host { display: block; min-height: 100vh; display: flex; align-items: center;
+        :host { display: block; min-height: calc(100vh / 1.75); display: flex; align-items: center;
                 justify-content: center; background: #000; padding: 6rem 2rem 4rem; }
         .hero { max-width: 800px; text-align: center; }
-        .title { font-size: clamp(3rem, 10vw, 7rem); font-weight: 900; color: #fff;
+        .title { font-size: clamp(3rem, calc(10vw / 1.75), 7rem); font-weight: 900; color: #fff;
                  letter-spacing: -4px; line-height: 1; margin: 0 0 1.5rem; }
         .sub { font-size: 1.25rem; color: #666; line-height: 1.6; margin: 0 0 4rem; }
         .stats { display: flex; gap: 4rem; justify-content: center; }

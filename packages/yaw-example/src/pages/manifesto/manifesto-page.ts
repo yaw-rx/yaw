@@ -56,7 +56,7 @@ const YAW_SNIPPET = `
         <page-footer></page-footer>
     `,
     styles: `
-        :host { display: block; background: #000; min-height: 100vh; }
+        :host { display: block; background: #000; min-height: calc(100vh / 1.75); }
         .sections { padding: 2rem 0; }
     `
 })
