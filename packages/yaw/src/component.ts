@@ -44,8 +44,13 @@ export const getProviders = (ctor: Function): readonly Provider[] | undefined =>
 export const getDirectives = (ctor: Function): readonly DirectiveCtor[] | undefined => directivesCache.get(ctor);
 export const getStyles = (ctor: Function): CSSStyleSheet | undefined => stylesCache.get(ctor);
 
+const componentCtors = new WeakSet<Function>();
+
+export const isComponent = (ctor: Function): boolean => componentCtors.has(ctor);
+
 export const Component = (options: ComponentOptions) =>
     (ctor: CustomElementConstructor): void => {
+        componentCtors.add(ctor);
         const { template } = options;
         if (template !== undefined) {
             rawTemplateCache.set(ctor, template);

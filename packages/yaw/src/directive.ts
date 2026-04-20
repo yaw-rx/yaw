@@ -1,5 +1,5 @@
 export interface RxElementLike extends HTMLElement {
-    parentRef: RxElementLike | undefined;
+    hostNode: RxElementLike;
     __injector: unknown;
 }
 
@@ -9,7 +9,7 @@ export interface ParsedExpr {
 }
 
 export interface Directive {
-    host: RxElementLike;
+    node: RxElementLike;
     parsed?: ParsedExpr;
     parseExpr?(raw: string): ParsedExpr;
     onInit(): void;

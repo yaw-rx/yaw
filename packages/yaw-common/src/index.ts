@@ -243,7 +243,7 @@ const walk = (node: Node, depth: number): void => {
     if (isHtml) el = renameElement(el, `rx-${tag}`);
 
     const childDepth = isHtml ? depth : depth + 1;
-    for (const child of Array.from(el.childNodes)) walk(child, childDepth);
+    for (const child of Array.from(el.childNodes)) { walk(child, childDepth); }
 };
 
 /**

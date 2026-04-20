@@ -6,7 +6,7 @@ export class BindParseError extends Error {
 
 export class BindScopeError extends Error {
     constructor(host: string, raw: string, carets: number) {
-        super(`bind on <${host}>: "${raw}" walked ${carets} scope(s) up but parentRef chain ended`);
+        super(`bind on <${host}>: "${raw}" walked ${carets} scope(s) up but hostNode chain ended`);
     }
 }
 
@@ -24,7 +24,7 @@ export class BindNotSubscribableError extends Error {
 
 export class MissingParentError extends Error {
     constructor(directive: string, host: string) {
-        super(`[${directive}] on <${host}>: host has no parentRef, cannot resolve context`);
+        super(`[${directive}] on <${host}>: host has no hostNode, cannot resolve context`);
     }
 }
 

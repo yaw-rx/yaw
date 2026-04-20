@@ -46,8 +46,8 @@ export class YawSlider extends RxElement<{ value: number }> {
 
         // Two-way bind to parentRef[for] if requested.
         const prop = this.getAttribute('for');
-        if (prop !== null && this.parentRef !== undefined) {
-            const subj = (this.parentRef as any)[\`\${prop}$\`];
+        if (prop !== null && this.hostNode !== undefined) {
+            const subj = (this.hostNode as any)[\`\${prop}$\`];
             subj?.subscribe((v: number) => { this.value = v; });
         }
     }
@@ -68,8 +68,8 @@ export class YawSlider extends RxElement<{ value: number }> {
         const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
         const next = Math.round(this.min + pct * (this.max - this.min));
         const prop = this.getAttribute('for');
-        if (prop !== null && this.parentRef !== undefined) {
-            (this.parentRef as any)[prop] = next;
+        if (prop !== null && this.hostNode !== undefined) {
+            (this.hostNode as any)[prop] = next;
         } else {
             this.value = next;
         }
@@ -95,8 +95,8 @@ export class YawSlider extends RxElement<{ value: number }> {
         this.max = Number(this.getAttribute('max') ?? '100');
 
         const prop = this.getAttribute('for');
-        if (prop !== null && this.parentRef !== undefined) {
-            const subj = (this.parentRef as unknown as Record<string, unknown>)[`${prop}$`] as BehaviorSubject<number> | undefined;
+        if (prop !== null && this.hostNode !== undefined) {
+            const subj = (this.hostNode as unknown as Record<string, unknown>)[`${prop}$`] as BehaviorSubject<number> | undefined;
             subj?.subscribe((v) => { this.value = v; });
         }
     }
@@ -119,8 +119,8 @@ export class YawSlider extends RxElement<{ value: number }> {
         const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
         const next = Math.round(this.min + pct * (this.max - this.min));
         const prop = this.getAttribute('for');
-        if (prop !== null && this.parentRef !== undefined) {
-            (this.parentRef as unknown as Record<string, unknown>)[prop] = next;
+        if (prop !== null && this.hostNode !== undefined) {
+            (this.hostNode as unknown as Record<string, unknown>)[prop] = next;
         } else {
             this.value = next;
         }

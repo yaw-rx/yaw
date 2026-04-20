@@ -3,27 +3,28 @@ import { Directive } from '../directive.js';
 import { BindParseError } from '../errors.js';
 import { parseBind, subscribeBind } from '../expression/bind.js';
 import type { RxElementLike } from '../directive.js';
+import { pushRenderScope, popRenderScope, RxElementBase } from '../rx-element.js';
 
 @Directive({ selector: '[rx-for]' })
 export class RxFor {
-    host!: RxElementLike;
+    node!: RxElementLike;
     private sub: Subscription | undefined;
     private key = 'id';
     private content = '';
     private nodes = new Map<unknown, Element>();
 
     onInit(): void {
-        const raw = this.host.getAttribute('rx-for') ?? '';
+        const raw = this.node.getAttribute('rx-for') ?? '';
         const [exprPart, keyPart] = raw.split(' by ');
         if (exprPart === undefined || exprPart.trim() === '') {
             throw new BindParseError(raw, 'rx-for expected "expr by key"');
         }
         this.key = keyPart?.trim() ?? 'id';
-        this.content = this.host.innerHTML;
-        this.host.replaceChildren();
+        this.content = this.node.innerHTML;
+        this.node.replaceChildren();
 
         const parsed = parseBind(exprPart.trim());
-        this.sub = subscribeBind(this.host, parsed, (v) => {
+        this.sub = subscribeBind(this.node, parsed, (v) => {
             if (!Array.isArray(v)) {
                 throw new BindParseError(parsed.raw, `rx-for expected array, got ${typeof v}`);
             }
@@ -39,8 +40,11 @@ export class RxFor {
             let el = this.nodes.get(k);
 
             if (el === undefined) {
-                this.host.insertAdjacentHTML('beforeend', this.content);
-                el = this.host.lastElementChild!;
+                const scope = this.node.hostNode instanceof RxElementBase ? this.node.hostNode : undefined;
+                if (scope !== undefined) pushRenderScope(scope);
+                this.node.insertAdjacentHTML('beforeend', this.content);
+                if (scope !== undefined) popRenderScope();
+                el = this.node.lastElementChild!;
             }
 
             for (const [prop, val] of Object.entries(item as Record<string, unknown>)) {

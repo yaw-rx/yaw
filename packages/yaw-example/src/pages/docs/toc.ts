@@ -54,7 +54,7 @@ export class TocService {
 @Directive({ selector: '[toc-section]' })
 @Injectable([TocService])
 export class TocSection {
-    host!: RxElementLike;
+    node!: RxElementLike;
     private readonly toc: TocService;
     private id: string | undefined;
 
@@ -63,11 +63,11 @@ export class TocSection {
     }
 
     onInit(): void {
-        const { host } = this;
-        const header = host.querySelector('h1, h2') as HTMLElement | null;
-        const tracked: HTMLElement = header ?? host;
+        const { node } = this;
+        const header = node.querySelector('h1, h2') as HTMLElement | null;
+        const tracked: HTMLElement = header ?? node;
         tracked.style.scrollMarginTop = `${String(TOP_OFFSET)}px`;
-        this.id = host.id;
+        this.id = node.id;
         if (!this.id) {
             return;
         }

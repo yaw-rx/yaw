@@ -5,16 +5,16 @@ import type { RxElementLike } from '../directive.js';
 
 @Directive({ selector: '[data-rx-class-*]' })
 export class ClassBindDirective {
-    host!: RxElementLike;
+    node!: RxElementLike;
     private subs: Subscription[] = [];
 
     onInit(): void {
-        for (const attr of Array.from(this.host.attributes)) {
+        for (const attr of Array.from(this.node.attributes)) {
             if (!attr.name.startsWith('data-rx-class-')) continue;
             const className = attr.name.slice('data-rx-class-'.length);
             const parsed = parseBind(attr.value);
-            this.subs.push(subscribeBind(this.host, parsed, (v) => {
-                this.host.classList.toggle(className, Boolean(v));
+            this.subs.push(subscribeBind(this.node, parsed, (v) => {
+                this.node.classList.toggle(className, Boolean(v));
             }));
         }
     }

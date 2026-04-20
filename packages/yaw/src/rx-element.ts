@@ -1,43 +1,43 @@
-import { getTemplate, getProviders, getDirectives, getGlobalDirectives } from './component.js';
-import { mirrorCtors } from './components/rx-elements.js';
+import { getTemplate, getProviders, getDirectives, getGlobalDirectives, isComponent } from './component.js';
 import { Injector } from './di/injector.js';
 import { getPropDeps } from './di/inject.js';
 import { type Observables } from './observable.js';
 import { getDirectiveSelector, matchesSelector, type Directive } from './directive.js';
 import { DirectiveInstantiationError, InvalidSelectorError } from './errors.js';
 
+const renderScopeStack: RxElementBase[] = [];
+
+export const pushRenderScope = (scope: RxElementBase): void => { renderScopeStack.push(scope); };
+export const popRenderScope = (): void => { renderScopeStack.pop(); };
+
 export class RxElementBase extends HTMLElement {
-    parentRef: RxElementBase | undefined;
+    declare hostNode: RxElementBase;
     __injector: Injector | undefined;
-    readonly rxChildren = new Set<RxElementBase>();
     private readonly directives: Directive[] = [];
 
     static resolveInjector(el: Element): Injector {
         let node: Element | null = el;
         while (node !== null) {
-            const inj = (node as unknown as { __injector?: Injector }).__injector;
-            if (inj !== undefined) return inj;
+            const base = node as RxElementBase;
+            if (base.__injector !== undefined) { return base.__injector; }
             node = node.parentElement;
         }
         throw new Error('No injector found in tree');
     }
 
-    connectedCallback(): void {
-        let node = this.parentElement;
-        while (node !== null) {
-            if (node instanceof RxElementBase && !mirrorCtors.has(node.constructor)) {
-                this.parentRef = node;
-                node.rxChildren.add(this);
-                break;
-            }
-            node = node.parentElement;
+    private setupHostNode(): void {
+        if (isComponent(this.constructor)) { this.setAttribute('data-rx-host', ''); }
+        if (!Object.prototype.hasOwnProperty.call(this, 'hostNode')) {
+            const scope = renderScopeStack[renderScopeStack.length - 1];
+            if (scope !== undefined) { this.hostNode = scope; }
         }
+    }
 
+    private setupInjectorAndDeps(): void {
         const providers = getProviders(this.constructor);
         if (providers !== undefined) {
             this.__injector = RxElementBase.resolveInjector(this).child(providers);
         }
-
         const propDeps = getPropDeps(this.constructor);
         if (propDeps !== undefined) {
             const injector = RxElementBase.resolveInjector(this);
@@ -45,26 +45,30 @@ export class RxElementBase extends HTMLElement {
                 (this as unknown as Record<string | symbol, unknown>)[prop] = injector.resolve(token);
             }
         }
+    }
 
+    private setupDirectives(): void {
+        const hostCtor = Object.prototype.hasOwnProperty.call(this, 'hostNode')
+            ? this.hostNode.constructor
+            : this.constructor;
         const declaredDirectives = [
             ...getGlobalDirectives(),
-            ...(this.parentRef !== undefined ? getDirectives(this.parentRef.constructor) ?? [] : []),
+            ...(getDirectives(hostCtor) ?? []),
         ];
-
         for (const ctor of declaredDirectives) {
             const selector = getDirectiveSelector(ctor);
-            if (selector === undefined) continue;
+            if (selector === undefined) { continue; }
             if (!selector.startsWith('[') || !selector.endsWith(']')) {
                 throw new InvalidSelectorError(ctor.name, selector);
             }
-            if (!matchesSelector(this, selector)) continue;
+            if (!matchesSelector(this, selector)) { continue; }
             let directive: Directive;
             try {
                 directive = RxElementBase.resolveInjector(this).instantiate(ctor);
             } catch (e) {
                 throw new DirectiveInstantiationError(ctor.name, this.tagName, e);
             }
-            directive.host = this;
+            directive.node = this;
             if (!selector.endsWith('*]')) {
                 const attrName = selector.slice(1, -1);
                 const raw = this.getAttribute(attrName) ?? '';
@@ -73,25 +77,31 @@ export class RxElementBase extends HTMLElement {
             directive.onInit();
             this.directives.push(directive);
         }
+    }
 
+    private renderTemplate(): void {
         const template = getTemplate(this.constructor);
-        if (template !== undefined) {
-            const projected = document.createDocumentFragment();
-            while (this.firstChild !== null) { projected.appendChild(this.firstChild); }
-            this.innerHTML = template;
-            const slot = this.querySelector('rx-slot');
-            if (slot !== null) { slot.replaceWith(projected); }
-        }
+        if (template === undefined) { return; }
+        const projected = document.createDocumentFragment();
+        while (this.firstChild !== null) { projected.appendChild(this.firstChild); }
+        pushRenderScope(this);
+        this.innerHTML = template;
+        popRenderScope();
+        const slot = this.querySelector('rx-slot');
+        if (slot !== null) { slot.replaceWith(projected); }
+    }
 
+    connectedCallback(): void {
+        this.setupHostNode();
+        this.setupInjectorAndDeps();
+        this.setupDirectives();
+        this.renderTemplate();
         this.onInit();
     }
 
     disconnectedCallback(): void {
-        for (const directive of this.directives) directive.onDestroy();
+        for (const directive of this.directives) { directive.onDestroy(); }
         this.directives.length = 0;
-
-        this.parentRef?.rxChildren.delete(this);
-        this.parentRef = undefined;
         this.onDestroy();
     }
 

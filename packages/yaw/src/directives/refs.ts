@@ -4,21 +4,21 @@ import type { RxElementLike } from '../directive.js';
 
 @Directive({ selector: '[data-rx-ref]' })
 export class RefsDirective {
-    host!: RxElementLike;
+    node!: RxElementLike;
 
     onInit(): void {
-        const raw = this.host.getAttribute('data-rx-ref');
+        const raw = this.node.getAttribute('data-rx-ref');
         if (raw === null) return;
         const parsed = parseBind(raw);
-        const { scope, key } = resolveRefTarget(this.host, parsed);
-        (scope as unknown as Record<string, unknown>)[key] = this.host;
+        const { scope, key } = resolveRefTarget(this.node, parsed);
+        (scope as unknown as Record<string, unknown>)[key] = this.node;
     }
 
     onDestroy(): void {
-        const raw = this.host.getAttribute('data-rx-ref');
+        const raw = this.node.getAttribute('data-rx-ref');
         if (raw === null) return;
         const parsed = parseBind(raw);
-        const { scope, key } = resolveRefTarget(this.host, parsed);
+        const { scope, key } = resolveRefTarget(this.node, parsed);
         (scope as unknown as Record<string, unknown>)[key] = undefined;
     }
 }

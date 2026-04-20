@@ -1,20 +1,18 @@
-import { htmlTags, mirrorStyles } from 'yaw-common';
+import { htmlTags, mirrorStyles, transformStyles } from 'yaw-common';
 import { RxElementBase } from '../rx-element.js';
-import { Component } from '../component.js';
 
 export { htmlTags };
-
-export const mirrorCtors = new Set<Function>();
 
 export const registerHtmlMirrors = (): void => {
     for (const tag of htmlTags) {
         const selector = `rx-${tag}`;
-        const style = mirrorStyles.get(tag);
         const ctor = class extends RxElementBase {};
-        mirrorCtors.add(ctor);
-        const options = style !== undefined
-            ? { selector, styles: `:host{${style}}` }
-            : { selector };
-        Component(options)(ctor);
+        const style = mirrorStyles.get(tag);
+        if (style !== undefined) {
+            const sheet = new CSSStyleSheet();
+            sheet.replaceSync(transformStyles(`:host{${style}}`, selector));
+            document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+        }
+        customElements.define(selector, ctor);
     }
 };

@@ -6,11 +6,11 @@ import { DOC_STYLES } from '../../../shared/lib/doc-styles.js';
 
 @Directive({ selector: '[bounce]' })
 export class Bounce {
-    host!: RxElementLike;
+    node!: RxElementLike;
     private animation: Animation | undefined;
 
     onInit(): void {
-        this.animation = this.host.animate(
+        this.animation = this.node.animate(
             [
                 { transform: 'translateY(0)' },
                 { transform: 'translateY(-10px)' },
@@ -30,11 +30,11 @@ import type { RxElementLike } from 'yaw';
 
 @Directive({ selector: '[bounce]' })
 export class Bounce {
-    host!: RxElementLike;
+    node!: RxElementLike;
     private animation: Animation | undefined;
 
     onInit(): void {
-        this.animation = this.host.animate([
+        this.animation = this.node.animate([
             { transform: 'translateY(0)' },
             { transform: 'translateY(-10px)' },
             { transform: 'translateY(0)' },
@@ -48,25 +48,25 @@ export class Bounce {
 
 const SCROLL_REVEAL_SOURCE = `@Directive({ selector: '[scroll-reveal]' })
 export class ScrollReveal {
-    host!: RxElementLike;
+    node!: RxElementLike;
     parsed?: ParsedExpr;
     private observer: IntersectionObserver | undefined;
 
     onInit(): void {
         const threshold = this.parsed?.expr ? parseFloat(this.parsed.expr) : 0.15;
-        this.host.classList.add('reveal');
+        this.node.classList.add('reveal');
         this.observer = new IntersectionObserver(
             (entries) => {
                 for (const entry of entries) {
                     if (entry.isIntersecting) {
-                        this.host.classList.add('revealed');
-                        this.observer?.unobserve(this.host);
+                        this.node.classList.add('revealed');
+                        this.observer?.unobserve(this.node);
                     }
                 }
             },
             { threshold }
         );
-        this.observer.observe(this.host);
+        this.observer.observe(this.node);
     }
 
     onDestroy(): void {

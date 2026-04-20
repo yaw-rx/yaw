@@ -5,17 +5,17 @@ import type { RxElementLike } from '../directive.js';
 
 @Directive({ selector: '[data-rx-bind-*]' })
 export class BindDirective {
-    host!: RxElementLike;
+    node!: RxElementLike;
     private subs: Subscription[] = [];
 
     onInit(): void {
-        const self = this.host as unknown as Record<string, unknown>;
+        const self = this.node as unknown as Record<string, unknown>;
 
-        for (const attr of Array.from(this.host.attributes)) {
+        for (const attr of Array.from(this.node.attributes)) {
             if (!attr.name.startsWith('data-rx-bind-')) continue;
             const prop = attr.name.slice('data-rx-bind-'.length);
             const parsed = parseBind(attr.value);
-            this.subs.push(subscribeBind(this.host, parsed, (v) => { self[prop] = v; }));
+            this.subs.push(subscribeBind(this.node, parsed, (v) => { self[prop] = v; }));
         }
     }
 

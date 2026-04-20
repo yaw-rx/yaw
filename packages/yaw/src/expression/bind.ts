@@ -122,11 +122,14 @@ export const parseBind = (raw: string): ParsedBind => {
     return parsed;
 };
 
+const nextHost = (el: Element): RxElementLike | undefined =>
+    (el.parentElement?.closest('[data-rx-host]') ?? undefined) as RxElementLike | undefined;
+
 const walkScope = (host: RxElementLike, carets: number, raw: string): RxElementLike => {
-    let scope: RxElementLike | undefined = host.parentRef;
+    let scope: RxElementLike | undefined = nextHost(host);
     for (let i = 0; i < carets; i++) {
         if (scope === undefined) throw new BindScopeError(host.tagName, raw, carets);
-        scope = scope.parentRef;
+        scope = nextHost(scope);
     }
     if (scope === undefined) throw new BindScopeError(host.tagName, raw, carets);
     return scope;
