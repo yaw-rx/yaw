@@ -182,8 +182,9 @@ export class ForDemo extends RxElement {
 
         <section class="ex" id="directives-rx-for-live" toc-section>
             <h2>rx-for — live</h2>
-            <div class="live">
-                <for-demo></for-demo>
+            <div class="split">
+                <code-block lang="html">${escape`<for-demo></for-demo>`}</code-block>
+                <div class="live"><for-demo></for-demo></div>
             </div>
         </section>
     `,
