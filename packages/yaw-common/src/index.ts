@@ -87,7 +87,7 @@ export const mirrorStyles: ReadonlyMap<string, string> = new Map<string, string>
 const htmlTagSet = new Set(htmlTags);
 
 const rewriteSelectorTags = (selectors: string): string =>
-    selectors.replace(/(^|[\s>+~,(])([a-z][a-z0-9]*)\b/g, (match, prefix: string, tag: string) =>
+    selectors.replace(/(^|[\s>+~,(])([a-z][a-z0-9-]*)/g, (match, prefix: string, tag: string) =>
         htmlTagSet.has(tag as (typeof htmlTags)[number]) ? `${prefix}rx-${tag}` : match
     );
 

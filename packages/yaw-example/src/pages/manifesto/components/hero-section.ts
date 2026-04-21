@@ -6,7 +6,7 @@ import { Component, RxElement } from 'yaw';
     template: `
         <div class="hero">
             <h1 class="title">You're All Wrong.</h1>
-            <p class="sub">The DOM is not your enemy. Three gigabytes of dependencies to avoid understanding event listeners.</p>
+            <p class="sub">The DOM is not your enemy.</p>
             <div class="stats">
                 <stat-counter label="KB bundle" target="4"></stat-counter>
                 <stat-counter label="dependencies" target="3"></stat-counter>

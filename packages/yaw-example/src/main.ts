@@ -21,6 +21,12 @@ import './pages/examples/components/signal-meter.js';
 import './pages/examples/components/row-firehose.js';
 import './pages/examples/components/page-echo.js';
 
+import { ShowcasePage } from './pages/showcase/ShowcasePage.js';
+import './pages/showcase/components/drum-sequencer/StepCell.js';
+import './pages/showcase/components/drum-sequencer/TrackRow.js';
+import './pages/showcase/components/drum-sequencer/DrumMachine.js';
+import './pages/showcase/components/drum-sequencer/DrumSequencer.js';
+
 import { DocsPage } from './pages/docs/page.js';
 import { TocSection } from './pages/docs/toc.js';
 import './pages/docs/components/sidebar.js';
@@ -35,6 +41,7 @@ bootstrap({
     providers: [
         { provide: ROUTES, useValue: [
             { path: '/',         component: ManifestoPage },
+            { path: '/showcase', component: ShowcasePage },
             { path: '/examples', component: ExamplesPage },
             { path: '/docs',     component: DocsPage },
         ] },

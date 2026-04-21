@@ -58,6 +58,7 @@ const YAW_SNIPPET = `
     styles: `
         :host { display: block; background: #000; min-height: calc(100vh / 1.75); }
         .sections { padding: 2rem 0; }
+        code-block { margin-top: 2em; }
     `
 })
 export class ManifestoPage extends RxElement {}
