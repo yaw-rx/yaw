@@ -5,15 +5,15 @@ import { Component, RxElement } from 'yaw';
     selector: 'page-echo',
     template: `
         <div class="echo">
-            <div class="label">child template — authored with zero carets</div>
+            <div class="label">child template — caret prefix reaches the parent host</div>
             <div class="row">
-                <code>{{ parentRef.count }}</code>
+                <code>{{ ^.count }}</code>
                 <span class="sep">·</span>
-                <code>{{ parentRef.status }}</code>
+                <code>{{ ^.status }}</code>
             </div>
             <div class="row buttons">
-                <button onclick="parentRef.increment(2)">parentRef.increment(2)</button>
-                <button onclick="parentRef.reset">parentRef.reset</button>
+                <button onclick="^.increment(2)">^.increment(2)</button>
+                <button onclick="^.reset">^.reset</button>
             </div>
         </div>
     `,

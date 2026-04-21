@@ -19,7 +19,7 @@ import { ScrollReveal } from '../../shared/directives/scroll-reveal.js';
             <signal-meter scroll-reveal></signal-meter>
             <row-firehose scroll-reveal></row-firehose>
             <!-- <calendar-example scroll-reveal></calendar-example> -->
-            <nesting-example scroll-reveal></nesting-example>
+            <nesting-example scroll-reveal="0"></nesting-example>
         </div>
     `,
     styles: `
