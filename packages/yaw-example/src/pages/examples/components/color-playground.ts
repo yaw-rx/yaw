@@ -14,8 +14,8 @@ const PALETTE_TEMPLATE = `
     <label>L <em>{{lit}}%</em></label>
     <yaw-slider for="lit" min="0" max="100"></yaw-slider>
 
-    <code class="out">{{css()}}</code>
-    <div class="swatch" [style]="swatchStyle()"></div>
+    <code class="out">{{css}}</code>
+    <div class="swatch" [style]="swatchStyle"></div>
 `;
 
 const PALETTE_STYLES = `
@@ -49,14 +49,14 @@ export class ColorPlayground extends RxElement<{ hue: number; sat: number; lit: 
     @observable sat = 70;
     @observable lit = 55;
 
-    css(): Observable<string> {
+    get css$(): Observable<string> {
         return combineLatest([this.hue$, this.sat$, this.lit$]).pipe(
             map(([h, s, l]) => \`hsl(\${h} \${s}% \${l}%)\`)
         );
     }
 
-    swatchStyle(): Observable<string> {
-        return this.css().pipe(map((c) => \`background: \${c}\`));
+    get swatchStyle$(): Observable<string> {
+        return this.css$.pipe(map((c) => \`background: \${c}\`));
     }
 }`;
 
@@ -96,13 +96,13 @@ export class ColorPlayground extends RxElement<{ hue: number; sat: number; lit: 
     @observable sat = 70;
     @observable lit = 55;
 
-    css(): Observable<string> {
+    get css$(): Observable<string> {
         return combineLatest([this.hue$, this.sat$, this.lit$]).pipe(
             map(([h, s, l]) => `hsl(${String(h)} ${String(s)}% ${String(l)}%)`)
         );
     }
 
-    swatchStyle(): Observable<string> {
-        return this.css().pipe(map((c) => `background: ${c}`));
+    get swatchStyle$(): Observable<string> {
+        return this.css$.pipe(map((c) => `background: ${c}`));
     }
 }

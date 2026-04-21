@@ -16,7 +16,7 @@ import {
     template: `
         <div class="transport">
             <button class="play" onclick="togglePlay" [class.on]="playing">
-                <span class="play-icon">{{playLabel()}}</span>
+                <span class="play-icon">{{playLabel}}</span>
             </button>
             <div class="meter">
                 <div class="label">TEMPO</div>
@@ -31,7 +31,7 @@ import {
                 <button onclick="clearAll">CLR</button>
             </div>
         </div>
-        <div class="rows" rx-for="trackSeeds() by key">
+        <div class="rows" rx-for="trackSeeds by key">
             <track-row></track-row>
         </div>
     `,
@@ -115,11 +115,11 @@ export class DrumMachine extends RxElement<{
         this.tempoSub?.unsubscribe();
     }
 
-    playLabel(): Observable<string> {
+    get playLabel$(): Observable<string> {
         return this.playing$.pipe(map((p) => p ? '\u25A0' : '\u25B6'));
     }
 
-    trackSeeds(): Observable<readonly TrackSeed[]> {
+    get trackSeeds$(): Observable<readonly TrackSeed[]> {
         return this.pattern$.pipe(
             map((pattern) => VOICES.map((v) => ({
                 key: v.key,

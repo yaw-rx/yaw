@@ -20,6 +20,10 @@ import './pages/examples/components/slider-example.js';
 import './pages/examples/components/signal-meter.js';
 import './pages/examples/components/row-firehose.js';
 import './pages/examples/components/page-echo.js';
+import './pages/examples/components/calendar-example/CalendarDay.js';
+import './pages/examples/components/calendar-example/CalendarWeek.js';
+import './pages/examples/components/calendar-example/CalendarGrid.js';
+import './pages/examples/components/calendar-example/CalendarExample.js';
 
 import { ShowcasePage } from './pages/showcase/ShowcasePage.js';
 import './pages/showcase/components/drum-sequencer/StepCell.js';
@@ -33,6 +37,7 @@ import './pages/docs/components/sidebar.js';
 import './pages/docs/components/bootstrap.js';
 import './pages/docs/components/components.js';
 import './pages/docs/components/directives.js';
+import './pages/docs/components/rx-for-demo/ForDemo.js';
 import './pages/docs/components/services.js';
 import './pages/docs/components/navigation.js';
 

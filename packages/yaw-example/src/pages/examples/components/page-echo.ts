@@ -9,7 +9,7 @@ import { Component, RxElement } from 'yaw';
             <div class="row">
                 <code>{{ parentRef.count }}</code>
                 <span class="sep">·</span>
-                <code>{{ parentRef.status() }}</code>
+                <code>{{ parentRef.status }}</code>
             </div>
             <div class="row buttons">
                 <button onclick="parentRef.increment(2)">parentRef.increment(2)</button>

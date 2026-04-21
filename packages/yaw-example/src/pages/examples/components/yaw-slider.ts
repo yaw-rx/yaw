@@ -7,8 +7,8 @@ export const SLIDER_TEMPLATE = `
          onpointerdown="grab($event)"
          onpointermove="drag($event)"
          onpointerup="release($event)">
-        <div class="fill" [style]="fillStyle()"></div>
-        <div class="thumb" [style]="thumbStyle()"></div>
+        <div class="fill" [style]="fillStyle"></div>
+        <div class="thumb" [style]="thumbStyle"></div>
     </div>
 `;
 
@@ -76,8 +76,8 @@ export class YawSlider extends RxElement<{ value: number }> {
     }
 
     private ratio(v: number): number { return (v - this.min) / (this.max - this.min); }
-    fillStyle(): Observable<string>  { return this.value$.pipe(map((v) => \`width: \${this.ratio(v) * 100}%\`)); }
-    thumbStyle(): Observable<string> { return this.value$.pipe(map((v) => \`left: \${this.ratio(v) * 100}%\`)); }
+    get fillStyle$(): Observable<string>  { return this.value$.pipe(map((v) => \`width: \${this.ratio(v) * 100}%\`)); }
+    get thumbStyle$(): Observable<string> { return this.value$.pipe(map((v) => \`left: \${this.ratio(v) * 100}%\`)); }
 }`;
 
 @Component({
@@ -127,6 +127,6 @@ export class YawSlider extends RxElement<{ value: number }> {
     }
 
     private ratio(v: number): number { return (v - this.min) / (this.max - this.min); }
-    fillStyle(): Observable<string>  { return this.value$.pipe(map((v) => `width: ${String(this.ratio(v) * 100)}%`)); }
-    thumbStyle(): Observable<string> { return this.value$.pipe(map((v) => `left: ${String(this.ratio(v) * 100)}%`)); }
+    get fillStyle$(): Observable<string>  { return this.value$.pipe(map((v) => `width: ${String(this.ratio(v) * 100)}%`)); }
+    get thumbStyle$(): Observable<string> { return this.value$.pipe(map((v) => `left: ${String(this.ratio(v) * 100)}%`)); }
 }

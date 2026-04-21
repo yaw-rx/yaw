@@ -6,8 +6,8 @@ import { StepTicker } from './StepTicker.js';
 @Component({
     selector: 'step-cell',
     template: `<button onclick="^^.toggleStep(^.trackKey, idx)"
-                       [class.on]="on" [class.active]="active()" [class.beat]="beat"
-                       [style]="cellStyle()"></button>`,
+                       [class.on]="on" [class.active]="active" [class.beat]="beat"
+                       [style]="cellStyle"></button>`,
     styles: `
         :host { display: block; }
         button { width: 100%; height: 2rem; background: #090909;
@@ -45,14 +45,14 @@ export class StepCell extends RxElement<{
 
     @Inject(StepTicker) private readonly ticker!: StepTicker;
 
-    active(): Observable<boolean> {
+    get active$(): Observable<boolean> {
         return combineLatest([this.idx$, this.ticker.current$]).pipe(
             map(([idx, step]) => idx === step),
             distinctUntilChanged(),
         );
     }
 
-    cellStyle(): Observable<string> {
+    get cellStyle$(): Observable<string> {
         return this.accent$.pipe(map((a) => `--accent: ${a}`));
     }
 }

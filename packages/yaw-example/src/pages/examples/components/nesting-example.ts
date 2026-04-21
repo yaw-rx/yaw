@@ -25,14 +25,14 @@ const DEPTH_1 = `<!-- depth 0: author writes increment(1); compiled stays increm
 <button onclick="increment(1)">+1</button>
 <button onclick="increment(-1)">-1</button>
 <button onclick="reset">reset</button>
-<p class="state">count = {{count}} <span class="status">({{status()}})</span></p>`;
+<p class="state">count = {{count}} <span class="status">({{status}})</span></p>`;
 
 const DEPTH_2 = `<!-- depth 1: author writes increment(5); compiled becomes ^.increment(5) -->
 <nested-level>
     <button onclick="increment(5)">+5</button>
     <button onclick="increment(-5)">-5</button>
 </nested-level>
-<p class="state">count = {{count}} <span class="status">({{status()}})</span></p>`;
+<p class="state">count = {{count}} <span class="status">({{status}})</span></p>`;
 
 const DEPTH_3 = `<!-- depth 2: author writes increment(10); compiled becomes ^^.increment(10) -->
 <nested-level>
@@ -41,7 +41,7 @@ const DEPTH_3 = `<!-- depth 2: author writes increment(10); compiled becomes ^^.
         <button onclick="increment(100)">+100</button>
     </nested-level>
 </nested-level>
-<p class="state">count = {{count}} <span class="status">({{status()}})</span></p>`;
+<p class="state">count = {{count}} <span class="status">({{status}})</span></p>`;
 
 export const NESTING_TEMPLATE = `
 ${DEPTH_1}
@@ -62,7 +62,7 @@ export class NestingExample extends RxElement<{ count: number }> {
     increment(amount: number): void { this.count = this.count + amount; }
     reset(): void { this.count = 0; }
 
-    status(): Observable<string> {
+    get status$(): Observable<string> {
         return this.count$.pipe(map((c) => c === 0 ? 'zero' : c > 0 ? 'positive' : 'negative'));
     }
 }`;
@@ -71,7 +71,7 @@ const PAGE_ECHO_SOURCE = `@Component({
     selector: 'page-echo',
     template: \`
         <code>{{ parentRef.count }}</code>
-        <code>{{ parentRef.status() }}</code>
+        <code>{{ parentRef.status }}</code>
         <button onclick="parentRef.increment(2)">parentRef.increment(2)</button>
         <button onclick="parentRef.reset">parentRef.reset</button>
     \`,
@@ -144,18 +144,18 @@ export class PageEcho extends RxElement {}`;
 export class NestingExample extends RxElement<{ count: number }> {
     @observable count = 0;
 
+    get status$(): Observable<string> {
+        return this.count$.pipe(map((c) => {
+            if (c === 0) { return 'zero'; }
+            return c > 0 ? 'positive' : 'negative';
+        }));
+    }
+
     increment(amount: number): void {
         this.count += amount;
     }
 
     reset(): void {
         this.count = 0;
-    }
-
-    status(): Observable<string> {
-        return this.count$.pipe(map((c) => {
-            if (c === 0) { return 'zero'; }
-            return c > 0 ? 'positive' : 'negative';
-        }));
     }
 }

@@ -27,7 +27,7 @@ import { DOC_STYLES } from '../../../../shared/lib/doc-styles.js';
     styles: `
         :host { display: block; }
         ${DOC_STYLES}
-        .live { padding: 0; background: transparent; border: none; }
+        .live { padding: 0; background: transparent; border: none; zoom: 65%; }
     `,
 })
 export class DrumSequencer extends RxElement {}

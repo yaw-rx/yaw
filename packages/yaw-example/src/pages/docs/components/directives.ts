@@ -87,6 +87,24 @@ export class Shelf extends RxElement {}`;
 const BEFORE_AFTER_SNIPPET = `<div class="box">still</div>
 <div class="box" bounce>bouncing</div>`;
 
+const FOR_DEMO_SOURCE = `@Component({
+    selector: 'for-demo',
+    template: \`
+        <div class="row" rx-for="cells by key">
+            <span class="cell"></span>
+        </div>
+    \`,
+})
+export class ForDemo extends RxElement {
+    get cells$(): Observable<readonly Cell[]> {
+        return of([
+            { key: 'a', textContent: 'alpha'   },
+            { key: 'b', textContent: 'bravo'   },
+            { key: 'c', textContent: 'charlie' },
+        ]);
+    }
+}`;
+
 @Component({
     selector: 'docs-directives',
     directives: [Bounce],
@@ -147,8 +165,26 @@ const BEFORE_AFTER_SNIPPET = `<div class="box">still</div>
                <code class="inline">yaw</code> is <code class="inline">[RxIf, RxFor]</code> —
                the structural directives. Use them as attributes:
                <code class="inline">&lt;div rx-if="isReady"&gt;</code> and
-               <code class="inline">&lt;li rx-for="item of items$"&gt;</code>. If you
+               <code class="inline">&lt;li rx-for="rows by key"&gt;</code>. If you
                don't want them, don't pass them.</p>
+        </section>
+
+        <section class="host" id="directives-rx-for" toc-section>
+            <h2>rx-for in practice</h2>
+            <p class="note">A fixed array of three cells, keyed by
+               <code class="inline">key</code>. For each item, <code class="inline">rx-for</code>
+               stamps a clone of its single child element and assigns every item
+               field onto that element as a property. Here
+               <code class="inline">textContent</code> is a real DOM property, so
+               the span gets its text written directly — no child component needed.</p>
+            <code-block lang="ts">${escape`${FOR_DEMO_SOURCE}`}</code-block>
+        </section>
+
+        <section class="ex" id="directives-rx-for-live" toc-section>
+            <h2>rx-for — live</h2>
+            <div class="live">
+                <for-demo></for-demo>
+            </div>
         </section>
     `,
     styles: `

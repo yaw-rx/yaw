@@ -18,6 +18,7 @@ import { ScrollReveal } from '../../shared/directives/scroll-reveal.js';
             <color-playground scroll-reveal></color-playground>
             <signal-meter scroll-reveal></signal-meter>
             <row-firehose scroll-reveal></row-firehose>
+            <!-- <calendar-example scroll-reveal></calendar-example> -->
             <nesting-example scroll-reveal></nesting-example>
         </div>
     `,

@@ -63,13 +63,13 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
 <p>hello, {{name}}</p>
 
 <!-- attribute: assigns the evaluated value to the attribute -->
-<a [href]="profileUrl()">profile</a>
+<a [href]="profileUrl">profile</a>
 
 <!-- class toggle: truthy → class added -->
-<li [class.active]="isSelected()">...</li>
+<li [class.active]="isSelected">...</li>
 
 <!-- style: whole cssText, driven by an observable -->
-<div [style]="barStyle()"></div>
+<div [style]="barStyle"></div>
 
 <!-- events: unprefixed method name, or inline call -->
 <button onclick="submit">send</button>

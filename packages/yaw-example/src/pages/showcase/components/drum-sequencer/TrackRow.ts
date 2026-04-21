@@ -8,10 +8,10 @@ import { STEPS, type Cell } from './shared.js';
     template: `
         <div class="head">
             <button class="name" onclick="toggleMute"
-                    [class.muted]="muted" [style]="nameStyle()">{{name}}</button>
+                    [class.muted]="muted" [style]="nameStyle">{{name}}</button>
             <button class="clear" onclick="^.clearTrack(trackKey)">clear</button>
         </div>
-        <div class="grid" rx-for="cells() by idx">
+        <div class="grid" rx-for="cells by idx">
             <step-cell></step-cell>
         </div>
     `,
@@ -55,7 +55,7 @@ export class TrackRow extends RxElement<{
     @observable muted = false;
     @observable steps: readonly boolean[] = [];
 
-    cells(): Observable<readonly Cell[]> {
+    get cells$(): Observable<readonly Cell[]> {
         return combineLatest([this.steps$, this.accent$]).pipe(
             map(([steps, accent]) =>
                 steps.map((on, idx) => ({
@@ -68,7 +68,7 @@ export class TrackRow extends RxElement<{
         );
     }
 
-    nameStyle(): Observable<string> {
+    get nameStyle$(): Observable<string> {
         return this.accent$.pipe(map((a) => `--accent: ${a}; --accent-shadow: ${a}66`));
     }
 

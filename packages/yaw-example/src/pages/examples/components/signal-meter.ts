@@ -5,7 +5,7 @@ import { escape } from '../../../shared/lib/code-highlight.js';
 import { DOC_STYLES } from '../../../shared/lib/doc-styles.js';
 
 const METER_TEMPLATE = `
-    <div class="meter" [style]="meterStyle()">
+    <div class="meter" [style]="meterStyle">
         <svg viewBox="0 0 100 100" class="ring">
             <circle cx="50" cy="50" r="42" class="track"></circle>
             <circle cx="50" cy="50" r="42" class="fill"></circle>
@@ -55,7 +55,7 @@ const HOST_SOURCE = `@Component({
 export class SignalMeter extends RxElement<{ strength: number }> {
     @observable strength = 65;
 
-    meterStyle(): Observable<string> {
+    get meterStyle$(): Observable<string> {
         return this.strength$.pipe(map((s) => \`--pct: \${s / 100}\`));
     }
 }`;
@@ -95,7 +95,7 @@ export class SignalMeter extends RxElement<{ strength: number }> {
 export class SignalMeter extends RxElement<{ strength: number }> {
     @observable strength = 65;
 
-    meterStyle(): Observable<string> {
+    get meterStyle$(): Observable<string> {
         return this.strength$.pipe(map((s) => `--pct: ${String(s / 100)}`));
     }
 }
