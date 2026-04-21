@@ -14,8 +14,15 @@ export const DOC_STYLES = `
             margin: 0 0 1rem; max-width: 72ch; }
     .split { display: grid;
              grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr));
-             gap: 1rem; align-items: stretch; }
+             gap: 1rem; align-items: stretch;
+             container-type: inline-size; }
     .split > * { min-width: 0; max-width: 100%; box-sizing: border-box; }
+    @container (min-width: 860px) {
+        .split > code-block .cb {
+            display: flex; flex-direction: column;
+            justify-content: center;
+        }
+    }
     .live { padding: 1.5rem; background: #050505;
             border: 1px solid #1a1a1a; border-radius: 8px;
             min-width: 0; max-width: 100%; box-sizing: border-box; }
