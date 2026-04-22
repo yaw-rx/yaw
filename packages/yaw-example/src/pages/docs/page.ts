@@ -29,7 +29,7 @@ import { TocService } from './toc.js';
         .content { flex: 1 1 0; min-width: 0; box-sizing: border-box;
                    padding: 6rem 2rem 4rem 2rem; }
         .content > [id] { scroll-margin-top: 5rem; display: block; }
-        [toc-section] { padding-left: calc(var(--toc-depth, 0) * 1.5rem) !important; }
+        [toc-section] { margin-left: calc(var(--toc-depth, 0) * 1.5rem); }
         [toc-section][style*="--toc-depth"]::before {
             content: '';
             display: block;

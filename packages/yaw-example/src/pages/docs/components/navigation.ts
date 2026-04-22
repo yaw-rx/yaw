@@ -130,13 +130,13 @@ const LIVE_USAGE = `<route-display></route-display>`;
             <code-block lang="ts">${escape`${NAVIGATE_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="navigation-live" toc-section>
+        <section class="ex" id="navigation-live" toc-section>
             <h2>Live</h2>
             <p class="note">Press a button — the path updates, the URL changes,
                and the outlet swaps the page. Watch the nav bar at the top pick
                up the active-link class, because it's subscribed to the same
                <code class="inline">route$</code>.</p>
-            <div class="ex split">
+            <div class="split">
                 <code-block lang="html">${escape`${LIVE_USAGE}`}</code-block>
                 <div class="live"><route-display></route-display></div>
             </div>

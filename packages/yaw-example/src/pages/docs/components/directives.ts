@@ -147,12 +147,12 @@ export class ForDemo extends RxElement {
             <code-block lang="ts">${escape`${USAGE_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="directives-before-after" toc-section>
+        <section class="ex" id="directives-before-after" toc-section>
             <h2>In action</h2>
             <p class="note">Same markup, one attribute difference. Add
                <code class="inline">bounce</code> to an element and the directive
                attaches on mount.</p>
-            <div class="ex split">
+            <div class="split">
                 <code-block lang="html">${escape`${BEFORE_AFTER_SNIPPET}`}</code-block>
                 <div class="live">
                     <div class="box">still</div>
@@ -190,7 +190,7 @@ export class ForDemo extends RxElement {
 </div>`}</code-block>
             </section>
 
-            <section class="host" id="directives-rx-for" toc-section>
+            <section id="directives-rx-for" toc-section>
                 <h3>rx-for</h3>
             <p class="note"><code class="inline">rx-for</code> renders a list from
                an Observable that emits arrays. Two modes, determined by the
@@ -229,7 +229,7 @@ Scope:  item of source
 
             <section class="host" id="directives-rx-for-splat" toc-section>
                 <h3>Splat mode</h3>
-                <p class="note">The original mode. <code class="inline">rx-for="cells by key"</code>
+                <p class="note"><code class="inline">rx-for="cells by key"</code>
                    — for each item in the array, rx-for creates a copy of its child
                    element and assigns every property from the item object directly
                    onto it. If the child is a component with
@@ -239,14 +239,17 @@ Scope:  item of source
                    <code class="inline">textContent</code> and other DOM properties work
                    directly.</p>
                 <code-block lang="ts">${escape`${FOR_DEMO_SOURCE}`}</code-block>
-                <p class="note">Three cells, keyed by
-                   <code class="inline">key</code>. Each item's
-                   <code class="inline">textContent</code> is written directly
-                   onto the span.</p>
-                <div class="ex split">
-                    <code-block lang="html">${escape`<for-demo></for-demo>`}</code-block>
-                    <div class="live"><for-demo></for-demo></div>
-                </div>
+                <section class="ex">
+                    <h2>In action</h2>
+                    <p class="note">Three cells, keyed by
+                    <code class="inline">key</code>. Each item's
+                    <code class="inline">textContent</code> is written directly
+                    onto the span.</p>
+                    <div class="split">
+                        <code-block lang="html">${escape`<for-demo></for-demo>`}</code-block>
+                        <div class="live"><for-demo></for-demo></div>
+                    </div>
+                </section>
             </section>
 
             <section class="host" id="directives-rx-for-scope" toc-section>
@@ -259,16 +262,19 @@ Scope:  item of source
                    a loop variable fall through to the host as normal — the host-is-scope
                    rule is unchanged.</p>
                 <code-block lang="html">${escape`${SCOPE_DEMO_SOURCE}`}</code-block>
-                <p class="note">Two teams, each with members. The outer rx-for
-                   declares <code class="inline">team</code> and
-                   <code class="inline">teamIdx</code>. The inner destructures
-                   <code class="inline">{ name, role }</code> with index
-                   <code class="inline">i</code>. Host fields still resolve
-                   normally.</p>
-                <div class="ex split">
-                    <code-block lang="html">${escape`<scope-demo></scope-demo>`}</code-block>
-                    <div class="live"><scope-demo></scope-demo></div>
-                </div>
+                <section class="ex">
+                    <h2>In action</h2>
+                    <p class="note">Two teams, each with members. The outer rx-for
+                    declares <code class="inline">team</code> and
+                    <code class="inline">teamIdx</code>. The inner destructures
+                    <code class="inline">{ name, role }</code> with index
+                    <code class="inline">i</code>. Host fields still resolve
+                    normally.</p>
+                    <div class="split">
+                        <code-block lang="html">${escape`<scope-demo></scope-demo>`}</code-block>
+                        <div class="live"><scope-demo></scope-demo></div>
+                    </div>
+                </section>
             </section>
 
             </section>
