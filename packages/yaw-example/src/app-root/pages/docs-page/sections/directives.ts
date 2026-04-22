@@ -190,7 +190,6 @@ export class ForDemo extends RxElement {
     <p>Welcome back, {{name}}</p>
 </div>`}</code-block>
 
-                <section class="host" id="directives-rx-if-blink" toc-section>
                     <h3>A blink tag</h3>
                     <p class="note"><code class="inline">blink-demo</code> drives
                        <code class="inline">rx-if</code> from a two-second timer —
@@ -217,7 +216,6 @@ export class BlinkDemo extends RxElement {
                         </div>
                     </section>
                 </section>
-            </section>
 
             <section id="directives-rx-for" toc-section>
                 <h3>rx-for</h3>
@@ -232,12 +230,12 @@ export class BlinkDemo extends RxElement {
             <section class="host" id="directives-rx-for-grammar" toc-section>
                 <h3>Grammar</h3>
                 <code-block lang="text">${escape`Splat:  source by key
-                Scope:  item of source
-                        item of source by key
-                        item, index of source
-                        item, index of source by key
-                        { field, field } of source by key
-                        { field, field }, index of source by key`}</code-block>
+Scope:  item of source
+        item of source by key
+        item, index of source
+        item, index of source by key
+        { field, field } of source by key
+        { field, field }, index of source by key`}</code-block>
                 <p class="note">The <code class="inline">by key</code> part is optional in
                    both modes. Without it, items are matched by position. With it,
                    items are matched by the key field value — identity is preserved
