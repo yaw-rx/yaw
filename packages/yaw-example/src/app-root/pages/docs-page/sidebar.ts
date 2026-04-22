@@ -65,6 +65,9 @@ export class DocsSidebar extends RxElement {
                 this.prevPath[i]!.collapse();
             }
 
+            const path = this.collectPath(leaf);
+            console.log('active:', id, 'leaf:', leaf?.tagName, 'path:', path.map(n => n.id), 'hostNode:', (leaf as any)?.hostNode?.tagName, 'instanceof:', leaf instanceof TocNode);
+
             leaf.active = true;
             leaf.expand();
 

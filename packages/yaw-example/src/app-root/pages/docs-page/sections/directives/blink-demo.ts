@@ -1,32 +1,18 @@
 import 'reflect-metadata';
-import { Component, RxElement, observable } from 'yaw';
-import { Blink } from './blink-demo/blink.js';
+import { timer } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Component, RxElement } from 'yaw';
 
 @Component({
     selector: 'blink-demo',
-    directives: [Blink],
-    template: `
-        <button onclick="toggle">{{label}}</button>
-        <div rx-if="visible">
-            <p blink>Now you see me</p>
-        </div>
-    `,
+    template: `<p rx-if="isVisible">Now you see me</p>`,
     styles: `
-        :host { display: block; }
-        button { background: #111; border: 1px solid #333; color: #fff;
-                 padding: 0.5rem 1rem; font: inherit; font-size: 0.85rem;
-                 font-family: monospace; cursor: pointer; border-radius: 6px;
-                 margin-bottom: 0.75rem; }
-        button:hover { border-color: #8af; color: #8af; }
+        :host { display: block; min-height: 1.5rem; }
         p { color: #8af; font-family: monospace; font-size: 1rem; margin: 0; }
     `,
 })
-export class BlinkDemo extends RxElement<{ visible: boolean; label: string }> {
-    @observable visible = true;
-    @observable label = 'Hide';
-
-    toggle(): void {
-        this.visible = !this.visible;
-        this.label = this.visible ? 'Hide' : 'Show';
+export class BlinkDemo extends RxElement {
+    get isVisible$() {
+        return timer(0, 2000).pipe(map(n => n % 2 === 0));
     }
 }

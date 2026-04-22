@@ -181,21 +181,41 @@ export class ForDemo extends RxElement {
 
             <section class="host" id="directives-rx-if" toc-section>
                 <h3>rx-if</h3>
-                <p class="note">Show or hide content based on a value that
-                   changes over time. When the value is truthy, the children
-                   appear. When falsy, they're removed. Switching back to truthy
-                   reattaches the original content without re-creating it.</p>
+                <p class="note">Conditionally mounts and unmounts a subtree based
+                   on a boolean observable. When the value goes falsy the children
+                   are detached from the DOM; when it turns truthy again the original
+                   nodes come back — no re-creation, no hidden
+                   <code class="inline">display: none</code>.</p>
                 <code-block lang="html">${escape`<div rx-if="isLoggedIn">
-                    <p>Welcome back, {{name}}</p>
-                </div>`}</code-block>
-                <p class="note">A button toggles visibility. The blinking text
-                   appears and disappears — rx-if removes and reattaches it,
-                   and the blink directive restarts each time.</p>
-                <section class="ex">
-                    <div class="split">
-                        <code-block lang="html">${escape`<blink-demo></blink-demo>`}</code-block>
-                        <div class="live"><blink-demo></blink-demo></div>
-                    </div>
+    <p>Welcome back, {{name}}</p>
+</div>`}</code-block>
+
+                <section class="host" id="directives-rx-if-blink" toc-section>
+                    <h3>A blink tag</h3>
+                    <p class="note"><code class="inline">blink-demo</code> drives
+                       <code class="inline">rx-if</code> from a two-second timer —
+                       no button, no state toggle.
+                       <code class="inline">timer(0, 2000)</code> emits 0 immediately
+                       then increments every two seconds;
+                       <code class="inline">map(n =&gt; n % 2 === 0)</code> turns that
+                       into an alternating boolean. The element is removed and
+                       reinserted by the framework on each flip.</p>
+                    <code-block lang="ts">${escape`@Component({
+    selector: 'blink-demo',
+    template: \`<p rx-if="isVisible">Now you see me</p>\`,
+})
+export class BlinkDemo extends RxElement {
+    get isVisible$() {
+        return timer(0, 2000).pipe(map(n => n % 2 === 0));
+    }
+}`}</code-block>
+                    <section class="ex">
+                        <h2>In action</h2>
+                        <div class="split">
+                            <code-block lang="html">${escape`<blink-demo></blink-demo>`}</code-block>
+                            <div class="live"><blink-demo></blink-demo></div>
+                        </div>
+                    </section>
                 </section>
             </section>
 
