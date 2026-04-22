@@ -147,14 +147,12 @@ export class TocService {
             }
         });
 
-        console.log('buildObservers for:', [...this.elements.keys()]);
         for (const [id, element] of this.elements) {
             this.ratioState[id] = { viewableArea: 0, isIntersecting: false };
 
             const observer = new IntersectionObserver(
                 (entries) => {
                     const entry = entries[0];
-                    console.log(`entry[${id}]:`, entry);
                     if (!entry) return;
                     this.ratioState[id] = {
                         viewableArea: entry.intersectionRatio,
@@ -188,9 +186,6 @@ export class TocService {
             stack.push(entry);
             this.paths.set(id, stack.map((e) => e.id));
         }
-
-        console.log('tree:', JSON.stringify(root.map(e => ({ id: e.id, depth: e.depth, children: e.children.map(c => c.id) })), null, 2));
-        console.log('paths:', Object.fromEntries(this.paths));
         this.tree$.next(root);
     }
 }

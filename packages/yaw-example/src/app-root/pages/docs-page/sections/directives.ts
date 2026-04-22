@@ -119,7 +119,7 @@ export class ForDemo extends RxElement {
     selector: 'docs-directives',
     directives: [Bounce],
     template: `
-        <h1>Directives</h1>
+        <h1 id="directives" toc-section>Directives</h1>
         <p class="lede">Directives are classes with an attribute selector. When
            the attribute appears on an element and the host component has declared
            the directive in its <code class="inline">directives</code> array (or

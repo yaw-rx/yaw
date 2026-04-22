@@ -30,6 +30,7 @@ import { TocService } from './docs-page/services/toc-service.js';
                    padding: 6rem 2rem 4rem 2rem; }
         .content > [id] { scroll-margin-top: 5rem; display: block; }
         [toc-section] { margin-left: calc(var(--toc-depth, 0) * 1.5rem); }
+        h1[toc-section] { margin-left: 0; }
         [toc-section][style*="--toc-depth"]::before {
             content: '';
             display: block;

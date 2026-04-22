@@ -42,7 +42,7 @@ export class AppRoot extends RxElement {}`;
 @Component({
     selector: 'docs-bootstrap',
     template: `
-        <h1>Bootstrap</h1>
+        <h1 id="bootstrap" toc-section>Bootstrap</h1>
         <p class="lede">One call. A root component, a flat provider list, and the
            built-in global directives. <code class="inline">bootstrap()</code> creates
            the root injector, registers every imported <code class="inline">@Component</code>

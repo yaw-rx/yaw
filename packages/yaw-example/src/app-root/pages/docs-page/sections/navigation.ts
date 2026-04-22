@@ -103,7 +103,7 @@ const LIVE_USAGE = `<route-display></route-display>`;
            is just reading the subject.</p>
 
         <section class="host" id="navigation-routes" toc-section>
-            <h2>Declaring routes</h2>
+            <h2 id="navigation" toc-section>Declaring routes</h2>
             <p class="note">An array of <code class="inline">{ path, component }</code>,
                plus an optional <code class="inline">{ path: '*', component }</code>
                wildcard. Provided through the <code class="inline">ROUTES</code>

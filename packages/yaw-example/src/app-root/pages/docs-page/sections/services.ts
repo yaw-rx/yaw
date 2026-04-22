@@ -82,7 +82,7 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
     selector: 'docs-services',
     providers: [Clock],
     template: `
-        <h1>Services</h1>
+        <h1 id="services" toc-section>Services</h1>
         <p class="lede">A service is any class registered with an
            <code class="inline">Injector</code>. Decorate it with
            <code class="inline">@Injectable</code>, put it in a

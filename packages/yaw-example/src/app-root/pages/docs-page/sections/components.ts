@@ -81,7 +81,7 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
 @Component({
     selector: 'docs-components',
     template: `
-        <h1>Components</h1>
+        <h1 id="components" toc-section>Components</h1>
         <p class="lede">A component is an <code class="inline">RxElement</code>
            subclass decorated with <code class="inline">@Component</code>. The
            decorator registers a real custom element; the class instance
