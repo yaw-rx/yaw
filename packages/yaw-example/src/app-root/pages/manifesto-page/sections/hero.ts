@@ -24,8 +24,8 @@ import { PerlinBg } from './hero/perlin-bg.js';
         .noise { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
         .hero { position: relative; z-index: 1; max-width: 800px; text-align: center; }
         .title { font-size: clamp(3rem, calc(10vw / 1.75), 7rem); font-weight: 900; color: #fff;
-                 letter-spacing: -4px; line-height: 1; margin: 0 0 1.5rem; }
-        .sub { font-size: 1.25rem; color: #666; line-height: 1.6; margin: 0 0 4rem; }
+                 letter-spacing: -4px; line-height: 1; margin: 0 0 0.5rem; }
+        .sub { font-size: 1.25rem; color: #838383; line-height: 1.6; margin: 0 0 4rem; }
         .stats { display: flex; gap: 4rem; justify-content: center; }
     `
 })
