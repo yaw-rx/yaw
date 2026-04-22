@@ -1,3 +1,45 @@
+/**
+ * rx-for — list rendering directive.
+ *
+ * Attach `rx-for="expression by key"` to any element. The expression must
+ * resolve to an Observable that emits arrays. On each emission the directive
+ * creates, updates, or removes child elements to match the incoming array.
+ *
+ * How it works:
+ *
+ * 1. The directive reads the `rx-for` attribute and splits it into a source
+ *    expression and an optional key field (defaults to `id`).
+ *
+ * 2. It saves the element's innerHTML as a template string — this is the HTML
+ *    that gets copied for each item in the array. The element's children are
+ *    then cleared so the directive controls what's inside.
+ *
+ * 3. It subscribes to the source expression through the standard binding
+ *    system (`subscribeBind`). The source walks to the host component via
+ *    `closest('[data-rx-host]')` and resolves through the host's observable
+ *    fields, exactly like any other binding.
+ *
+ * 4. Each time the source emits an array, the directive reconciles:
+ *    - For each item, extract the key field value (e.g. `item.id`).
+ *    - If a child element already exists for that key, reuse it.
+ *    - If not, insert a copy of the saved template HTML. Before insertion,
+ *      the host component is pushed onto the render scope stack so that any
+ *      child elements created during insertion get the correct `hostNode`.
+ *      This is how nested components inside the list find their parent for
+ *      directive lookup and dependency injection.
+ *    - After insertion, every property on the item object is assigned directly
+ *      onto the child element (`element[prop] = value`). This is "splat mode" —
+ *      the child is typically a component with `@observable` fields, and
+ *      setting a property triggers its BehaviorSubject, which drives that
+ *      component's own template bindings.
+ *    - Child elements whose keys are no longer in the array are removed.
+ *
+ * 5. On destroy, the source subscription is cleaned up and the element map
+ *    is cleared.
+ *
+ * The directive is optional — include it in the `directives` array at
+ * bootstrap, or omit it. The core framework has no dependency on it.
+ */
 import { type Subscription } from 'rxjs';
 import { Directive } from '../directive.js';
 import { BindParseError } from '../errors.js';
