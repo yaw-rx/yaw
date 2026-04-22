@@ -1,86 +1,272 @@
 /**
  * rx-for — list rendering directive.
  *
- * Attach `rx-for="expression by key"` to any element. The expression must
- * resolve to an Observable that emits arrays. On each emission the directive
- * creates, updates, or removes child elements to match the incoming array.
+ * Attach `rx-for="expression"` to any element. The expression must resolve
+ * to an Observable that emits arrays. On each emission the directive creates,
+ * updates, or removes child elements to match the incoming array.
  *
- * How it works:
+ * Two modes, determined by the presence of `of` in the expression:
  *
- * 1. The directive reads the `rx-for` attribute and splits it into a source
- *    expression and an optional key field (defaults to `id`).
+ * Splat mode (no `of`):
+ *   `rx-for="rows by id"` — existing behaviour. Each item's properties are
+ *   assigned directly onto the child element. The child is typically a
+ *   component with @observable fields, and setting a property triggers its
+ *   BehaviorSubject. The key field defaults to "id" if omitted.
  *
- * 2. It saves the element's innerHTML as a template string — this is the HTML
- *    that gets copied for each item in the array. The element's children are
- *    then cleared so the directive controls what's inside.
+ * Scope mode (`of` present):
+ *   `rx-for="row of rows by id"` — declares loop variables. `row` is a
+ *   name the author introduces. Inside the rx-for, bindings that start
+ *   with `row` resolve through a per-item BehaviorSubject owned by the
+ *   directive. Bindings that don't match a loop variable fall through to
+ *   the host as normal. The host-is-scope rule is unchanged.
  *
- * 3. It subscribes to the source expression through the standard binding
- *    system (`subscribeBind`). The source walks to the host component via
- *    `closest('[data-rx-host]')` and resolves through the host's observable
- *    fields, exactly like any other binding.
+ *   Accepted forms:
+ *     row of rows              — item variable, no key
+ *     row, i of rows           — item + index variable
+ *     row of rows by id        — item + keyed reconciliation
+ *     row, i of rows by id     — item + index + keyed
+ *     { a, b } of rows by id   — destructured fields as loop variables
+ *     { a, b }, i of rows by id — destructured + index
  *
- * 4. Each time the source emits an array, the directive reconciles:
- *    - For each item, extract the key field value (e.g. `item.id`).
- *    - If a child element already exists for that key, reuse it.
- *    - If not, insert a copy of the saved template HTML. Before insertion,
- *      the host component is pushed onto the render scope stack so that any
- *      child elements created during insertion get the correct `hostNode`.
- *      This is how nested components inside the list find their parent for
- *      directive lookup and dependency injection.
- *    - After insertion, every property on the item object is assigned directly
- *      onto the child element (`element[prop] = value`). This is "splat mode" —
- *      the child is typically a component with `@observable` fields, and
- *      setting a property triggers its BehaviorSubject, which drives that
- *      component's own template bindings.
- *    - Child elements whose keys are no longer in the array are removed.
+ * Scope mode integrates with the binding system via a hook exported by
+ * bind.ts (registerScopeHook). The directive registers a function at
+ * module import time that checks whether a binding's first path segment
+ * is a loop variable. This keeps the directive modular — the core binding
+ * system has no dependency on rx-for.
  *
- * 5. On destroy, the source subscription is cleaned up and the element map
- *    is cleared.
+ * Reconciliation:
+ *   Keyed (by <field>) — items matched by key, DOM reordered to match
+ *   source order. Identity-preserving across emissions.
+ *   Keyless — items matched by position. Reordering updates in place,
+ *   no DOM moves. data-rx-key carries the positional index.
  *
- * The directive is optional — include it in the `directives` array at
- * bootstrap, or omit it. The core framework has no dependency on it.
+ * Clone attributes (scope mode only):
+ *   data-rx-item — structural marker on every item element.
+ *   data-rx-key  — always present. Derived from key field or position.
+ *
+ * The directive is optional — include it in the directives array at
+ * bootstrap, or omit it entirely. The core framework has no dependency
+ * on it.
  */
-import { type Subscription } from 'rxjs';
+import { BehaviorSubject, type Subscription } from 'rxjs';
 import { Directive } from '../directive.js';
 import { BindParseError } from '../errors.js';
-import { parseBind, subscribeBind } from '../expression/bind.js';
+import { parseBind, subscribeBind, registerScopeHook, type ParsedBind, type ScopeHookResult } from '../expression/bind.js';
 import type { RxElementLike } from '../directive.js';
 import { pushRenderScope, popRenderScope, RxElementBase } from '../rx-element.js';
+
+// ---------------------------------------------------------------------------
+// Parser
+// ---------------------------------------------------------------------------
+
+interface RxForParsed {
+    mode: 'splat' | 'scope';
+    source: ParsedBind;
+    keyField: string | undefined;
+    itemName: string | undefined;
+    destructuredFields: string[] | undefined;
+    indexName: string | undefined;
+    loopVariables: string[];
+}
+
+const parseRxFor = (raw: string): RxForParsed => {
+    let expr = raw.trim();
+
+    // strip leading const/let
+    if (expr.startsWith('const ') || expr.startsWith('let ')) {
+        expr = expr.slice(expr.indexOf(' ') + 1).trim();
+    }
+
+    // split "by <key>" from the end
+    let keyField: string | undefined;
+    const byIdx = expr.lastIndexOf(' by ');
+    if (byIdx !== -1) {
+        keyField = expr.slice(byIdx + 4).trim();
+        if (keyField === '') throw new BindParseError(raw, 'rx-for expected key identifier after "by"');
+        expr = expr.slice(0, byIdx).trim();
+    }
+
+    // detect scope mode: look for " of "
+    const ofIdx = expr.indexOf(' of ');
+    if (ofIdx === -1) {
+        // splat mode — the whole expression (minus "by") is the source
+        const source = parseBind(expr);
+        return { mode: 'splat', source, keyField, itemName: undefined, destructuredFields: undefined, indexName: undefined, loopVariables: [] };
+    }
+
+    // scope mode: left of " of " declares loop variables, right is source
+    const declPart = expr.slice(0, ofIdx).trim();
+    const sourcePart = expr.slice(ofIdx + 4).trim();
+
+    if (sourcePart === '') throw new BindParseError(raw, 'rx-for expected source after "of"');
+    if (declPart === '') throw new BindParseError(raw, 'rx-for expected item identifier or destructure');
+
+    const source = parseBind(sourcePart);
+    let itemName: string | undefined;
+    let destructuredFields: string[] | undefined;
+    let indexName: string | undefined;
+
+    // parse the declaration part: could be "{a, b}, i" or "row, i" or "row" or "{a, b}"
+    let remaining = declPart;
+
+    if (remaining.startsWith('{')) {
+        // destructure mode
+        const closeIdx = remaining.indexOf('}');
+        if (closeIdx === -1) throw new BindParseError(raw, 'rx-for destructure expected "}"');
+        const inner = remaining.slice(1, closeIdx).trim();
+        if (inner === '') throw new BindParseError(raw, 'rx-for destructure must declare at least one field');
+        destructuredFields = inner.split(',').map(s => s.trim()).filter(s => s !== '');
+        if (destructuredFields.length === 0) throw new BindParseError(raw, 'rx-for destructure must declare at least one field');
+        remaining = remaining.slice(closeIdx + 1).trim();
+    } else {
+        // single ident mode — read the first identifier
+        const commaIdx = remaining.indexOf(',');
+        if (commaIdx !== -1) {
+            itemName = remaining.slice(0, commaIdx).trim();
+            remaining = remaining.slice(commaIdx).trim();
+        } else {
+            itemName = remaining.trim();
+            remaining = '';
+        }
+        if (itemName === '') throw new BindParseError(raw, 'rx-for expected item identifier or destructure');
+    }
+
+    // check for index: ", i"
+    if (remaining.startsWith(',')) {
+        remaining = remaining.slice(1).trim();
+        if (remaining === '') throw new BindParseError(raw, 'rx-for expected index identifier after ","');
+        if (remaining.includes(',')) throw new BindParseError(raw, 'rx-for accepts at most one index identifier after the item');
+        indexName = remaining.trim();
+    } else if (remaining !== '') {
+        throw new BindParseError(raw, `rx-for accepts at most "item, index" — use { … } to destructure fields`);
+    }
+
+    // build declared idents list
+    const loopVariables: string[] = [];
+    if (destructuredFields) {
+        loopVariables.push(...destructuredFields);
+    } else if (itemName) {
+        loopVariables.push(itemName);
+    }
+    if (indexName) loopVariables.push(indexName);
+
+    return { mode: 'scope', source, keyField, itemName, destructuredFields, indexName, loopVariables };
+};
+
+// ---------------------------------------------------------------------------
+// Scope hook — registered once at module load
+// ---------------------------------------------------------------------------
+
+interface ScopeEntry {
+    el: Element;
+    subject: BehaviorSubject<unknown>;
+    index$: BehaviorSubject<unknown> | undefined;
+}
+
+const SCOPE_PROP = '__rxForScope';
+
+registerScopeHook((host: RxElementLike, segment: string): ScopeHookResult | undefined => {
+    // walk up via closest('[rx-for]') — native browser call
+    let rxForEl: Element | null = (host as Element).closest('[rx-for]');
+    while (rxForEl !== null) {
+        const directive = (rxForEl as any)[SCOPE_PROP] as RxFor | undefined;
+        if (directive !== undefined && directive.mode === 'scope') {
+            if (directive.loopVariables.includes(segment)) {
+                // find the item element: walk up from host to direct child of rxForEl
+                let itemEl: Element | null = host as Element;
+                while (itemEl !== null && itemEl.parentElement !== rxForEl) {
+                    itemEl = itemEl.parentElement;
+                }
+                if (itemEl === null) return undefined;
+
+                const key = itemEl.getAttribute('data-rx-key');
+                if (key === null) return undefined;
+
+                const entry = directive.scopeNodes.get(key);
+                if (entry === undefined) return undefined;
+
+                // index variable: return the index subject, consumed = 1 (skip the name)
+                if (segment === directive.indexName) {
+                    if (entry.index$ === undefined) return undefined;
+                    return { stream: entry.index$ as unknown as BehaviorSubject<unknown>, consumed: 1 };
+                }
+
+                // item variable (e.g. "row" in "row of rows"): return the item subject,
+                // consumed = 1 — subscribeBind skips "row" and processes remaining segments
+                if (segment === directive.itemName) {
+                    return { stream: entry.subject, consumed: 1 };
+                }
+
+                // destructured field (e.g. "name" from "{ name, status } of rows"):
+                // return the item subject, consumed = 0 — subscribeBind processes "name"
+                // as a path segment on the item object via segmentStream
+                return { stream: entry.subject, consumed: 0 };
+            }
+        }
+        // hop to next rx-for outward
+        rxForEl = rxForEl.parentElement?.closest('[rx-for]') ?? null;
+    }
+    return undefined;
+});
+
+// ---------------------------------------------------------------------------
+// Directive
+// ---------------------------------------------------------------------------
 
 @Directive({ selector: '[rx-for]' })
 export class RxFor {
     node!: RxElementLike;
+
+    mode: 'splat' | 'scope' = 'splat';
+    loopVariables: string[] = [];
+    indexName: string | undefined;
+    scopeNodes = new Map<string, ScopeEntry>();
+
+    itemName: string | undefined;
+
+    private source!: ParsedBind;
+    private keyField: string | undefined;
     private sub: Subscription | undefined;
-    private key = 'id';
     private content = '';
-    private nodes = new Map<unknown, Element>();
+    private splatNodes = new Map<unknown, Element>();
 
     onInit(): void {
         const raw = this.node.getAttribute('rx-for') ?? '';
-        const [exprPart, keyPart] = raw.split(' by ');
-        if (exprPart === undefined || exprPart.trim() === '') {
-            throw new BindParseError(raw, 'rx-for expected "expr by key"');
+        const p = parseRxFor(raw);
+
+        this.mode = p.mode;
+        this.source = p.source;
+        this.keyField = p.keyField;
+        this.itemName = p.itemName;
+        this.indexName = p.indexName;
+        this.loopVariables = p.loopVariables;
+
+        if (this.mode === 'splat') {
+            this.initSplat();
+        } else {
+            this.initScope();
         }
-        this.key = keyPart?.trim() ?? 'id';
+    }
+
+    // splat mode — unchanged from original
+    private initSplat(): void {
         this.content = this.node.innerHTML;
         this.node.replaceChildren();
 
-        const parsed = parseBind(exprPart.trim());
-        this.sub = subscribeBind(this.node, parsed, (v) => {
+        this.sub = subscribeBind(this.node, this.source, (v) => {
             if (!Array.isArray(v)) {
-                throw new BindParseError(parsed.raw, `rx-for expected array, got ${typeof v}`);
+                throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
             }
-            this.update(v);
+            this.updateSplat(v);
         });
     }
 
-    private update(incoming: unknown[]): void {
+    private updateSplat(incoming: unknown[]): void {
+        const key = this.keyField ?? 'id';
         const next = new Map<unknown, Element>();
-
         for (const item of incoming) {
-            const k = (item as Record<string, unknown>)[this.key];
-            let el = this.nodes.get(k);
-
+            const k = (item as Record<string, unknown>)[key];
+            let el = this.splatNodes.get(k);
             if (el === undefined) {
                 const scope = this.node.hostNode instanceof RxElementBase ? this.node.hostNode : undefined;
                 if (scope !== undefined) pushRenderScope(scope);
@@ -88,23 +274,112 @@ export class RxFor {
                 if (scope !== undefined) popRenderScope();
                 el = this.node.lastElementChild!;
             }
-
             for (const [prop, val] of Object.entries(item as Record<string, unknown>)) {
                 (el as unknown as Record<string, unknown>)[prop] = val;
             }
-
             next.set(k, el);
         }
-
-        for (const [k, el] of this.nodes) {
+        for (const [k, el] of this.splatNodes) {
             if (!next.has(k)) el.remove();
         }
+        this.splatNodes = next;
+    }
 
-        this.nodes = next;
+    // scope mode — new
+    private initScope(): void {
+        (this.node as any)[SCOPE_PROP] = this;
+        this.content = this.node.innerHTML;
+
+        // remove raw template children (they're the blueprint, not items)
+        while (this.node.firstChild) this.node.removeChild(this.node.firstChild);
+
+        this.sub = subscribeBind(this.node, this.source, (v) => {
+            if (!Array.isArray(v)) {
+                throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
+            }
+            this.updateScope(v);
+        });
+    }
+
+    private updateScope(incoming: unknown[]): void {
+        const seen = new Set<string>();
+
+        for (let i = 0; i < incoming.length; i++) {
+            const item = incoming[i]!;
+            const key = this.keyField
+                ? String((item as Record<string, unknown>)[this.keyField])
+                : String(i);
+            seen.add(key);
+
+            const existing = this.scopeNodes.get(key);
+            if (existing !== undefined) {
+                // update existing item
+                existing.subject.next(item);
+                if (existing.index$) existing.index$.next(i);
+                // reorder if needed (keyed mode)
+                if (this.keyField) {
+                    const expectedPrev = i > 0
+                        ? this.scopeNodes.get(
+                            this.keyField
+                                ? String((incoming[i - 1] as Record<string, unknown>)[this.keyField])
+                                : String(i - 1)
+                        )?.el ?? null
+                        : null;
+                    if (existing.el.previousElementSibling !== expectedPrev) {
+                        this.node.appendChild(existing.el);
+                    }
+                }
+            } else {
+                // stamp new item
+                const subject = new BehaviorSubject<unknown>(item);
+                const index$ = this.indexName ? new BehaviorSubject<unknown>(i) : undefined;
+
+                // parse template into a DocumentFragment so we can set attributes
+                // before connecting to the DOM (children's connectedCallback needs
+                // data-rx-item and data-rx-key to be present)
+                const tpl = document.createElement('template');
+                tpl.innerHTML = this.content;
+                const frag = tpl.content;
+                const itemEl = frag.firstElementChild!;
+                itemEl.setAttribute('data-rx-item', '');
+                itemEl.setAttribute('data-rx-key', key);
+
+                const entry: ScopeEntry = { el: itemEl, subject, index$ };
+                this.scopeNodes.set(key, entry);
+
+                // push host onto render scope so children get correct hostNode
+                const scope = this.node.hostNode instanceof RxElementBase ? this.node.hostNode : undefined;
+                if (scope !== undefined) pushRenderScope(scope);
+                this.node.appendChild(frag);
+                if (scope !== undefined) popRenderScope();
+
+                // after appendChild, itemEl is now in the DOM — update entry ref
+                // (the element reference stays valid after appendChild from fragment)
+            }
+        }
+
+        // remove items no longer in the array
+        for (const [key, entry] of this.scopeNodes) {
+            if (!seen.has(key)) {
+                entry.subject.complete();
+                entry.index$?.complete();
+                entry.el.remove();
+                this.scopeNodes.delete(key);
+            }
+        }
     }
 
     onDestroy(): void {
         this.sub?.unsubscribe();
-        this.nodes.clear();
+        if (this.mode === 'scope') {
+            delete (this.node as any)[SCOPE_PROP];
+            for (const entry of this.scopeNodes.values()) {
+                entry.subject.complete();
+                entry.index$?.complete();
+            }
+            this.scopeNodes.clear();
+        } else {
+            this.splatNodes.clear();
+        }
     }
 }

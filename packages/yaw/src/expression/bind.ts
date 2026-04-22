@@ -1,4 +1,56 @@
-import { isObservable, of, Subscription, switchMap, type Observable } from 'rxjs';
+/**
+ * bind.ts — binding resolution for reactive templates.
+ *
+ * Parses binding expressions (like "count", "row.name", "^.increment(1)")
+ * and subscribes them to observable streams that push values to the DOM.
+ *
+ * How the binding chain works:
+ *
+ *   A binding like "row.name" becomes a pipeline of switchMap operations.
+ *   Each segment in the path is resolved by segmentStream, which checks
+ *   three things in order:
+ *     1. Is obj[x] itself an Observable? Use it. (e.g. { name: of('alice') })
+ *     2. Is obj[x$] an Observable? Use it. (e.g. @observable creates x$)
+ *     3. Neither? Wrap the plain value with of(). (e.g. { name: 'alice' })
+ *
+ *   switchMap connects these: when an observable segment emits a new value,
+ *   everything downstream is torn down and rebuilt. of() segments emit one
+ *   value and complete — but inside switchMap that's fine, because the outer
+ *   subscription stays alive and re-triggers the inner on the next emission.
+ *
+ *   A chain of ONLY of() segments is dead — emits once, completes, never
+ *   updates. That's why at least one segment must be observable: it's the
+ *   live source that keeps the pipeline alive. Everything downstream of it
+ *   re-evaluates when it emits. Everything upstream is a stable reference
+ *   (the host object, resolved once via walkScope).
+ *
+ * Resolution functions:
+ *
+ *   parseBind — turns a binding string into carets (host boundary hops),
+ *   path segments (dotted property path), and optional call/args info.
+ *
+ *   subscribeBind — resolves a parsed binding to a live subscription.
+ *   Before walking to the host, it calls a scope hook (if one is installed).
+ *   The hook can claim the first path segment by returning a BehaviorSubject
+ *   and a consumed count. If it does, that subject becomes the stream root
+ *   and the remaining segments pipe through switchMap. If it doesn't, the
+ *   normal host walk proceeds — closest('[data-rx-host]') with caret hops.
+ *
+ *   resolveEventHandler — resolves methods on the host. Arguments go
+ *   through the same hook for claimed names.
+ *
+ *   resolveRefTarget — resolves #ref assignments.
+ *
+ * Extension point — registerScopeHook:
+ *
+ *   Any directive that introduces names into its subtree can install a
+ *   hook via registerScopeHook. The hook is called before the host walk
+ *   on every binding. It receives the binding element and the first path
+ *   segment. Return a ScopeHookResult (BehaviorSubject + consumed count)
+ *   to claim it, or undefined to pass. When no hook is installed, the
+ *   check is a single null comparison.
+ */
+import { BehaviorSubject, isObservable, of, Subscription, switchMap, type Observable } from 'rxjs';
 import { BindNotSubscribableError, BindParseError, BindPathError, BindScopeError } from '../errors.js';
 import type { RxElementLike } from '../directive.js';
 
@@ -95,6 +147,16 @@ const parseArg = (cur: Cursor, raw: string): ParsedArg => {
     return { kind: 'ref', ref: parseRef(cur, raw) };
 };
 
+export interface ScopeHookResult {
+    readonly stream: BehaviorSubject<unknown>;
+    readonly consumed: number;
+}
+
+type ScopeHook = (host: RxElementLike, segment: string) => ScopeHookResult | undefined;
+let scopeHook: ScopeHook | null = null;
+
+export const registerScopeHook = (hook: ScopeHook): void => { scopeHook = hook; };
+
 const cache = new Map<string, ParsedBind>();
 
 export const parseBind = (raw: string): ParsedBind => {
@@ -136,10 +198,26 @@ const walkScope = (host: RxElementLike, carets: number, raw: string): RxElementL
 };
 
 const resolveRef = (host: RxElementLike, ref: ParsedRef, raw: string): unknown => {
-    let cur: unknown = walkScope(host, ref.carets, raw);
-    for (const seg of ref.path) {
-        if (cur === null || cur === undefined) throw new BindPathError(host.tagName, raw, seg);
-        cur = (cur as Record<string, unknown>)[seg];
+    let cur: unknown;
+    let startIndex: number;
+
+    if (scopeHook !== null) {
+        const claimed = scopeHook(host, ref.path[0]!);
+        if (claimed !== undefined) {
+            cur = claimed.stream.value;
+            startIndex = claimed.consumed;
+        } else {
+            cur = walkScope(host, ref.carets, raw);
+            startIndex = 0;
+        }
+    } else {
+        cur = walkScope(host, ref.carets, raw);
+        startIndex = 0;
+    }
+
+    for (let i = startIndex; i < ref.path.length; i++) {
+        if (cur === null || cur === undefined) throw new BindPathError(host.tagName, raw, ref.path[i]!);
+        cur = (cur as Record<string, unknown>)[ref.path[i]!];
     }
     return cur;
 };
@@ -156,6 +234,7 @@ const segmentStream = (host: RxElementLike, parsed: ParsedBind, value: unknown, 
         throw new BindPathError(host.tagName, parsed.raw, segment);
     }
     const obj = value as Record<string, unknown>;
+    if (isObservable(obj[segment])) return obj[segment] as Observable<unknown>;
     const reactive = obj[`${segment}$`];
     if (isObservable(reactive)) return reactive as Observable<unknown>;
     if (!(segment in obj)) throw new BindPathError(host.tagName, parsed.raw, segment);
@@ -167,11 +246,58 @@ export const subscribeBind = (
     parsed: ParsedBind,
     onValue: (v: unknown) => void,
 ): Subscription => {
-    const scope = walkScope(host, parsed.carets, parsed.raw);
     const segments = parsed.path;
 
-    let stream: Observable<unknown> = of(scope as unknown);
-    for (let i = 0; i < segments.length; i++) {
+    let stream: Observable<unknown>;
+    let startIndex: number;
+    let hasObservable: boolean;
+
+    if (scopeHook !== null) {
+        const claimed = scopeHook(host, segments[0]!);
+        if (claimed !== undefined) {
+            stream = claimed.stream;
+            startIndex = claimed.consumed;
+            hasObservable = true;
+        } else {
+            const scope = walkScope(host, parsed.carets, parsed.raw);
+            stream = of(scope as unknown);
+            startIndex = 0;
+            hasObservable = false;
+        }
+    } else {
+        const scope = walkScope(host, parsed.carets, parsed.raw);
+        stream = of(scope as unknown);
+        startIndex = 0;
+        hasObservable = false;
+    }
+
+    // Chain-reactive rule: the switchMap pipeline needs at least one observable
+    // segment to stay alive. A chain of only of() segments emits once and dies.
+    // The observable segment is the live source — everything downstream of it
+    // re-evaluates when it emits. The scope hook satisfies this by construction
+    // (the BehaviorSubject IS the observable root). For host-mode bindings, we
+    // walk the path synchronously to verify at least one segment is reactive.
+    if (!hasObservable && !parsed.call) {
+        const scope = walkScope(host, parsed.carets, parsed.raw);
+        let cur: unknown = scope;
+        for (let i = startIndex; i < segments.length; i++) {
+            if (cur === null || cur === undefined) break;
+            const obj = cur as Record<string, unknown>;
+            if (isObservable(obj[segments[i]!]) || isObservable(obj[`${segments[i]!}$`])) {
+                hasObservable = true;
+                break;
+            }
+            cur = obj[segments[i]!];
+        }
+        if (!hasObservable) {
+            throw new BindNotSubscribableError(
+                host.tagName, parsed.raw,
+                `no observable segment in chain — add @observable or use a reactive source`,
+            );
+        }
+    }
+
+    for (let i = startIndex; i < segments.length; i++) {
         const segment = segments[i]!;
         const isLast = i === segments.length - 1;
         stream = stream.pipe(switchMap((v) => {
@@ -195,21 +321,6 @@ export const subscribeBind = (
         }));
     }
 
-    if (!parsed.call) {
-        const terminalIsObservable = ((): boolean => {
-            let cur: unknown = walkScope(host, parsed.carets, parsed.raw);
-            for (let i = 0; i < segments.length - 1; i++) {
-                if (cur === null || cur === undefined) return false;
-                cur = (cur as Record<string, unknown>)[segments[i]!];
-            }
-            if (cur === null || cur === undefined) return false;
-            return isObservable((cur as Record<string, unknown>)[`${segments[segments.length - 1]!}$`]);
-        })();
-        if (!terminalIsObservable) {
-            throw new BindNotSubscribableError(host.tagName, parsed.raw, `terminal "${segments[segments.length - 1]!}" has no $ observable — add @observable or call a method`);
-        }
-    }
-
     return stream.subscribe(onValue);
 };
 
@@ -218,10 +329,25 @@ export interface EventInvocation {
 }
 
 export const resolveEventHandler = (host: RxElementLike, parsed: ParsedBind): EventInvocation => {
-    const scope = walkScope(host, parsed.carets, parsed.raw);
     const segments = parsed.path;
-    let cur: unknown = scope;
-    for (let i = 0; i < segments.length - 1; i++) {
+    let cur: unknown;
+    let startIndex: number;
+
+    if (scopeHook !== null) {
+        const claimed = scopeHook(host, segments[0]!);
+        if (claimed !== undefined) {
+            cur = claimed.stream.value;
+            startIndex = claimed.consumed;
+        } else {
+            cur = walkScope(host, parsed.carets, parsed.raw);
+            startIndex = 0;
+        }
+    } else {
+        cur = walkScope(host, parsed.carets, parsed.raw);
+        startIndex = 0;
+    }
+
+    for (let i = startIndex; i < segments.length - 1; i++) {
         if (cur === null || cur === undefined) throw new BindPathError(host.tagName, parsed.raw, segments[i]!);
         cur = (cur as Record<string, unknown>)[segments[i]!];
     }

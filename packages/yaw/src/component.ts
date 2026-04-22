@@ -1,3 +1,40 @@
+/**
+ * component.ts — component registration and application bootstrap.
+ *
+ * The @Component decorator defines a component. When it runs:
+ *
+ *   1. The template is compiled via transformTemplate — mustache bindings
+ *      become <rx-text>, attribute bindings become data-rx-bind-*, event
+ *      handlers become data-rx-on-*, HTML tags become rx-* mirrors, and
+ *      carets are injected based on custom-element nesting depth.
+ *
+ *   2. The compiled template, selector, providers, and directives are
+ *      stored in Maps keyed by constructor. These are the framework's
+ *      metadata — populated at decoration time, read during rendering.
+ *
+ *   3. Styles are scoped to the component's tag and added to
+ *      document.adoptedStyleSheets.
+ *
+ *   4. The class is registered via customElements.define. Every component
+ *      is defined before any rendering happens, so any component tag can
+ *      appear in any template.
+ *
+ * Initialization order:
+ *
+ *   Rendering is top-down. A parent's connectedCallback runs setupHostNode,
+ *   setupInjectorAndDeps, and setupDirectives before renderTemplate creates
+ *   its children via innerHTML. Children only exist after the parent is
+ *   fully initialized. This guarantees parent-first ordering for the DI
+ *   tree, hostNode, and directive setup.
+ *
+ * Recursive components:
+ *
+ *   A component can contain its own tag in its template. The tag is
+ *   registered during the decorator, before any template renders. The
+ *   browser creates the nested instance on innerHTML, its connectedCallback
+ *   fires, and it renders its own children — recursing until the data
+ *   runs out.
+ */
 import { Injector } from './di/injector.js';
 import type { Provider } from './di/types.js';
 import type { DirectiveCtor, RxElementLike } from './directive.js';
