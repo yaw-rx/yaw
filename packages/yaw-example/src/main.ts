@@ -1,47 +1,48 @@
 import 'reflect-metadata';
 import { bootstrap, Router, ROUTES, DefaultGlobalDirectives } from 'yaw';
 
-import { AppRoot } from './shared/components/app-root.js';
-import './shared/components/nav-bar.js';
-import './shared/components/code-block.js';
+import { AppRoot } from './app-root.js';
+import './app-root/components/nav-bar.js';
+import './app-root/components/code-block.js';
 
-import { ManifestoPage } from './pages/manifesto/manifesto-page.js';
-import './pages/manifesto/components/hero-section.js';
-import './pages/manifesto/components/stat-counter.js';
-import './pages/manifesto/components/manifesto-section.js';
-import './pages/manifesto/components/page-footer.js';
+import { ManifestoPage } from './app-root/pages/manifesto-page.js';
+import './app-root/pages/manifesto-page/sections/hero.js';
+import './app-root/pages/manifesto-page/sections/stat-counter.js';
+import './app-root/pages/manifesto-page/sections/manifesto.js';
+import './app-root/pages/manifesto-page/sections/footer.js';
 
-import { ExamplesPage } from './pages/examples/examples-page.js';
-import './pages/examples/components/nested-level.js';
-import './pages/examples/components/nesting-example.js';
-import './pages/examples/components/color-playground.js';
-import './pages/examples/components/yaw-slider.js';
-import './pages/examples/components/slider-example.js';
-import './pages/examples/components/signal-meter.js';
-import './pages/examples/components/row-firehose.js';
-import './pages/examples/components/page-echo.js';
-import './pages/examples/components/calendar-example/CalendarDay.js';
-import './pages/examples/components/calendar-example/CalendarWeek.js';
-import './pages/examples/components/calendar-example/CalendarGrid.js';
-import './pages/examples/components/calendar-example/CalendarExample.js';
+import { ExamplesPage } from './app-root/pages/examples-page.js';
+import './app-root/pages/examples-page/components/yaw-slider.js';
+import './app-root/pages/examples-page/sections/slider-example.js';
+import './app-root/pages/examples-page/sections/color-playground.js';
+import './app-root/pages/examples-page/sections/signal-meter.js';
+import './app-root/pages/examples-page/sections/row-firehose.js';
+import './app-root/pages/examples-page/sections/nesting-example.js';
+import './app-root/pages/examples-page/sections/nesting-example/components/nested-level.js';
+import './app-root/pages/examples-page/sections/nesting-example/components/page-echo.js';
+import './app-root/pages/examples-page/sections/calendar-example.js';
+import './app-root/pages/examples-page/sections/calendar-example/calendar-grid.js';
+import './app-root/pages/examples-page/sections/calendar-example/calendar-grid/calendar-week.js';
+import './app-root/pages/examples-page/sections/calendar-example/calendar-grid/calendar-week/calendar-day.js';
 
-import { ShowcasePage } from './pages/showcase/ShowcasePage.js';
-import './pages/showcase/components/drum-sequencer/StepCell.js';
-import './pages/showcase/components/drum-sequencer/TrackRow.js';
-import './pages/showcase/components/drum-sequencer/DrumMachine.js';
-import './pages/showcase/components/drum-sequencer/DrumSequencer.js';
+import { ShowcasePage } from './app-root/pages/showcase-page.js';
+import './app-root/pages/showcase-page/sections/drum-sequencer.js';
+import './app-root/pages/showcase-page/sections/drum-sequencer/drum-machine.js';
+import './app-root/pages/showcase-page/sections/drum-sequencer/drum-machine/track-row.js';
+import './app-root/pages/showcase-page/sections/drum-sequencer/drum-machine/track-row/step-cell.js';
 
-import { DocsPage } from './pages/docs/page.js';
-import { TocSection } from './pages/docs/toc.js';
-import './pages/docs/components/sidebar/sidebar.js';
-import './pages/docs/components/sidebar/toc-node/toc-node.js';
-import './pages/docs/components/bootstrap.js';
-import './pages/docs/components/components.js';
-import './pages/docs/components/directives.js';
-import './pages/docs/components/rx-for-demo/ForDemo.js';
-import './pages/docs/components/directives/scope-demo.js';
-import './pages/docs/components/services.js';
-import './pages/docs/components/navigation.js';
+import { DocsPage } from './app-root/pages/docs-page.js';
+import { TocSection } from './app-root/pages/docs-page/directives/toc-section.js';
+import './app-root/pages/docs-page/sidebar.js';
+import './app-root/pages/docs-page/sidebar/toc-node.js';
+import './app-root/pages/docs-page/sections/bootstrap.js';
+import './app-root/pages/docs-page/sections/components.js';
+import './app-root/pages/docs-page/sections/directives.js';
+import './app-root/pages/docs-page/sections/directives/for-demo.js';
+import './app-root/pages/docs-page/sections/directives/scope-demo.js';
+import './app-root/pages/docs-page/sections/directives/blink-demo.js';
+import './app-root/pages/docs-page/sections/services.js';
+import './app-root/pages/docs-page/sections/navigation.js';
 
 bootstrap({
     root: AppRoot,
