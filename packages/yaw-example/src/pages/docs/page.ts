@@ -1,11 +1,9 @@
 import 'reflect-metadata';
 import { Component, RxElement } from 'yaw';
-import { ScrollReveal } from '../../shared/directives/scroll-reveal.js';
 import { TocService } from './toc.js';
 
 @Component({
     selector: 'docs-page',
-    directives: [ScrollReveal],
     providers: [TocService],
     template: `
         <docs-sidebar></docs-sidebar>
@@ -18,11 +16,11 @@ import { TocService } from './toc.js';
                    where it makes sense.</p>
             </header>
 
-            <docs-bootstrap id="bootstrap" toc-section scroll-reveal></docs-bootstrap>
-            <docs-components id="components" toc-section scroll-reveal></docs-components>
-            <docs-directives id="directives" toc-section scroll-reveal></docs-directives>
-            <docs-services id="services" toc-section scroll-reveal></docs-services>
-            <docs-navigation id="navigation" toc-section scroll-reveal></docs-navigation>
+            <docs-bootstrap id="bootstrap" toc-section></docs-bootstrap>
+            <docs-components id="components" toc-section></docs-components>
+            <docs-directives id="directives" toc-section></docs-directives>
+            <docs-services id="services" toc-section></docs-services>
+            <docs-navigation id="navigation" toc-section></docs-navigation>
         </main>
     `,
     styles: `
@@ -31,13 +29,21 @@ import { TocService } from './toc.js';
         .content { flex: 1 1 0; min-width: 0; box-sizing: border-box;
                    padding: 6rem 2rem 4rem 2rem; }
         .content > [id] { scroll-margin-top: 5rem; display: block; }
+        [toc-section] { padding-left: calc(var(--toc-depth, 0) * 1.5rem) !important; }
+        [toc-section][style*="--toc-depth"]::before {
+            content: '';
+            display: block;
+            border-top: calc(min(var(--toc-depth, 0), 1) * 1px) solid #fff;
+            margin-bottom: calc(min(var(--toc-depth, 0), 1) * 1.5rem);
+        }
+        [toc-section] + [toc-section]::before {
+            border-top: none;
+            margin-bottom: 0;
+        }
         .intro { margin-bottom: 2.5rem; }
         h1 { color: #fff; font-size: 2.5rem; font-weight: 900;
              letter-spacing: -1px; margin: 0 0 1rem; }
         .lede { color: #888; line-height: 1.7; max-width: 72ch; margin: 0; }
-        .reveal { opacity: 0; transform: translateY(24px);
-                  transition: opacity 0.6s ease, transform 0.6s ease; }
-        .reveal.revealed { opacity: 1; transform: none; }
     `,
 })
 export class DocsPage extends RxElement {}

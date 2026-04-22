@@ -121,14 +121,14 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
             <code-block lang="ts">${escape`${RESOLVE_SOURCE}`}</code-block>
         </section>
 
-        <section class="ex" id="services-live" toc-section>
+        <section class="host" id="services-live" toc-section>
             <h2>Live</h2>
             <p class="note">This section registers <code class="inline">Clock</code>
                in its own <code class="inline">providers</code>. The readout below
                declares <code class="inline">@Inject() clock!: Clock</code> and
                subscribes in <code class="inline">onInit</code>. A single service
                emitting to a single observer — no global state, no singleton module.</p>
-            <div class="split">
+            <div class="ex split">
                 <code-block lang="html">${escape`${LIVE_USAGE}`}</code-block>
                 <div class="live"><clock-readout></clock-readout></div>
             </div>

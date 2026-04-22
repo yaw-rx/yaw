@@ -87,6 +87,16 @@ export class Shelf extends RxElement {}`;
 const BEFORE_AFTER_SNIPPET = `<div class="box">still</div>
 <div class="box" bounce>bouncing</div>`;
 
+const SCOPE_DEMO_SOURCE = `// item + index + destructure + nesting — one example covers all forms
+
+<div rx-for="team, teamIdx of teams by id">
+    <h3>{{teamIdx}}: {{team.name}}</h3>
+
+    <ul rx-for="{ name, role }, i of team.members by id">
+        <li>{{i}}: {{name}} ({{role}})</li>
+    </ul>
+</div>`;
+
 const FOR_DEMO_SOURCE = `@Component({
     selector: 'for-demo',
     template: \`
@@ -118,26 +128,12 @@ export class ForDemo extends RxElement {
            calls <code class="inline">onInit</code>.</p>
 
         <section class="host" id="directives-a" toc-section>
-            <h2>A directive</h2>
+            <h2>A simple example</h2>
             <p class="note">A minimal directive that bounces its host element
                via the Web Animations API. Two hooks — start the animation on
                <code class="inline">onInit</code>, cancel it on
                <code class="inline">onDestroy</code>.</p>
             <code-block lang="ts">${escape`${BOUNCE_SOURCE}`}</code-block>
-        </section>
-
-        <section class="ex" id="directives-before-after" toc-section>
-            <h2>Before / after</h2>
-            <p class="note">Same markup, one attribute difference. Add
-               <code class="inline">bounce</code> to an element and the directive
-               attaches on mount.</p>
-            <div class="split">
-                <code-block lang="html">${escape`${BEFORE_AFTER_SNIPPET}`}</code-block>
-                <div class="live">
-                    <div class="box">still</div>
-                    <div class="box" bounce>bouncing</div>
-                </div>
-            </div>
         </section>
 
         <section class="host" id="directives-declaring" toc-section>
@@ -151,6 +147,20 @@ export class ForDemo extends RxElement {
             <code-block lang="ts">${escape`${USAGE_SOURCE}`}</code-block>
         </section>
 
+        <section class="host" id="directives-before-after" toc-section>
+            <h2>In action</h2>
+            <p class="note">Same markup, one attribute difference. Add
+               <code class="inline">bounce</code> to an element and the directive
+               attaches on mount.</p>
+            <div class="ex split">
+                <code-block lang="html">${escape`${BEFORE_AFTER_SNIPPET}`}</code-block>
+                <div class="live">
+                    <div class="box">still</div>
+                    <div class="box" bounce>bouncing</div>
+                </div>
+            </div>
+        </section>
+
         <section class="host" id="directives-scroll-reveal" toc-section>
             <h2>Another: ScrollReveal</h2>
             <p class="note">A real directive from this project — fades its host
@@ -161,31 +171,107 @@ export class ForDemo extends RxElement {
 
         <section class="host" id="directives-builtin" toc-section>
             <h2>Built-in directives</h2>
-            <p class="note"><code class="inline">DefaultGlobalDirectives</code> from
-               <code class="inline">yaw</code> is <code class="inline">[RxIf, RxFor]</code> —
-               the structural directives. Use them as attributes:
-               <code class="inline">&lt;div rx-if="isReady"&gt;</code> and
-               <code class="inline">&lt;li rx-for="rows by key"&gt;</code>. If you
-               don't want them, don't pass them.</p>
-        </section>
+            <p class="note">The framework ships two structural directives:
+               <code class="inline">rx-if</code> for conditional rendering and
+               <code class="inline">rx-for</code> for list rendering. Like
+               everything else in the framework, they're optional — pass them
+               to <code class="inline">bootstrap</code> as
+               <code class="inline">globalDirectives</code> if you want them,
+               or leave them out entirely.</p>
 
-        <section class="host" id="directives-rx-for" toc-section>
-            <h2>rx-for in practice</h2>
-            <p class="note">A fixed array of three cells, keyed by
-               <code class="inline">key</code>. For each item, <code class="inline">rx-for</code>
-               stamps a clone of its single child element and assigns every item
-               field onto that element as a property. Here
-               <code class="inline">textContent</code> is a real DOM property, so
-               the span gets its text written directly — no child component needed.</p>
-            <code-block lang="ts">${escape`${FOR_DEMO_SOURCE}`}</code-block>
-        </section>
+            <section class="host" id="directives-rx-if" toc-section>
+                <h3>rx-if</h3>
+                <p class="note">Show or hide content based on a value that
+                   changes over time. When the value is truthy, the children
+                   appear. When falsy, they're removed. Switching back to truthy
+                   reattaches the original content without re-creating it.</p>
+                <code-block lang="html">${escape`<div rx-if="isLoggedIn">
+    <p>Welcome back, {{name}}</p>
+</div>`}</code-block>
+            </section>
 
-        <section class="ex" id="directives-rx-for-live" toc-section>
-            <h2>rx-for — live</h2>
-            <div class="split">
-                <code-block lang="html">${escape`<for-demo></for-demo>`}</code-block>
-                <div class="live"><for-demo></for-demo></div>
-            </div>
+            <section class="host" id="directives-rx-for" toc-section>
+                <h3>rx-for</h3>
+            <p class="note"><code class="inline">rx-for</code> renders a list from
+               an Observable that emits arrays. Two modes, determined by the
+               presence of <code class="inline">of</code> in the expression. Without
+               <code class="inline">of</code>, it's splat mode — each item's properties
+               are assigned directly onto the child element. With
+               <code class="inline">of</code>, it's scope mode — you declare loop
+               variables that bindings inside the list can reference.</p>
+
+            <section class="host" id="directives-rx-for-grammar" toc-section>
+                <h3>Grammar</h3>
+                <code-block lang="text">${escape`Splat:  source by key
+Scope:  item of source
+        item of source by key
+        item, index of source
+        item, index of source by key
+        { field, field } of source by key
+        { field, field }, index of source by key`}</code-block>
+                <p class="note">The <code class="inline">by key</code> part is optional in
+                   both modes. Without it, items are matched by position. With it,
+                   items are matched by the key field value — identity is preserved
+                   across reorders.</p>
+            </section>
+
+            <section class="host" id="directives-rx-for-keyed" toc-section>
+                <h3>Keyed vs keyless</h3>
+                <p class="note"><strong>Keyed</strong>
+                   (<code class="inline">by id</code>): items are matched by key value.
+                   If the array reorders, DOM elements move to match — the element
+                   that had <code class="inline">id: 1</code> keeps its state.
+                   <strong>Keyless</strong> (no <code class="inline">by</code>): items
+                   are matched by position. If the array reorders, position 0 gets
+                   the new first item pushed into it — no DOM moves, elements update
+                   in place.</p>
+            </section>
+
+            <section class="host" id="directives-rx-for-splat" toc-section>
+                <h3>Splat mode</h3>
+                <p class="note">The original mode. <code class="inline">rx-for="cells by key"</code>
+                   — for each item in the array, rx-for creates a copy of its child
+                   element and assigns every property from the item object directly
+                   onto it. If the child is a component with
+                   <code class="inline">@observable</code> fields, setting a property
+                   triggers the BehaviorSubject, which drives that component's template
+                   bindings. If the child is a plain element,
+                   <code class="inline">textContent</code> and other DOM properties work
+                   directly.</p>
+                <code-block lang="ts">${escape`${FOR_DEMO_SOURCE}`}</code-block>
+                <p class="note">Three cells, keyed by
+                   <code class="inline">key</code>. Each item's
+                   <code class="inline">textContent</code> is written directly
+                   onto the span.</p>
+                <div class="ex split">
+                    <code-block lang="html">${escape`<for-demo></for-demo>`}</code-block>
+                    <div class="live"><for-demo></for-demo></div>
+                </div>
+            </section>
+
+            <section class="host" id="directives-rx-for-scope" toc-section>
+                <h3>Scope mode</h3>
+                <p class="note">Add <code class="inline">of</code> to declare loop variables.
+                   <code class="inline">rx-for="row of rows by id"</code> — inside the
+                   list, <code class="inline">row</code> is a name you introduced. Bindings
+                   that start with <code class="inline">row</code> resolve through a per-item
+                   BehaviorSubject owned by the directive. Bindings that don't match
+                   a loop variable fall through to the host as normal — the host-is-scope
+                   rule is unchanged.</p>
+                <code-block lang="html">${escape`${SCOPE_DEMO_SOURCE}`}</code-block>
+                <p class="note">Two teams, each with members. The outer rx-for
+                   declares <code class="inline">team</code> and
+                   <code class="inline">teamIdx</code>. The inner destructures
+                   <code class="inline">{ name, role }</code> with index
+                   <code class="inline">i</code>. Host fields still resolve
+                   normally.</p>
+                <div class="ex split">
+                    <code-block lang="html">${escape`<scope-demo></scope-demo>`}</code-block>
+                    <div class="live"><scope-demo></scope-demo></div>
+                </div>
+            </section>
+
+            </section>
         </section>
     `,
     styles: `

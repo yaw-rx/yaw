@@ -97,10 +97,10 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
             <code-block lang="ts">${escape`${COUNTER_SOURCE}`}</code-block>
         </section>
 
-        <section class="ex" id="components-use" toc-section>
+        <section class="host" id="components-use" toc-section>
             <h2>In use</h2>
             <p class="note">The source above, rendered live. Click the buttons.</p>
-            <div class="split">
+            <div class="ex split">
                 <code-block lang="html">${escape`<hello-counter></hello-counter>`}</code-block>
                 <div class="live"><hello-counter></hello-counter></div>
             </div>

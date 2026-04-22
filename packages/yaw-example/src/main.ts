@@ -33,11 +33,13 @@ import './pages/showcase/components/drum-sequencer/DrumSequencer.js';
 
 import { DocsPage } from './pages/docs/page.js';
 import { TocSection } from './pages/docs/toc.js';
-import './pages/docs/components/sidebar.js';
+import './pages/docs/components/sidebar/sidebar.js';
+import './pages/docs/components/sidebar/toc-node/toc-node.js';
 import './pages/docs/components/bootstrap.js';
 import './pages/docs/components/components.js';
 import './pages/docs/components/directives.js';
 import './pages/docs/components/rx-for-demo/ForDemo.js';
+import './pages/docs/components/directives/scope-demo.js';
 import './pages/docs/components/services.js';
 import './pages/docs/components/navigation.js';
 

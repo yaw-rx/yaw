@@ -7,9 +7,12 @@ export const DOC_STYLES = `
               overflow-wrap: anywhere; word-break: break-word; }
     h2 { color: #fff; font-size: 1.1rem; font-weight: 700;
          margin: 0 0 1rem; letter-spacing: 0.02em; }
-    .host, .ex { margin-bottom: 1.5rem; padding: 1.25rem;
-                 background: #0a0a0a; border: 1px solid #1a1a1a;
-                 border-radius: 8px; }
+    .host { margin-bottom: 1.5rem; }
+    .host code-block { margin-bottom: 1rem; }
+    .host .ex { margin-top: 1rem; }
+    .ex { margin-bottom: 1.5rem; padding: 1.25rem;
+          background: #0a0a0a; border: 1px solid #1a1a1a;
+          border-radius: 8px; }
     .note { color: #888; font-size: 0.9rem; line-height: 1.6;
             margin: 0 0 1rem; max-width: 72ch; }
     .split { display: grid;
