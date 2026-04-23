@@ -27,7 +27,6 @@
     "noUnusedParameters": true,
 
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "useDefineForClassFields": false,
 
     "esModuleInterop": true,

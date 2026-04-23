@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { interval, map, Subscription, type Observable } from 'rxjs';
 import { Component, Inject, RxElement, observable } from 'yaw';
 import { AudioEngine } from './drum-machine/utils/audio-engine.js';

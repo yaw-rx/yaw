@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { bootstrap, Router, ROUTES, DefaultGlobalDirectives } from 'yaw';
 
 import { AppRoot } from './app-root.js';

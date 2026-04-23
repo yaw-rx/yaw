@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Component, RxElement, observable } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import { SLIDER_SOURCE } from '../components/yaw-slider.js';

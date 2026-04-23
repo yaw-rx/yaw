@@ -8,7 +8,6 @@
  * cached previous path, and only collapses/expands the nodes that changed.
  * Shared ancestors stay expanded.
  */
-import 'reflect-metadata';
 import { type Observable } from 'rxjs';
 import { Component, Inject, RxElement } from 'yaw';
 import { TocService, type TocEntry } from './services/toc-service.js';

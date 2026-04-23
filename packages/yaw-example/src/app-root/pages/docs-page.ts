@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Component, RxElement } from 'yaw';
 import { TocService } from './docs-page/services/toc-service.js';
 

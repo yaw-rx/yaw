@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Component, RxElement } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
@@ -11,8 +10,7 @@ const HTML_SOURCE = `<!doctype html>
     </body>
 </html>`;
 
-const MAIN_SOURCE = `import 'reflect-metadata';
-import { bootstrap, Router, ROUTES, DefaultGlobalDirectives } from 'yaw';
+const MAIN_SOURCE = `import { bootstrap, Router, ROUTES, DefaultGlobalDirectives } from 'yaw';
 import { AppRoot } from './components/app-root.js';
 import { ManifestoPage } from './components/manifesto-page.js';
 import { ExamplesPage } from './components/examples-page.js';

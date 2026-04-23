@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Component, Inject, RxElement, Router, observable } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';

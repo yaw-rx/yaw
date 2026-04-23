@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Component, RxElement, observable } from 'yaw';
 import type { DayCell } from './types.js';
 

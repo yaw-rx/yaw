@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { combineLatest, distinctUntilChanged, map, type Observable } from 'rxjs';
 import { Component, Inject, RxElement, observable } from 'yaw';
 import { StepTicker } from '../utils/step-ticker.js';

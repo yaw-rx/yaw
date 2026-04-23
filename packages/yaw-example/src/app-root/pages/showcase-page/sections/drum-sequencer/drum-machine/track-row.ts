@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { combineLatest, map, type Observable } from 'rxjs';
 import { Component, RxElement, observable } from 'yaw';
 import { STEPS } from './consts.js';

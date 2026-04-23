@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { timer } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Component, RxElement } from 'yaw';

@@ -13,7 +13,6 @@
  * The sidebar finds the active leaf by id (one querySelector call),
  * calls expand() on it, and the recursion handles the rest.
  */
-import 'reflect-metadata';
 import { Component, Inject, RxElement, observable } from 'yaw';
 import { TocService, type TocEntry } from '../services/toc-service.js';
 

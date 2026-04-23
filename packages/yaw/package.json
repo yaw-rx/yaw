@@ -15,7 +15,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "reflect-metadata": "^0.2.2",
     "yaw-common": "*"
   },
   "peerDependencies": {

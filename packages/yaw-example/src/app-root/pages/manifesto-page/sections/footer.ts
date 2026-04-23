@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Component, RxElement } from 'yaw';
 
 @Component({

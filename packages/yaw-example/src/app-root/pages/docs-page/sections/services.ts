@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { BehaviorSubject } from 'rxjs';
 import { Component, Inject, Injectable, RxElement, observable } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';

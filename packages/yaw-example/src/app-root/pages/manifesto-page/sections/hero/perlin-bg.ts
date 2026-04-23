@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Directive } from 'yaw';
 import type { RxElementLike } from 'yaw';
 

@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Directive, Injectable } from 'yaw';
 import type { RxElementLike } from 'yaw';
 import { TocService } from '../services/toc-service.js';

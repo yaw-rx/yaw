@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Component, RxElement } from 'yaw';
 import { readInert } from 'yaw-common';
 import { dedent, escapeHtml, highlightHtml, highlightTs } from './code-block/code-highlight.js';

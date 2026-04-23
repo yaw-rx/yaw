@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { of, type Observable } from 'rxjs';
 import { Component, RxElement } from 'yaw';
 

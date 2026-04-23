@@ -42,7 +42,7 @@ export const observable = (target: object, propertyKey: string | symbol): void =
             if (existing === undefined) {
                 bag.set(propertyKey, new BehaviorSubject(value));
             } else {
-                existing.next(value);
+                if (existing.value !== value) existing.next(value);
             }
         },
     });

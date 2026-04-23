@@ -22,7 +22,6 @@
  * 4. Click navigation: smooth scroll + hard snap after a delay
  *    (smooth scrollIntoView is buggy during page load on some clients).
  */
-import 'reflect-metadata';
 import { asyncScheduler, BehaviorSubject, Subject, throttleTime } from 'rxjs';
 import { Injectable } from 'yaw';
 

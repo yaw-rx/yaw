@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { map, type BehaviorSubject, type Observable } from 'rxjs';
 import { Component, RxElement, observable } from 'yaw';
 

@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { combineLatest, map, type Observable } from 'rxjs';
 import { Component, RxElement, observable } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';

@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Component, Directive, RxElement } from 'yaw';
 import type { RxElementLike } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
