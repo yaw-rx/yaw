@@ -125,7 +125,7 @@ const injectCarets = (expr: string, depth: number): string => {
     const body = m?.[3] ?? expr;
     const totalDepth = depth + extraHops;
     if (totalDepth === 0) return expr;
-    const caret = `${'^'.repeat(totalDepth)}.`;
+    const caret = '^'.repeat(totalDepth);
     const n = body.length;
     let out = lead;
     let i = 0;

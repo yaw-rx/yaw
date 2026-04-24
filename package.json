@@ -7,7 +7,9 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "tsc --build packages/yaw-common packages/yaw packages/yaw-transformer && npm run build -w packages/yaw-example",
+    "build": "npm run build --workspaces",
+    "build:watch": "tsc --build --watch --preserveWatchOutput",
+    "dev": "trap 'kill 0' EXIT; npm run build:watch & npm run dev -w yaw-example & wait",
     "typecheck": "tsc --build --dry packages/yaw-common packages/yaw packages/yaw-transformer",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -17,6 +19,7 @@
   "devDependencies": {
     "@eslint/js": "^9.1.1",
     "@types/node": "^20.12.7",
+    "@webgpu/types": "^0.1.69",
     "eslint": "^9.1.1",
     "prettier": "^3.2.5",
     "typescript": "^6.0.3",

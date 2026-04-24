@@ -10,7 +10,7 @@ import { DOC_STYLES } from '../../../utils/doc-styles.js';
            the pattern and the transport. <code class="inline">track-row</code> owns mute
            and displays its slice. <code class="inline">step-cell</code> owns its lit/active
            pixel. Click a cell and the event crosses two scope boundaries —
-           <code class="inline">^^.toggleStep(^.trackKey, idx)</code> — to mutate the
+           <code class="inline">^^toggleStep(^trackKey, idx)</code> — to mutate the
            pattern at the root, which cascades back down via <code class="inline">rx-for</code>.
            Press play and the <code class="inline">AudioEngine</code> synthesises every voice
            inline with oscillators and noise bursts. No samples, no loops, no tricks.</p>

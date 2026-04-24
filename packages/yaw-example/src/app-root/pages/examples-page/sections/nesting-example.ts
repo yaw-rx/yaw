@@ -82,10 +82,10 @@ export class NestingExample extends RxElement<{ count: number }> {
 const PAGE_ECHO_SOURCE = `@Component({
     selector: 'page-echo',
     template: \`
-        <code>{{ ^.count }}</code>
-        <code>{{ ^.status }}</code>
-        <button onclick="^.increment(2)">^.increment(2)</button>
-        <button onclick="^.reset">^.reset</button>
+        <code>{{ ^count }}</code>
+        <code>{{ ^status }}</code>
+        <button onclick="^increment(2)">^increment(2)</button>
+        <button onclick="^reset">^reset</button>
     \`,
 })
 export class PageEcho extends RxElement {}`;
@@ -264,7 +264,7 @@ export class NestingExample extends RxElement {
                    in the demo below), each <code class="inline">^</code>
                    crosses that one template boundary and lands on
                    <code class="inline">&lt;nesting-example&gt;</code> — so
-                   <code class="inline">^.count</code> reads the same
+                   <code class="inline">^count</code> reads the same
                    <code class="inline">count</code> everything above
                    shares.</p>
                 <code-block lang="ts">${escape`${PAGE_ECHO_SOURCE}`}</code-block>

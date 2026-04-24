@@ -6,13 +6,13 @@ import { Component, RxElement } from 'yaw';
         <div class="echo">
             <div class="label">child template — caret prefix reaches the parent host</div>
             <div class="row">
-                <code>{{ ^.count }}</code>
+                <code>{{ ^count }}</code>
                 <span class="sep">·</span>
-                <code>{{ ^.status }}</code>
+                <code>{{ ^status }}</code>
             </div>
             <div class="row buttons">
-                <button onclick="^.increment(2)">^.increment(2)</button>
-                <button onclick="^.reset">^.reset</button>
+                <button onclick="^increment(2)">^increment(2)</button>
+                <button onclick="^reset">^reset</button>
             </div>
         </div>
     `,

@@ -1,7 +1,7 @@
 /**
  * bind.ts — binding resolution for reactive templates.
  *
- * Parses binding expressions (like "count", "row.name", "^.increment(1)")
+ * Parses binding expressions (like "count", "row.name", "^increment(1)")
  * and subscribes them to observable streams that push values to the DOM.
  *
  * How the binding chain works:
@@ -111,10 +111,7 @@ const parseRef = (cur: Cursor, raw: string): ParsedRef => {
     cur.skipWs();
     let carets = 0;
     while (cur.src[cur.pos] === '^') { carets++; cur.pos++; }
-    if (carets > 0) {
-        if (cur.src[cur.pos] !== '.') throw new BindParseError(raw, 'expected "." after "^"');
-        cur.pos++;
-    }
+    if (carets > 0 && cur.src[cur.pos] === '.') cur.pos++;
     const path: string[] = [parseIdent(cur, raw)];
     while (cur.src[cur.pos] === '.') {
         cur.pos++;

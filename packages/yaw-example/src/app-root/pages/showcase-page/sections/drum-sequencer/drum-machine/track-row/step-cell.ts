@@ -4,7 +4,7 @@ import { StepTicker } from '../utils/step-ticker.js';
 
 @Component({
     selector: 'step-cell',
-    template: `<button onclick="^^.toggleStep(^.trackKey, idx)"
+    template: `<button onclick="^^toggleStep(^trackKey, idx)"
                        [class.on]="on" [class.active]="active" [class.beat]="beat"
                        [style]="cellStyle"></button>`,
     styles: `

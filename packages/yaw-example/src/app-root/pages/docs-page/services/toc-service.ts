@@ -25,14 +25,13 @@
 import { asyncScheduler, BehaviorSubject, Subject, throttleTime } from 'rxjs';
 import { Injectable } from 'yaw';
 
-const TOP_OFFSET = 80;
 const SNAP_DELAY = 700;
 
 export interface TocEntry {
     readonly id: string;
     readonly label: string;
     readonly depth: number;
-    readonly children: TocEntry[];
+    readonly childEntries: TocEntry[];
 }
 
 interface SectionRatioState {
@@ -53,7 +52,6 @@ export class TocService {
     private ratioSubject: BehaviorSubject<Record<string, SectionRatioState>> | undefined;
     private lastAreaState: Record<string, number> = {};
     private lastWinner = '';
-    private rebuildPending = false;
     private rebuildSubject = new Subject<void>();
     private ratioSubscription: { unsubscribe(): void } | undefined;
 
@@ -173,14 +171,14 @@ export class TocService {
         this.paths.clear();
 
         for (const { id, label, depth } of this.entries) {
-            const entry: TocEntry = { id, label, depth, children: [] };
+            const entry: TocEntry = { id, label, depth, childEntries: [] };
             while (stack.length > 0 && stack[stack.length - 1]!.depth >= depth) {
                 stack.pop();
             }
             if (stack.length === 0) {
                 root.push(entry);
             } else {
-                stack[stack.length - 1]!.children.push(entry);
+                stack[stack.length - 1]!.childEntries.push(entry);
             }
             stack.push(entry);
             this.paths.set(id, stack.map((e) => e.id));

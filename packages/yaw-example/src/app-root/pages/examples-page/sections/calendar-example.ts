@@ -63,7 +63,7 @@ export class CalendarWeek extends RxElement<{
 
 const DAY_SOURCE = `@Component({
     selector: 'calendar-day',
-    template: \`<button onclick="^^.selectDate(date)"
+    template: \`<button onclick="^^selectDate(date)"
                        [class.selected]="selected"
                        [class.in-month]="inMonth">{{day}}</button>\`,
 })
@@ -129,7 +129,7 @@ const walkScope = (host, carets) => {
         <section class="host">
             <h2>calendar-day — the leaf</h2>
             <p class="note">One button, two class bindings, one method call reaching up two
-               custom-element layers — <code class="inline">^^.selectDate(date)</code> walks
+               custom-element layers — <code class="inline">^^selectDate(date)</code> walks
                day → week → grid. Authored as-is; nothing is synthesised at runtime.</p>
             <code-block lang="ts">${escape`${DAY_SOURCE}`}</code-block>
         </section>
@@ -140,7 +140,7 @@ const walkScope = (host, carets) => {
                a <code class="inline">Today</code> button into the named slot. The projected
                button sits one layer down from the grid — compiler rewrites
                <code class="inline">onclick="today"</code> to
-               <code class="inline">^.today</code> because a <code class="inline">&lt;slot&gt;</code>
+               <code class="inline">^today</code> because a <code class="inline">&lt;slot&gt;</code>
                is transparent to scope but being lexically inside a custom element is not.</p>
             <div class="split">
                 <code-block lang="html">${escape`${USAGE}`}</code-block>
@@ -159,8 +159,8 @@ const walkScope = (host, carets) => {
                    verbatim.</li>
                 <li><code class="inline">onclick="today"</code> — projected into
                    <code class="inline">&lt;calendar-grid&gt;</code> via a slot. Depth 1.
-                   Compiled to <code class="inline">^.today</code>.</li>
-                <li><code class="inline">onclick="^^.selectDate(date)"</code> — inside
+                   Compiled to <code class="inline">^today</code>.</li>
+                <li><code class="inline">onclick="^^selectDate(date)"</code> — inside
                    <code class="inline">calendar-day</code>, two custom-element layers away
                    from the grid. Authored with explicit carets since the day component itself
                    owns that binding. Could equivalently be written

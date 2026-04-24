@@ -9,7 +9,7 @@ import type { Cell } from './types.js';
         <div class="head">
             <button class="name" onclick="toggleMute"
                     [class.muted]="muted" [style]="nameStyle">{{name}}</button>
-            <button class="clear" onclick="^.clearTrack(trackKey)">clear</button>
+            <button class="clear" onclick="^clearTrack(trackKey)">clear</button>
         </div>
         <div class="grid" rx-for="cells by idx">
             <step-cell></step-cell>

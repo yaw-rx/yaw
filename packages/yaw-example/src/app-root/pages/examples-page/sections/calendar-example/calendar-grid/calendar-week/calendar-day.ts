@@ -2,7 +2,7 @@ import { Component, RxElement, observable } from 'yaw';
 
 @Component({
     selector: 'calendar-day',
-    template: `<button onclick="^^.selectDate(date)"
+    template: `<button onclick="^^selectDate(date)"
                        [class.selected]="selected"
                        [class.in-month]="inMonth">{{day}}</button>`,
     styles: `

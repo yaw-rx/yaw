@@ -21,7 +21,7 @@ import { TocService, type TocEntry } from '../services/toc-service.js';
     template: `
         <a [class.active]="active" onclick="goto(id)">{{label}}</a>
         <div class="children" [class.expanded]="expanded">
-            <div rx-for="children by id">
+            <div rx-for="childEntries by id">
                 <toc-node></toc-node>
             </div>
         </div>
@@ -48,11 +48,11 @@ import { TocService, type TocEntry } from '../services/toc-service.js';
 export class TocNode extends RxElement<{
     id: string;
     label: string;
-    children: readonly TocEntry[];
+    childEntries: readonly TocEntry[];
     depth: number;
 }> {
     @observable label = '';
-    @observable children: readonly TocEntry[] = [];
+    @observable childEntries: readonly TocEntry[] = [];
     @observable depth = 0;
     @observable expanded = false;
     @observable active = false;
