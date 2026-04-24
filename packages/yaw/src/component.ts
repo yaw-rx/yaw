@@ -38,20 +38,9 @@
 import { Injector } from './di/injector.js';
 import type { Provider } from './di/types.js';
 import type { DirectiveCtor, RxElementLike } from './directive.js';
-import { BindDirective } from './directives/bind.js';
-import { ClassBindDirective } from './directives/class-bind.js';
-import { EventsDirective } from './directives/events.js';
-import { RefsDirective } from './directives/refs.js';
 import { BootstrapError } from './errors.js';
 import { registerHtmlMirrors } from './components/rx-elements.js';
 import { transformTemplate, transformStyles } from 'yaw-common';
-
-const systemDirectives: readonly DirectiveCtor[] = [
-    BindDirective,
-    ClassBindDirective,
-    EventsDirective,
-    RefsDirective,
-];
 
 interface ComponentOptions {
     readonly selector: string;
@@ -120,7 +109,7 @@ export const bootstrap = (options: BootstrapOptions): void => {
     const selector = getSelector(options.root);
     if (selector === undefined) { throw new BootstrapError(`${options.root.name} has no @Component decorator`); }
     registerHtmlMirrors();
-    globalDirectives = [...systemDirectives, ...(options.globalDirectives ?? [])];
+    globalDirectives = options.globalDirectives ?? [];
     const injector = new Injector(options.providers);
     (document.body as RxElementLike).__injector = injector;
     document.body.appendChild(document.createElement(selector));

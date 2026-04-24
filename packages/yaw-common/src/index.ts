@@ -199,7 +199,7 @@ const transformAttributes = (el: Element, depth: number): void => {
 
         const classMatch = /^\[class\.(.+)\]$/.exec(name);
         if (classMatch !== null) {
-            rewrites.push({ remove: name, add: [`data-rx-class-${classMatch[1]}`, injectCarets(value, depth)] });
+            rewrites.push({ remove: name, add: [marshaller.encode('class', [classMatch[1]!]), injectCarets(value, depth)] });
             continue;
         }
         const modelMatch = /^\[\((.+)\)\]$/.exec(name);
@@ -209,16 +209,16 @@ const transformAttributes = (el: Element, depth: number): void => {
         }
         const bindMatch = /^\[(.+)\]$/.exec(name);
         if (bindMatch !== null) {
-            rewrites.push({ remove: name, add: [`data-rx-bind-${bindMatch[1]}`, injectCarets(value, depth)] });
+            rewrites.push({ remove: name, add: [marshaller.encode('prop', bindMatch[1]!.split('.')), injectCarets(value, depth)] });
             continue;
         }
         const onMatch = /^on(.+)$/.exec(name);
         if (onMatch !== null && value !== '') {
-            rewrites.push({ remove: name, add: [`data-rx-on-${onMatch[1]}`, injectCarets(value, depth)] });
+            rewrites.push({ remove: name, add: [marshaller.encode('on', [onMatch[1]!]), injectCarets(value, depth)] });
             continue;
         }
         if (name.startsWith('#')) {
-            rewrites.push({ remove: name, add: ['data-rx-ref', injectCarets(name.slice(1), depth)] });
+            rewrites.push({ remove: name, add: [marshaller.encode('ref', [name.slice(1)]), injectCarets(name.slice(1), depth)] });
             continue;
         }
     }
