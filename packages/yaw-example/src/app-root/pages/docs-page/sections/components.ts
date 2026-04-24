@@ -52,7 +52,7 @@ const ESCAPE_SNIPPET = [
     '        <p>a custom element: ${escape`<my-el>`}</p>',
     '',
     '        <!-- render arbitrary source verbatim inside a code-block -->',
-    '        <code-block lang="ts">${escape`${SOURCE}`}</code-block>',
+    '        <code-block syntax="ts">${escape`${SOURCE}`}</code-block>',
     '    `,',
     '})',
     'export class EscapeDemo extends RxElement {}',
@@ -93,14 +93,14 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
             <p class="note">Two observables, two methods, three bindings. No
                reconciliation, no diff — the subject emits, the binding applies
                the new value.</p>
-            <code-block lang="ts">${escape`${COUNTER_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${COUNTER_SOURCE}`}</code-block>
         </section>
 
         <section class="ex" id="components-use" toc-section>
             <h2>In use</h2>
             <p class="note">The source above, rendered live. Click the buttons.</p>
             <div class="split">
-                <code-block lang="html">${escape`<hello-counter></hello-counter>`}</code-block>
+                <code-block syntax="html">${escape`<hello-counter></hello-counter>`}</code-block>
                 <div class="live"><hello-counter></hello-counter></div>
             </div>
         </section>
@@ -109,7 +109,7 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
             <h2>Template bindings</h2>
             <p class="note">The full vocabulary. Every binding compiles to a
                subscription on a resolved observable — no other runtime.</p>
-            <code-block lang="html">${escape`${BINDINGS_SNIPPET}`}</code-block>
+            <code-block syntax="html">${escape`${BINDINGS_SNIPPET}`}</code-block>
         </section>
 
         <section class="host" id="components-escape" toc-section>
@@ -126,7 +126,7 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
                or whitespace-only mustache that survives compilation throws
                <code class="inline">TemplateWalkError</code>, pointing you
                here.</p>
-            <code-block lang="ts">${escape`${ESCAPE_SNIPPET}`}</code-block>
+            <code-block syntax="ts">${escape`${ESCAPE_SNIPPET}`}</code-block>
         </section>
 
         <section class="host" id="components-lifecycle" toc-section>
@@ -136,7 +136,7 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
                query refs here. <code class="inline">onDestroy</code> runs on
                <code class="inline">disconnectedCallback</code>, so return any
                subscriptions you own.</p>
-            <code-block lang="ts">${escape`override onInit(): void {
+            <code-block syntax="ts">${escape`override onInit(): void {
                 this.surface = this.querySelector('[data-rx-ref=surface]')!;
             }
             override onDestroy(): void {

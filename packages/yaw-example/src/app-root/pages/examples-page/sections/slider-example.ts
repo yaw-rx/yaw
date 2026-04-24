@@ -23,7 +23,7 @@ const USAGE = `<yaw-slider for="value" min="0" max="100"></yaw-slider>
                <code class="inline">SLIDER_TEMPLATE</code> and is reused verbatim by this
                code block — the string rendered below is the same string the browser
                parses at runtime.</p>
-            <code-block lang="ts">${escape`${SLIDER_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${SLIDER_SOURCE}`}</code-block>
         </section>
 
         <section class="ex">
@@ -34,7 +34,7 @@ const USAGE = `<yaw-slider for="value" min="0" max="100"></yaw-slider>
                pointer gestures push into the parent's subject, so everything reading it
                updates for free.</p>
             <div class="split">
-                <code-block lang="html">${escape`${USAGE}`}</code-block>
+                <code-block syntax="html">${escape`${USAGE}`}</code-block>
                 <div class="live">
                     <yaw-slider [(value)]="value" min="0" max="100"></yaw-slider>
                     <p class="state">value = <span class="status">{{value}}</span></p>

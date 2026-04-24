@@ -75,7 +75,7 @@ export class SignalMeter extends RxElement<{ strength: number }> {
             <p class="note">Template and class in full. Everything visual — the sweep, the
                colour shift, the glow — is downstream of the same
                <code class="inline">--pct</code>.</p>
-            <code-block lang="ts">${escape`${HOST_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${HOST_SOURCE}`}</code-block>
         </section>
 
         <section class="ex">
@@ -84,7 +84,7 @@ export class SignalMeter extends RxElement<{ strength: number }> {
                spectrum, the glow chases the stroke. The only thing the JS writes is the
                percentage.</p>
             <div class="split">
-                <code-block lang="html">${escape`<signal-meter></signal-meter>`}</code-block>
+                <code-block syntax="html">${escape`<signal-meter></signal-meter>`}</code-block>
                 <div class="live">${METER_TEMPLATE}</div>
             </div>
         </section>

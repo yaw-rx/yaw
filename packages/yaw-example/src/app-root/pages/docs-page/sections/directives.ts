@@ -132,7 +132,7 @@ export class ForDemo extends RxElement {
                via the Web Animations API. Two hooks — start the animation on
                <code class="inline">onInit</code>, cancel it on
                <code class="inline">onDestroy</code>.</p>
-            <code-block lang="ts">${escape`${BOUNCE_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${BOUNCE_SOURCE}`}</code-block>
         </section>
 
         <section class="host" id="directives-declaring" toc-section>
@@ -143,7 +143,7 @@ export class ForDemo extends RxElement {
                <code class="inline">rx-if</code> / <code class="inline">rx-for</code>),
                pass them to <code class="inline">bootstrap()</code> as
                <code class="inline">globalDirectives</code>.</p>
-            <code-block lang="ts">${escape`${USAGE_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${USAGE_SOURCE}`}</code-block>
         </section>
 
         <section class="ex" id="directives-before-after" toc-section>
@@ -152,7 +152,7 @@ export class ForDemo extends RxElement {
                <code class="inline">bounce</code> to an element and the directive
                attaches on mount.</p>
             <div class="split">
-                <code-block lang="html">${escape`${BEFORE_AFTER_SNIPPET}`}</code-block>
+                <code-block syntax="html">${escape`${BEFORE_AFTER_SNIPPET}`}</code-block>
                 <div class="live">
                     <div class="box">still</div>
                     <div class="box" bounce>bouncing</div>
@@ -165,7 +165,7 @@ export class ForDemo extends RxElement {
             <p class="note">A real directive from this project — fades its host
                in when it enters the viewport. Same shape, different hook: an
                IntersectionObserver swapped in for the animation.</p>
-            <code-block lang="ts">${escape`${SCROLL_REVEAL_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${SCROLL_REVEAL_SOURCE}`}</code-block>
         </section>
 
         <section class="host" id="directives-builtin" toc-section>
@@ -185,7 +185,7 @@ export class ForDemo extends RxElement {
                    are detached from the DOM; when it turns truthy again the original
                    nodes come back — no re-creation, no hidden
                    <code class="inline">display: none</code>.</p>
-                <code-block lang="html">${escape`<div rx-if="isLoggedIn">
+                <code-block syntax="html">${escape`<div rx-if="isLoggedIn">
     <p>Welcome back, {{name}}</p>
 </div>`}</code-block>
 
@@ -198,7 +198,7 @@ export class ForDemo extends RxElement {
                        <code class="inline">map(n =&gt; n % 2 === 0)</code> turns that
                        into an alternating boolean. The element is removed and
                        reinserted by the framework on each flip.</p>
-                    <code-block lang="ts">${escape`@Component({
+                    <code-block syntax="ts">${escape`@Component({
     selector: 'blink-demo',
     template: \`<p rx-if="isVisible">Now you see me</p>\`,
 })
@@ -210,7 +210,7 @@ export class BlinkDemo extends RxElement {
                     <section class="ex">
                         <h2>In action</h2>
                         <div class="split">
-                            <code-block lang="html">${escape`<blink-demo></blink-demo>`}</code-block>
+                            <code-block syntax="html">${escape`<blink-demo></blink-demo>`}</code-block>
                             <div class="live"><blink-demo></blink-demo></div>
                         </div>
                     </section>
@@ -228,7 +228,7 @@ export class BlinkDemo extends RxElement {
 
             <section class="host" id="directives-rx-for-grammar" toc-section>
                 <h3>Grammar</h3>
-                <code-block lang="text">${escape`Splat:  source by key
+                <code-block syntax="text">${escape`Splat:  source by key
 Scope:  item of source
         item of source by key
         item, index of source
@@ -264,7 +264,7 @@ Scope:  item of source
                    bindings. If the child is a plain element,
                    <code class="inline">textContent</code> and other DOM properties work
                    directly.</p>
-                <code-block lang="ts">${escape`${FOR_DEMO_SOURCE}`}</code-block>
+                <code-block syntax="ts">${escape`${FOR_DEMO_SOURCE}`}</code-block>
                 <section class="ex">
                     <h2>In action</h2>
                     <p class="note">Three cells, keyed by
@@ -272,7 +272,7 @@ Scope:  item of source
                     <code class="inline">textContent</code> is written directly
                     onto the span.</p>
                     <div class="split">
-                        <code-block lang="html">${escape`<for-demo></for-demo>`}</code-block>
+                        <code-block syntax="html">${escape`<for-demo></for-demo>`}</code-block>
                         <div class="live"><for-demo></for-demo></div>
                     </div>
                 </section>
@@ -287,7 +287,7 @@ Scope:  item of source
                    BehaviorSubject owned by the directive. Bindings that don't match
                    a loop variable fall through to the host as normal — the host-is-scope
                    rule is unchanged.</p>
-                <code-block lang="html">${escape`${SCOPE_DEMO_SOURCE}`}</code-block>
+                <code-block syntax="html">${escape`${SCOPE_DEMO_SOURCE}`}</code-block>
                 <section class="ex">
                     <h2>In action</h2>
                     <p class="note">Two teams, each with members. The outer rx-for
@@ -297,7 +297,7 @@ Scope:  item of source
                     <code class="inline">i</code>. Host fields still resolve
                     normally.</p>
                     <div class="split">
-                        <code-block lang="html">${escape`<scope-demo></scope-demo>`}</code-block>
+                        <code-block syntax="html">${escape`<scope-demo></scope-demo>`}</code-block>
                         <div class="live"><scope-demo></scope-demo></div>
                     </div>
                 </section>

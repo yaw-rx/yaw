@@ -36,20 +36,8 @@ export const SLIDER_SOURCE = `@Component({
 })
 export class YawSlider extends RxElement<{ value: number }> {
     @state value = 0;
-    private min = 0;
-    private max = 100;
-
-    override onInit(): void {
-        this.min = Number(this.getAttribute('min') ?? '0');
-        this.max = Number(this.getAttribute('max') ?? '100');
-
-        // Two-way bind to parentRef[for] if requested.
-        const prop = this.getAttribute('for');
-        if (prop !== null && this.hostNode !== undefined) {
-            const subj = (this.hostNode as any)[\`\${prop}$\`];
-            subj?.subscribe((v: number) => { this.value = v; });
-        }
-    }
+    @state min = 0;
+    @state max = 100;
 
     grab(e: PointerEvent): void {
         (e.currentTarget as Element).setPointerCapture(e.pointerId);
@@ -65,13 +53,7 @@ export class YawSlider extends RxElement<{ value: number }> {
     private apply(e: PointerEvent): void {
         const rect = (e.currentTarget as Element).getBoundingClientRect();
         const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-        const next = Math.round(this.min + pct * (this.max - this.min));
-        const prop = this.getAttribute('for');
-        if (prop !== null && this.hostNode !== undefined) {
-            (this.hostNode as any)[prop] = next;
-        } else {
-            this.value = next;
-        }
+        this.value = Math.round(this.min + pct * (this.max - this.min));
     }
 
     private ratio(v: number): number { return (v - this.min) / (this.max - this.min); }

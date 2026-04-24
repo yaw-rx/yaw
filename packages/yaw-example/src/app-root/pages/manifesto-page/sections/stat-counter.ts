@@ -15,11 +15,9 @@ import { Component, RxElement, state } from 'yaw';
 export class StatCounter extends RxElement<{ count: number; label: string }> {
     @state count = 0;
     @state label = '';
-    private target = 0;
+    @state target = 0;
 
     override onInit(): void {
-        this.target = parseInt(this.getAttribute('target') ?? '0', 10);
-        this.label = this.getAttribute('label') ?? '';
         this.runAnimation();
     }
 

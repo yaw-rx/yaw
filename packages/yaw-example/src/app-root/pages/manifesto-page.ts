@@ -25,7 +25,7 @@ const YAW_SNIPPET = `
                 JavaScript replicas of it. Angular shipped Zone.js to monkey-patch every async API
                 in the browser. React asks you to pretend the DOM doesn't exist, then builds a
                 virtual one, diffs it, and finally touches the real thing. The virtual part is pure tax.
-                <code-block lang="ts"><script type="text/plain">${REACT_SNIPPET}</script></code-block>
+                <code-block syntax="ts"><script type="text/plain">${REACT_SNIPPET}</script></code-block>
             </manifesto-section>
 
             <manifesto-section heading="The Lie of Sophistication">
@@ -41,7 +41,7 @@ const YAW_SNIPPET = `
                 We write inline text bindings and attribute bindings because no one wants to write
                 subscriptions inline. The template is the abstraction that earns its keep: it compiles
                 to exactly those subscriptions and nothing else.
-                <code-block lang="ts"><script type="text/plain">${YAW_SNIPPET}</script></code-block>
+                <code-block syntax="ts"><script type="text/plain">${YAW_SNIPPET}</script></code-block>
             </manifesto-section>
 
             <manifesto-section heading="The Platform Is Enough">

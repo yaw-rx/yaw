@@ -94,7 +94,7 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
             <h2>A service</h2>
             <p class="note">Plain class, decorated. A <code class="inline">BehaviorSubject</code>
                that ticks once a second.</p>
-            <code-block lang="ts">${escape`${SERVICE_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${SERVICE_SOURCE}`}</code-block>
         </section>
 
         <section class="host" id="services-register" toc-section>
@@ -103,7 +103,7 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
                <code class="inline">providers</code> array creates a child injector
                scoped to that subtree. <code class="inline">bootstrap()</code> puts
                it at the root injector — one instance, everywhere.</p>
-            <code-block lang="ts">${escape`${PROVIDE_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${PROVIDE_SOURCE}`}</code-block>
         </section>
 
         <section class="host" id="services-resolve" toc-section>
@@ -117,7 +117,7 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
                it before <code class="inline">onInit</code> runs. Explicit tokens
                because Vite/esbuild doesn't emit TypeScript decorator metadata;
                no magic, no build-time plugin needed.</p>
-            <code-block lang="ts">${escape`${RESOLVE_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${RESOLVE_SOURCE}`}</code-block>
         </section>
 
         <section class="ex" id="services-live" toc-section>
@@ -128,7 +128,7 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
                subscribes in <code class="inline">onInit</code>. A single service
                emitting to a single observer — no global state, no singleton module.</p>
             <div class="split">
-                <code-block lang="html">${escape`${LIVE_USAGE}`}</code-block>
+                <code-block syntax="html">${escape`${LIVE_USAGE}`}</code-block>
                 <div class="live"><clock-readout></clock-readout></div>
             </div>
         </section>

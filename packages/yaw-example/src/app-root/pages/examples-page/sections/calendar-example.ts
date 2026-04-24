@@ -114,7 +114,7 @@ const walkScope = (host, carets) => {
                <code class="inline">combineLatest</code> + <code class="inline">rx-for</code>.
                The toolbar's prev/next are authored at depth 0 — no carets needed, same scope
                as the host.</p>
-            <code-block lang="ts">${escape`${GRID_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${GRID_SOURCE}`}</code-block>
         </section>
 
         <section class="host">
@@ -123,7 +123,7 @@ const walkScope = (host, carets) => {
                <code class="inline">days</code>. No state of its own, no methods — it exists
                to give the day cells a structural parent so the caret story has a middle
                layer to walk through.</p>
-            <code-block lang="ts">${escape`${WEEK_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${WEEK_SOURCE}`}</code-block>
         </section>
 
         <section class="host">
@@ -131,7 +131,7 @@ const walkScope = (host, carets) => {
             <p class="note">One button, two class bindings, one method call reaching up two
                custom-element layers — <code class="inline">^^selectDate(date)</code> walks
                day → week → grid. Authored as-is; nothing is synthesised at runtime.</p>
-            <code-block lang="ts">${escape`${DAY_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${DAY_SOURCE}`}</code-block>
         </section>
 
         <section class="ex">
@@ -143,7 +143,7 @@ const walkScope = (host, carets) => {
                <code class="inline">^today</code> because a <code class="inline">&lt;slot&gt;</code>
                is transparent to scope but being lexically inside a custom element is not.</p>
             <div class="split">
-                <code-block lang="html">${escape`${USAGE}`}</code-block>
+                <code-block syntax="html">${escape`${USAGE}`}</code-block>
                 <div class="live">${USAGE}</div>
             </div>
         </section>
@@ -176,7 +176,7 @@ const walkScope = (host, carets) => {
                is one <code class="inline">parentElement.closest('[data-rx-host]')</code>
                hop. The whole scope walker is six lines of DOM, no framework state, nothing
                cached:</p>
-            <code-block lang="ts">${escape`${LOOKUP_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${LOOKUP_SOURCE}`}</code-block>
             <p class="note">Mirrors (<code class="inline">rx-div</code>,
                <code class="inline">rx-button</code>) and plain DOM don't carry the
                <code class="inline">data-rx-host</code> attribute, so

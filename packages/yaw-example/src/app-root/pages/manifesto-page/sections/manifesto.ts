@@ -23,7 +23,4 @@ import { ScrollReveal } from '../../../directives/scroll-reveal.js';
 })
 export class ManifestoSection extends RxElement<{ heading: string }> {
     @state heading = '';
-    override onInit(): void {
-        this.heading = this.getAttribute('heading') ?? '';
-    }
 }

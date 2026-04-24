@@ -52,7 +52,7 @@ export class AppRoot extends RxElement {}`;
             <p class="note">The HTML entry is empty — just a module script.
                <code class="inline">bootstrap()</code> creates and appends the root
                element from the component's selector; you don't place it by hand.</p>
-            <code-block lang="html">${escape`${HTML_SOURCE}`}</code-block>
+            <code-block syntax="html">${escape`${HTML_SOURCE}`}</code-block>
         </section>
 
         <section class="host" id="bootstrap-main" toc-section>
@@ -63,7 +63,7 @@ export class AppRoot extends RxElement {}`;
                <code class="inline">ROUTES</code> is a symbol fed a value.
                <code class="inline">DefaultGlobalDirectives</code> is the built-in pair —
                <code class="inline">rx-if</code> and <code class="inline">rx-for</code>.</p>
-            <code-block lang="ts">${escape`${MAIN_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${MAIN_SOURCE}`}</code-block>
         </section>
 
         <section class="host" id="bootstrap-root" toc-section>
@@ -73,7 +73,7 @@ export class AppRoot extends RxElement {}`;
                does <code class="inline">document.body.appendChild(document.createElement(selector))</code>,
                and the custom-element upgrade path takes over. Usually nothing but a
                shell: navigation and the outlet the router fills.</p>
-            <code-block lang="ts">${escape`${APP_ROOT_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${APP_ROOT_SOURCE}`}</code-block>
         </section>
     `,
     styles: `:host { display: block; }\n${DOC_STYLES}`,

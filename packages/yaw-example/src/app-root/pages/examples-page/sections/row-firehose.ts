@@ -139,7 +139,7 @@ export class RowFirehose extends RxElement<{ amount: number; seconds: number; co
             <h2>The component</h2>
             <p class="note">One rAF loop, one HTML string per frame, one
                <code class="inline">insertAdjacentHTML</code>. That's the whole thing.</p>
-            <code-block lang="ts">${escape`${HOST_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${HOST_SOURCE}`}</code-block>
         </section>
 
         <section class="ex">
@@ -147,7 +147,7 @@ export class RowFirehose extends RxElement<{ amount: number; seconds: number; co
             <p class="note">Drag the sliders, press flood, scroll. Press flood again — it
                appends to whatever's already there.</p>
             <div class="split">
-                <code-block lang="html">${escape`<row-firehose></row-firehose>`}</code-block>
+                <code-block syntax="html">${escape`<row-firehose></row-firehose>`}</code-block>
                 <div class="live">${FIREHOSE_TEMPLATE}</div>
             </div>
         </section>

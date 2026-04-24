@@ -107,7 +107,7 @@ const LIVE_USAGE = `<route-display></route-display>`;
                plus an optional <code class="inline">{ path: '*', component }</code>
                wildcard. Provided through the <code class="inline">ROUTES</code>
                symbol so <code class="inline">Router</code> can depend on it.</p>
-            <code-block lang="ts">${escape`${ROUTE_CONFIG_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${ROUTE_CONFIG_SOURCE}`}</code-block>
         </section>
 
         <section class="host" id="navigation-outlet" toc-section>
@@ -116,7 +116,7 @@ const LIVE_USAGE = `<route-display></route-display>`;
                renders the component whose path matches
                <code class="inline">route$</code>. Put it once in your app
                shell.</p>
-            <code-block lang="ts">${escape`${OUTLET_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${OUTLET_SOURCE}`}</code-block>
         </section>
 
         <section class="host" id="navigation-navigate" toc-section>
@@ -126,7 +126,7 @@ const LIVE_USAGE = `<route-display></route-display>`;
                <code class="inline">onInit</code>, call
                <code class="inline">navigate(path)</code> when you want to move.
                That's the whole API.</p>
-            <code-block lang="ts">${escape`${NAVIGATE_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${NAVIGATE_SOURCE}`}</code-block>
         </section>
 
         <section class="ex" id="navigation-live" toc-section>
@@ -136,14 +136,14 @@ const LIVE_USAGE = `<route-display></route-display>`;
                up the active-link class, because it's subscribed to the same
                <code class="inline">route$</code>.</p>
             <div class="split">
-                <code-block lang="html">${escape`${LIVE_USAGE}`}</code-block>
+                <code-block syntax="html">${escape`${LIVE_USAGE}`}</code-block>
                 <div class="live"><route-display></route-display></div>
             </div>
         </section>
 
         <section class="host" id="navigation-api" toc-section>
             <h2>Router API</h2>
-            <code-block lang="ts">${escape`${API_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${API_SOURCE}`}</code-block>
         </section>
     `,
     styles: `

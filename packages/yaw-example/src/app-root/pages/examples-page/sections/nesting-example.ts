@@ -143,7 +143,7 @@ export class NestingExample extends RxElement {
                    <code class="inline">&lt;nesting-example&gt;</code>'s
                    template, so both resolve against
                    <code class="inline">&lt;nesting-example&gt;</code>.</p>
-                <code-block lang="ts">${escape`${MINIMAL_HOST_SOURCE}`}</code-block>
+                <code-block syntax="ts">${escape`${MINIMAL_HOST_SOURCE}`}</code-block>
             </section>
 
             <section class="host">
@@ -152,7 +152,7 @@ export class NestingExample extends RxElement {
                    framed box around its <code class="inline">&lt;slot&gt;</code>.
                    No behaviour, no state. In the live sections below, every
                    dashed box is one.</p>
-                <code-block lang="ts">${escape`${NESTED_LEVEL_SOURCE}`}</code-block>
+                <code-block syntax="ts">${escape`${NESTED_LEVEL_SOURCE}`}</code-block>
             </section>
 
             <p class="lede">Here is the rule that matters. Wrapping a binding
@@ -186,7 +186,7 @@ export class NestingExample extends RxElement {
                    anywhere and every
                    <code class="inline">count = N</code> on the page updates
                    together.</p>
-                <code-block lang="ts">${escape`${HOST_SOURCE}`}</code-block>
+                <code-block syntax="ts">${escape`${HOST_SOURCE}`}</code-block>
             </section>
 
             <section class="ex">
@@ -197,7 +197,7 @@ export class NestingExample extends RxElement {
                    <code class="inline">&lt;nesting-example&gt;</code>, the
                    component whose template it's in.</p>
                 <div class="split">
-                    <code-block lang="html">${escape`${DEPTH_1}`}</code-block>
+                    <code-block syntax="html">${escape`${DEPTH_1}`}</code-block>
                     <div class="live">${DEPTH_1}</div>
                 </div>
             </section>
@@ -212,7 +212,7 @@ export class NestingExample extends RxElement {
                    author writes it flat:
                    <code class="inline">increment(5)</code>.</p>
                 <div class="split">
-                    <code-block lang="html">${escape`${DEPTH_2}`}</code-block>
+                    <code-block syntax="html">${escape`${DEPTH_2}`}</code-block>
                     <div class="live">${DEPTH_2}</div>
                 </div>
             </section>
@@ -225,7 +225,7 @@ export class NestingExample extends RxElement {
                    <code class="inline">&lt;nesting-example&gt;</code>'s
                    scope. Still written flat.</p>
                 <div class="split">
-                    <code-block lang="html">${escape`${DEPTH_3}`}</code-block>
+                    <code-block syntax="html">${escape`${DEPTH_3}`}</code-block>
                     <div class="live">${DEPTH_3}</div>
                 </div>
             </section>
@@ -267,7 +267,7 @@ export class NestingExample extends RxElement {
                    <code class="inline">^count</code> reads the same
                    <code class="inline">count</code> everything above
                    shares.</p>
-                <code-block lang="ts">${escape`${PAGE_ECHO_SOURCE}`}</code-block>
+                <code-block syntax="ts">${escape`${PAGE_ECHO_SOURCE}`}</code-block>
             </section>
 
             <section class="ex">
@@ -281,7 +281,7 @@ export class NestingExample extends RxElement {
                    the numbers below stay locked to the three demos
                    above.</p>
                 <div class="split">
-                    <code-block lang="html">${escape`<page-echo></page-echo>`}</code-block>
+                    <code-block syntax="html">${escape`<page-echo></page-echo>`}</code-block>
                     <div class="live"><page-echo></page-echo></div>
                 </div>
             </section>

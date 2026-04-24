@@ -1,4 +1,4 @@
-import { Component, RxElement } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 import { readInert } from 'yaw-common';
 import { dedent, escapeHtml, highlightHtml, highlightTs } from './code-block/code-highlight.js';
 
@@ -26,9 +26,10 @@ import { dedent, escapeHtml, highlightHtml, highlightTs } from './code-block/cod
     `
 })
 export class CodeBlock extends RxElement {
+    @state syntax = '';
     override onInit(): void {
         const source = dedent(readInert(this));
-        const lang = this.getAttribute('lang');
+        const lang = this.syntax;
         const content = lang === 'ts' ? highlightTs(source)
             : lang === 'html' ? highlightHtml(source)
             : escapeHtml(source);

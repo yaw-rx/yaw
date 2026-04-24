@@ -5,7 +5,7 @@ export default defineConfig({
     root: '.',
     plugins: [vitePlugin()],
     server: {
-        port: 5175,
+        port: 5176,
     },
     build: {
         outDir: 'dist',

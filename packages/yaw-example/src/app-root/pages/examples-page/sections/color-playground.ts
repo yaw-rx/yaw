@@ -74,7 +74,7 @@ export class ColorPlayground extends RxElement<{ hue: number; sat: number; lit: 
             <h2>The palette component</h2>
             <p class="note"><code class="inline">PALETTE_TEMPLATE</code> is the same string
                rendered live below — impossible to lie about what's running.</p>
-            <code-block lang="ts">${escape`${HOST_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${HOST_SOURCE}`}</code-block>
         </section>
 
         <section class="ex">
@@ -83,7 +83,7 @@ export class ColorPlayground extends RxElement<{ hue: number; sat: number; lit: 
                observable, <code class="inline">combineLatest</code> emits, and the style
                binding pushes the new HSL string.</p>
             <div class="split">
-                <code-block lang="html">${escape`<color-playground></color-playground>`}</code-block>
+                <code-block syntax="html">${escape`<color-playground></color-playground>`}</code-block>
                 <div class="live">${PALETTE_TEMPLATE}</div>
             </div>
         </section>
