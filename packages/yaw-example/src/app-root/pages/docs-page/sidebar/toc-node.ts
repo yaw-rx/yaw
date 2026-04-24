@@ -45,12 +45,7 @@ import { TocService, type TocEntry } from '../services/toc-service.js';
                              padding-top: 0.15rem; padding-bottom: 0.35rem; }
     `,
 })
-export class TocNode extends RxElement<{
-    id: string;
-    label: string;
-    childEntries: readonly TocEntry[];
-    depth: number;
-}> {
+export class TocNode extends RxElement {
     @state label = '';
     @state childEntries: readonly TocEntry[] = [];
     @state depth = 0;

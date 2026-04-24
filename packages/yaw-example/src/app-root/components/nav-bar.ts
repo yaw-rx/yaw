@@ -30,7 +30,7 @@ import { Component, Inject, RxElement, state, Router } from 'yaw';
         .links a.active { color: #fff; border-bottom: 2px solid #fff; padding-bottom: 2px; }
     `
 })
-export class NavBar extends RxElement<{ route: string }> {
+export class NavBar extends RxElement {
     @state route = '/';
     @Inject(Router) private readonly router!: Router;
 
@@ -39,6 +39,7 @@ export class NavBar extends RxElement<{ route: string }> {
     }
 
     isActive(path: string): Observable<boolean> {
+        const a = this.route$;
         return this.route$.pipe(map((r) => r === path));
     }
 

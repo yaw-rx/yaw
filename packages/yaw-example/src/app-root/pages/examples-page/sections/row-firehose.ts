@@ -79,7 +79,7 @@ const HOST_SOURCE = `@Component({
     template: \`${FIREHOSE_TEMPLATE}\`,
     styles: \`${FIREHOSE_STYLES}\`,
 })
-export class RowFirehose extends RxElement<{ amount: number; seconds: number; count: number }> {
+export class RowFirehose extends RxElement {
     @state amount = 10000;
     @state seconds = 1;
     @state count = 0;
@@ -154,7 +154,7 @@ export class RowFirehose extends RxElement<{ amount: number; seconds: number; co
     `,
     styles: `${FIREHOSE_STYLES}\n${WRAPPER_STYLES}\n${DOC_STYLES}`,
 })
-export class RowFirehose extends RxElement<{ amount: number; seconds: number; count: number }> {
+export class RowFirehose extends RxElement {
     @state amount = 10000;
     @state seconds = 1;
     @state count = 0;

@@ -85,11 +85,7 @@ import type { TrackSeed } from './drum-machine/types.js';
         .rows { display: flex; flex-direction: column; }
     `,
 })
-export class DrumMachine extends RxElement<{
-    tempo: number;
-    playing: boolean;
-    pattern: Record<string, readonly boolean[]>;
-}> {
+export class DrumMachine extends RxElement {
     @state tempo = 120;
     @state playing = false;
     @state pattern: Record<string, readonly boolean[]> = {};

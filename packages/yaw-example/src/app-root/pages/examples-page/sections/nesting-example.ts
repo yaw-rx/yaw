@@ -68,7 +68,7 @@ const HOST_SOURCE = `@Component({
     selector: 'nesting-example',
     template: NESTING_TEMPLATE,
 })
-export class NestingExample extends RxElement<{ count: number; accent: string }> {
+export class NestingExample extends RxElement {
     @state count = 0;
     @state accent = '#050505';
 
@@ -100,7 +100,7 @@ const PAGE_ECHO_SOURCE = `@Component({
         </div>
     \`,
 })
-export class PageEcho extends RxElement<{ accent: string }> {
+export class PageEcho extends RxElement {
     @state accent = '#050505';
     @state blend = false;
 
@@ -281,7 +281,7 @@ export class NestingExample extends RxElement {
     `,
     styles: `${NESTING_STYLES}\n${WRAPPER_STYLES}\n${DOC_STYLES}`,
 })
-export class NestingExample extends RxElement<{ count: number; accent: string }> {
+export class NestingExample extends RxElement {
     @state count = 0;
     @state accent = '#050505';
 

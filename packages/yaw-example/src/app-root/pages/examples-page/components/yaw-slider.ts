@@ -34,7 +34,7 @@ export const SLIDER_SOURCE = `@Component({
     template: \`${SLIDER_TEMPLATE}\`,
     styles: \`${styles}\`,
 })
-export class YawSlider extends RxElement<{ value: number }> {
+export class YawSlider extends RxElement {
     @state value = 0;
     @state min = 0;
     @state max = 100;
@@ -66,7 +66,7 @@ export class YawSlider extends RxElement<{ value: number }> {
     template: SLIDER_TEMPLATE,
     styles,
 })
-export class YawSlider extends RxElement<{ value: number }> {
+export class YawSlider extends RxElement {
     @state value = 0;
     @state min = 0;
     @state max = 100;

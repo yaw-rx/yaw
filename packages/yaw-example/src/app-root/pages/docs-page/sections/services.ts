@@ -21,7 +21,7 @@ export class Clock {
                 letter-spacing: 0.06em; }
     `,
 })
-export class ClockReadout extends RxElement<{ now: string }> {
+export class ClockReadout extends RxElement {
     @state now = '';
     @Inject(Clock) private readonly clock!: Clock;
 
@@ -60,7 +60,7 @@ const RESOLVE_SOURCE = `// components: @Inject(Token) on a field
     selector: 'clock-readout',
     template: '<span>{{now}}</span>',
 })
-export class ClockReadout extends RxElement<{ now: string }> {
+export class ClockReadout extends RxElement {
     @state now = '';
     @Inject(Clock) private readonly clock!: Clock;
 

@@ -1,147 +1,154 @@
 import ts from 'typescript';
 import { isComponentClass } from './isComponentClass.js';
 import { getPrivateParams } from './getPrivateParams.js';
+import { getStateTypes } from './getStateTypes.js';
 
-/**
- * Transforms a single `@Component` class declaration so that constructor-
- * injected dependencies are resolved at connect time. For each constructor
- * parameter with an access modifier, it:
- *
- *   1. Strips the access modifier from the parameter declaration.
- *   2. Emits `const __injector = RxElementBase.resolveInjector(this)` and
- *      `this.<param> = __injector.resolve(<Type>)` into `connectedCallback`,
- *      creating the method if it does not already exist.
- *
- * Returns the node unchanged if it is not a `@Component` class or has no
- * injected constructor parameters.
- *
- * @param node - The class declaration AST node to transform.
- * @param checker - TypeScript type checker, passed through to `isComponentClass`.
- * @param factory - AST node factory for creating and updating nodes.
- * @returns The original class declaration if no transform applies, or a new
- *          class declaration with access modifiers stripped and resolve
- *          statements injected into `connectedCallback`.
- */
+const buildStateTypesProperty = (
+    stateTypes: Map<string, string>,
+    factory: ts.NodeFactory,
+): ts.PropertyDeclaration => {
+    const properties = [...stateTypes].map(([key, typeName]) =>
+        factory.createPropertyAssignment(
+            factory.createIdentifier(key),
+            factory.createStringLiteral(typeName),
+        ),
+    );
+    return factory.createPropertyDeclaration(
+        [factory.createModifier(ts.SyntaxKind.StaticKeyword)],
+        '__stateTypes',
+        undefined,
+        undefined,
+        factory.createObjectLiteralExpression(properties, false),
+    );
+};
+
 export const visitClass = (node: ts.ClassDeclaration, checker: ts.TypeChecker, factory: ts.NodeFactory): ts.ClassDeclaration => {
     if (!isComponentClass(node, checker)) return node;
 
+    const stateTypes = getStateTypes(node, checker);
     const ctor = node.members.find(ts.isConstructorDeclaration);
-    if (ctor === undefined) return node;
+    const injected = ctor !== undefined ? getPrivateParams(ctor) : [];
 
-    const injected = getPrivateParams(ctor);
-    if (injected.length === 0) return node;
+    if (injected.length === 0 && stateTypes.size === 0) return node;
 
-    // strip access modifiers from ctor params
-    const cleanParams = ctor.parameters.map((p) =>
-        factory.updateParameterDeclaration(
-            p,
-            p.modifiers?.filter(
-                (m) =>
-                    m.kind !== ts.SyntaxKind.PrivateKeyword &&
-                    m.kind !== ts.SyntaxKind.PublicKeyword &&
-                    m.kind !== ts.SyntaxKind.ProtectedKeyword &&
-                    m.kind !== ts.SyntaxKind.ReadonlyKeyword,
-            ),
-            p.dotDotDotToken,
-            p.name,
-            p.questionToken,
-            p.type,
-            p.initializer,
-        ),
-    );
+    let members = [...node.members];
 
-    // build: this.store = __injector.resolve(TaskStore)
-    const resolveStatements = injected.map((p) => {
-        const name = ts.isIdentifier(p.name) ? p.name.text : '';
-        const typeName =
-            p.type && ts.isTypeReferenceNode(p.type) && ts.isIdentifier(p.type.typeName)
-                ? p.type.typeName.text
-                : name;
-
-        return factory.createExpressionStatement(
-            factory.createAssignment(
-                factory.createPropertyAccessExpression(factory.createThis(), name),
-                factory.createCallExpression(
-                    factory.createPropertyAccessExpression(
-                        factory.createIdentifier('__injector'),
-                        'resolve',
-                    ),
-                    undefined,
-                    [factory.createIdentifier(typeName)],
-                ),
-            ),
-        );
-    });
-
-    // inject into connectedCallback or create one
-    const connected = node.members.find(
-        (m): m is ts.MethodDeclaration =>
-            ts.isMethodDeclaration(m) &&
-            ts.isIdentifier(m.name) &&
-            m.name.text === 'connectedCallback',
-    );
-
-    const injectorVar = factory.createVariableStatement(
-        undefined,
-        factory.createVariableDeclarationList(
-            [
-                factory.createVariableDeclaration(
-                    '__injector',
-                    undefined,
-                    undefined,
-                    factory.createCallExpression(
-                        factory.createPropertyAccessExpression(
-                            factory.createIdentifier('RxElementBase'),
-                            'resolveInjector',
-                        ),
-                        undefined,
-                        [factory.createThis()],
-                    ),
-                ),
-            ],
-            ts.NodeFlags.Const,
-        ),
-    );
-
-    let newMembers = node.members.filter((m) => !ts.isConstructorDeclaration(m));
-
-    if (connected !== undefined) {
-        const newConnected = factory.updateMethodDeclaration(
-            connected,
-            connected.modifiers,
-            connected.asteriskToken,
-            connected.name,
-            connected.questionToken,
-            connected.typeParameters,
-            connected.parameters,
-            connected.type,
-            factory.updateBlock(connected.body!, [
-                injectorVar,
-                ...resolveStatements,
-                ...connected.body!.statements,
-            ]),
-        );
-        newMembers = newMembers.map((m) => (m === connected ? newConnected : m));
-    } else {
-        const newConnected = factory.createMethodDeclaration(
-            undefined,
-            undefined,
-            'connectedCallback',
-            undefined,
-            undefined,
-            [],
-            undefined,
-            factory.createBlock([injectorVar, ...resolveStatements], true),
-        );
-        newMembers = [...newMembers, newConnected];
+    if (stateTypes.size > 0) {
+        members = [buildStateTypesProperty(stateTypes, factory), ...members];
     }
 
-    const newCtor = factory.updateConstructorDeclaration(
-        ctor,
-        ctor.modifiers,
-        cleanParams,
-        ctor.body,
-    );
+    if (injected.length > 0 && ctor !== undefined) {
+        const cleanParams = ctor.parameters.map((p) =>
+            factory.updateParameterDeclaration(
+                p,
+                p.modifiers?.filter(
+                    (m) =>
+                        m.kind !== ts.SyntaxKind.PrivateKeyword &&
+                        m.kind !== ts.SyntaxKind.PublicKeyword &&
+                        m.kind !== ts.SyntaxKind.ProtectedKeyword &&
+                        m.kind !== ts.SyntaxKind.ReadonlyKeyword,
+                ),
+                p.dotDotDotToken,
+                p.name,
+                p.questionToken,
+                p.type,
+                p.initializer,
+            ),
+        );
+
+        const resolveStatements = injected.map((p) => {
+            const name = ts.isIdentifier(p.name) ? p.name.text : '';
+            const typeName =
+                p.type && ts.isTypeReferenceNode(p.type) && ts.isIdentifier(p.type.typeName)
+                    ? p.type.typeName.text
+                    : name;
+
+            return factory.createExpressionStatement(
+                factory.createAssignment(
+                    factory.createPropertyAccessExpression(factory.createThis(), name),
+                    factory.createCallExpression(
+                        factory.createPropertyAccessExpression(
+                            factory.createIdentifier('__injector'),
+                            'resolve',
+                        ),
+                        undefined,
+                        [factory.createIdentifier(typeName)],
+                    ),
+                ),
+            );
+        });
+
+        const connected = members.find(
+            (m): m is ts.MethodDeclaration =>
+                ts.isMethodDeclaration(m) &&
+                ts.isIdentifier(m.name) &&
+                m.name.text === 'connectedCallback',
+        );
+
+        const injectorVar = factory.createVariableStatement(
+            undefined,
+            factory.createVariableDeclarationList(
+                [
+                    factory.createVariableDeclaration(
+                        '__injector',
+                        undefined,
+                        undefined,
+                        factory.createCallExpression(
+                            factory.createPropertyAccessExpression(
+                                factory.createIdentifier('RxElementBase'),
+                                'resolveInjector',
+                            ),
+                            undefined,
+                            [factory.createThis()],
+                        ),
+                    ),
+                ],
+                ts.NodeFlags.Const,
+            ),
+        );
+
+        members = members.filter((m) => !ts.isConstructorDeclaration(m));
+
+        if (connected !== undefined) {
+            const newConnected = factory.updateMethodDeclaration(
+                connected,
+                connected.modifiers,
+                connected.asteriskToken,
+                connected.name,
+                connected.questionToken,
+                connected.typeParameters,
+                connected.parameters,
+                connected.type,
+                factory.updateBlock(connected.body!, [
+                    injectorVar,
+                    ...resolveStatements,
+                    ...connected.body!.statements,
+                ]),
+            );
+            members = members.map((m) => (m === connected ? newConnected : m));
+        } else {
+            const newConnected = factory.createMethodDeclaration(
+                undefined,
+                undefined,
+                'connectedCallback',
+                undefined,
+                undefined,
+                [],
+                undefined,
+                factory.createBlock([injectorVar, ...resolveStatements], true),
+            );
+            members = [...members, newConnected];
+        }
+
+        const newCtor = factory.updateConstructorDeclaration(
+            ctor,
+            ctor.modifiers,
+            cleanParams,
+            ctor.body,
+        );
+
+        members = [newCtor, ...members];
+    }
 
     return factory.updateClassDeclaration(
         node,
@@ -149,6 +156,6 @@ export const visitClass = (node: ts.ClassDeclaration, checker: ts.TypeChecker, f
         node.name,
         node.typeParameters,
         node.heritageClauses,
-        [newCtor, ...newMembers],
+        members,
     );
 };

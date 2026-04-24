@@ -7,11 +7,22 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
+      "require": "./dist/cjs/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./isComponentClass": {
+      "import": "./dist/isComponentClass.js",
+      "require": "./dist/cjs/isComponentClass.js",
+      "types": "./dist/isComponentClass.d.ts"
+    },
+    "./getStateTypes": {
+      "import": "./dist/getStateTypes.js",
+      "require": "./dist/cjs/getStateTypes.js",
+      "types": "./dist/getStateTypes.d.ts"
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && tsc -p tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
     "build:watch": "tsc --watch --preserveWatchOutput",
     "typecheck": "tsc --noEmit"
   },

@@ -43,7 +43,7 @@ const HOST_SOURCE = `@Component({
     template: \`${PALETTE_TEMPLATE}\`,
     styles: \`${PALETTE_STYLES}\`,
 })
-export class ColorPlayground extends RxElement<{ hue: number; sat: number; lit: number }> {
+export class ColorPlayground extends RxElement {
     @state hue = 200;
     @state sat = 70;
     @state lit = 55;
@@ -90,7 +90,7 @@ export class ColorPlayground extends RxElement<{ hue: number; sat: number; lit: 
     `,
     styles: `${PALETTE_STYLES}\n${WRAPPER_STYLES}\n${DOC_STYLES}`,
 })
-export class ColorPlayground extends RxElement<{ hue: number; sat: number; lit: number }> {
+export class ColorPlayground extends RxElement {
     @state hue = 200;
     @state sat = 70;
     @state lit = 55;

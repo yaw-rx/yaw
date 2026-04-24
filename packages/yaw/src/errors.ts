@@ -46,3 +46,10 @@ export class BootstrapError extends Error {
         super(`bootstrap: ${message}`);
     }
 }
+
+export class AttributeMarshalError extends Error {
+    constructor(key: string, typeName: string, direction: 'encode' | 'decode', raw: string, cause: unknown) {
+        super(`attribute "${key}": failed to ${direction} as ${typeName} — value was "${raw}"`);
+        this.cause = cause;
+    }
+}

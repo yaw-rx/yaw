@@ -1,9 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
 
-export type Observables<S> = {
-    readonly [K in keyof S & string as `${K}$`]: BehaviorSubject<S[K]>;
-};
-
 const subjects = new WeakMap<object, Map<string | symbol, BehaviorSubject<unknown>>>();
 const observableKeys = new WeakMap<object, Set<string>>();
 

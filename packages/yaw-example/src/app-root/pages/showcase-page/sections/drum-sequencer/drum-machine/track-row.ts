@@ -40,14 +40,7 @@ import type { Cell } from './types.js';
         :host(.muted) .grid { opacity: 0.3; }
     `,
 })
-export class TrackRow extends RxElement<{
-    trackKey: string;
-    name: string;
-    voice: string;
-    accent: string;
-    muted: boolean;
-    steps: readonly boolean[];
-}> {
+export class TrackRow extends RxElement {
     @state trackKey = '';
     @state name = '';
     @state voice = '';

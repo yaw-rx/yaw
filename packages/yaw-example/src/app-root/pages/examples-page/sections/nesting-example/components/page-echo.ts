@@ -66,7 +66,7 @@ import { Component, RxElement, state } from 'yaw';
         .echo.blended { mix-blend-mode: difference; }
     `
 })
-export class PageEcho extends RxElement<{ accent: string }> {
+export class PageEcho extends RxElement {
     @state accent = '#050505';
     @state blend = false;
 

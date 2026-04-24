@@ -20,11 +20,7 @@ const GRID_SOURCE = `@Component({
         </div>
     \`,
 })
-export class CalendarGrid extends RxElement<{
-    currentYear: number;
-    currentMonth: number;
-    selectedDate: string | null;
-}> {
+export class CalendarGrid extends RxElement {
     @state currentYear = new Date().getFullYear();
     @state currentMonth = new Date().getMonth();
     @state selectedDate: string | null = null;
@@ -53,10 +49,7 @@ const WEEK_SOURCE = `@Component({
         </div>
     \`,
 })
-export class CalendarWeek extends RxElement<{
-    weekIdx: number;
-    days: readonly DayCell[];
-}> {
+export class CalendarWeek extends RxElement {
     @state weekIdx = 0;
     @state days: readonly DayCell[] = [];
 }`;
@@ -67,12 +60,7 @@ const DAY_SOURCE = `@Component({
                        [class.selected]="selected"
                        [class.in-month]="inMonth">{{day}}</button>\`,
 })
-export class CalendarDay extends RxElement<{
-    date: string;
-    day: number;
-    inMonth: boolean;
-    selected: boolean;
-}> {
+export class CalendarDay extends RxElement {
     @state date = '';
     @state day = 0;
     @state inMonth = false;

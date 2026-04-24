@@ -44,11 +44,7 @@ import type { WeekSeed } from './calendar-grid/types.js';
         .weeks { display: flex; flex-direction: column; gap: 0.25rem; }
     `,
 })
-export class CalendarGrid extends RxElement<{
-    currentYear: number;
-    currentMonth: number;
-    selectedDate: string | null;
-}> {
+export class CalendarGrid extends RxElement {
     @state currentYear = new Date().getFullYear();
     @state currentMonth = new Date().getMonth();
     @state selectedDate: string | null = null;

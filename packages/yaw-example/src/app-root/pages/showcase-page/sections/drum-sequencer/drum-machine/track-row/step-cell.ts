@@ -31,12 +31,7 @@ import { StepTicker } from '../utils/step-ticker.js';
         }
     `,
 })
-export class StepCell extends RxElement<{
-    idx: number;
-    on: boolean;
-    beat: boolean;
-    accent: string;
-}> {
+export class StepCell extends RxElement {
     @state idx = 0;
     @state on = false;
     @state beat = false;

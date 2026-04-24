@@ -51,7 +51,7 @@ const HOST_SOURCE = `@Component({
     template: \`${METER_TEMPLATE}\`,
     styles: \`${METER_STYLES}\`,
 })
-export class SignalMeter extends RxElement<{ strength: number }> {
+export class SignalMeter extends RxElement {
     @state strength = 65;
 
     get meterStyle$(): Observable<string> {
@@ -91,7 +91,7 @@ export class SignalMeter extends RxElement<{ strength: number }> {
     `,
     styles: `${METER_STYLES}\n${WRAPPER_STYLES}\n${DOC_STYLES}`,
 })
-export class SignalMeter extends RxElement<{ strength: number }> {
+export class SignalMeter extends RxElement {
     @state strength = 65;
 
     get meterStyle$(): Observable<string> {

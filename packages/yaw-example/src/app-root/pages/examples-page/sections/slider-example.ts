@@ -50,6 +50,6 @@ const USAGE = `<yaw-slider [(value)]="value" min="0" max="100"></yaw-slider>
         .state .status { color: #8af; }
     `,
 })
-export class SliderExample extends RxElement<{ value: number }> {
+export class SliderExample extends RxElement {
     @state value = 50;
 }

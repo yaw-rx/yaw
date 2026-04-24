@@ -14,10 +14,7 @@ import type { DayCell } from './types.js';
                 gap: 0.25rem; }
     `,
 })
-export class CalendarWeek extends RxElement<{
-    weekIdx: number;
-    days: readonly DayCell[];
-}> {
+export class CalendarWeek extends RxElement {
     @state weekIdx = 0;
     @state days: readonly DayCell[] = [];
 }

@@ -34,7 +34,7 @@ import { DOC_STYLES } from '../../../utils/doc-styles.js';
         button:hover { border-color: #8af; color: #8af; }
     `,
 })
-export class RouteDisplay extends RxElement<{ route: string }> {
+export class RouteDisplay extends RxElement {
     @state route = '/';
     @Inject(Router) private readonly router!: Router;
 
@@ -70,7 +70,7 @@ const OUTLET_SOURCE = `@Component({
 export class AppRoot extends RxElement {}`;
 
 const NAVIGATE_SOURCE = `@Component({ selector: 'route-display', ... })
-export class RouteDisplay extends RxElement<{ route: string }> {
+export class RouteDisplay extends RxElement {
     @state route = '/';
     @Inject(Router) private readonly router!: Router;
 

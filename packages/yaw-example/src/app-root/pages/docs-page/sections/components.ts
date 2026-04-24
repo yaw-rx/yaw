@@ -23,7 +23,7 @@ const COUNTER_SOURCE = `@Component({
     template: \`${COUNTER_TEMPLATE}\`,
     styles: \`${COUNTER_STYLES}\`,
 })
-export class HelloCounter extends RxElement<{ count: number }> {
+export class HelloCounter extends RxElement {
     @state count = 0;
     inc(): void { this.count += 1; }
     dec(): void { this.count -= 1; }
@@ -34,7 +34,7 @@ export class HelloCounter extends RxElement<{ count: number }> {
     template: COUNTER_TEMPLATE,
     styles: COUNTER_STYLES,
 })
-export class HelloCounter extends RxElement<{ count: number }> {
+export class HelloCounter extends RxElement {
     @state count = 0;
     inc(): void { this.count += 1; }
     dec(): void { this.count -= 1; }

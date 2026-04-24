@@ -21,6 +21,6 @@ import { ScrollReveal } from '../../../directives/scroll-reveal.js';
         .revealed { opacity: 1; transform: none; }
     `
 })
-export class ManifestoSection extends RxElement<{ heading: string }> {
+export class ManifestoSection extends RxElement {
     @state heading = '';
 }

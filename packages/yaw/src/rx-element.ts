@@ -1,10 +1,11 @@
 import { getTemplate, getProviders, getDirectives, getGlobalDirectives, isComponent } from './component.js';
 import { Injector } from './di/injector.js';
 import { getPropDeps } from './di/inject.js';
-import { type Observables, getObservableKeys } from './observable.js';
+import { getObservableKeys } from './observable.js';
 import { getDirectiveSelector, matchesSelector, type Directive } from './directive.js';
 import { DirectiveInstantiationError, InvalidSelectorError } from './errors.js';
 import { setupBindings } from './setupBindings.js';
+import { decodeAttribute } from './attribute-codec/decode.js';
 
 const renderScopeStack: RxElementBase[] = [];
 
@@ -95,14 +96,20 @@ export class RxElementBase extends HTMLElement {
 
     private readAttributes(): void {
         const keys = getObservableKeys(Object.getPrototypeOf(this) as object);
+        const typeMap = (this.constructor as unknown as Record<string, unknown>)['__stateTypes'] as Record<string, string> | undefined;
         for (const key of keys) {
             const raw = this.getAttribute(key);
             if (raw === null) continue;
-            const current = (this as unknown as Record<string, unknown>)[key];
-            switch (typeof current) {
-                case 'number':  (this as unknown as Record<string, unknown>)[key] = Number(raw); break;
-                case 'boolean': (this as unknown as Record<string, unknown>)[key] = raw !== 'false'; break;
-                default:        (this as unknown as Record<string, unknown>)[key] = raw; break;
+            const typeName = typeMap?.[key];
+            if (typeName !== undefined) {
+                (this as unknown as Record<string, unknown>)[key] = decodeAttribute(typeName, key, raw);
+            } else {
+                const current = (this as unknown as Record<string, unknown>)[key];
+                switch (typeof current) {
+                    case 'number':  (this as unknown as Record<string, unknown>)[key] = Number(raw); break;
+                    case 'boolean': (this as unknown as Record<string, unknown>)[key] = raw !== 'false'; break;
+                    default:        (this as unknown as Record<string, unknown>)[key] = raw; break;
+                }
             }
         }
     }
@@ -128,11 +135,4 @@ export class RxElementBase extends HTMLElement {
     onDestroy(): void {}
 }
 
-export type RxElement<S = unknown> = RxElementBase & Observables<S>;
-
-interface RxElementCtor {
-    new <S = unknown>(): RxElement<S>;
-    resolveInjector(el: Element): Injector;
-}
-
-export const RxElement: RxElementCtor = RxElementBase as unknown as RxElementCtor;
+export { RxElementBase as RxElement };

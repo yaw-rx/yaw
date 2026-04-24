@@ -3,6 +3,7 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
+    "plugins": [{ "name": "yaw-ts-plugin" }],
     "paths": {
       "yaw": ["../yaw/src/index.ts"],
       "yaw-common": ["../yaw-common/src/index.ts"],

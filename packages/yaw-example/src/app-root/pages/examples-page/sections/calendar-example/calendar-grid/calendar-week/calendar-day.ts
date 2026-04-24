@@ -19,12 +19,7 @@ import { Component, RxElement, state } from 'yaw';
                           box-shadow: 0 0 14px rgba(136, 170, 255, 0.5); }
     `,
 })
-export class CalendarDay extends RxElement<{
-    date: string;
-    day: number;
-    inMonth: boolean;
-    selected: boolean;
-}> {
+export class CalendarDay extends RxElement {
     @state date = '';
     @state day = 0;
     @state inMonth = false;

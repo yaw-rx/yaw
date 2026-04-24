@@ -41,6 +41,8 @@ import type { DirectiveCtor, RxElementLike } from './directive.js';
 import { BootstrapError } from './errors.js';
 import { registerHtmlMirrors } from './components/rx-elements.js';
 import { transformTemplate, transformStyles } from 'yaw-common';
+import type { AttributeCodec } from './attribute-codec/types.js';
+import { registerAttributeCodecs } from './attribute-codec/registry.js';
 
 interface ComponentOptions {
     readonly selector: string;
@@ -103,11 +105,13 @@ interface BootstrapOptions {
     readonly root: CustomElementConstructor;
     readonly providers: readonly Provider[];
     readonly globalDirectives?: readonly DirectiveCtor[];
+    readonly attributeCodecs?: Record<string, AttributeCodec>;
 }
 
 export const bootstrap = (options: BootstrapOptions): void => {
     const selector = getSelector(options.root);
     if (selector === undefined) { throw new BootstrapError(`${options.root.name} has no @Component decorator`); }
+    if (options.attributeCodecs !== undefined) { registerAttributeCodecs(options.attributeCodecs); }
     registerHtmlMirrors();
     globalDirectives = options.globalDirectives ?? [];
     const injector = new Injector(options.providers);

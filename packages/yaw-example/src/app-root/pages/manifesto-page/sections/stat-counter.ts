@@ -12,7 +12,7 @@ import { Component, RxElement, state } from 'yaw';
                  text-transform: uppercase; margin-top: 0.5rem; }
     `
 })
-export class StatCounter extends RxElement<{ count: number; label: string }> {
+export class StatCounter extends RxElement {
     @state count = 0;
     @state label = '';
     @state target = 0;
