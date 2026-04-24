@@ -32,7 +32,7 @@ const PALETTE_STYLES = `
 `;
 
 const WRAPPER_STYLES = `
-    .live { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1rem;
+    .live { display: grid; grid-template-columns: auto 1fr; gap: 0.75rem 1rem;
             align-items: center; padding: 1.5rem;
             background: #050505; border: 1px solid #1a1a1a; border-radius: 8px; }
     .live .out, .live .swatch { grid-column: 1 / -1; }
