@@ -3,7 +3,7 @@ import { escape } from '../../../components/code-block/code-highlight.js';
 import { SLIDER_SOURCE } from '../components/yaw-slider.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
-const USAGE = `<yaw-slider for="value" min="0" max="100"></yaw-slider>
+const USAGE = `<yaw-slider [(value)]="value" min="0" max="100"></yaw-slider>
 <p>value = {{value}}</p>`;
 
 @Component({
@@ -14,8 +14,8 @@ const USAGE = `<yaw-slider for="value" min="0" max="100"></yaw-slider>
            own. One component, <code class="inline">pointerdown</code> /
            <code class="inline">move</code> / <code class="inline">up</code>, plus two
            <code class="inline">[style]</code> bindings for the fill and the thumb. Two-way
-           binding to an <code class="inline">@state</code> on the parent is the whole
-           of the public API — <code class="inline">for="propName"</code>.</p>
+           model binding — <code class="inline">[(value)]="propName"</code> — is the
+           whole of the public API.</p>
 
         <section class="host">
             <h2>The slider component</h2>
@@ -29,7 +29,7 @@ const USAGE = `<yaw-slider for="value" min="0" max="100"></yaw-slider>
         <section class="ex">
             <h2>In use</h2>
             <p class="note">Declare an <code class="inline">@state</code> on the parent,
-               point the slider at it with <code class="inline">for</code>, and read the
+               bind it with <code class="inline">[(value)]="prop"</code>, and read the
                value back through the usual <code class="inline">${escape`{{ }}`}</code> binding —
                pointer gestures push into the parent's subject, so everything reading it
                updates for free.</p>

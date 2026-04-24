@@ -48,6 +48,9 @@ ${DEPTH_1}
 ${DEPTH_2}
 
 ${DEPTH_3}
+
+<!-- a separate component dropped into the same host template -->
+<page-echo></page-echo>
 `;
 
 const NESTED_LEVEL_SOURCE = `@Component({
@@ -63,10 +66,7 @@ export class NestedLevel extends RxElement {}`;
 
 const HOST_SOURCE = `@Component({
     selector: 'nesting-example',
-    template: \`${NESTING_TEMPLATE}
-<!-- a separate component dropped into the same host template -->
-<page-echo></page-echo>\`,
-    styles: \`${NESTING_STYLES}\`,
+    template: NESTING_TEMPLATE,
 })
 export class NestingExample extends RxElement<{ count: number }> {
     @state count = 0;
@@ -137,11 +137,11 @@ export class NestingExample extends RxElement {
                what's inside.</p>
 
             <section class="host">
-                <h2>Minimal host</h2>
-                <p class="note">The host stripped to its essentials. Both
-                   bindings sit in
-                   <code class="inline">&lt;nesting-example&gt;</code>'s
-                   template, so both resolve against
+                <h2><code class="inline">&lt;nesting-example&gt;</code> — minimal host</h2>
+                <p class="note">The host stripped to its essentials. One
+                   <code class="inline">@state</code>, one method, two
+                   bindings. Both sit in the component's own template, so
+                   both resolve against
                    <code class="inline">&lt;nesting-example&gt;</code>.</p>
                 <code-block syntax="ts">${escape`${MINIMAL_HOST_SOURCE}`}</code-block>
             </section>
@@ -150,140 +150,83 @@ export class NestingExample extends RxElement {
                 <h2><code class="inline">&lt;nested-level&gt;</code> — a wrapper</h2>
                 <p class="note">A custom element whose entire job is to draw a
                    framed box around its <code class="inline">&lt;slot&gt;</code>.
-                   No behaviour, no state. In the live sections below, every
-                   dashed box is one.</p>
+                   No behaviour, no state. In the live demo below, every
+                   dashed box is one of these.</p>
                 <code-block syntax="ts">${escape`${NESTED_LEVEL_SOURCE}`}</code-block>
             </section>
 
-            <p class="lede">Here is the rule that matters. Wrapping a binding
-               in a custom-element tag <em>inside your own template</em> does
-               not change where the binding resolves. It is still in your
-               template, so it is still your scope. A button sitting directly
-               under <code class="inline">&lt;nesting-example&gt;</code> and
-               a button sitting two
-               <code class="inline">&lt;nested-level&gt;</code>s deep — both
-               written in
-               <code class="inline">&lt;nesting-example&gt;</code>'s template —
-               read and write the same
+            <p class="lede"><code class="inline">&lt;page-echo&gt;</code> is a
+               separate component with its own template. It doesn't own any
+               state — it reaches <em>out</em> to whatever component placed
+               its tag. That is the one place the caret
+               (<code class="inline">^</code>) is used. A leading
+               <code class="inline">^</code> on a binding means
+               <em>"cross one template boundary outward — resolve in the
+               scope that placed this tag, not in this template's own
+               scope."</em></p>
+
+            <section class="host">
+                <h2><code class="inline">&lt;page-echo&gt;</code> — reaching out with <code class="inline">^</code></h2>
+                <p class="note">Every binding starts with
+                   <code class="inline">^</code>. When a
+                   <code class="inline">&lt;page-echo&gt;</code> tag is
+                   placed inside
+                   <code class="inline">&lt;nesting-example&gt;</code>,
+                   each <code class="inline">^</code> crosses that one
+                   template boundary and lands on
+                   <code class="inline">&lt;nesting-example&gt;</code> — so
+                   <code class="inline">^count</code> reads the same
+                   <code class="inline">count</code> as everything else on
+                   the page.</p>
+                <code-block syntax="ts">${escape`${PAGE_ECHO_SOURCE}`}</code-block>
+            </section>
+
+            <p class="lede">Now the rule that ties it together. Wrapping a
+               binding in a custom-element tag <em>inside your own
+               template</em> does not change where the binding resolves.
+               It is still in your template, so it is still your scope.
+               A button sitting directly under
+               <code class="inline">&lt;nesting-example&gt;</code> and a
+               button sitting two
+               <code class="inline">&lt;nested-level&gt;</code>s deep —
+               both written in
+               <code class="inline">&lt;nesting-example&gt;</code>'s
+               template — read and write the same
                <code class="inline">count</code>. You write them the same
                way: <code class="inline">increment(1)</code>,
                <code class="inline">{{ count }}</code> — flat, no marker.</p>
 
             <section class="host">
-                <h2>The host in full</h2>
-                <p class="note">Three copies of the counter UI at increasing
-                   wrapper depth — zero, one, two — all written in
+                <h3>The template</h3>
+                <p class="note">Three groups of buttons at increasing wrapper
+                   depth — zero, one, two — all written in
                    <code class="inline">&lt;nesting-example&gt;</code>'s own
                    template, so all three resolve against its
-                   <code class="inline">count</code>. A
-                   <code class="inline">&lt;page-echo&gt;</code> tag sits at
-                   the bottom; that is a separate component with its own
-                   template, covered at the end of the page. Every live
-                   block below is rendered inside this page's
-                   <code class="inline">&lt;nesting-example&gt;</code>
-                   instance, so all four share one
-                   <code class="inline">count</code> — click a button
-                   anywhere and every
-                   <code class="inline">count = N</code> on the page updates
-                   together.</p>
+                   <code class="inline">count</code>. At the bottom, a
+                   <code class="inline">&lt;page-echo&gt;</code> tag drops
+                   in the separate component introduced above — its
+                   <code class="inline">^</code> bindings cross one boundary
+                   and land on the same host.</p>
+                <h4><code class="inline">NESTING_TEMPLATE</code> — the full template markup</h4>
+                <code-block syntax="html">${escape`${NESTING_TEMPLATE}`}</code-block>
+            </section>
+
+            <section class="host">
+                <h3>The component</h3>
+                <p class="note">One <code class="inline">@state</code>, two
+                   methods, one derived getter. The template above is the
+                   entire UI — every binding in it resolves here.</p>
                 <code-block syntax="ts">${escape`${HOST_SOURCE}`}</code-block>
             </section>
 
             <section class="ex">
-                <h2>Depth 0 — no wrapper</h2>
-                <p class="note">Buttons are direct children of the host.
-                   <code class="inline">increment(1)</code> is written flat
-                   and resolves on
-                   <code class="inline">&lt;nesting-example&gt;</code>, the
-                   component whose template it's in.</p>
-                <div class="split">
-                    <code-block syntax="html">${escape`${DEPTH_1}`}</code-block>
-                    <div class="live">${DEPTH_1}</div>
-                </div>
-            </section>
-
-            <section class="ex">
-                <h2>Depth 1 — one wrapper</h2>
-                <p class="note">Wrapped in one
-                   <code class="inline">&lt;nested-level&gt;</code>. Same
-                   template, same scope — the binding still resolves on
-                   <code class="inline">&lt;nesting-example&gt;</code>, not
-                   on <code class="inline">&lt;nested-level&gt;</code>. The
-                   author writes it flat:
-                   <code class="inline">increment(5)</code>.</p>
-                <div class="split">
-                    <code-block syntax="html">${escape`${DEPTH_2}`}</code-block>
-                    <div class="live">${DEPTH_2}</div>
-                </div>
-            </section>
-
-            <section class="ex">
-                <h2>Depth 2 — two wrappers</h2>
-                <p class="note">Two
-                   <code class="inline">&lt;nested-level&gt;</code>s deep.
-                   Still the same template, so still
-                   <code class="inline">&lt;nesting-example&gt;</code>'s
-                   scope. Still written flat.</p>
-                <div class="split">
-                    <code-block syntax="html">${escape`${DEPTH_3}`}</code-block>
-                    <div class="live">${DEPTH_3}</div>
-                </div>
-            </section>
-
-            <p class="lede">So far every binding has lived in
-               <code class="inline">&lt;nesting-example&gt;</code>'s own
-               template. Now the different case.
-               <code class="inline">&lt;page-echo&gt;</code> is a separate
-               component, written in <em>its own</em> template. That
-               template doesn't know where a
-               <code class="inline">&lt;page-echo&gt;</code> tag will be
-               placed — that is decided by whatever component uses the
-               tag. By the same rule as above, bindings inside
-               <code class="inline">&lt;page-echo&gt;</code>'s template
-               would resolve against
-               <code class="inline">&lt;page-echo&gt;</code>. But what if
-               page-echo's template wants to reach <em>out</em> — to read
-               and write state on whatever component placed its tag?</p>
-
-            <p class="lede">That is the one place the caret
-               (<code class="inline">^</code>) is used. A leading
-               <code class="inline">^</code> on a binding means
-               <em>"cross one template boundary outward — resolve in the
-               scope that placed this template's tag, not in this
-               template's own scope."</em> It is the author's tool for
-               letting a template reach back up to whoever is using it.</p>
-
-            <section class="host">
-                <h2><code class="inline">&lt;page-echo&gt;</code> — a template reaching out</h2>
-                <p class="note">Every binding in
-                   <code class="inline">&lt;page-echo&gt;</code>'s template
-                   starts with <code class="inline">^</code>. When a
-                   <code class="inline">&lt;page-echo&gt;</code> tag is
-                   placed inside
-                   <code class="inline">&lt;nesting-example&gt;</code> (as
-                   in the demo below), each <code class="inline">^</code>
-                   crosses that one template boundary and lands on
-                   <code class="inline">&lt;nesting-example&gt;</code> — so
-                   <code class="inline">^count</code> reads the same
-                   <code class="inline">count</code> everything above
-                   shares.</p>
-                <code-block syntax="ts">${escape`${PAGE_ECHO_SOURCE}`}</code-block>
-            </section>
-
-            <section class="ex">
-                <h2>Live — <code class="inline">&lt;page-echo&gt;</code> in this host</h2>
-                <p class="note">A <code class="inline">&lt;page-echo&gt;</code>
-                   tag placed inside this
-                   <code class="inline">&lt;nesting-example&gt;</code>.
-                   Each <code class="inline">^</code> in its template
-                   crosses out to
-                   <code class="inline">&lt;nesting-example&gt;</code>, so
-                   the numbers below stay locked to the three demos
-                   above.</p>
-                <div class="split">
-                    <code-block syntax="html">${escape`<page-echo></page-echo>`}</code-block>
-                    <div class="live"><page-echo></page-echo></div>
-                </div>
+                <h2>Live</h2>
+                <p class="note">Everything above rendered together. All four
+                   groups — three depths of buttons plus the
+                   <code class="inline">&lt;page-echo&gt;</code> — share one
+                   <code class="inline">count</code>. Click a button anywhere
+                   and every counter on the page updates together.</p>
+                <div class="live">${NESTING_TEMPLATE}</div>
             </section>
         </div>
     `,

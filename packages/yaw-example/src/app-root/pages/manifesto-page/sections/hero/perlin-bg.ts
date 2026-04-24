@@ -109,9 +109,9 @@ fn ridge(p: vec3f) -> f32 {
 @fragment fn fs(@builtin(position) frag: vec4f) -> @location(0) vec4f {
     let uv = frag.xy / u.resolution;
     let aspect = u.resolution.x / u.resolution.y;
-    let t = u.time * 0.000155;
+    let t = u.time * 0.000355;
 
-    var p = vec3f((uv - 0.5) * vec2f(aspect, 1.0) * 0.2, t);
+    var p = vec3f((uv - 0.5) * vec2f(aspect, 1.0) * 0.22, t);
 
     // domain warp — two passes for organic filament structure
     let qx = fbm(p + vec3f(0.0, 0.0, 0.0));

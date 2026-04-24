@@ -78,8 +78,8 @@ export const highlightTs = (src: string): string => {
     return out;
 };
 
-const HTML_TOKEN_RE = /(<!--[\s\S]*?-->)|(<\/?)([a-zA-Z][\w-]*)((?:\s+[a-zA-Z_:][\w:.-]*(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*)\s*(\/?)(>)/g;
-const HTML_ATTR_RE = /([a-zA-Z_:][\w:.-]*)(?:(\s*=\s*)("[^"]*"|'[^']*'|[^\s"'>]+))?/g;
+const HTML_TOKEN_RE = /(<!--[\s\S]*?-->)|(<\/?)([a-zA-Z][\w-]*)((?:\s+[\w[\]().:^#-]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*)\s*(\/?)(>)/g;
+const HTML_ATTR_RE = /([\w[\]().:^#-]+)(?:(\s*=\s*)("[^"]*"|'[^']*'|[^\s"'>]+))?/g;
 
 const highlightAttrs = (attrs: string): string => {
     let out = '';
