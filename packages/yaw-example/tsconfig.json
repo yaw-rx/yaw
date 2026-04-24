@@ -1,9 +1,13 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "lib": ["ES2022", "DOM", "ESNext.Temporal"],
     "outDir": "./dist",
     "rootDir": "./src",
-    "plugins": [{ "name": "yaw-ts-plugin" }],
+    "plugins": [
+      { "name": "yaw-ts-plugin" },
+      { "transform": "yaw-transformer", "type": "program" }
+    ],
     "paths": {
       "yaw": ["../yaw/src/index.ts"],
       "yaw-common": ["../yaw-common/src/index.ts"],

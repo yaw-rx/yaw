@@ -17,6 +17,7 @@ import { TocService } from './docs-page/services/toc-service.js';
 
             <docs-bootstrap id="bootstrap" toc-section></docs-bootstrap>
             <docs-components id="components" toc-section></docs-components>
+            <docs-reactive-state id="reactive-state" toc-section></docs-reactive-state>
             <docs-directives id="directives" toc-section></docs-directives>
             <docs-services id="services" toc-section></docs-services>
             <docs-navigation id="navigation" toc-section></docs-navigation>

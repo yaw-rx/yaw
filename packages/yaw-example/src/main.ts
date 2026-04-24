@@ -1,4 +1,7 @@
-import { bootstrap, Router, ROUTES, DefaultGlobalDirectives } from 'yaw';
+import { bootstrap, Router, ROUTES, DefaultGlobalDirectives, type AttributeCodec } from 'yaw';
+import Decimal from 'decimal.js';
+import dayjs, { type Dayjs } from 'dayjs';
+import { getAddress } from 'viem';
 
 import { AppRoot } from './app-root.js';
 import './app-root/components/nav-bar.js';
@@ -42,6 +45,7 @@ import './app-root/pages/docs-page/sections/directives/scope-demo.js';
 import './app-root/pages/docs-page/sections/directives/blink-demo.js';
 import './app-root/pages/docs-page/sections/services.js';
 import './app-root/pages/docs-page/sections/navigation.js';
+import './app-root/pages/docs-page/sections/reactive-state.js';
 
 bootstrap({
     root: AppRoot,
@@ -55,4 +59,22 @@ bootstrap({
         Router,
     ],
     globalDirectives: [...DefaultGlobalDirectives, TocSection],
+    attributeCodecs: {
+        Decimal: {
+            encode: (v) => (v as Decimal).toString(),
+            decode: (s) => new Decimal(s),
+        } as AttributeCodec,
+        Address: {
+            encode: (v) => v as string,
+            decode: (s) => getAddress(s),
+        } as AttributeCodec,
+        PlainDate: {
+            encode: (v) => (v as Temporal.PlainDate).toString(),
+            decode: (s) => Temporal.PlainDate.from(s),
+        } as AttributeCodec,
+        Dayjs: {
+            encode: (v) => (v as Dayjs).toISOString(),
+            decode: (s) => dayjs(s),
+        } as AttributeCodec,
+    },
 });

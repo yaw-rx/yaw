@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import { isComponentClass } from './isComponentClass.js';
 import { getPrivateParams } from './getPrivateParams.js';
-import { getStateTypes } from './getStateTypes.js';
+import { getStateTypes, getStateFieldInfos, type StateFieldInfo } from './getStateTypes.js';
 
 const buildStateTypesProperty = (
     stateTypes: Map<string, string>,
@@ -22,10 +22,38 @@ const buildStateTypesProperty = (
     );
 };
 
+const typeNodeForName = (typeName: string, factory: ts.NodeFactory): ts.TypeNode => {
+    switch (typeName) {
+        case 'number':  return factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword);
+        case 'string':  return factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
+        case 'boolean': return factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword);
+        case 'bigint':  return factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword);
+        default:        return factory.createTypeReferenceNode(typeName);
+    }
+};
+
+const buildDollarDeclarations = (
+    fields: Map<string, StateFieldInfo>,
+    factory: ts.NodeFactory,
+): ts.PropertyDeclaration[] =>
+    [...fields].map(([key, info]) => {
+        const innerType = info.typeNode !== undefined
+            ? info.typeNode
+            : typeNodeForName(info.typeName, factory);
+        return factory.createPropertyDeclaration(
+            [factory.createModifier(ts.SyntaxKind.DeclareKeyword)],
+            `${key}$`,
+            undefined,
+            factory.createTypeReferenceNode('BehaviorSubject', [innerType]),
+            undefined,
+        );
+    });
+
 export const visitClass = (node: ts.ClassDeclaration, checker: ts.TypeChecker, factory: ts.NodeFactory): ts.ClassDeclaration => {
     if (!isComponentClass(node, checker)) return node;
 
     const stateTypes = getStateTypes(node, checker);
+    const stateFieldInfos = getStateFieldInfos(node, checker);
     const ctor = node.members.find(ts.isConstructorDeclaration);
     const injected = ctor !== undefined ? getPrivateParams(ctor) : [];
 
@@ -34,7 +62,11 @@ export const visitClass = (node: ts.ClassDeclaration, checker: ts.TypeChecker, f
     let members = [...node.members];
 
     if (stateTypes.size > 0) {
-        members = [buildStateTypesProperty(stateTypes, factory), ...members];
+        members = [
+            buildStateTypesProperty(stateTypes, factory),
+            ...buildDollarDeclarations(stateFieldInfos, factory),
+            ...members,
+        ];
     }
 
     if (injected.length > 0 && ctor !== undefined) {

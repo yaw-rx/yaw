@@ -1,0 +1,45 @@
+import { getAddress, type Address } from 'viem';
+import { Component, RxElement, state } from 'yaw';
+
+@Component({
+    selector: 'address-demo',
+    template: `
+        <div class="panel">
+            <div class="row">
+                <span class="label">Address</span>
+                <code class="value">{{wallet}}</code>
+            </div>
+            <div class="buttons">
+                <button onclick="setVitalik">vitalik.eth</button>
+                <button onclick="setZero">zero address</button>
+            </div>
+        </div>
+    `,
+    styles: `
+        :host { display: block; width: 100%; }
+        .panel { display: flex; flex-direction: column; gap: 0.75rem; }
+        .row { display: flex; align-items: center; gap: 0.75rem;
+               justify-content: space-between; }
+        .label { color: #888; font-family: monospace; font-size: 0.75rem;
+                 text-transform: uppercase; letter-spacing: 0.08em; }
+        .value { color: #8af; font-family: monospace; font-size: 0.7rem;
+                 background: #0a0a0a; padding: 0.35rem 0.7rem;
+                 border: 1px solid #1a1a1a; border-radius: 4px;
+                 overflow: hidden; text-overflow: ellipsis; word-break: break-all; }
+        .buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        button { background: #111; border: 1px solid #333; color: #fff;
+                 padding: 0.4rem 0.8rem; font: inherit; font-family: monospace;
+                 font-size: 0.8rem; cursor: pointer; border-radius: 4px; }
+        button:hover { border-color: #8af; color: #8af; }
+    `,
+})
+export class AddressDemo extends RxElement {
+    @state wallet: Address = getAddress('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045');
+
+    setVitalik(): void {
+        this.wallet = getAddress('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045');
+    }
+    setZero(): void {
+        this.wallet = getAddress('0x0000000000000000000000000000000000000000');
+    }
+}

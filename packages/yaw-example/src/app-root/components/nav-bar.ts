@@ -39,7 +39,6 @@ export class NavBar extends RxElement {
     }
 
     isActive(path: string): Observable<boolean> {
-        const a = this.route$;
         return this.route$.pipe(map((r) => r === path));
     }
 

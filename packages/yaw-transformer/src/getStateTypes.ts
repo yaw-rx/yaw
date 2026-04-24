@@ -51,6 +51,11 @@ const resolveTypeName = (prop: ts.PropertyDeclaration, checker: ts.TypeChecker):
     return undefined;
 };
 
+export interface StateFieldInfo {
+    typeName: string;
+    typeNode: ts.TypeNode | undefined;
+}
+
 export const getStateTypes = (
     node: ts.ClassDeclaration,
     checker: ts.TypeChecker,
@@ -66,6 +71,26 @@ export const getStateTypes = (
         const typeName = resolveTypeName(member, checker);
         if (typeName !== undefined) {
             result.set(member.name.text, typeName);
+        }
+    }
+    return result;
+};
+
+export const getStateFieldInfos = (
+    node: ts.ClassDeclaration,
+    checker: ts.TypeChecker,
+): Map<string, StateFieldInfo> => {
+    const result = new Map<string, StateFieldInfo>();
+    for (const member of node.members) {
+        if (!ts.isPropertyDeclaration(member)) continue;
+        if (!ts.isIdentifier(member.name)) continue;
+        const decorators = ts.getDecorators(member);
+        if (decorators === undefined) continue;
+        const hasState = decorators.some((d) => isStateDecorator(d, checker));
+        if (!hasState) continue;
+        const typeName = resolveTypeName(member, checker);
+        if (typeName !== undefined) {
+            result.set(member.name.text, { typeName, typeNode: member.type });
         }
     }
     return result;
