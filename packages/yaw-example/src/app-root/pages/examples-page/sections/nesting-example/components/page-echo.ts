@@ -1,18 +1,45 @@
-import { Component, RxElement } from 'yaw';
+import { map } from 'rxjs';
+import { Component, RxElement, state } from 'yaw';
 
 @Component({
     selector: 'page-echo',
     template: `
-        <div class="echo">
-            <div class="label">child template — caret prefix reaches the parent host</div>
-            <div class="row">
-                <code>{{ ^count }}</code>
-                <span class="sep">·</span>
-                <code>{{ ^status }}</code>
+        <div class="echo" [class.blended]="blend">
+            <div class="section">
+                <div class="label">child template — caret prefix reaches the parent host</div>
+                <div class="body">
+                    <div class="row">
+                        <code><span class="pre">^count</span> {{ ^count }}</code>
+                        <span class="sep">·</span>
+                        <code><span class="pre">^status</span> {{ ^status }}</code>
+                    </div>
+                    <div class="row">
+                        <button onclick="^increment(2)">^increment(2)</button>
+                        <button onclick="^reset">^reset</button>
+                    </div>
+                </div>
             </div>
-            <div class="row buttons">
-                <button onclick="^increment(2)">^increment(2)</button>
-                <button onclick="^reset">^reset</button>
+            <div class="section">
+                <div class="label">local <code class="inline">accent</code> state pushes to the host via model binding</div>
+                <div class="body">
+                    <div class="row">
+                        <code><span class="pre">accent</span> {{ accent }}</code>
+                    </div>
+                    <div class="row">
+                        <button onclick="cycleAccent" [style]="accentBtnStyle">accent</button>
+                    </div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="label">local <code class="inline">blend</code> state — stays in this component, never leaves</div>
+                <div class="body">
+                    <div class="row">
+                        <code><span class="pre">blend</span> {{ blend }}</code>
+                    </div>
+                    <div class="row">
+                        <button onclick="toggleBlend" [class.active]="blend">blend</button>
+                    </div>
+                </div>
             </div>
         </div>
     `,
@@ -20,15 +47,49 @@ import { Component, RxElement } from 'yaw';
         :host { display: block; }
         .echo { background: #0a1128; border: 1px solid #1a2352; border-radius: 6px;
                 padding: 1rem; color: #8af; font-family: monospace; font-size: 0.85rem; }
+        .section + .section { margin-top: 1rem; }
         .label { color: #556; font-size: 0.7rem; letter-spacing: 0.08em;
-                 text-transform: uppercase; margin-bottom: 0.6rem; }
-        .row { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.4rem; }
-        .row code { color: #8af; background: transparent; padding: 0; }
+                 text-transform: uppercase; margin-bottom: 0.5rem; }
+        .label code { color: #8af; font-size: inherit; }
+        .body { display: flex; flex-direction: column; gap: 0.4rem;
+                padding: 0.5rem 0.6rem; background: #050505;
+                border-radius: 4px; }
+        .row { display: flex; gap: 0.5rem; align-items: center; }
+        .row code { color: #8af; background: transparent; padding: 0.35rem 0.4rem; }
+        .pre { color: #556; }
         .sep { color: #334; }
-        .buttons button { background: #0f1a3a; border: 1px solid #1a2352; color: #8af;
-                          padding: 0.35rem 0.7rem; font: inherit; font-size: 0.8rem;
-                          cursor: pointer; border-radius: 4px; }
-        .buttons button:hover { background: #182555; color: #fff; }
+        .row button { background: #0f1a3a; border: 1px solid #1a2352; color: #8af;
+                      padding: 0.35rem 0.7rem; font: inherit; font-size: 0.8rem;
+                      cursor: pointer; border-radius: 4px; }
+        .row button:hover { background: #182555; color: #fff; }
+        .row button.active { background: #1a2352; border-color: #8af; color: #fff; }
+        .echo.blended { mix-blend-mode: difference; }
     `
 })
-export class PageEcho extends RxElement {}
+export class PageEcho extends RxElement<{ accent: string }> {
+    @state accent = '#050505';
+    @state blend = false;
+
+    private readonly accents = ['#050505', '#0f2538', '#250f28', '#0f2510', '#25200f', '#280f0f', '#0f0f28'];
+
+    private lighten(hex: string, amount: number): string {
+        const c = (o: number) => Math.min(255, parseInt(hex.slice(o, o + 2), 16) + amount);
+        return `rgb(${c(1)},${c(3)},${c(5)})`;
+    }
+
+    get accentBtnStyle$() {
+        return this.accent$.pipe(
+            map((a) => ({ accent: a, bg: this.lighten(a, 70) })),
+            map(({ accent, bg }) => `border-color: ${accent}; color: ${accent}; background: ${bg}`),
+        );
+    }
+
+    cycleAccent(): void {
+        const i = this.accents.indexOf(this.accent);
+        this.accent = this.accents[(i + 1) % this.accents.length]!;
+    }
+
+    toggleBlend(): void {
+        this.blend = !this.blend;
+    }
+}

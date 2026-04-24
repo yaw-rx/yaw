@@ -49,8 +49,8 @@ ${DEPTH_2}
 
 ${DEPTH_3}
 
-<!-- a separate component dropped into the same host template -->
-<page-echo></page-echo>
+<!-- model binding: page-echo's accent pushes up to the host -->
+<page-echo [(accent)]="accent"></page-echo>
 `;
 
 const NESTED_LEVEL_SOURCE = `@Component({
@@ -68,8 +68,9 @@ const HOST_SOURCE = `@Component({
     selector: 'nesting-example',
     template: NESTING_TEMPLATE,
 })
-export class NestingExample extends RxElement<{ count: number }> {
+export class NestingExample extends RxElement<{ count: number; accent: string }> {
     @state count = 0;
+    @state accent = '#050505';
 
     increment(amount: number): void { this.count = this.count + amount; }
     reset(): void { this.count = 0; }
@@ -82,13 +83,50 @@ export class NestingExample extends RxElement<{ count: number }> {
 const PAGE_ECHO_SOURCE = `@Component({
     selector: 'page-echo',
     template: \`
-        <code>{{ ^count }}</code>
-        <code>{{ ^status }}</code>
-        <button onclick="^increment(2)">^increment(2)</button>
-        <button onclick="^reset">^reset</button>
+        <div class="echo" [class.blended]="blend">
+            <!-- caret bindings reach the parent host -->
+            <code>^count {{ ^count }}</code>
+            <code>^status {{ ^status }}</code>
+            <button onclick="^increment(2)">^increment(2)</button>
+            <button onclick="^reset">^reset</button>
+
+            <!-- local accent — pushes to host via model binding -->
+            <code>accent {{ accent }}</code>
+            <button onclick="cycleAccent" [style]="accentBtnStyle">accent</button>
+
+            <!-- local blend — stays in this component, never leaves -->
+            <code>blend {{ blend }}</code>
+            <button onclick="toggleBlend" [class.active]="blend">blend</button>
+        </div>
     \`,
 })
-export class PageEcho extends RxElement {}`;
+export class PageEcho extends RxElement<{ accent: string }> {
+    @state accent = '#050505';
+    @state blend = false;
+
+    private readonly accents = ['#050505', '#0f2538', '#250f28', '#0f2510', '#25200f', '#280f0f', '#0f0f28'];
+
+    private lighten(hex: string, amount: number): string {
+        const c = (o: number) => Math.min(255, parseInt(hex.slice(o, o + 2), 16) + amount);
+        return \`rgb(\${c(1)},\${c(3)},\${c(5)})\`;
+    }
+
+    get accentBtnStyle$() {
+        return this.accent$.pipe(
+            map((a) => ({ accent: a, bg: this.lighten(a, 70) })),
+            map(({ accent, bg }) => \`border-color: \${accent}; color: \${accent}; background: \${bg}\`),
+        );
+    }
+
+    cycleAccent(): void {
+        const i = this.accents.indexOf(this.accent);
+        this.accent = this.accents[(i + 1) % this.accents.length]!;
+    }
+
+    toggleBlend(): void {
+        this.blend = !this.blend;
+    }
+}`;
 
 const MINIMAL_HOST_SOURCE = `@Component({
     selector: 'nesting-example',
@@ -156,28 +194,35 @@ export class NestingExample extends RxElement {
             </section>
 
             <p class="lede"><code class="inline">&lt;page-echo&gt;</code> is a
-               separate component with its own template. It doesn't own any
-               state — it reaches <em>out</em> to whatever component placed
-               its tag. That is the one place the caret
-               (<code class="inline">^</code>) is used. A leading
-               <code class="inline">^</code> on a binding means
-               <em>"cross one template boundary outward — resolve in the
-               scope that placed this tag, not in this template's own
-               scope."</em></p>
+               separate component with its own template and its own state.
+               It demonstrates three patterns for how state can flow.
+               <strong>Caret bindings</strong>
+               (<code class="inline">^count</code>,
+               <code class="inline">^increment(2)</code>) reach
+               <em>out</em> to the host that placed the tag.
+               <strong>Model binding</strong> — the host writes
+               <code class="inline">&lt;page-echo
+               [(accent)]="accent"&gt;</code> — keeps the child's
+               <code class="inline">accent</code> and the host's
+               <code class="inline">accent</code> in sync; when the child
+               cycles its colour the host's background updates.
+               <strong>Local state</strong> —
+               <code class="inline">blend</code> — stays entirely inside
+               the component. Toggling it applies
+               <code class="inline">mix-blend-mode: difference</code> to
+               the panel, but nothing outside ever sees it.</p>
 
             <section class="host">
-                <h2><code class="inline">&lt;page-echo&gt;</code> — reaching out with <code class="inline">^</code></h2>
-                <p class="note">Every binding starts with
-                   <code class="inline">^</code>. When a
-                   <code class="inline">&lt;page-echo&gt;</code> tag is
-                   placed inside
-                   <code class="inline">&lt;nesting-example&gt;</code>,
-                   each <code class="inline">^</code> crosses that one
-                   template boundary and lands on
-                   <code class="inline">&lt;nesting-example&gt;</code> — so
-                   <code class="inline">^count</code> reads the same
-                   <code class="inline">count</code> as everything else on
-                   the page.</p>
+                <h2><code class="inline">&lt;page-echo&gt;</code> — carets and model binding</h2>
+                <p class="note">Three kinds of state in one component.
+                   <code class="inline">^</code> bindings reach out to the
+                   host's <code class="inline">count</code> and methods.
+                   <code class="inline">accent</code> is local but the
+                   model binding on the tag pushes each new value up to the
+                   host, which drives the live section's background.
+                   <code class="inline">blend</code> is purely local — it
+                   toggles <code class="inline">mix-blend-mode: difference</code>
+                   on the panel and nothing outside ever knows.</p>
                 <code-block syntax="ts">${escape`${PAGE_ECHO_SOURCE}`}</code-block>
             </section>
 
@@ -225,15 +270,20 @@ export class NestingExample extends RxElement {
                    groups — three depths of buttons plus the
                    <code class="inline">&lt;page-echo&gt;</code> — share one
                    <code class="inline">count</code>. Click a button anywhere
-                   and every counter on the page updates together.</p>
-                <div class="live">${NESTING_TEMPLATE}</div>
+                   and every counter updates. Click
+                   <code class="inline">accent</code> in the
+                   <code class="inline">&lt;page-echo&gt;</code> panel to
+                   cycle the background — that is the model binding pushing
+                   a local value up to the host.</p>
+                <div class="live" [style.background]="accent">${NESTING_TEMPLATE}</div>
             </section>
         </div>
     `,
     styles: `${NESTING_STYLES}\n${WRAPPER_STYLES}\n${DOC_STYLES}`,
 })
-export class NestingExample extends RxElement<{ count: number }> {
+export class NestingExample extends RxElement<{ count: number; accent: string }> {
     @state count = 0;
+    @state accent = '#050505';
 
     get status$(): Observable<string> {
         return this.count$.pipe(map((c) => {
