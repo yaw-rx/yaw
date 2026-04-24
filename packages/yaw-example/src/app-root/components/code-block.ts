@@ -1,6 +1,6 @@
 import { Component, RxElement, state } from 'yaw';
 import { readInert } from 'yaw-common';
-import { dedent, escapeHtml, highlightHtml, highlightTs } from './code-block/code-highlight.js';
+import { dedent, escapeHtml, highlightBash, highlightHtml, highlightJson, highlightTs } from './code-block/code-highlight.js';
 
 @Component({
     selector: 'code-block',
@@ -32,6 +32,8 @@ export class CodeBlock extends RxElement {
         const lang = this.syntax;
         const content = lang === 'ts' ? highlightTs(source)
             : lang === 'html' ? highlightHtml(source)
+            : lang === 'json' ? highlightJson(source)
+            : lang === 'bash' ? highlightBash(source)
             : escapeHtml(source);
         this.innerHTML = `<pre class="cb"><code>${content}</code></pre>`;
     }

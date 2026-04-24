@@ -78,6 +78,63 @@ export const highlightTs = (src: string): string => {
     return out;
 };
 
+const JSON_TOKEN_RE = /("(?:\\.|[^"\\])*")\s*(:)|("(?:\\.|[^"\\])*")|(\b(?:true|false|null)\b)|(-?\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b)|([{}[\]:,])/g;
+
+export const highlightJson = (src: string): string => {
+    let out = '';
+    let last = 0;
+    let m: RegExpExecArray | null;
+    JSON_TOKEN_RE.lastIndex = 0;
+    while ((m = JSON_TOKEN_RE.exec(src)) !== null) {
+        if (m.index > last) out += escapeHtml(src.slice(last, m.index));
+        if (m[1] !== undefined) {
+            out += `<span class="tk-attr">${escapeHtml(m[1])}</span>`;
+            out += `<span class="tk-punct">${escapeHtml(m[2]!)}</span>`;
+        } else if (m[3] !== undefined) out += `<span class="tk-string">${escapeHtml(m[3])}</span>`;
+        else if (m[4] !== undefined) out += `<span class="tk-keyword">${escapeHtml(m[4])}</span>`;
+        else if (m[5] !== undefined) out += `<span class="tk-number">${escapeHtml(m[5])}</span>`;
+        else if (m[6] !== undefined) out += `<span class="tk-punct">${escapeHtml(m[6])}</span>`;
+        last = m.index + m[0].length;
+    }
+    if (last < src.length) out += escapeHtml(src.slice(last));
+    return out;
+};
+
+const BASH_TOKEN_RE = /(#[^\n]*)|((?:"(?:\\.|[^"\\])*")|(?:'[^']*'))|((?:^|\s)-{1,2}[\w][\w-]*)|(\b\d+(?:\.\d+)?\b)|([|;&><]+)|([A-Za-z_@][\w.@/-]*[\w]|[A-Za-z_][\w]*)/g;
+
+const BASH_COMMANDS = new Set([
+    'npm', 'npx', 'yarn', 'pnpm', 'node', 'deno', 'bun',
+    'git', 'cd', 'ls', 'mkdir', 'rm', 'cp', 'mv', 'cat', 'echo',
+    'export', 'source', 'sudo', 'curl', 'wget',
+]);
+
+export const highlightBash = (src: string): string => {
+    let out = '';
+    let last = 0;
+    let m: RegExpExecArray | null;
+    BASH_TOKEN_RE.lastIndex = 0;
+    while ((m = BASH_TOKEN_RE.exec(src)) !== null) {
+        if (m.index > last) out += escapeHtml(src.slice(last, m.index));
+        if (m[1] !== undefined) out += `<span class="tk-comment">${escapeHtml(m[1])}</span>`;
+        else if (m[2] !== undefined) out += `<span class="tk-string">${escapeHtml(m[2])}</span>`;
+        else if (m[3] !== undefined) {
+            const raw = m[3];
+            const leading = /^\s/.test(raw) ? raw[0] : '';
+            const flag = leading ? raw.slice(1) : raw;
+            out += escapeHtml(leading) + `<span class="tk-const">${escapeHtml(flag)}</span>`;
+        }
+        else if (m[4] !== undefined) out += `<span class="tk-number">${escapeHtml(m[4])}</span>`;
+        else if (m[5] !== undefined) out += `<span class="tk-punct">${escapeHtml(m[5])}</span>`;
+        else if (m[6] !== undefined) {
+            const cls = BASH_COMMANDS.has(m[6]) ? 'tk-keyword' : 'tk-ident';
+            out += `<span class="${cls}">${escapeHtml(m[6])}</span>`;
+        }
+        last = m.index + m[0].length;
+    }
+    if (last < src.length) out += escapeHtml(src.slice(last));
+    return out;
+};
+
 const HTML_TOKEN_RE = /(<!--[\s\S]*?-->)|(<\/?)([a-zA-Z][\w-]*)((?:\s+[\w[\]().:^#-]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*)\s*(\/?)(>)/g;
 const HTML_ATTR_RE = /([\w[\]().:^#-]+)(?:(\s*=\s*)("[^"]*"|'[^']*'|[^\s"'>]+))?/g;
 

@@ -246,6 +246,7 @@ AttributeMarshalError
            attributes with automatic type marshalling. The transformer, the
            codec registry, and the IDE plugin work together so nothing is
            stringly-typed and nothing is <code class="inline">any</code>.</p>
+        <code-block class="install" syntax="bash">${escape`npm install yaw-transformer yaw-ts-plugin ts-patch --save-dev`}</code-block>
 
         <section class="host" id="state-decorator" toc-section>
             <h2>@state</h2>
@@ -432,6 +433,7 @@ AttributeMarshalError
     styles: `
         :host { display: block; }
         ${DOC_STYLES}
+        .install { margin-bottom: 2rem; }
         .live { display: flex; align-items: center; justify-content: center; }
         .live > * { width: 100%; }
     `,

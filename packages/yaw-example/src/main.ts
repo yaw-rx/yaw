@@ -37,6 +37,7 @@ import { DocsPage } from './app-root/pages/docs-page.js';
 import { TocSection } from './app-root/pages/docs-page/directives/toc-section.js';
 import './app-root/pages/docs-page/sidebar.js';
 import './app-root/pages/docs-page/sidebar/toc-node.js';
+import './app-root/pages/docs-page/sections/getting-started.js';
 import './app-root/pages/docs-page/sections/bootstrap.js';
 import './app-root/pages/docs-page/sections/components.js';
 import './app-root/pages/docs-page/sections/directives.js';
@@ -46,6 +47,11 @@ import './app-root/pages/docs-page/sections/directives/blink-demo.js';
 import './app-root/pages/docs-page/sections/services.js';
 import './app-root/pages/docs-page/sections/navigation.js';
 import './app-root/pages/docs-page/sections/reactive-state.js';
+import './app-root/pages/docs-page/sections/reactive-state/date-ticker.js';
+import './app-root/pages/docs-page/sections/reactive-state/decimal-demo.js';
+import './app-root/pages/docs-page/sections/reactive-state/address-demo.js';
+import './app-root/pages/docs-page/sections/reactive-state/plaindate-demo.js';
+import './app-root/pages/docs-page/sections/reactive-state/dayjs-demo.js';
 
 bootstrap({
     root: AppRoot,
