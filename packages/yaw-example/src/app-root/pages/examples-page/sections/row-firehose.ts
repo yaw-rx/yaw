@@ -6,11 +6,11 @@ const FIREHOSE_TEMPLATE = `
     <div class="controls">
         <div class="field">
             <label>amount <em>{{amount}}</em></label>
-            <yaw-slider for="amount" min="1000" max="100000"></yaw-slider>
+            <yaw-slider [(value)]="amount" min="1000" max="100000"></yaw-slider>
         </div>
         <div class="field">
             <label>seconds <em>{{seconds}}</em></label>
-            <yaw-slider for="seconds" min="1" max="10"></yaw-slider>
+            <yaw-slider [(value)]="seconds" min="1" max="10"></yaw-slider>
         </div>
         <div class="actions">
             <button onclick="flood">flood</button>

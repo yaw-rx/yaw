@@ -36,7 +36,7 @@ const USAGE = `<yaw-slider for="value" min="0" max="100"></yaw-slider>
             <div class="split">
                 <code-block lang="html">${escape`${USAGE}`}</code-block>
                 <div class="live">
-                    <yaw-slider for="value" min="0" max="100"></yaw-slider>
+                    <yaw-slider [(value)]="value" min="0" max="100"></yaw-slider>
                     <p class="state">value = <span class="status">{{value}}</span></p>
                 </div>
             </div>

@@ -3,7 +3,7 @@ import type { BindKind, BindMarshaller, BindMarshallerResult } from './bind-mars
 const RE_ACRONYM_BOUNDARY = /([A-Z]+)([A-Z][a-z])/g;
 const RE_CAMEL_BOUNDARY = /([a-z0-9])([A-Z])/g;
 
-const RE = /(data-rx-bind-(class|style|attr|prop|ref|on|text))(-)?|(\.)|(?:(webkit|moz))(?=-|\.|$)|-(css|html|ns|svg|uri|url|xml)(?=-|\.|$)|-([a-z])|([a-z0-9_]+)/gy;
+const RE = /(data-rx-bind-(class|style|attr|prop|ref|on|text|model))(-)?|(\.)|(?:(webkit|moz))(?=-|\.|$)|-(css|html|ns|svg|uri|url|xml)(?=-|\.|$)|-([a-z])|([a-z0-9_]+)/gy;
 
 export class SingleRegexBindMarshaller implements BindMarshaller {
     #encodeSeg(seg: string): string {

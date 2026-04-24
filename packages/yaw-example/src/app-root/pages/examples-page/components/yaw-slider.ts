@@ -1,4 +1,4 @@
-import { map, type BehaviorSubject, type Observable } from 'rxjs';
+import { map, type Observable } from 'rxjs';
 import { Component, RxElement, observable } from 'yaw';
 
 export const SLIDER_TEMPLATE = `
@@ -86,19 +86,8 @@ export class YawSlider extends RxElement<{ value: number }> {
 })
 export class YawSlider extends RxElement<{ value: number }> {
     @observable value = 0;
-    private min = 0;
-    private max = 100;
-
-    override onInit(): void {
-        this.min = Number(this.getAttribute('min') ?? '0');
-        this.max = Number(this.getAttribute('max') ?? '100');
-
-        const prop = this.getAttribute('for');
-        if (prop !== null && this.hostNode !== undefined) {
-            const subj = (this.hostNode as unknown as Record<string, unknown>)[`${prop}$`] as BehaviorSubject<number> | undefined;
-            subj?.subscribe((v) => { this.value = v; });
-        }
-    }
+    @observable min = 0;
+    @observable max = 100;
 
     grab(e: PointerEvent): void {
         (e.currentTarget as Element).setPointerCapture(e.pointerId);
@@ -116,13 +105,7 @@ export class YawSlider extends RxElement<{ value: number }> {
     private apply(e: PointerEvent): void {
         const rect = (e.currentTarget as Element).getBoundingClientRect();
         const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-        const next = Math.round(this.min + pct * (this.max - this.min));
-        const prop = this.getAttribute('for');
-        if (prop !== null && this.hostNode !== undefined) {
-            (this.hostNode as unknown as Record<string, unknown>)[prop] = next;
-        } else {
-            this.value = next;
-        }
+        this.value = Math.round(this.min + pct * (this.max - this.min));
     }
 
     private ratio(v: number): number { return (v - this.min) / (this.max - this.min); }

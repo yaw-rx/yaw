@@ -1,2 +1,2 @@
-export { parseBind, subscribeBind, resolveEventHandler, resolveRefTarget } from './bind.js';
+export { parseBind, subscribeBind, resolveEventHandler, resolveRefTarget, resolveValue, resolveWriteTarget } from './bind.js';
 export type { ParsedBind, ParsedArg, ParsedRef } from './bind.js';

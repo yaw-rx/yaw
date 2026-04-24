@@ -14,7 +14,7 @@ const METER_TEMPLATE = `
             <div class="unit">%</div>
         </div>
     </div>
-    <yaw-slider for="strength" min="0" max="100"></yaw-slider>
+    <yaw-slider [(value)]="strength" min="0" max="100"></yaw-slider>
 `;
 
 const METER_STYLES = `

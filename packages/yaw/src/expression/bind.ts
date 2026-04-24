@@ -54,6 +54,12 @@ import { BehaviorSubject, isObservable, of, Subscription, switchMap, type Observ
 import { BindNotSubscribableError, BindParseError, BindPathError, BindScopeError } from '../errors.js';
 import type { RxElementLike } from '../directive.js';
 
+const walkPath = (root: unknown, path: readonly string[]): unknown => {
+    let cur = root;
+    for (const seg of path) cur = (cur as Record<string, unknown>)[seg];
+    return cur;
+};
+
 export interface ParsedRef {
     readonly carets: number;
     readonly path: readonly string[];
@@ -369,4 +375,19 @@ export const resolveRefTarget = (host: RxElementLike, parsed: ParsedBind): { sco
     if (parsed.call) throw new BindParseError(parsed.raw, 'ref cannot be a method call');
     if (parsed.path.length !== 1) throw new BindParseError(parsed.raw, 'ref must be a single identifier');
     return { scope: walkScope(host, parsed.carets, parsed.raw), key: parsed.path[0]! };
+};
+
+export const resolveValue = (host: RxElementLike, parsed: ParsedBind): unknown => {
+    if (parsed.call) throw new BindParseError(parsed.raw, 'cannot read value from a method call');
+    const root = walkScope(host, parsed.carets, parsed.raw);
+    return walkPath(root, parsed.path);
+};
+
+export const resolveWriteTarget = (host: RxElementLike, parsed: ParsedBind): (value: unknown) => void => {
+    if (parsed.call) throw new BindParseError(parsed.raw, 'model binding cannot be a method call');
+    const root = walkScope(host, parsed.carets, parsed.raw);
+    const target = walkPath(root, parsed.path.slice(0, -1));
+    const key = parsed.path.at(-1);
+    if (key === undefined) throw new BindParseError(parsed.raw, 'empty path');
+    return (value: unknown): void => { (target as Record<string, unknown>)[key] = value; };
 };

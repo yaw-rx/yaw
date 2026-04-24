@@ -1,4 +1,4 @@
-export type BindKind = 'class' | 'on' | 'style' | 'attr' | 'prop' | 'ref' | 'text';
+export type BindKind = 'class' | 'on' | 'style' | 'attr' | 'prop' | 'ref' | 'text' | 'model';
 
 export interface BindMarshallerResult {
     kind: BindKind;

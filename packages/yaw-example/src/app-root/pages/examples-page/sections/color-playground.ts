@@ -5,13 +5,13 @@ import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
 const PALETTE_TEMPLATE = `
     <label>H <em>{{hue}}°</em></label>
-    <yaw-slider for="hue" min="0" max="360"></yaw-slider>
+    <yaw-slider [(value)]="hue" min="0" max="360"></yaw-slider>
 
     <label>S <em>{{sat}}%</em></label>
-    <yaw-slider for="sat" min="0" max="100"></yaw-slider>
+    <yaw-slider [(value)]="sat" min="0" max="100"></yaw-slider>
 
     <label>L <em>{{lit}}%</em></label>
-    <yaw-slider for="lit" min="0" max="100"></yaw-slider>
+    <yaw-slider [(value)]="lit" min="0" max="100"></yaw-slider>
 
     <code class="out">{{css}}</code>
     <div class="swatch" [style]="swatchStyle"></div>
@@ -65,7 +65,7 @@ export class ColorPlayground extends RxElement<{ hue: number; sat: number; lit: 
         <h1>Reactive palette</h1>
         <p class="lede">Three <code class="inline">@observable</code> fields, three
            <code class="inline">yaw-slider</code> instances bound via
-           <code class="inline">for</code>. One <code class="inline">combineLatest</code>
+           <code class="inline">[(value)]</code>. One <code class="inline">combineLatest</code>
            joins them into an <code class="inline">hsl(...)</code> string and a
            <code class="inline">[style]</code> binding drops it straight into the swatch —
            no diff, no reconciliation.</p>

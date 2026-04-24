@@ -5,6 +5,30 @@ export type Observables<S> = {
 };
 
 const subjects = new WeakMap<object, Map<string | symbol, BehaviorSubject<unknown>>>();
+const observableKeys = new WeakMap<object, Set<string>>();
+
+const trackKey = (proto: object, key: string): void => {
+    let keys = observableKeys.get(proto);
+    if (keys === undefined) {
+        keys = new Set();
+        observableKeys.set(proto, keys);
+    }
+    keys.add(key);
+};
+
+export const getObservableKeys = (proto: object): ReadonlySet<string> => {
+    let all: Set<string> | undefined;
+    let cur: object | null = proto;
+    while (cur !== null && cur !== Object.prototype) {
+        const keys = observableKeys.get(cur);
+        if (keys !== undefined) {
+            if (all === undefined) all = new Set(keys);
+            else for (const k of keys) all.add(k);
+        }
+        cur = Object.getPrototypeOf(cur) as object | null;
+    }
+    return all ?? new Set();
+};
 
 const bagFor = (instance: object): Map<string | symbol, BehaviorSubject<unknown>> => {
     let bag = subjects.get(instance);
@@ -29,7 +53,12 @@ const ensure = (
     return subject;
 };
 
+export const getSubject = (instance: object, key: string): BehaviorSubject<unknown> | undefined =>
+    subjects.get(instance)?.get(key);
+
 export const observable = (target: object, propertyKey: string | symbol): void => {
+    if (typeof propertyKey === 'string') trackKey(target, propertyKey);
+
     Object.defineProperty(target, propertyKey, {
         configurable: true,
         enumerable: true,

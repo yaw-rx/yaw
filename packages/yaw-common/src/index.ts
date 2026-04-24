@@ -1,3 +1,8 @@
+import { SingleRegexBindMarshaller } from './bind-marshaller/single-regex.js';
+import { memoiseBindMarshaller } from './bind-marshaller/memoise-bind-marshaller.js';
+
+export const marshaller = memoiseBindMarshaller(new SingleRegexBindMarshaller());
+
 export const htmlTags = [
     'a', 'abbr', 'address', 'area', 'article', 'aside', 'audio',
     'b', 'bdi', 'bdo', 'blockquote', 'br', 'button',
@@ -195,6 +200,11 @@ const transformAttributes = (el: Element, depth: number): void => {
         const classMatch = /^\[class\.(.+)\]$/.exec(name);
         if (classMatch !== null) {
             rewrites.push({ remove: name, add: [`data-rx-class-${classMatch[1]}`, injectCarets(value, depth)] });
+            continue;
+        }
+        const modelMatch = /^\[\((.+)\)\]$/.exec(name);
+        if (modelMatch !== null) {
+            rewrites.push({ remove: name, add: [marshaller.encode('model', modelMatch[1]!.split('.')), injectCarets(value, depth)] });
             continue;
         }
         const bindMatch = /^\[(.+)\]$/.exec(name);
