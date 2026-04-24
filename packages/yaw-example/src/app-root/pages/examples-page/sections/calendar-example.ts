@@ -25,9 +25,9 @@ export class CalendarGrid extends RxElement<{
     currentMonth: number;
     selectedDate: string | null;
 }> {
-    @observable currentYear = new Date().getFullYear();
-    @observable currentMonth = new Date().getMonth();
-    @observable selectedDate: string | null = null;
+    @state currentYear = new Date().getFullYear();
+    @state currentMonth = new Date().getMonth();
+    @state selectedDate: string | null = null;
 
     get weeks$(): Observable<readonly WeekSeed[]> {
         return combineLatest([this.currentYear$, this.currentMonth$, this.selectedDate$])
@@ -57,8 +57,8 @@ export class CalendarWeek extends RxElement<{
     weekIdx: number;
     days: readonly DayCell[];
 }> {
-    @observable weekIdx = 0;
-    @observable days: readonly DayCell[] = [];
+    @state weekIdx = 0;
+    @state days: readonly DayCell[] = [];
 }`;
 
 const DAY_SOURCE = `@Component({
@@ -73,10 +73,10 @@ export class CalendarDay extends RxElement<{
     inMonth: boolean;
     selected: boolean;
 }> {
-    @observable date = '';
-    @observable day = 0;
-    @observable inMonth = false;
-    @observable selected = false;
+    @state date = '';
+    @state day = 0;
+    @state inMonth = false;
+    @state selected = false;
 }`;
 
 const USAGE = `<calendar-grid>

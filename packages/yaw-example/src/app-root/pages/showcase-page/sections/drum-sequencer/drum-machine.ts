@@ -1,5 +1,5 @@
 import { interval, map, Subscription, type Observable } from 'rxjs';
-import { Component, Inject, RxElement, observable } from 'yaw';
+import { Component, Inject, RxElement, state } from 'yaw';
 import { AudioEngine } from './drum-machine/utils/audio-engine.js';
 import { StepTicker } from './drum-machine/utils/step-ticker.js';
 import { TrackRow } from './drum-machine/track-row.js';
@@ -90,9 +90,9 @@ export class DrumMachine extends RxElement<{
     playing: boolean;
     pattern: Record<string, readonly boolean[]>;
 }> {
-    @observable tempo = 120;
-    @observable playing = false;
-    @observable pattern: Record<string, readonly boolean[]> = {};
+    @state tempo = 120;
+    @state playing = false;
+    @state pattern: Record<string, readonly boolean[]> = {};
 
     @Inject(AudioEngine) private readonly engine!: AudioEngine;
     @Inject(StepTicker) private readonly ticker!: StepTicker;

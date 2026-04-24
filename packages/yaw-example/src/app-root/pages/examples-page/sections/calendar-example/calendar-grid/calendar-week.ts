@@ -1,4 +1,4 @@
-import { Component, RxElement, observable } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 import type { DayCell } from './types.js';
 
 @Component({
@@ -18,6 +18,6 @@ export class CalendarWeek extends RxElement<{
     weekIdx: number;
     days: readonly DayCell[];
 }> {
-    @observable weekIdx = 0;
-    @observable days: readonly DayCell[] = [];
+    @state weekIdx = 0;
+    @state days: readonly DayCell[] = [];
 }

@@ -1,4 +1,4 @@
-import { Component, Inject, RxElement, Router, observable } from 'yaw';
+import { Component, Inject, RxElement, Router, state } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
@@ -35,7 +35,7 @@ import { DOC_STYLES } from '../../../utils/doc-styles.js';
     `,
 })
 export class RouteDisplay extends RxElement<{ route: string }> {
-    @observable route = '/';
+    @state route = '/';
     @Inject(Router) private readonly router!: Router;
 
     override onInit(): void {
@@ -71,7 +71,7 @@ export class AppRoot extends RxElement {}`;
 
 const NAVIGATE_SOURCE = `@Component({ selector: 'route-display', ... })
 export class RouteDisplay extends RxElement<{ route: string }> {
-    @observable route = '/';
+    @state route = '/';
     @Inject(Router) private readonly router!: Router;
 
     override onInit(): void {

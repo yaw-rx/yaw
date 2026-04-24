@@ -9,7 +9,7 @@ const REACT_SNIPPET = `
 
 const YAW_SNIPPET = `
     // YAW: 4KB. Direct. Honest.
-    @observable count = 0;
+    @state count = 0;
     // That's it. The DOM updates. No diff. No reconciliation.
 `;
 

@@ -10,7 +10,7 @@
  *   Each segment in the path is resolved by segmentStream, which checks
  *   three things in order:
  *     1. Is obj[x] itself an Observable? Use it. (e.g. { name: of('alice') })
- *     2. Is obj[x$] an Observable? Use it. (e.g. @observable creates x$)
+ *     2. Is obj[x$] an Observable? Use it. (e.g. @state creates x$)
  *     3. Neither? Wrap the plain value with of(). (e.g. { name: 'alice' })
  *
  *   switchMap connects these: when an observable segment emits a new value,
@@ -295,7 +295,7 @@ export const subscribeBind = (
         if (!hasObservable) {
             throw new BindNotSubscribableError(
                 host.tagName, parsed.raw,
-                `no observable segment in chain — add @observable or use a reactive source`,
+                `no observable segment in chain — add @state or use a reactive source`,
             );
         }
     }

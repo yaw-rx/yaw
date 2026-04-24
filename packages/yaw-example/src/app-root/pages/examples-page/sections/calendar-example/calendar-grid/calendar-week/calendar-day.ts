@@ -1,4 +1,4 @@
-import { Component, RxElement, observable } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 
 @Component({
     selector: 'calendar-day',
@@ -25,8 +25,8 @@ export class CalendarDay extends RxElement<{
     inMonth: boolean;
     selected: boolean;
 }> {
-    @observable date = '';
-    @observable day = 0;
-    @observable inMonth = false;
-    @observable selected = false;
+    @state date = '';
+    @state day = 0;
+    @state inMonth = false;
+    @state selected = false;
 }

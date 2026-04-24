@@ -1,5 +1,5 @@
 import { combineLatest, map, type Observable } from 'rxjs';
-import { Component, RxElement, observable } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
@@ -44,9 +44,9 @@ const HOST_SOURCE = `@Component({
     styles: \`${PALETTE_STYLES}\`,
 })
 export class ColorPlayground extends RxElement<{ hue: number; sat: number; lit: number }> {
-    @observable hue = 200;
-    @observable sat = 70;
-    @observable lit = 55;
+    @state hue = 200;
+    @state sat = 70;
+    @state lit = 55;
 
     get css$(): Observable<string> {
         return combineLatest([this.hue$, this.sat$, this.lit$]).pipe(
@@ -63,7 +63,7 @@ export class ColorPlayground extends RxElement<{ hue: number; sat: number; lit: 
     selector: 'color-playground',
     template: `
         <h1>Reactive palette</h1>
-        <p class="lede">Three <code class="inline">@observable</code> fields, three
+        <p class="lede">Three <code class="inline">@state</code> fields, three
            <code class="inline">yaw-slider</code> instances bound via
            <code class="inline">[(value)]</code>. One <code class="inline">combineLatest</code>
            joins them into an <code class="inline">hsl(...)</code> string and a
@@ -91,9 +91,9 @@ export class ColorPlayground extends RxElement<{ hue: number; sat: number; lit: 
     styles: `${PALETTE_STYLES}\n${WRAPPER_STYLES}\n${DOC_STYLES}`,
 })
 export class ColorPlayground extends RxElement<{ hue: number; sat: number; lit: number }> {
-    @observable hue = 200;
-    @observable sat = 70;
-    @observable lit = 55;
+    @state hue = 200;
+    @state sat = 70;
+    @state lit = 55;
 
     get css$(): Observable<string> {
         return combineLatest([this.hue$, this.sat$, this.lit$]).pipe(

@@ -1,5 +1,5 @@
 import { combineLatest, map, type Observable } from 'rxjs';
-import { Component, RxElement, observable } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 import { STEPS } from './consts.js';
 import type { Cell } from './types.js';
 
@@ -48,12 +48,12 @@ export class TrackRow extends RxElement<{
     muted: boolean;
     steps: readonly boolean[];
 }> {
-    @observable trackKey = '';
-    @observable name = '';
-    @observable voice = '';
-    @observable accent = '#8af';
-    @observable muted = false;
-    @observable steps: readonly boolean[] = [];
+    @state trackKey = '';
+    @state name = '';
+    @state voice = '';
+    @state accent = '#8af';
+    @state muted = false;
+    @state steps: readonly boolean[] = [];
 
     get cells$(): Observable<readonly Cell[]> {
         return combineLatest([this.steps$, this.accent$]).pipe(

@@ -1,4 +1,4 @@
-import { Component, RxElement, observable } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
@@ -24,7 +24,7 @@ const COUNTER_SOURCE = `@Component({
     styles: \`${COUNTER_STYLES}\`,
 })
 export class HelloCounter extends RxElement<{ count: number }> {
-    @observable count = 0;
+    @state count = 0;
     inc(): void { this.count += 1; }
     dec(): void { this.count -= 1; }
 }`;
@@ -35,7 +35,7 @@ export class HelloCounter extends RxElement<{ count: number }> {
     styles: COUNTER_STYLES,
 })
 export class HelloCounter extends RxElement<{ count: number }> {
-    @observable count = 0;
+    @state count = 0;
     inc(): void { this.count += 1; }
     dec(): void { this.count -= 1; }
 }
@@ -84,7 +84,7 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
         <p class="lede">A component is an <code class="inline">RxElement</code>
            subclass decorated with <code class="inline">@Component</code>. The
            decorator registers a real custom element; the class instance
-           <em>is</em> the DOM node. <code class="inline">@observable</code>
+           <em>is</em> the DOM node. <code class="inline">@state</code>
            fields publish a hidden <code class="inline">*$</code> BehaviorSubject
            the template can subscribe to.</p>
 

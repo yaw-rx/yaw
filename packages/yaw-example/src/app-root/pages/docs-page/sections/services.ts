@@ -1,5 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
-import { Component, Inject, Injectable, RxElement, observable } from 'yaw';
+import { Component, Inject, Injectable, RxElement, state } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
@@ -22,7 +22,7 @@ export class Clock {
     `,
 })
 export class ClockReadout extends RxElement<{ now: string }> {
-    @observable now = '';
+    @state now = '';
     @Inject(Clock) private readonly clock!: Clock;
 
     override onInit(): void {
@@ -61,7 +61,7 @@ const RESOLVE_SOURCE = `// components: @Inject(Token) on a field
     template: '<span>{{now}}</span>',
 })
 export class ClockReadout extends RxElement<{ now: string }> {
-    @observable now = '';
+    @state now = '';
     @Inject(Clock) private readonly clock!: Clock;
 
     override onInit(): void {

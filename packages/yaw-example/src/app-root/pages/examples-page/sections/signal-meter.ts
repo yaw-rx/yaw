@@ -1,5 +1,5 @@
 import { map, type Observable } from 'rxjs';
-import { Component, RxElement, observable } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
@@ -52,7 +52,7 @@ const HOST_SOURCE = `@Component({
     styles: \`${METER_STYLES}\`,
 })
 export class SignalMeter extends RxElement<{ strength: number }> {
-    @observable strength = 65;
+    @state strength = 65;
 
     get meterStyle$(): Observable<string> {
         return this.strength$.pipe(map((s) => \`--pct: \${s / 100}\`));
@@ -63,7 +63,7 @@ export class SignalMeter extends RxElement<{ strength: number }> {
     selector: 'signal-meter',
     template: `
         <h1>SVG signal meter</h1>
-        <p class="lede">One <code class="inline">@observable</code>, one <code class="inline">[style]</code>
+        <p class="lede">One <code class="inline">@state</code>, one <code class="inline">[style]</code>
            binding. The slider writes a number, the component forwards it as a
            <code class="inline">--pct</code> custom property, and SVG
            <code class="inline">stroke-dashoffset</code> plus
@@ -92,7 +92,7 @@ export class SignalMeter extends RxElement<{ strength: number }> {
     styles: `${METER_STYLES}\n${WRAPPER_STYLES}\n${DOC_STYLES}`,
 })
 export class SignalMeter extends RxElement<{ strength: number }> {
-    @observable strength = 65;
+    @state strength = 65;
 
     get meterStyle$(): Observable<string> {
         return this.strength$.pipe(map((s) => `--pct: ${String(s / 100)}`));

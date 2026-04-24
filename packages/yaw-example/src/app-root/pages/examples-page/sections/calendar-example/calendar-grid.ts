@@ -1,5 +1,5 @@
 import { combineLatest, map, type Observable } from 'rxjs';
-import { Component, RxElement, observable } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 import { MONTH_NAMES } from './calendar-grid/consts.js';
 import { buildWeeks } from './calendar-grid/utils/build-weeks.js';
 import { isoDate } from './calendar-grid/utils/iso-date.js';
@@ -49,9 +49,9 @@ export class CalendarGrid extends RxElement<{
     currentMonth: number;
     selectedDate: string | null;
 }> {
-    @observable currentYear = new Date().getFullYear();
-    @observable currentMonth = new Date().getMonth();
-    @observable selectedDate: string | null = null;
+    @state currentYear = new Date().getFullYear();
+    @state currentMonth = new Date().getMonth();
+    @state selectedDate: string | null = null;
 
     get weeks$(): Observable<readonly WeekSeed[]> {
         return combineLatest([

@@ -1,5 +1,5 @@
 import { map, type Observable } from 'rxjs';
-import { Component, Inject, RxElement, observable, Router } from 'yaw';
+import { Component, Inject, RxElement, state, Router } from 'yaw';
 
 @Component({
     selector: 'nav-bar',
@@ -31,7 +31,7 @@ import { Component, Inject, RxElement, observable, Router } from 'yaw';
     `
 })
 export class NavBar extends RxElement<{ route: string }> {
-    @observable route = '/';
+    @state route = '/';
     @Inject(Router) private readonly router!: Router;
 
     override onInit(): void {

@@ -1,5 +1,5 @@
 import { of } from 'rxjs';
-import { Component, RxElement, observable } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 
 @Component({
     selector: 'scope-demo',
@@ -24,7 +24,7 @@ import { Component, RxElement, observable } from 'yaw';
     `,
 })
 export class ScopeDemo extends RxElement {
-    @observable teams = [
+    @state teams = [
         { id: 1, name: of('Alpha'), members: of([
             { id: 10, name: of('Alice'), role: of('lead') },
             { id: 11, name: of('Bob'), role: of('dev') },

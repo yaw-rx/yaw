@@ -246,6 +246,13 @@ const walk = (node: Node, depth: number): void => {
 
     let el = node as Element;
     const tag = el.tagName.toLowerCase();
+
+    if (tag === 'template') {
+        const text = (el as HTMLTemplateElement).content.textContent ?? '';
+        el.replaceWith(node.ownerDocument!.createTextNode(text));
+        return;
+    }
+
     const isHtml = htmlTagSet.has(tag as (typeof htmlTags)[number]);
 
     transformAttributes(el, depth);

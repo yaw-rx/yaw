@@ -13,7 +13,7 @@
  * The sidebar finds the active leaf by id (one querySelector call),
  * calls expand() on it, and the recursion handles the rest.
  */
-import { Component, Inject, RxElement, observable } from 'yaw';
+import { Component, Inject, RxElement, state } from 'yaw';
 import { TocService, type TocEntry } from '../services/toc-service.js';
 
 @Component({
@@ -51,11 +51,11 @@ export class TocNode extends RxElement<{
     childEntries: readonly TocEntry[];
     depth: number;
 }> {
-    @observable label = '';
-    @observable childEntries: readonly TocEntry[] = [];
-    @observable depth = 0;
-    @observable expanded = false;
-    @observable active = false;
+    @state label = '';
+    @state childEntries: readonly TocEntry[] = [];
+    @state depth = 0;
+    @state expanded = false;
+    @state active = false;
 
     @Inject(TocService) private readonly toc!: TocService;
 

@@ -1,4 +1,4 @@
-import { Component, RxElement, observable } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 
 @Component({
     selector: 'stat-counter',
@@ -13,8 +13,8 @@ import { Component, RxElement, observable } from 'yaw';
     `
 })
 export class StatCounter extends RxElement<{ count: number; label: string }> {
-    @observable count = 0;
-    @observable label = '';
+    @state count = 0;
+    @state label = '';
     private target = 0;
 
     override onInit(): void {

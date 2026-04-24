@@ -1,4 +1,4 @@
-import { Component, RxElement, observable } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import { SLIDER_SOURCE } from '../components/yaw-slider.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
@@ -14,7 +14,7 @@ const USAGE = `<yaw-slider for="value" min="0" max="100"></yaw-slider>
            own. One component, <code class="inline">pointerdown</code> /
            <code class="inline">move</code> / <code class="inline">up</code>, plus two
            <code class="inline">[style]</code> bindings for the fill and the thumb. Two-way
-           binding to an <code class="inline">@observable</code> on the parent is the whole
+           binding to an <code class="inline">@state</code> on the parent is the whole
            of the public API — <code class="inline">for="propName"</code>.</p>
 
         <section class="host">
@@ -28,7 +28,7 @@ const USAGE = `<yaw-slider for="value" min="0" max="100"></yaw-slider>
 
         <section class="ex">
             <h2>In use</h2>
-            <p class="note">Declare an <code class="inline">@observable</code> on the parent,
+            <p class="note">Declare an <code class="inline">@state</code> on the parent,
                point the slider at it with <code class="inline">for</code>, and read the
                value back through the usual <code class="inline">${escape`{{ }}`}</code> binding —
                pointer gestures push into the parent's subject, so everything reading it
@@ -51,5 +51,5 @@ const USAGE = `<yaw-slider for="value" min="0" max="100"></yaw-slider>
     `,
 })
 export class SliderExample extends RxElement<{ value: number }> {
-    @observable value = 50;
+    @state value = 50;
 }

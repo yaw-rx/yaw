@@ -1,4 +1,4 @@
-import { Component, RxElement, observable } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
@@ -80,9 +80,9 @@ const HOST_SOURCE = `@Component({
     styles: \`${FIREHOSE_STYLES}\`,
 })
 export class RowFirehose extends RxElement<{ amount: number; seconds: number; count: number }> {
-    @observable amount = 10000;
-    @observable seconds = 1;
-    @observable count = 0;
+    @state amount = 10000;
+    @state seconds = 1;
+    @state count = 0;
 
     private viewport!: HTMLElement;
     private body!: HTMLElement;
@@ -155,9 +155,9 @@ export class RowFirehose extends RxElement<{ amount: number; seconds: number; co
     styles: `${FIREHOSE_STYLES}\n${WRAPPER_STYLES}\n${DOC_STYLES}`,
 })
 export class RowFirehose extends RxElement<{ amount: number; seconds: number; count: number }> {
-    @observable amount = 10000;
-    @observable seconds = 1;
-    @observable count = 0;
+    @state amount = 10000;
+    @state seconds = 1;
+    @state count = 0;
 
     private viewport!: HTMLElement;
     private body!: HTMLElement;

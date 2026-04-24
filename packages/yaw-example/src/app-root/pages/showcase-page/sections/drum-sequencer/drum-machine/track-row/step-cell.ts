@@ -1,5 +1,5 @@
 import { combineLatest, distinctUntilChanged, map, type Observable } from 'rxjs';
-import { Component, Inject, RxElement, observable } from 'yaw';
+import { Component, Inject, RxElement, state } from 'yaw';
 import { StepTicker } from '../utils/step-ticker.js';
 
 @Component({
@@ -37,10 +37,10 @@ export class StepCell extends RxElement<{
     beat: boolean;
     accent: string;
 }> {
-    @observable idx = 0;
-    @observable on = false;
-    @observable beat = false;
-    @observable accent = '#8af';
+    @state idx = 0;
+    @state on = false;
+    @state beat = false;
+    @state accent = '#8af';
 
     @Inject(StepTicker) private readonly ticker!: StepTicker;
 

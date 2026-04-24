@@ -1,4 +1,4 @@
-import { Component, RxElement, observable } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 import { ScrollReveal } from '../../../directives/scroll-reveal.js';
 
 @Component({
@@ -22,7 +22,7 @@ import { ScrollReveal } from '../../../directives/scroll-reveal.js';
     `
 })
 export class ManifestoSection extends RxElement<{ heading: string }> {
-    @observable heading = '';
+    @state heading = '';
     override onInit(): void {
         this.heading = this.getAttribute('heading') ?? '';
     }

@@ -1,5 +1,5 @@
 import { map, type Observable } from 'rxjs';
-import { Component, RxElement, observable } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
@@ -69,7 +69,7 @@ const HOST_SOURCE = `@Component({
     styles: \`${NESTING_STYLES}\`,
 })
 export class NestingExample extends RxElement<{ count: number }> {
-    @observable count = 0;
+    @state count = 0;
 
     increment(amount: number): void { this.count = this.count + amount; }
     reset(): void { this.count = 0; }
@@ -98,7 +98,7 @@ const MINIMAL_HOST_SOURCE = `@Component({
     \`,
 })
 export class NestingExample extends RxElement {
-    @observable count = 0;
+    @state count = 0;
     increment(n: number): void { this.count += n; }
 }`;
 
@@ -290,7 +290,7 @@ export class NestingExample extends RxElement {
     styles: `${NESTING_STYLES}\n${WRAPPER_STYLES}\n${DOC_STYLES}`,
 })
 export class NestingExample extends RxElement<{ count: number }> {
-    @observable count = 0;
+    @state count = 0;
 
     get status$(): Observable<string> {
         return this.count$.pipe(map((c) => {

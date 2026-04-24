@@ -10,7 +10,7 @@
  * Splat mode (no `of`):
  *   `rx-for="rows by id"` — existing behaviour. Each item's properties are
  *   assigned directly onto the child element. The child is typically a
- *   component with @observable fields, and setting a property triggers its
+ *   component with @state fields, and setting a property triggers its
  *   BehaviorSubject. The key field defaults to "id" if omitted.
  *
  * Scope mode (`of` present):

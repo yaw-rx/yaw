@@ -259,7 +259,7 @@ Scope:  item of source
                    — for each item in the array, rx-for creates a copy of its child
                    element and assigns every property from the item object directly
                    onto it. If the child is a component with
-                   <code class="inline">@observable</code> fields, setting a property
+                   <code class="inline">@state</code> fields, setting a property
                    triggers the BehaviorSubject, which drives that component's template
                    bindings. If the child is a plain element,
                    <code class="inline">textContent</code> and other DOM properties work

@@ -1,5 +1,5 @@
 import { map, type Observable } from 'rxjs';
-import { Component, RxElement, observable } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 
 export const SLIDER_TEMPLATE = `
     <div class="track"
@@ -35,7 +35,7 @@ export const SLIDER_SOURCE = `@Component({
     styles: \`${styles}\`,
 })
 export class YawSlider extends RxElement<{ value: number }> {
-    @observable value = 0;
+    @state value = 0;
     private min = 0;
     private max = 100;
 
@@ -85,9 +85,9 @@ export class YawSlider extends RxElement<{ value: number }> {
     styles,
 })
 export class YawSlider extends RxElement<{ value: number }> {
-    @observable value = 0;
-    @observable min = 0;
-    @observable max = 100;
+    @state value = 0;
+    @state min = 0;
+    @state max = 100;
 
     grab(e: PointerEvent): void {
         (e.currentTarget as Element).setPointerCapture(e.pointerId);

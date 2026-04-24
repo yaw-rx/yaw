@@ -2,7 +2,7 @@ export { RxElement } from './rx-element.js';
 export { Component, bootstrap, getRawTemplate } from './component.js';
 export { Router, ROUTES } from './router.js';
 export { Directive } from './directive.js';
-export { observable } from './observable.js';
+export { state } from './observable.js';
 export { Injectable } from './di/injectable.js';
 export { Inject } from './di/inject.js';
 export { Injector } from './di/injector.js';

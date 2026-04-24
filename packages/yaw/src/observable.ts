@@ -56,7 +56,7 @@ const ensure = (
 export const getSubject = (instance: object, key: string): BehaviorSubject<unknown> | undefined =>
     subjects.get(instance)?.get(key);
 
-export const observable = (target: object, propertyKey: string | symbol): void => {
+export const state = (target: object, propertyKey: string | symbol): void => {
     if (typeof propertyKey === 'string') trackKey(target, propertyKey);
 
     Object.defineProperty(target, propertyKey, {
