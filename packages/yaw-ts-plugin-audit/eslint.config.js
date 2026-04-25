@@ -3,7 +3,7 @@ import eslint from '@eslint/js';
 
 export default tseslint.config(
   {
-    ignores: ['**/dist/**', 'node_modules/**'],
+    ignores: ['**/dist/**', 'node_modules/**', '*.config.js'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
@@ -33,6 +33,8 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unnecessary-template-expression': 'off',
+      '@typescript-eslint/consistent-generic-constructors': 'off',
       'no-console': 'error',
     },
   },
