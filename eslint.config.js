@@ -3,7 +3,7 @@ import eslint from '@eslint/js';
 
 export default tseslint.config(
   {
-    ignores: ['**/dist/**', 'node_modules/**', '*.config.js', '*.config.ts', 'transform/**'],
+    ignores: ['**/dist/**', 'node_modules/**', '*.config.js', '*.config.ts', 'transform/**', 'packages/yaw-ts-plugin-audit/**'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
@@ -18,6 +18,7 @@ export default tseslint.config(
           './packages/yaw/tsconfig.json',
           './packages/yaw-transformer/tsconfig.json',
           './packages/yaw-example/tsconfig.json',
+          './packages/yaw-ts-plugin/tsconfig.json',
         ],
         tsconfigRootDir: import.meta.dirname,
         ecmaVersion: 'latest',
