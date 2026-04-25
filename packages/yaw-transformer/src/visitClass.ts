@@ -23,11 +23,16 @@ const buildStateTypesProperty = (
 };
 
 const typeNodeForName = (typeName: string, factory: ts.NodeFactory): ts.TypeNode => {
+    const unknown = () => factory.createKeywordTypeNode(ts.SyntaxKind.UnknownKeyword);
     switch (typeName) {
         case 'number':  return factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword);
         case 'string':  return factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
         case 'boolean': return factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword);
         case 'bigint':  return factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword);
+        case 'Array':   return factory.createArrayTypeNode(unknown());
+        case 'Object':  return factory.createKeywordTypeNode(ts.SyntaxKind.ObjectKeyword);
+        case 'Map':     return factory.createTypeReferenceNode('Map', [unknown(), unknown()]);
+        case 'Set':     return factory.createTypeReferenceNode('Set', [unknown()]);
         default:        return factory.createTypeReferenceNode(typeName);
     }
 };

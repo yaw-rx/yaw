@@ -7,7 +7,11 @@
     "prepare": "ts-patch install",
     "dev": "vite",
     "build": "vite build",
-    "typecheck": "tsc --noEmit"
+    "build:vite": "vite build",
+    "build:rollup": "rollup -c rollup.config.js",
+    "build:esbuild": "node esbuild.config.js",
+    "build:webpack": "webpack --config webpack.config.js",
+    "typecheck": "tsc --build"
   },
   "dependencies": {
     "dayjs": "^1.11.20",
@@ -18,8 +22,17 @@
     "yaw-transformer": "*"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^29.0.2",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "esbuild": "^0.25.0",
+    "esbuild-loader": "^4.0.0",
+    "html-webpack-plugin": "^5.0.0",
+    "rollup": "^4.0.0",
+    "rollup-plugin-esbuild": "^6.0.0",
     "ts-patch": "^3.3.0",
     "vite": "^5.0.0",
+    "webpack": "^5.0.0",
+    "webpack-cli": "^6.0.0",
     "yaw-ts-plugin": "*"
   }
 }

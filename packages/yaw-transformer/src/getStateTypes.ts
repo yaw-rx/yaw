@@ -2,8 +2,7 @@ import ts from 'typescript';
 
 const isStateDecorator = (decorator: ts.Decorator, checker: ts.TypeChecker): boolean => {
     const expr = decorator.expression;
-    const type = checker.getTypeAtLocation(expr);
-    const sym = type.getSymbol();
+    const sym = checker.getSymbolAtLocation(expr);
     return sym?.name === 'state';
 };
 
@@ -39,16 +38,13 @@ const resolveTypeName = (prop: ts.PropertyDeclaration, checker: ts.TypeChecker):
         if (prop.type.kind === ts.SyntaxKind.BigIntKeyword) return 'bigint';
     }
     if (prop.initializer !== undefined) {
-        return inferTypeFromInitializer(prop.initializer);
+        const inferred = inferTypeFromInitializer(prop.initializer);
+        if (inferred !== undefined) return inferred;
     }
     const type = checker.getTypeAtLocation(prop);
     const sym = type.getSymbol() ?? type.aliasSymbol;
     if (sym !== undefined) return sym.name;
-    const typeStr = checker.typeToString(type);
-    if (typeStr === 'number' || typeStr === 'string' || typeStr === 'boolean' || typeStr === 'bigint') {
-        return typeStr;
-    }
-    return undefined;
+    return checker.typeToString(type) || undefined;
 };
 
 export interface StateFieldInfo {

@@ -13,8 +13,7 @@ export const isComponentClass = (node: ts.ClassDeclaration, checker: ts.TypeChec
     for (const decorator of ts.getDecorators(node) ?? []) {
         const expr = decorator.expression;
         if (ts.isCallExpression(expr)) {
-            const type = checker.getTypeAtLocation(expr.expression);
-            const sym = type.getSymbol();
+            const sym = checker.getSymbolAtLocation(expr.expression);
             if (sym?.name === 'Component') return true;
         }
     }
