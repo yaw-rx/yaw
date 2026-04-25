@@ -67,6 +67,15 @@ export const visitClass = (node: ts.ClassDeclaration, checker: ts.TypeChecker, f
     let members = [...node.members];
 
     if (stateTypes.size > 0) {
+        members = members.map(m => {
+            if (!ts.isPropertyDeclaration(m) || !ts.isIdentifier(m.name)) return m;
+            const info = stateFieldInfos.get(m.name.text);
+            if (info === undefined || m.type !== undefined) return m;
+            return factory.updatePropertyDeclaration(
+                m, m.modifiers, m.name, m.questionToken,
+                typeNodeForName(info.typeName, factory), m.initializer,
+            );
+        });
         members = [
             buildStateTypesProperty(stateTypes, factory),
             ...buildDollarDeclarations(stateFieldInfos, factory),
