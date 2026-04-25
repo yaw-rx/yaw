@@ -1,9 +1,15 @@
 import dayjs, { type Dayjs } from 'dayjs';
 import { map, type Observable } from 'rxjs';
-import { Component, RxElement, state } from 'yaw';
+import { type AttributeCodec, Component, RxElement, state } from 'yaw';
 
 @Component({
     selector: 'dayjs-demo',
+    attributeCodecs: {
+        Dayjs: {
+            encode: (v) => (v as Dayjs).toISOString(),
+            decode: (s) => dayjs(s),
+        } as AttributeCodec,
+    },
     template: `
         <div class="panel">
             <div class="row">

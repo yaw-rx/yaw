@@ -142,7 +142,7 @@ export class ForDemo extends RxElement {
                instantiated against it. For app-wide directives (like
                <code class="inline">rx-if</code> / <code class="inline">rx-for</code>),
                pass them to <code class="inline">bootstrap()</code> as
-               <code class="inline">globalDirectives</code>.</p>
+               <code class="inline">globals.directives</code>.</p>
             <code-block syntax="ts">${escape`${USAGE_SOURCE}`}</code-block>
         </section>
 
@@ -175,7 +175,7 @@ export class ForDemo extends RxElement {
                <code class="inline">rx-for</code> for list rendering. Like
                everything else in the framework, they're optional — pass them
                to <code class="inline">bootstrap</code> as
-               <code class="inline">globalDirectives</code> if you want them,
+               <code class="inline">globals.directives</code> if you want them,
                or leave them out entirely.</p>
 
             <section class="host" id="directives-rx-if" toc-section>

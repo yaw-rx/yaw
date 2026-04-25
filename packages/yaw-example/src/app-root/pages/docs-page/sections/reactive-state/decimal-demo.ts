@@ -1,9 +1,15 @@
 import Decimal from 'decimal.js';
 import { map, type Observable } from 'rxjs';
-import { Component, RxElement, state } from 'yaw';
+import { type AttributeCodec, Component, RxElement, state } from 'yaw';
 
 @Component({
     selector: 'decimal-demo',
+    attributeCodecs: {
+        Decimal: {
+            encode: (v) => (v as Decimal).toString(),
+            decode: (s) => new Decimal(s),
+        } as AttributeCodec,
+    },
     template: `
         <div class="panel">
             <div class="row">

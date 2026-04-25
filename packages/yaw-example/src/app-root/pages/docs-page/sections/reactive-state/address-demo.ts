@@ -1,8 +1,14 @@
 import { getAddress, type Address } from 'viem';
-import { Component, RxElement, state } from 'yaw';
+import { type AttributeCodec, Component, RxElement, state } from 'yaw';
 
 @Component({
     selector: 'address-demo',
+    attributeCodecs: {
+        Address: {
+            encode: (v) => v as string,
+            decode: (s) => getAddress(s),
+        } as AttributeCodec,
+    },
     template: `
         <div class="panel">
             <div class="row">

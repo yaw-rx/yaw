@@ -1,7 +1,13 @@
-import { Component, RxElement, state } from 'yaw';
+import { type AttributeCodec, Component, RxElement, state } from 'yaw';
 
 @Component({
     selector: 'plaindate-demo',
+    attributeCodecs: {
+        PlainDate: {
+            encode: (v) => (v as Temporal.PlainDate).toString(),
+            decode: (s) => Temporal.PlainDate.from(s),
+        } as AttributeCodec,
+    },
     template: `
         <div class="panel">
             <div class="row">

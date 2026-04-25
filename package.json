@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "npm run build --workspaces --if-present",
     "build:watch": "tsc --build --watch --preserveWatchOutput",
     "dev": "trap 'kill 0' EXIT; npm run build:watch & npm run dev -w yaw-example & wait",
     "typecheck": "tsc --build --dry packages/yaw-common packages/yaw packages/yaw-transformer",

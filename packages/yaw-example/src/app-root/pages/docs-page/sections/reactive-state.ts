@@ -86,21 +86,16 @@ export class DateTicker extends RxElement {
 }`;
 
 const DECIMAL_SOURCE = `import Decimal from 'decimal.js';
-import { bootstrap, Component, RxElement, state } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 
-bootstrap({
-    root: AppRoot,
-    providers: [...],
+@Component({
+    selector: 'decimal-demo',
     attributeCodecs: {
         Decimal: {
             encode: (v: Decimal) => v.toString(),
             decode: (s: string) => new Decimal(s),
         },
     },
-});
-
-@Component({
-    selector: 'decimal-demo',
     template: \`
         <code class="value">{{total}}</code>
         <button onclick="add('0.1')">+ 0.1</button>
@@ -116,21 +111,16 @@ export class DecimalDemo extends RxElement {
 }`;
 
 const ADDRESS_SOURCE = `import { getAddress, type Address } from 'viem';
-import { bootstrap, Component, RxElement, state } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 
-bootstrap({
-    root: AppRoot,
-    providers: [...],
+@Component({
+    selector: 'address-demo',
     attributeCodecs: {
         Address: {
             encode: (v: Address) => v,
             decode: (s: string) => getAddress(s),
         },
     },
-});
-
-@Component({
-    selector: 'address-demo',
     template: \`
         <code class="value">{{wallet}}</code>
         <button onclick="setVitalik">vitalik.eth</button>
@@ -148,22 +138,17 @@ export class AddressDemo extends RxElement {
     }
 }`;
 
-const PLAINDATE_SOURCE = `import { bootstrap, Component, RxElement, state } from 'yaw';
+const PLAINDATE_SOURCE = `import { Component, RxElement, state } from 'yaw';
 
 // Temporal is native — no import, no polyfill
-bootstrap({
-    root: AppRoot,
-    providers: [...],
+@Component({
+    selector: 'plaindate-demo',
     attributeCodecs: {
         PlainDate: {
             encode: (v: Temporal.PlainDate) => v.toString(),
             decode: (s: string) => Temporal.PlainDate.from(s),
         },
     },
-});
-
-@Component({
-    selector: 'plaindate-demo',
     template: \`
         <code class="value">{{birthday}}</code>
         <button onclick="nextDay">+ day</button>
@@ -178,21 +163,16 @@ export class PlainDateDemo extends RxElement {
 }`;
 
 const DAYJS_SOURCE = `import dayjs, { type Dayjs } from 'dayjs';
-import { bootstrap, Component, RxElement, state } from 'yaw';
+import { Component, RxElement, state } from 'yaw';
 
-bootstrap({
-    root: AppRoot,
-    providers: [...],
+@Component({
+    selector: 'dayjs-demo',
     attributeCodecs: {
         Dayjs: {
             encode: (v: Dayjs) => v.toISOString(),
             decode: (s: string) => dayjs(s),
         },
     },
-});
-
-@Component({
-    selector: 'dayjs-demo',
     template: \`
         <code class="value">{{due}}</code>
         <button onclick="addWeek">+ week</button>

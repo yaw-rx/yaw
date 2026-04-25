@@ -11,6 +11,7 @@ const HTML_SOURCE = `<!doctype html>
 </html>`;
 
 const MAIN_SOURCE = `import { bootstrap, Router, ROUTES, DefaultGlobalDirectives } from 'yaw';
+import { Decimal } from 'decimal.js';
 import { AppRoot } from './components/app-root.js';
 import { ManifestoPage } from './components/manifesto-page.js';
 import { ExamplesPage } from './components/examples-page.js';
@@ -25,7 +26,15 @@ bootstrap({
         ] },
         Router,
     ],
-    globalDirectives: DefaultGlobalDirectives,
+    globals: {
+        directives: DefaultGlobalDirectives,
+        attributeCodecs: {
+            Decimal: {
+                encode: (v) => v.toString(),
+                decode: (s) => new Decimal(s),
+            },
+        },
+    },
 });`;
 
 const APP_ROOT_SOURCE = `@Component({
@@ -62,7 +71,12 @@ export class AppRoot extends RxElement {}`;
                tuples. <code class="inline">Router</code> is registered by class token;
                <code class="inline">ROUTES</code> is a symbol fed a value.
                <code class="inline">DefaultGlobalDirectives</code> is the built-in pair —
-               <code class="inline">rx-if</code> and <code class="inline">rx-for</code>.</p>
+               <code class="inline">rx-if</code> and <code class="inline">rx-for</code>.
+               <code class="inline">globals.attributeCodecs</code> teaches
+               <code class="inline">readAttributes()</code> how to deserialise
+               non-primitive types from HTML attribute strings — components can
+               also declare codecs locally via
+               <code class="inline">@Component({ attributeCodecs })</code>.</p>
             <code-block syntax="ts">${escape`${MAIN_SOURCE}`}</code-block>
         </section>
 

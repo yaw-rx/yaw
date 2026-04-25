@@ -50,6 +50,7 @@ interface ComponentOptions {
     readonly styles?: string;
     readonly providers?: readonly Provider[];
     readonly directives?: readonly DirectiveCtor[];
+    readonly attributeCodecs?: Record<string, AttributeCodec>;
 }
 
 export interface Route {
@@ -87,6 +88,7 @@ export const Component = (options: ComponentOptions) =>
         selectorCache.set(ctor, options.selector);
         if (options.providers !== undefined) providersCache.set(ctor, options.providers);
         if (options.directives !== undefined) directivesCache.set(ctor, options.directives);
+        if (options.attributeCodecs !== undefined) registerAttributeCodecs(options.attributeCodecs);
         if (options.styles !== undefined) {
             const sheet = new CSSStyleSheet();
             sheet.replaceSync(transformStyles(options.styles, options.selector));
@@ -101,19 +103,23 @@ let globalDirectives: readonly DirectiveCtor[] = [];
 
 export const getGlobalDirectives = (): readonly DirectiveCtor[] => globalDirectives;
 
+interface BootstrapGlobals {
+    readonly directives?: readonly DirectiveCtor[];
+    readonly attributeCodecs?: Record<string, AttributeCodec>;
+}
+
 interface BootstrapOptions {
     readonly root: CustomElementConstructor;
     readonly providers: readonly Provider[];
-    readonly globalDirectives?: readonly DirectiveCtor[];
-    readonly attributeCodecs?: Record<string, AttributeCodec>;
+    readonly globals?: BootstrapGlobals;
 }
 
 export const bootstrap = (options: BootstrapOptions): void => {
     const selector = getSelector(options.root);
     if (selector === undefined) { throw new BootstrapError(`${options.root.name} has no @Component decorator`); }
-    if (options.attributeCodecs !== undefined) { registerAttributeCodecs(options.attributeCodecs); }
+    if (options.globals?.attributeCodecs !== undefined) { registerAttributeCodecs(options.globals.attributeCodecs); }
     registerHtmlMirrors();
-    globalDirectives = options.globalDirectives ?? [];
+    globalDirectives = options.globals?.directives ?? [];
     const injector = new Injector(options.providers);
     (document.body as RxElementLike).__injector = injector;
     document.body.appendChild(document.createElement(selector));
