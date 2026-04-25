@@ -269,7 +269,7 @@ AttributeMarshalError
                <code class="inline">BehaviorSubject&lt;T&gt;</code>. Subscribe to
                it, pipe it, pass it to a template binding. The template compiler
                resolves method-call expressions to observables — so
-               <code class="inline">{{doubled}}</code> subscribes automatically.</p>
+               <code class="inline">${escape`{{doubled}}`}</code> subscribes automatically.</p>
             <code-block syntax="ts">${escape`${STATE_DOLLAR_SOURCE}`}</code-block>
         </section>
 
