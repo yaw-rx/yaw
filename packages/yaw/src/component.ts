@@ -44,7 +44,7 @@ import { transformTemplate, transformStyles } from 'yaw-common';
 import type { AttributeCodec } from './attribute-codec/types.js';
 import { registerAttributeCodecs } from './attribute-codec/registry.js';
 
-interface ComponentOptions {
+export interface ComponentOptions {
     readonly selector: string;
     readonly template?: string;
     readonly styles?: string;
@@ -100,10 +100,12 @@ export const Component = (options: ComponentOptions) =>
 
 
 let globalDirectives: readonly DirectiveCtor[] = [];
+let ssgMode = false;
 
 export const getGlobalDirectives = (): readonly DirectiveCtor[] => globalDirectives;
+export const isSSG = (): boolean => ssgMode;
 
-interface BootstrapGlobals {
+export interface BootstrapGlobals {
     readonly directives?: readonly DirectiveCtor[];
     readonly attributeCodecs?: Record<string, AttributeCodec>;
 }
@@ -112,6 +114,7 @@ interface BootstrapOptions {
     readonly root: CustomElementConstructor;
     readonly providers: readonly Provider[];
     readonly globals?: BootstrapGlobals;
+    readonly ssg?: boolean;
 }
 
 export const bootstrap = (options: BootstrapOptions): void => {
@@ -120,6 +123,7 @@ export const bootstrap = (options: BootstrapOptions): void => {
     if (options.globals?.attributeCodecs !== undefined) { registerAttributeCodecs(options.globals.attributeCodecs); }
     registerHtmlMirrors();
     globalDirectives = options.globals?.directives ?? [];
+    ssgMode = options.ssg === true;
     const injector = new Injector(options.providers);
     (document.body as RxElementLike).__injector = injector;
     document.body.appendChild(document.createElement(selector));

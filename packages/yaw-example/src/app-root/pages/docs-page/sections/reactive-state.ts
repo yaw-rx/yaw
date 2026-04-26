@@ -25,7 +25,10 @@ export class MyThing extends RxElement {
 // 2. Creates a count$ getter returning BehaviorSubject<number>
 // 3. Registers the field for attribute marshalling`;
 
-const STATE_DOLLAR_SOURCE = `@Component({
+const STATE_DOLLAR_SOURCE = `import { Component, RxElement, state } from 'yaw';
+import { map, type Observable } from 'rxjs';
+
+@Component({
     selector: 'my-thing',
     template: \`<span>count: {{count}}</span><span>doubled: {{doubled}}</span>\`,
 })
@@ -67,7 +70,7 @@ const DATE_TICKER_SOURCE = `import { Component, RxElement, state } from 'yaw';
     \`,
 })
 export class DateTicker extends RxElement {
-    @state now: Date = new Date();
+    @state now!: Date;
 }`;
 
 const DECIMAL_SOURCE = `import Decimal from 'decimal.js';
@@ -178,7 +181,9 @@ const PLUGIN_SOURCE = `// tsconfig.json — one line
     }
 }`;
 
-const PLUGIN_WHAT_SOURCE = `@Component({ selector: 'my-thing', template: '...', styles: '...' })
+const PLUGIN_WHAT_SOURCE = `import { Component, RxElement, state } from 'yaw';
+
+@Component({ selector: 'my-thing', template: '...', styles: '...' })
 export class MyThing extends RxElement {
     @state count = 0;
     @state created: Date = new Date();
@@ -237,6 +242,21 @@ AttributeMarshalError
                resolves method-call expressions to observables — so
                <code class="inline">${escape`{{doubled}}`}</code> subscribes automatically.</p>
             <code-block syntax="ts">${escape`${STATE_DOLLAR_SOURCE}`}</code-block>
+        </section>
+
+        <section class="host" id="state-plugin" toc-section="reactive-state/plugin">
+            <h2>IDE plugin</h2>
+            <p class="note"><code class="inline">yaw-ts-plugin</code> is a
+               TypeScript language service plugin. It intercepts the source
+               before type-checking and injects
+               <code class="inline">declare</code> property declarations for
+               every <code class="inline">$</code> getter — with the full
+               generic type, including parameterised types like
+               <code class="inline">Map&lt;string, number&gt;</code>.
+               Autocomplete, hover, go-to-definition, syntax colouring — all
+               correct.</p>
+            <code-block syntax="json">${escape`${PLUGIN_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${PLUGIN_WHAT_SOURCE}`}</code-block>
         </section>
 
         <section class="host" id="state-attribute-marshalling" toc-section="reactive-state/attribute-marshalling">
@@ -369,21 +389,6 @@ AttributeMarshalError
             </section>
         </section>
 
-        <section class="host" id="state-plugin" toc-section="reactive-state/plugin">
-            <h2>IDE plugin</h2>
-            <p class="note"><code class="inline">yaw-ts-plugin</code> is a
-               TypeScript language service plugin. It intercepts the source
-               before type-checking and injects
-               <code class="inline">declare</code> property declarations for
-               every <code class="inline">$</code> getter — with the full
-               generic type, including parameterised types like
-               <code class="inline">Map&lt;string, number&gt;</code>.
-               Autocomplete, hover, go-to-definition, syntax colouring — all
-               correct. No generics on
-               <code class="inline">RxElement</code>.</p>
-            <code-block syntax="json">${escape`${PLUGIN_SOURCE}`}</code-block>
-            <code-block syntax="ts">${escape`${PLUGIN_WHAT_SOURCE}`}</code-block>
-        </section>
     `,
     styles: `
         :host { display: block; }

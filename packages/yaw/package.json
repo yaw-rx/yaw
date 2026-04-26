@@ -24,6 +24,10 @@
     "./directives/rx-for": {
       "import": "./dist/directives/rx-for.js",
       "types": "./dist/directives/rx-for.d.ts"
+    },
+    "./ssg": {
+      "import": "./dist/ssg-registry.js",
+      "types": "./dist/ssg-registry.d.ts"
     }
   },
   "scripts": {

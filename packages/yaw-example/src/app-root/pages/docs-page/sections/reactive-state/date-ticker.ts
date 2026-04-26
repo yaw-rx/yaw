@@ -21,5 +21,5 @@ import { Component, RxElement, state } from 'yaw';
     `,
 })
 export class DateTicker extends RxElement {
-    @state now: Date = new Date();
+    @state now!: Date;
 }

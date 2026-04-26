@@ -1,5 +1,6 @@
 export { RxElement } from './rx-element.js';
 export { Component, bootstrap, getRawTemplate } from './component.js';
+export type { ComponentOptions, BootstrapGlobals } from './component.js';
 export { Directive } from './directive.js';
 export { state } from './observable.js';
 export { Injectable } from './di/injectable.js';

@@ -50,7 +50,10 @@ export class Bounce {
     }
 }`;
 
-const SCROLL_REVEAL_SOURCE = `@Directive({ selector: '[scroll-reveal]' })
+const SCROLL_REVEAL_SOURCE = `import { Directive } from 'yaw';
+import type { RxElementLike, ParsedExpr } from 'yaw';
+
+@Directive({ selector: '[scroll-reveal]' })
 export class ScrollReveal {
     node!: RxElementLike;
     parsed?: ParsedExpr;
@@ -78,7 +81,10 @@ export class ScrollReveal {
     }
 }`;
 
-const USAGE_SOURCE = `@Component({
+const USAGE_SOURCE = `import { Component, RxElement } from 'yaw';
+import { Bounce } from './bounce.js';
+
+@Component({
     selector: 'shelf',
     directives: [Bounce],
     template: \`
@@ -101,7 +107,12 @@ const SCOPE_DEMO_SOURCE = `// item + index + destructure + nesting — one examp
     </ul>
 </div>`;
 
-const FOR_DEMO_SOURCE = `@Component({
+const FOR_DEMO_SOURCE = `import { Component, RxElement } from 'yaw';
+import { of, type Observable } from 'rxjs';
+
+interface Cell { key: string; textContent: string; }
+
+@Component({
     selector: 'for-demo',
     template: \`
         <div class="row" rx-for="cells by key">
@@ -203,7 +214,11 @@ export class ForDemo extends RxElement {
                        <code class="inline">map(n =&gt; n % 2 === 0)</code> turns that
                        into an alternating boolean. The element is removed and
                        reinserted by the framework on each flip.</p>
-                    <code-block syntax="ts">${escape`@Component({
+                    <code-block syntax="ts">${escape`import { Component, RxElement } from 'yaw';
+import { timer } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+@Component({
     selector: 'blink-demo',
     template: \`<p rx-if="isVisible">Now you see me</p>\`,
 })

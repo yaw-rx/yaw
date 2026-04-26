@@ -50,7 +50,11 @@ export class RouteDisplay extends RxElement {
     }
 }
 
-const ROUTE_CONFIG_SOURCE = `bootstrap({
+const ROUTE_CONFIG_SOURCE = `import { bootstrap } from 'yaw';
+import { Router, ROUTES } from 'yaw/router';
+import { AppRoot } from './app-root.js';
+
+bootstrap({
     root: AppRoot,
     providers: [
         { provide: ROUTES, useValue: [
@@ -63,7 +67,9 @@ const ROUTE_CONFIG_SOURCE = `bootstrap({
     ],
 });`;
 
-const OUTLET_SOURCE = `@Component({
+const OUTLET_SOURCE = `import { Component, RxElement } from 'yaw';
+
+@Component({
     selector: 'app-root',
     template: \`
         <nav-bar></nav-bar>
@@ -72,7 +78,10 @@ const OUTLET_SOURCE = `@Component({
 })
 export class AppRoot extends RxElement {}`;
 
-const NAVIGATE_SOURCE = `@Component({ selector: 'route-display', ... })
+const NAVIGATE_SOURCE = `import { Component, Inject, RxElement, state } from 'yaw';
+import { Router } from 'yaw/router';
+
+@Component({ selector: 'route-display', ... })
 export class RouteDisplay extends RxElement {
     @state route = '/';
     @Inject(Router) private readonly router!: Router;
@@ -84,10 +93,12 @@ export class RouteDisplay extends RxElement {
     go(path: string): void { this.router.navigate(path); }
 }`;
 
-const API_SOURCE = `class Router {
+const API_SOURCE = `import { BehaviorSubject } from 'rxjs';
+
+class Router {
     readonly route$: BehaviorSubject<string>;
     navigate(path: string): void;
-    async resolve(path: string): Promise<CustomElementConstructor | undefined>;
+    async resolve(path: string): Promise<CustomElementConstructor | undefined>;  // DOM global
 }`;
 
 const LIVE_USAGE = `<route-display></route-display>`;

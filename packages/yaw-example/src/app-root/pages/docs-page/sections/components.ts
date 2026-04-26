@@ -20,7 +20,9 @@ const COUNTER_STYLES = `
     .count { color: #8af; font-family: monospace; font-size: 1.1rem; min-width: 2ch; text-align: center; }
 `;
 
-const COUNTER_SOURCE = `@Component({
+const COUNTER_SOURCE = `import { Component, RxElement, state } from 'yaw';
+
+@Component({
     selector: 'hello-counter',
     template: \`${COUNTER_TEMPLATE}\`,
     styles: \`${COUNTER_STYLES}\`,
@@ -43,6 +45,7 @@ export class HelloCounter extends RxElement {
 }
 
 const ESCAPE_SNIPPET = [
+    "import { Component, RxElement } from 'yaw';",
     "import { escape } from 'yaw-common';",
     '',
     '@Component({',
@@ -90,7 +93,9 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
            <em>is</em> the DOM node. <code class="inline">@state</code>
            fields publish a hidden <code class="inline">*$</code> BehaviorSubject
            the template can subscribe to.</p>
-            <code-block syntax="ts">${escape`@Component({
+            <code-block syntax="ts">${escape`import { Component, RxElement } from 'yaw';
+
+@Component({
     selector: 'my-tag',      // custom element name — must contain a hyphen
     template: \`...\`,         // HTML template string
     styles: \`...\`,           // CSS — scoped to the selector
@@ -148,7 +153,10 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
                is in the DOM. <code class="inline">onDestroy</code> fires on
                removal after the framework has torn down its own bindings
                and directives — you only clean up what you own.</p>
-            <code-block syntax="ts">${escape`@Component({
+            <code-block syntax="ts">${escape`import { Component, RxElement, state } from 'yaw';
+import { interval, type Subscription } from 'rxjs';
+
+@Component({
     selector: 'tick-counter',
     template: \`<span>{{elapsed}}s</span>\`,
 })

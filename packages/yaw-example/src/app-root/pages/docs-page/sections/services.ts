@@ -43,7 +43,12 @@ export class Clock {
     }
 }`;
 
-const PROVIDE_SOURCE = `// per-component — one instance per host, scoped to its subtree
+const PROVIDE_SOURCE = `import { bootstrap, Component, RxElement } from 'yaw';
+import { Router } from 'yaw/router';
+import { Clock } from './clock.js';
+import { AppRoot } from './app-root.js';
+
+// per-component — one instance per host, scoped to its subtree
 @Component({
     selector: 'docs-services',
     providers: [Clock],
@@ -57,7 +62,10 @@ bootstrap({
     providers: [Clock, Router, ...],
 });`;
 
-const RESOLVE_SOURCE = `// components: @Inject(Token) on a field
+const RESOLVE_SOURCE = `import { Component, Inject, Injectable, RxElement, state } from 'yaw';
+import { Clock } from './clock.js';
+
+// components: @Inject(Token) on a field
 @Component({
     selector: 'clock-readout',
     template: '<span>{{now}}</span>',

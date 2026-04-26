@@ -16,7 +16,7 @@ const MAIN_SOURCE = `import { bootstrap } from 'yaw';
 import { Router, ROUTES } from 'yaw/router';
 import { RxIf } from 'yaw/directives/rx-if';
 import { RxFor } from 'yaw/directives/rx-for';
-import { Decimal } from 'decimal.js';
+import Decimal from 'decimal.js';
 import { AppRoot } from './components/app-root.js';
 
 bootstrap({
@@ -39,7 +39,9 @@ bootstrap({
     },
 });`;
 
-const APP_ROOT_SOURCE = `@Component({
+const APP_ROOT_SOURCE = `import { Component, RxElement } from 'yaw';
+
+@Component({
     selector: 'app-root',
     template: \`
         <nav-bar></nav-bar>
