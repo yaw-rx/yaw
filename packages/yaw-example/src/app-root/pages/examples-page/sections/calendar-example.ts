@@ -1,6 +1,7 @@
 import { Component, RxElement } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
+import './calendar-example/calendar-grid.js';
 
 const GRID_SOURCE = `@Component({
     selector: 'calendar-grid',

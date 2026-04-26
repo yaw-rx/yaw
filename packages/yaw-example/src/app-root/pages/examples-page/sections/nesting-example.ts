@@ -2,6 +2,8 @@ import { map, type Observable } from 'rxjs';
 import { Component, RxElement, state } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
+import './nesting-example/components/nested-level.js';
+import './nesting-example/components/page-echo.js';
 
 const NESTING_STYLES = `
     :host { display: block; }

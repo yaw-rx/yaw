@@ -1,5 +1,12 @@
 import { Component, RxElement } from 'yaw';
 import { ScrollReveal } from '../directives/scroll-reveal.js';
+import './examples-page/components/yaw-slider.js';
+import './examples-page/sections/slider-example.js';
+import './examples-page/sections/color-playground.js';
+import './examples-page/sections/signal-meter.js';
+import './examples-page/sections/row-firehose.js';
+import './examples-page/sections/nesting-example.js';
+import './examples-page/sections/calendar-example.js';
 
 @Component({
     selector: 'examples-page',

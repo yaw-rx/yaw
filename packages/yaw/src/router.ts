@@ -20,14 +20,14 @@ export class Router {
         window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
-    resolve(path: string): CustomElementConstructor | undefined {
+    async resolve(path: string): Promise<CustomElementConstructor | undefined> {
         for (const route of this.routes) {
             if (route.redirect !== undefined && route.path === path) {
                 return this.resolve(route.redirect);
             }
-            if (route.path === path) return route.component;
+            if (route.load !== undefined && route.path === path) return route.load();
         }
         const wildcard = this.routes.find((r) => r.path === '*');
-        return wildcard?.component;
+        return wildcard?.load?.();
     }
 }

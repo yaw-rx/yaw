@@ -2,6 +2,9 @@ import { Component, Directive, RxElement } from 'yaw';
 import type { RxElementLike } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
+import './directives/for-demo.js';
+import './directives/scope-demo.js';
+import './directives/blink-demo.js';
 
 @Directive({ selector: '[bounce]' })
 export class Bounce {

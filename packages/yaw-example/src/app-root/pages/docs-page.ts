@@ -1,5 +1,13 @@
 import { Component, RxElement } from 'yaw';
 import { TocService } from './docs-page/services/toc-service.js';
+import './docs-page/sidebar.js';
+import './docs-page/sections/getting-started.js';
+import './docs-page/sections/bootstrap.js';
+import './docs-page/sections/components.js';
+import './docs-page/sections/reactive-state.js';
+import './docs-page/sections/directives.js';
+import './docs-page/sections/services.js';
+import './docs-page/sections/navigation.js';
 
 @Component({
     selector: 'docs-page',

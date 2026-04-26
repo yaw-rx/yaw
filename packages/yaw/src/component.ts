@@ -55,7 +55,7 @@ interface ComponentOptions {
 
 export interface Route {
     readonly path: string;
-    readonly component?: CustomElementConstructor;
+    readonly load?: () => Promise<CustomElementConstructor>;
     readonly redirect?: string;
 }
 

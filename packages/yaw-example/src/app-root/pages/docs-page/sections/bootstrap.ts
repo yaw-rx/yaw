@@ -13,16 +13,14 @@ const HTML_SOURCE = `<!doctype html>
 const MAIN_SOURCE = `import { bootstrap, Router, ROUTES, DefaultGlobalDirectives } from 'yaw';
 import { Decimal } from 'decimal.js';
 import { AppRoot } from './components/app-root.js';
-import { ManifestoPage } from './components/manifesto-page.js';
-import { ExamplesPage } from './components/examples-page.js';
 import './components/nav-bar.js';
 
 bootstrap({
     root: AppRoot,
     providers: [
         { provide: ROUTES, useValue: [
-            { path: '/',         component: ManifestoPage },
-            { path: '/examples', component: ExamplesPage },
+            { path: '/',         load: () => import('./pages/manifesto-page.js').then(m => m.ManifestoPage) },
+            { path: '/examples', load: () => import('./pages/examples-page.js').then(m => m.ExamplesPage) },
         ] },
         Router,
     ],

@@ -1,5 +1,9 @@
 import { Component, RxElement } from 'yaw';
 import { ScrollReveal } from '../directives/scroll-reveal.js';
+import './manifesto-page/sections/hero.js';
+import './manifesto-page/sections/stat-counter.js';
+import './manifesto-page/sections/manifesto.js';
+import './manifesto-page/sections/footer.js';
 
 const REACT_SNIPPET = `
     // React: 140KB to call appendChild

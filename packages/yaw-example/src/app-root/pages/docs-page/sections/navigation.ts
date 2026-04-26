@@ -51,10 +51,10 @@ const ROUTE_CONFIG_SOURCE = `bootstrap({
     root: AppRoot,
     providers: [
         { provide: ROUTES, useValue: [
-            { path: '/',         component: ManifestoPage },
-            { path: '/examples', component: ExamplesPage },
-            { path: '/docs',     component: DocsPage },
-            { path: '*',         component: NotFoundPage },
+            { path: '/',         load: () => import('./pages/manifesto-page.js').then(m => m.ManifestoPage) },
+            { path: '/examples', load: () => import('./pages/examples-page.js').then(m => m.ExamplesPage) },
+            { path: '/docs',     load: () => import('./pages/docs-page.js').then(m => m.DocsPage) },
+            { path: '*',         load: () => import('./pages/not-found-page.js').then(m => m.NotFoundPage) },
         ] },
         Router,
     ],

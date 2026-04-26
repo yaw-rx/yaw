@@ -1,5 +1,6 @@
 import { Component, RxElement } from 'yaw';
 import { ScrollReveal } from '../directives/scroll-reveal.js';
+import './showcase-page/sections/drum-sequencer.js';
 
 @Component({
     selector: 'showcase-page',

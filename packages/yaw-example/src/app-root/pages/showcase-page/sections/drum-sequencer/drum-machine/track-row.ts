@@ -2,6 +2,7 @@ import { combineLatest, map, type Observable } from 'rxjs';
 import { Component, RxElement, state } from 'yaw';
 import { STEPS } from './consts.js';
 import type { Cell } from './types.js';
+import './track-row/step-cell.js';
 
 @Component({
     selector: 'track-row',

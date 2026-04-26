@@ -1,5 +1,6 @@
 import { Component, RxElement } from 'yaw';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
+import './drum-sequencer/drum-machine.js';
 
 @Component({
     selector: 'drum-sequencer',
