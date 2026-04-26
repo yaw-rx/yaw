@@ -31,35 +31,38 @@ const LINUX_WHICH = [
     'vivaldi',
 ].join(' || which ');
 
-interface BrowserResult {
+export interface LaunchConfig {
     executablePath: string;
     args: string[];
+    headless: boolean | 'shell';
 }
 
-export async function findBrowser(): Promise<BrowserResult> {
+export async function findBrowser(): Promise<LaunchConfig> {
     try {
         const chromium = await import('@sparticuz/chromium');
         return {
             executablePath: await (chromium.default.executablePath as () => Promise<string>)(),
             args: chromium.default.args as string[],
+            headless: chromium.default.headless as boolean | 'shell',
         };
-    } catch { /* not installed — local dev */ }
+    } catch { /* not installed — local browser */ }
+
+    const local = (executablePath: string): LaunchConfig => ({ executablePath, args: [], headless: true });
 
     if (process.platform === 'darwin') {
         for (const p of MAC_CANDIDATES) {
-            try { execSync(`test -x "${p}"`); return { executablePath: p, args: [] }; } catch {}
+            try { execSync(`test -x "${p}"`); return local(p); } catch {}
         }
     }
 
     if (process.platform === 'win32') {
         for (const p of WIN_CANDIDATES) {
-            if (existsSync(p)) return { executablePath: p, args: [] };
+            if (existsSync(p)) return local(p);
         }
     }
 
     try {
-        const path = execSync(`which ${LINUX_WHICH}`, { encoding: 'utf-8' }).trim();
-        return { executablePath: path, args: [] };
+        return local(execSync(`which ${LINUX_WHICH}`, { encoding: 'utf-8' }).trim());
     } catch {}
 
     throw new Error('No Chromium-based browser found');

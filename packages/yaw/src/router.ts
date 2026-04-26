@@ -1,6 +1,8 @@
 import { BehaviorSubject } from 'rxjs';
 import type { Route } from './component.js';
+import { isSSG } from './component.js';
 import { Injectable } from './di/injectable.js';
+import { registerRouteSource } from './ssg-registry.js';
 
 export const ROUTES = Symbol('ROUTES');
 
@@ -16,10 +18,15 @@ export class Router {
         window.addEventListener('popstate', () => {
             this.route$.next(this.matchRoute(window.location.pathname));
         });
+        if (isSSG()) registerRouteSource(() => this.paths);
     }
 
     private matchRoute(path: string): string {
         return this.routePattern.exec(path)?.[1] ?? path;
+    }
+
+    get paths(): readonly string[] {
+        return this.routes.filter((r) => r.path !== '*' && r.redirect === undefined).map((r) => r.path);
     }
 
     navigate(path: string): void {

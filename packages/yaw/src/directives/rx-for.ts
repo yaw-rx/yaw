@@ -53,7 +53,8 @@ import { Directive } from '../directive.js';
 import { BindParseError } from '../errors.js';
 import { parseBind, subscribeBind, registerScopeHook, type ParsedBind, type ScopeHookResult } from '../expression/bind.js';
 import type { RxElementLike } from '../directive.js';
-import { pushRenderScope, popRenderScope, RxElementBase } from '../rx-element.js';
+import { pushRenderScope, popRenderScope, RxElementBase, isHydrating } from '../rx-element.js';
+import { getTemplate } from '../component.js';
 
 // ---------------------------------------------------------------------------
 // Parser
@@ -250,8 +251,12 @@ export class RxFor {
 
     // splat mode — unchanged from original
     private initSplat(): void {
-        this.content = this.node.innerHTML;
-        this.node.replaceChildren();
+        if (isHydrating()) {
+            this.hydrateSplat();
+        } else {
+            this.content = this.node.innerHTML;
+            this.node.replaceChildren();
+        }
 
         this.sub = subscribeBind(this.node, this.source, (v) => {
             if (!Array.isArray(v)) {
@@ -259,6 +264,24 @@ export class RxFor {
             }
             this.updateSplat(v);
         });
+    }
+
+    private hydrateSplat(): void {
+        const hostCtor = Object.prototype.hasOwnProperty.call(this.node, 'hostNode')
+            ? this.node.hostNode.constructor
+            : this.node.constructor;
+        const rawTemplate = getTemplate(hostCtor);
+        if (rawTemplate !== undefined) {
+            const tpl = document.createElement('template');
+            tpl.innerHTML = rawTemplate;
+            const rxForEl = tpl.content.querySelector('[rx-for]');
+            if (rxForEl !== null) this.content = rxForEl.innerHTML;
+        }
+        const key = this.keyField ?? 'id';
+        for (const child of Array.from(this.node.children)) {
+            const k = (child as unknown as Record<string, unknown>)[key];
+            if (k !== undefined) this.splatNodes.set(k, child);
+        }
     }
 
     private updateSplat(incoming: unknown[]): void {
@@ -288,10 +311,13 @@ export class RxFor {
     // scope mode — new
     private initScope(): void {
         (this.node as any)[SCOPE_PROP] = this;
-        this.content = this.node.innerHTML;
 
-        // remove raw template children (they're the blueprint, not items)
-        while (this.node.firstChild) this.node.removeChild(this.node.firstChild);
+        if (isHydrating()) {
+            this.hydrateScope();
+        } else {
+            this.content = this.node.innerHTML;
+            while (this.node.firstChild) this.node.removeChild(this.node.firstChild);
+        }
 
         this.sub = subscribeBind(this.node, this.source, (v) => {
             if (!Array.isArray(v)) {
@@ -299,6 +325,27 @@ export class RxFor {
             }
             this.updateScope(v);
         });
+    }
+
+    private hydrateScope(): void {
+        const hostCtor = Object.prototype.hasOwnProperty.call(this.node, 'hostNode')
+            ? this.node.hostNode.constructor
+            : this.node.constructor;
+        const rawTemplate = getTemplate(hostCtor);
+        if (rawTemplate !== undefined) {
+            const tpl = document.createElement('template');
+            tpl.innerHTML = rawTemplate;
+            const rxForEl = tpl.content.querySelector('[rx-for]');
+            if (rxForEl !== null) this.content = rxForEl.innerHTML;
+        }
+
+        for (const child of this.node.querySelectorAll(':scope > [data-rx-item]')) {
+            const key = child.getAttribute('data-rx-key');
+            if (key === null) continue;
+            const subject = new BehaviorSubject<unknown>(undefined);
+            const index$ = this.indexName ? new BehaviorSubject<unknown>(undefined) : undefined;
+            this.scopeNodes.set(key, { el: child, subject, index$ });
+        }
     }
 
     private updateScope(incoming: unknown[]): void {

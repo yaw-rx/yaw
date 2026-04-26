@@ -33,5 +33,8 @@
   },
   "dependencies": {
     "yaw-common": "*"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
   }
 }

@@ -6,11 +6,16 @@ import { getDirectiveSelector, matchesSelector, type Directive } from './directi
 import { DirectiveInstantiationError, InvalidSelectorError } from './errors.js';
 import { setupBindings } from './setupBindings.js';
 import { decodeAttribute } from './attribute-codec/decode.js';
-import { ssgEnter, ssgLeave } from './ssg-registry.js';
+import { ssgEnter, ssgLeave, ssgFinalize } from './ssg-registry.js';
+import { isSSG } from './component.js';
 
 let pending = 0;
 let readyResolve: (() => void) | undefined;
 export const appReady = new Promise<void>((resolve) => { readyResolve = resolve; });
+
+let hydrating = (globalThis as Record<string, unknown>)['__yaw_hydrate'] === true;
+export const setHydrating = (value: boolean): void => { hydrating = value; };
+export const isHydrating = (): boolean => hydrating;
 
 const renderScopeStack: RxElementBase[] = [];
 
@@ -88,6 +93,7 @@ export class RxElementBase extends HTMLElement {
     }
 
     private renderTemplate(): void {
+        if (hydrating) return;
         const template = getTemplate(this.constructor);
         if (template === undefined) { return; }
         const projected = document.createDocumentFragment();
@@ -97,6 +103,20 @@ export class RxElementBase extends HTMLElement {
         popRenderScope();
         const slot = this.querySelector('rx-slot');
         if (slot !== null) { slot.replaceWith(projected); }
+    }
+
+    private restoreState(): void {
+        if (!hydrating) return;
+        const raw = this.getAttribute('data-rx-state');
+        if (raw === null) return;
+        const state = JSON.parse(raw) as Record<string, unknown>;
+        const typeMap = (this.constructor as unknown as Record<string, unknown>)['__stateTypes'] as Record<string, string> | undefined;
+        for (const [key, value] of Object.entries(state)) {
+            const typeName = typeMap?.[key];
+            (this as unknown as Record<string, unknown>)[key] = typeName !== undefined
+                ? decodeAttribute(typeName, key, value as string)
+                : value;
+        }
     }
 
     private readAttributes(): void {
@@ -123,6 +143,7 @@ export class RxElementBase extends HTMLElement {
         pending++;
         this.setupHostNode();
         this.setupInjectorAndDeps();
+        this.restoreState();
         this.readAttributes();
         this.bindingTeardown = setupBindings(this);
         this.setupDirectives();
@@ -130,7 +151,12 @@ export class RxElementBase extends HTMLElement {
         this.renderTemplate();
         ssgLeave();
         this.onInit();
-        queueMicrotask(() => { if (--pending === 0) readyResolve?.(); });
+        queueMicrotask(() => {
+            if (--pending === 0) {
+                if (isSSG()) ssgFinalize();
+                readyResolve?.();
+            }
+        });
     }
 
     disconnectedCallback(): void {

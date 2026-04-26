@@ -18,8 +18,8 @@
     "decimal.js": "^10.6.0",
     "rxjs": "^7.8.1",
     "viem": "^2.48.4",
-    "yaw": "*",
-    "yaw-transformer": "*"
+    "yaw": "file:../yaw",
+    "yaw-transformer": "file:../yaw-transformer"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^29.0.2",
@@ -33,6 +33,6 @@
     "vite": "^5.0.0",
     "webpack": "^5.0.0",
     "webpack-cli": "^6.0.0",
-    "yaw-ts-plugin": "*"
+    "yaw-ts-plugin": "file:../yaw-ts-plugin"
   }
 }

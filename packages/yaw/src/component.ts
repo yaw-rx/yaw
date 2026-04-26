@@ -38,8 +38,9 @@
 import { Injector } from './di/injector.js';
 import type { Provider } from './di/types.js';
 import type { DirectiveCtor, RxElementLike } from './directive.js';
-import { BootstrapError } from './errors.js';
+import { BootstrapError, HydrationError } from './errors.js';
 import { registerHtmlMirrors } from './components/rx-elements.js';
+import { setHydrating } from './rx-element.js';
 import { transformTemplate, transformStyles } from 'yaw-common';
 import type { AttributeCodec } from './attribute-codec/types.js';
 import { registerAttributeCodecs } from './attribute-codec/registry.js';
@@ -78,17 +79,21 @@ export const getCodecs = (ctor: Function): Record<string, AttributeCodec> | unde
 export const getComponentOptions = (ctor: Function): ComponentOptions | undefined => {
     const selector = selectorCache.get(ctor);
     if (selector === undefined) return undefined;
-    return {
-        selector,
-        template: rawTemplateCache.get(ctor as CustomElementConstructor),
-        styles: undefined,
-        providers: providersCache.get(ctor),
-        directives: directivesCache.get(ctor),
-        attributeCodecs: codecsCache.get(ctor),
-    };
+    const opts: ComponentOptions = { selector };
+    const template = rawTemplateCache.get(ctor as CustomElementConstructor);
+    if (template !== undefined) (opts as { template: string }).template = template;
+    const providers = providersCache.get(ctor);
+    if (providers !== undefined) (opts as { providers: readonly Provider[] }).providers = providers;
+    const directives = directivesCache.get(ctor);
+    if (directives !== undefined) (opts as { directives: readonly DirectiveCtor[] }).directives = directives;
+    const codecs = codecsCache.get(ctor);
+    if (codecs !== undefined) (opts as { attributeCodecs: Record<string, AttributeCodec> }).attributeCodecs = codecs;
+    return opts;
 };
 
 const componentCtors = new WeakSet<Function>();
+const deferredDefines = new Map<string, CustomElementConstructor>();
+const hydrateMode = (globalThis as Record<string, unknown>)['__yaw_hydrate'] === true;
 
 export const isComponent = (ctor: Function): boolean => componentCtors.has(ctor);
 
@@ -113,7 +118,11 @@ export const Component = (options: ComponentOptions) =>
             stylesCache.set(ctor, sheet);
             document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
         }
-        customElements.define(options.selector, ctor);
+        if (hydrateMode) {
+            deferredDefines.set(options.selector, ctor);
+        } else {
+            customElements.define(options.selector, ctor);
+        }
     };
 
 
@@ -133,6 +142,7 @@ interface BootstrapOptions {
     readonly providers: readonly Provider[];
     readonly globals?: BootstrapGlobals;
     readonly ssg?: boolean;
+    readonly hydrate?: boolean;
 }
 
 export const bootstrap = (options: BootstrapOptions): void => {
@@ -141,8 +151,34 @@ export const bootstrap = (options: BootstrapOptions): void => {
     if (options.globals?.attributeCodecs !== undefined) { registerAttributeCodecs(options.globals.attributeCodecs); }
     registerHtmlMirrors();
     globalDirectives = options.globals?.directives ?? [];
-    ssgMode = options.ssg === true;
+    ssgMode = options.ssg === true || (globalThis as Record<string, unknown>)['__yaw_ssg'] === true;
     const injector = new Injector(options.providers);
     (document.body as RxElementLike).__injector = injector;
-    document.body.appendChild(document.createElement(selector));
+    if (hydrateMode) {
+        setHydrating(true);
+        if (document.body.querySelector(selector) === null) { throw new HydrationError(`no existing <${selector}> found in DOM`); }
+        hydrateFromDepGraph();
+    } else {
+        document.body.appendChild(document.createElement(selector));
+    }
+};
+
+const hydrateFromDepGraph = (): void => {
+    const el = document.getElementById('yaw-ssg-deps');
+    if (el === null) {
+        for (const [sel, ctor] of deferredDefines) { customElements.define(sel, ctor); }
+        return;
+    }
+    const root = JSON.parse(el.textContent!) as { selector: string; children: unknown[] };
+    const defineInOrder = (node: { selector: string; children: unknown[] }): void => {
+        const ctor = deferredDefines.get(node.selector);
+        if (ctor !== undefined) { customElements.define(node.selector, ctor); }
+        for (const child of node.children as { selector: string; children: unknown[] }[]) {
+            defineInOrder(child);
+        }
+    };
+    defineInOrder(root);
+    for (const [sel, ctor] of deferredDefines) {
+        if (!customElements.get(sel)) { customElements.define(sel, ctor); }
+    }
 };

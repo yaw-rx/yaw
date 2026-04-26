@@ -47,6 +47,18 @@ export class BootstrapError extends Error {
     }
 }
 
+export class HydrationError extends Error {
+    constructor(message: string) {
+        super(`hydration: ${message}`);
+    }
+}
+
+export class SSGError extends Error {
+    constructor(message: string) {
+        super(`ssg: ${message}`);
+    }
+}
+
 export class AttributeMarshalError extends Error {
     constructor(key: string, typeName: string, direction: 'encode' | 'decode', raw: string, cause: unknown) {
         super(`attribute "${key}": failed to ${direction} as ${typeName} — value was "${raw}"`);

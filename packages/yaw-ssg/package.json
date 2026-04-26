@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "puppeteer-core": "^24.0.0",
+    "sirv": "^3.0.0",
     "yaw": "*"
   }
 }

@@ -4,6 +4,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "composite": true,
+    "types": ["node"],
     "paths": {
       "yaw-common": ["../yaw-common/src/index.ts"]
     }
