@@ -3,6 +3,7 @@ import { createTransformedProgram, type TransformedProgram } from './bundlerPlug
 interface EsbuildOnLoadArgs { path: string }
 interface EsbuildOnLoadResult { contents: string; loader: string }
 interface EsbuildBuild {
+    onStart(callback: () => void): void;
     onLoad(
         options: { filter: RegExp },
         callback: (args: EsbuildOnLoadArgs) => EsbuildOnLoadResult | null | undefined,
@@ -18,9 +19,12 @@ export const esbuildPlugin = (): EsbuildPlugin => ({
     setup(build) {
         let tp: TransformedProgram | undefined;
 
+        build.onStart(() => {
+            tp = createTransformedProgram(process.cwd());
+        });
+
         build.onLoad({ filter: /\.ts$/ }, (args) => {
             if (args.path.includes('node_modules')) return null;
-            if (tp === undefined) tp = createTransformedProgram(process.cwd());
             if (tp === undefined) return null;
             const output = tp.getSource(args.path);
             if (output === undefined) return null;

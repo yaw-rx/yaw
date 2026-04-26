@@ -3,13 +3,21 @@ import type { Plugin } from 'vite';
 
 export const vitePlugin = (): Plugin => {
     let tp: TransformedProgram | undefined;
+    let root: string;
 
     return {
         name: 'yaw-inject-transform',
         enforce: 'pre',
 
         configResolved(config) {
-            tp = createTransformedProgram(config.root);
+            root = config.root;
+            tp = createTransformedProgram(root);
+        },
+
+        handleHotUpdate({ file }) {
+            if (file.endsWith('.ts') && !file.includes('node_modules')) {
+                tp = createTransformedProgram(root);
+            }
         },
 
         transform(code, id) {
