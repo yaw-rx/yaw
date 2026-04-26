@@ -4,8 +4,7 @@
     { "path": "./packages/yaw-common" },
     { "path": "./packages/yaw" },
     { "path": "./packages/yaw-transformer" },
-    { "path": "./packages/yaw-ts-plugin" },
-    { "path": "./packages/yaw-example" }
+    { "path": "./packages/yaw-ts-plugin" }
   ],
   "files": []
 }

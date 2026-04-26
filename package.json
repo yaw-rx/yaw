@@ -4,12 +4,16 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/yaw",
+    "packages/yaw-common",
+    "packages/yaw-transformer",
+    "packages/yaw-ts-plugin",
+    "packages/yaw-ts-plugin-audit"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "build:watch": "tsc --build --watch --preserveWatchOutput",
-    "dev": "trap 'kill 0' EXIT; npm run build:watch & npm run dev -w yaw-example & wait",
+    "dev": "trap 'kill 0' EXIT; npm run build:watch & npm run dev --prefix packages/yaw-example & wait",
     "typecheck": "tsc --build --dry packages/yaw-common packages/yaw packages/yaw-transformer",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
