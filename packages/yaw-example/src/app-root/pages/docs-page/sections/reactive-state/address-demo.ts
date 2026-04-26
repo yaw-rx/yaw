@@ -40,7 +40,7 @@ import { type AttributeCodec, Component, RxElement, state } from 'yaw';
     `,
 })
 export class AddressDemo extends RxElement {
-    @state wallet: Address = getAddress('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045');
+    @state wallet!: Address;
 
     setVitalik(): void {
         this.wallet = getAddress('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045');

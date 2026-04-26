@@ -83,7 +83,7 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
     selector: 'docs-components',
     directives: [TocSection],
     template: `
-        <h1 id="components" toc-section>Components</h1>
+        <h1 id="components" toc-section="components">Components</h1>
         <p class="lede">A component is an <code class="inline">RxElement</code>
            subclass decorated with <code class="inline">@Component</code>. The
            decorator registers a real custom element; the class instance
@@ -99,7 +99,7 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
     attributeCodecs: {...},  // local codec registrations for attribute marshalling
 })`}</code-block>
 
-        <section class="host" id="components-whole" toc-section>
+        <section class="host" id="components-whole" toc-section="components/whole">
             <h2>A whole component</h2>
             <p class="note">Two observables, two methods, three bindings. No
                reconciliation, no diff — the subject emits, the binding applies
@@ -107,7 +107,7 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
             <code-block syntax="ts">${escape`${COUNTER_SOURCE}`}</code-block>
         </section>
 
-        <section class="ex" id="components-use" toc-section>
+        <section class="ex" id="components-use" toc-section="components/use">
             <h2>In use</h2>
             <p class="note">The source above, rendered live. Click the buttons.</p>
             <div class="split">
@@ -116,14 +116,14 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
             </div>
         </section>
 
-        <section class="host" id="components-bindings" toc-section>
+        <section class="host" id="components-bindings" toc-section="components/bindings">
             <h2>Template bindings</h2>
             <p class="note">The full vocabulary. Every binding compiles to a
                subscription on a resolved observable — no other runtime.</p>
             <code-block syntax="html">${escape`${BINDINGS_SNIPPET}`}</code-block>
         </section>
 
-        <section class="host" id="components-escape" toc-section>
+        <section class="host" id="components-escape" toc-section="components/escape">
             <h2>Escaping mustaches and HTML</h2>
             <p class="note">A template compiles its mustache expressions into
                observable bindings, and rewrites built-in HTML tags into their
@@ -140,7 +140,7 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
             <code-block syntax="ts">${escape`${ESCAPE_SNIPPET}`}</code-block>
         </section>
 
-        <section class="host" id="components-lifecycle" toc-section>
+        <section class="host" id="components-lifecycle" toc-section="components/lifecycle">
             <h2>Lifecycle</h2>
             <p class="note"><code class="inline">onInit</code> fires after
                the element is fully wired — dependencies are injected,

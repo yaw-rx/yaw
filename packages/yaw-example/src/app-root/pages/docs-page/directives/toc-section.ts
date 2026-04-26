@@ -17,13 +17,8 @@ export class TocSection {
 
     onInit(): void {
         const { node } = this;
-
-        let depth = 0;
-        let ancestor: Element | null = node.parentElement;
-        while (ancestor !== null) {
-            if (ancestor.hasAttribute('toc-section')) depth++;
-            ancestor = ancestor.parentElement;
-        }
+        const path = node.getAttribute('toc-section') || '';
+        const depth = path ? path.split('/').length - 1 : 0;
         node.style.setProperty('--toc-depth', String(depth));
 
         this.id = node.id;
@@ -35,7 +30,7 @@ export class TocSection {
             const tracked: HTMLElement = isHeading ? first as HTMLElement : node;
             tracked.style.scrollMarginTop = `${String(TOP_OFFSET)}px`;
             const label = isHeading ? (first as HTMLElement).textContent ?? '' : '';
-            this.toc.register(this.id!, label, depth, node as HTMLElement);
+            this.toc.register(this.id!, label, depth, path, node as HTMLElement);
         });
     }
 

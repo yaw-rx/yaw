@@ -22,7 +22,7 @@
  * 4. Click navigation: smooth scroll + hard snap after a delay
  *    (smooth scrollIntoView is buggy during page load on some clients).
  */
-import { asyncScheduler, BehaviorSubject, Subject, throttleTime } from 'rxjs';
+import { asyncScheduler, BehaviorSubject, skip, Subject, throttleTime } from 'rxjs';
 import { Injectable } from 'yaw';
 
 const SNAP_DELAY = 700;
@@ -45,8 +45,10 @@ export class TocService {
     readonly tree$ = new BehaviorSubject<readonly TocEntry[]>([]);
     readonly paths = new Map<string, readonly string[]>();
 
-    private readonly entries: { id: string; label: string; depth: number }[] = [];
+    private readonly entries: { id: string; label: string; depth: number; path: string }[] = [];
     private readonly elements = new Map<string, HTMLElement>();
+    private readonly idToPath = new Map<string, string>();
+    private readonly pathToId = new Map<string, string>();
     private observers: Record<string, IntersectionObserver> = {};
     private ratioState: Record<string, SectionRatioState> = {};
     private ratioSubject: BehaviorSubject<Record<string, SectionRatioState>> | undefined;
@@ -54,6 +56,8 @@ export class TocService {
     private lastWinner = '';
     private rebuildSubject = new Subject<void>();
     private ratioSubscription: { unsubscribe(): void } | undefined;
+    private basePath: string | undefined;
+    private restored = false;
 
     constructor() {
         this.rebuildSubject
@@ -61,17 +65,51 @@ export class TocService {
             .subscribe(() => {
                 this.rebuildTree();
                 this.buildObservers();
+                this.restoreFromUrl();
             });
+
+        this.activeId$.pipe(skip(1)).subscribe((id) => {
+            if (id && this.basePath !== undefined) {
+                const path = this.idToPath.get(id) ?? id;
+                history.replaceState(null, '', this.basePath + '/' + path);
+            }
+        });
     }
 
-    register(id: string, label: string, depth: number, element: HTMLElement): void {
+    private restoreFromUrl(): void {
+        if (this.restored) return;
+        this.restored = true;
+        const full = window.location.pathname;
+        for (const [tocPath, id] of this.pathToId) {
+            const prefix = full.endsWith('/' + tocPath)
+                ? full.slice(0, full.length - tocPath.length - 1)
+                : undefined;
+            if (prefix !== undefined) {
+                this.basePath = prefix;
+                this.scrollTo(id);
+                return;
+            }
+        }
+        this.basePath = full;
+    }
+
+    register(id: string, label: string, depth: number, path: string, element: HTMLElement): void {
         this.elements.set(id, element);
-        this.entries.push({ id, label, depth });
+        this.entries.push({ id, label, depth, path });
+        if (path) {
+            this.idToPath.set(id, path);
+            this.pathToId.set(path, id);
+        }
         this.scheduleRebuild();
     }
 
     unregister(id: string): void {
         this.elements.delete(id);
+        const path = this.idToPath.get(id);
+        if (path !== undefined) {
+            this.idToPath.delete(id);
+            this.pathToId.delete(path);
+        }
         const idx = this.entries.findIndex((e) => e.id === id);
         if (idx !== -1) this.entries.splice(idx, 1);
         this.disconnectObservers();

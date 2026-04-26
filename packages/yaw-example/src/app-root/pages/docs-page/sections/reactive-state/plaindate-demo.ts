@@ -39,7 +39,7 @@ import { type AttributeCodec, Component, RxElement, state } from 'yaw';
     `,
 })
 export class PlainDateDemo extends RxElement {
-    @state birthday: Temporal.PlainDate = Temporal.PlainDate.from('1990-01-01');
+    @state birthday!: Temporal.PlainDate;
 
     nextDay(): void { this.birthday = this.birthday.add({ days: 1 }); }
     nextMonth(): void { this.birthday = this.birthday.add({ months: 1 }); }

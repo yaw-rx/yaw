@@ -123,7 +123,7 @@ export class ForDemo extends RxElement {
     selector: 'docs-directives',
     directives: [Bounce, TocSection],
     template: `
-        <h1 id="directives" toc-section>Directives</h1>
+        <h1 id="directives" toc-section="directives">Directives</h1>
         <p class="lede">Directives are classes with an attribute selector. When
            the attribute appears on an element and the host component has declared
            the directive in its <code class="inline">directives</code> array (or
@@ -131,7 +131,7 @@ export class ForDemo extends RxElement {
            sets <code class="inline">host</code> and the parsed expression, and
            calls <code class="inline">onInit</code>.</p>
 
-        <section class="host" id="directives-a" toc-section>
+        <section class="host" id="directives-a" toc-section="directives/example">
             <h2>A simple example</h2>
             <p class="note">A minimal directive that bounces its host element
                via the Web Animations API. Two hooks — start the animation on
@@ -140,7 +140,7 @@ export class ForDemo extends RxElement {
             <code-block syntax="ts">${escape`${BOUNCE_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="directives-declaring" toc-section>
+        <section class="host" id="directives-declaring" toc-section="directives/declaring">
             <h2>Declaring it on a host</h2>
             <p class="note">Add to the component's <code class="inline">directives</code>
                array. On mount, any matching child gets the directive
@@ -151,7 +151,7 @@ export class ForDemo extends RxElement {
             <code-block syntax="ts">${escape`${USAGE_SOURCE}`}</code-block>
         </section>
 
-        <section class="ex" id="directives-before-after" toc-section>
+        <section class="ex" id="directives-before-after" toc-section="directives/before-after">
             <h2>In action</h2>
             <p class="note">Same markup, one attribute difference. Add
                <code class="inline">bounce</code> to an element and the directive
@@ -165,7 +165,7 @@ export class ForDemo extends RxElement {
             </div>
         </section>
 
-        <section class="host" id="directives-scroll-reveal" toc-section>
+        <section class="host" id="directives-scroll-reveal" toc-section="directives/scroll-reveal">
             <h2>Another: ScrollReveal</h2>
             <p class="note">A real directive from this project — fades its host
                in when it enters the viewport. Same shape, different hook: an
@@ -173,7 +173,7 @@ export class ForDemo extends RxElement {
             <code-block syntax="ts">${escape`${SCROLL_REVEAL_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="directives-builtin" toc-section>
+        <section class="host" id="directives-builtin" toc-section="directives/builtin">
             <h2>Built-in directives</h2>
             <p class="note">The framework ships two structural directives:
                <code class="inline">rx-if</code> for conditional rendering and
@@ -183,7 +183,7 @@ export class ForDemo extends RxElement {
                <code class="inline">globals.directives</code> if you want them,
                or leave them out entirely.</p>
 
-            <section class="host" id="directives-rx-if" toc-section>
+            <section class="host" id="directives-rx-if" toc-section="directives/builtin/rx-if">
                 <h3>rx-if</h3>
                 <p class="note">Conditionally mounts and unmounts a subtree based
                    on a boolean observable. When the value goes falsy the children
@@ -221,7 +221,7 @@ export class BlinkDemo extends RxElement {
                     </section>
                 </section>
 
-            <section id="directives-rx-for" toc-section>
+            <section id="directives-rx-for" toc-section="directives/builtin/rx-for">
                 <h3>rx-for</h3>
             <p class="note"><code class="inline">rx-for</code> renders a list from
                an Observable that emits arrays. Two modes, determined by the
@@ -231,7 +231,7 @@ export class BlinkDemo extends RxElement {
                <code class="inline">of</code>, it's scope mode — you declare loop
                variables that bindings inside the list can reference.</p>
 
-            <section class="host" id="directives-rx-for-grammar" toc-section>
+            <section class="host" id="directives-rx-for-grammar" toc-section="directives/builtin/rx-for/grammar">
                 <h3>Grammar</h3>
                 <code-block syntax="text">${escape`Splat:  source by key
 Scope:  item of source
@@ -246,7 +246,7 @@ Scope:  item of source
                    across reorders.</p>
             </section>
 
-            <section class="host" id="directives-rx-for-keyed" toc-section>
+            <section class="host" id="directives-rx-for-keyed" toc-section="directives/builtin/rx-for/keyed">
                 <h3>Keyed vs keyless</h3>
                 <p class="note"><strong>Keyed</strong>
                    (<code class="inline">by id</code>): items are matched by key value.
@@ -258,7 +258,7 @@ Scope:  item of source
                    in place.</p>
             </section>
 
-            <section class="host" id="directives-rx-for-splat" toc-section>
+            <section class="host" id="directives-rx-for-splat" toc-section="directives/builtin/rx-for/splat">
                 <h3>Splat mode</h3>
                 <p class="note"><code class="inline">rx-for="cells by key"</code>
                    — for each item in the array, rx-for creates a copy of its child
@@ -283,7 +283,7 @@ Scope:  item of source
                 </section>
             </section>
 
-            <section class="host" id="directives-rx-for-scope" toc-section>
+            <section class="host" id="directives-rx-for-scope" toc-section="directives/builtin/rx-for/scope">
                 <h3>Scope mode</h3>
                 <p class="note">Add <code class="inline">of</code> to declare loop variables.
                    <code class="inline">rx-for="row of rows by id"</code> — inside the

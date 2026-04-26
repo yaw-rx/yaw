@@ -27,6 +27,7 @@ import './drum-sequencer/drum-machine.js';
     styles: `
         :host { display: block; }
         ${DOC_STYLES}
+        .ex { margin-top: 2rem; }
         .live { padding: 0; background: transparent; border: none; zoom: 65%; }
     `,
 })

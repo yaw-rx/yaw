@@ -17,7 +17,7 @@ import './docs-page/sections/navigation.js';
     template: `
         <docs-sidebar></docs-sidebar>
         <main class="content">
-            <header class="intro" id="docs" toc-section>
+            <header class="intro" id="docs" toc-section="docs">
                 <h1>Docs</h1>
                 <p class="lede">The whole framework on one page. Bootstrap, components,
                    directives, services, navigation — each section is the full story
@@ -25,13 +25,13 @@ import './docs-page/sections/navigation.js';
                    where it makes sense.</p>
             </header>
 
-            <docs-getting-started id="getting-started" toc-section></docs-getting-started>
-            <docs-bootstrap id="bootstrap" toc-section></docs-bootstrap>
-            <docs-components id="components" toc-section></docs-components>
-            <docs-reactive-state id="reactive-state" toc-section></docs-reactive-state>
-            <docs-directives id="directives" toc-section></docs-directives>
-            <docs-services id="services" toc-section></docs-services>
-            <docs-navigation id="navigation" toc-section></docs-navigation>
+            <docs-getting-started id="getting-started" toc-section="getting-started"></docs-getting-started>
+            <docs-bootstrap id="bootstrap" toc-section="bootstrap"></docs-bootstrap>
+            <docs-components id="components" toc-section="components"></docs-components>
+            <docs-reactive-state id="reactive-state" toc-section="reactive-state"></docs-reactive-state>
+            <docs-directives id="directives" toc-section="directives"></docs-directives>
+            <docs-services id="services" toc-section="services"></docs-services>
+            <docs-navigation id="navigation" toc-section="navigation"></docs-navigation>
         </main>
     `,
     styles: `

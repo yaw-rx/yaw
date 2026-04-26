@@ -89,7 +89,7 @@ import { Component, RxElement, state } from 'yaw';
     \`,
 })
 export class DecimalDemo extends RxElement {
-    @state total: Decimal = new Decimal('0.00');
+    @state total!: Decimal;
 
     add(n: string): void { this.total = this.total.plus(n); }
     reset(): void { this.total = new Decimal('0.00'); }
@@ -113,7 +113,7 @@ import { Component, RxElement, state } from 'yaw';
     \`,
 })
 export class AddressDemo extends RxElement {
-    @state wallet: Address = getAddress('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045');
+    @state wallet!: Address;
 
     setVitalik(): void {
         this.wallet = getAddress('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045');
@@ -141,7 +141,7 @@ const PLAINDATE_SOURCE = `import { Component, RxElement, state } from 'yaw';
     \`,
 })
 export class PlainDateDemo extends RxElement {
-    @state birthday: Temporal.PlainDate = Temporal.PlainDate.from('1990-01-01');
+    @state birthday!: Temporal.PlainDate;
 
     nextDay(): void { this.birthday = this.birthday.add({ days: 1 }); }
     nextMonth(): void { this.birthday = this.birthday.add({ months: 1 }); }
@@ -165,7 +165,7 @@ import { Component, RxElement, state } from 'yaw';
     \`,
 })
 export class DayjsDemo extends RxElement {
-    @state due: Dayjs = dayjs();
+    @state due!: Dayjs;
 
     addWeek(): void { this.due = this.due.add(7, 'day'); }
     addMonth(): void { this.due = this.due.add(1, 'month'); }
@@ -203,7 +203,7 @@ AttributeMarshalError
     selector: 'docs-reactive-state',
     directives: [TocSection],
     template: `
-        <h1 id="reactive-state" toc-section>Reactive state</h1>
+        <h1 id="reactive-state" toc-section="reactive-state">Reactive state</h1>
         <p class="lede"><code class="inline">@state</code> turns a class field
            into a reactive primitive. Under the hood it is a
            <code class="inline">BehaviorSubject</code> — but you write to it
@@ -214,7 +214,7 @@ AttributeMarshalError
            stringly-typed and nothing is <code class="inline">any</code>.</p>
         <code-block class="install" syntax="bash">${escape`npm install yaw-transformer yaw-ts-plugin ts-patch --save-dev`}</code-block>
 
-        <section class="host" id="state-decorator" toc-section>
+        <section class="host" id="state-decorator" toc-section="reactive-state/decorator">
             <h2>@state</h2>
             <p class="note">Decorate a field with
                <code class="inline">@state</code> and it becomes observable.
@@ -227,7 +227,7 @@ AttributeMarshalError
             <code-block syntax="ts">${escape`${STATE_DECORATOR_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="state-dollar" toc-section>
+        <section class="host" id="state-dollar" toc-section="reactive-state/dollar">
             <h2>The $ getter</h2>
             <p class="note">Every <code class="inline">@state</code> field gets
                a sibling getter ending in <code class="inline">$</code> that
@@ -239,7 +239,7 @@ AttributeMarshalError
             <code-block syntax="ts">${escape`${STATE_DOLLAR_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="state-attribute-marshalling" toc-section>
+        <section class="host" id="state-attribute-marshalling" toc-section="reactive-state/attribute-marshalling">
             <h2>Attribute marshalling</h2>
             <p class="note">HTML attributes are strings. The attribute codec
                registry turns them into typed values on connect. A parent
@@ -249,7 +249,7 @@ AttributeMarshalError
                <code class="inline">42</code> as a number. Dates, URLs,
                maps — same story.</p>
 
-            <section class="host" id="state-builtin-codecs" toc-section>
+            <section class="host" id="state-builtin-codecs" toc-section="reactive-state/attribute-marshalling/builtin-codecs">
                 <h3>Built-in codecs</h3>
                 <p class="note">The attribute codec registry ships with encoders
                    and decoders for every native JS type. When a component connects,
@@ -259,7 +259,7 @@ AttributeMarshalError
                 <code-block syntax="ts">${escape`${BUILTIN_CODECS_SOURCE}`}</code-block>
             </section>
 
-            <section class="host" id="state-date" toc-section>
+            <section class="host" id="state-date" toc-section="reactive-state/attribute-marshalling/date">
                 <h3>Date — built-in codec</h3>
                 <p class="note"><code class="inline">Date</code> is handled by
                    the built-in codec. The codec serialises via
@@ -270,12 +270,12 @@ AttributeMarshalError
                     <h2>In action</h2>
                     <div class="split">
                         <code-block syntax="html">${escape`<date-ticker now="2026-04-24T12:00:00.000Z"></date-ticker>`}</code-block>
-                        <div class="live"><date-ticker></date-ticker></div>
+                        <div class="live"><date-ticker now="2026-04-24T12:00:00.000Z"></date-ticker></div>
                     </div>
                 </section>
             </section>
 
-            <section class="host" id="state-custom-codecs" toc-section>
+            <section class="host" id="state-custom-codecs" toc-section="reactive-state/attribute-marshalling/custom-codecs">
                 <h3>Custom codecs</h3>
                 <p class="note">The built-in codecs cover native JS types, but real
                    applications use domain types — arbitrary-precision decimals,
@@ -293,7 +293,7 @@ AttributeMarshalError
                    the <code class="inline">'Decimal'</code> codec automatically.
                    No manual wiring per field, no type assertions.</p>
 
-                <section class="host" id="state-decimal" toc-section>
+                <section class="host" id="state-decimal" toc-section="reactive-state/attribute-marshalling/custom-codecs/decimal">
                     <h3>Decimal</h3>
                     <p class="note">Arbitrary-precision arithmetic via
                        <code class="inline">decimal.js</code>. Click
@@ -304,12 +304,12 @@ AttributeMarshalError
                         <h2>In action</h2>
                         <div class="split">
                             <code-block syntax="html">${escape`<decimal-demo total="99.95"></decimal-demo>`}</code-block>
-                            <div class="live"><decimal-demo></decimal-demo></div>
+                            <div class="live"><decimal-demo total="99.95"></decimal-demo></div>
                         </div>
                     </section>
                 </section>
 
-                <section class="host" id="state-address" toc-section>
+                <section class="host" id="state-address" toc-section="reactive-state/attribute-marshalling/custom-codecs/address">
                     <h3>Ethereum address</h3>
                     <p class="note">Checksummed address via
                        <code class="inline">viem</code>.
@@ -321,12 +321,12 @@ AttributeMarshalError
                         <h2>In action</h2>
                         <div class="split">
                             <code-block syntax="html">${escape`<address-demo wallet="0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"></address-demo>`}</code-block>
-                            <div class="live"><address-demo></address-demo></div>
+                            <div class="live"><address-demo wallet="0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"></address-demo></div>
                         </div>
                     </section>
                 </section>
 
-                <section class="host" id="state-plaindate" toc-section>
+                <section class="host" id="state-plaindate" toc-section="reactive-state/attribute-marshalling/custom-codecs/plaindate">
                     <h3>Temporal.PlainDate</h3>
                     <p class="note">TC39 <code class="inline">Temporal</code> — native
                        in browsers, no polyfill. Date-only, no time zone ambiguity.
@@ -336,12 +336,12 @@ AttributeMarshalError
                         <h2>In action</h2>
                         <div class="split">
                             <code-block syntax="html">${escape`<plaindate-demo birthday="1990-01-01"></plaindate-demo>`}</code-block>
-                            <div class="live"><plaindate-demo></plaindate-demo></div>
+                            <div class="live"><plaindate-demo birthday="1990-01-01"></plaindate-demo></div>
                         </div>
                     </section>
                 </section>
 
-                <section class="host" id="state-dayjs" toc-section>
+                <section class="host" id="state-dayjs" toc-section="reactive-state/attribute-marshalling/custom-codecs/dayjs">
                     <h3>Dayjs</h3>
                     <p class="note"><code class="inline">dayjs</code> — the 2kB
                        <code class="inline">Date</code> replacement everyone already
@@ -351,13 +351,13 @@ AttributeMarshalError
                         <h2>In action</h2>
                         <div class="split">
                             <code-block syntax="html">${escape`<dayjs-demo due="2026-05-01T00:00:00.000Z"></dayjs-demo>`}</code-block>
-                            <div class="live"><dayjs-demo></dayjs-demo></div>
+                            <div class="live"><dayjs-demo due="2026-05-01T00:00:00.000Z"></dayjs-demo></div>
                         </div>
                     </section>
                 </section>
             </section>
 
-            <section class="host" id="state-errors" toc-section>
+            <section class="host" id="state-errors" toc-section="reactive-state/attribute-marshalling/errors">
                 <h3>Error handling</h3>
                 <p class="note">If a codec's <code class="inline">decode</code> or
                    <code class="inline">encode</code> throws, the framework wraps
@@ -369,7 +369,7 @@ AttributeMarshalError
             </section>
         </section>
 
-        <section class="host" id="state-plugin" toc-section>
+        <section class="host" id="state-plugin" toc-section="reactive-state/plugin">
             <h2>IDE plugin</h2>
             <p class="note"><code class="inline">yaw-ts-plugin</code> is a
                TypeScript language service plugin. It intercepts the source

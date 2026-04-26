@@ -43,7 +43,7 @@ import { type AttributeCodec, Component, RxElement, state } from 'yaw';
     `,
 })
 export class DecimalDemo extends RxElement {
-    @state total: Decimal = new Decimal('0.00');
+    @state total!: Decimal;
 
     get sum(): Observable<string> {
         return this.total$.pipe(map(() => new Decimal('0.1').plus('0.2').toString()));

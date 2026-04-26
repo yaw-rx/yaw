@@ -119,7 +119,7 @@ export default {
     selector: 'docs-getting-started',
     directives: [TocSection],
     template: `
-        <h1 id="getting-started" toc-section>Getting started</h1>
+        <h1 id="getting-started" toc-section="getting-started">Getting started</h1>
         <p class="lede">Install the runtime, the compiler plugin, and the
            IDE plugin. The <code class="inline">prepare</code> script
            patches <code class="inline">tsc</code> so the transformer
@@ -128,12 +128,12 @@ export default {
            <code class="inline">__stateTypes</code> metadata are
            available at compile time.</p>
 
-        <section class="host" id="getting-started-install" toc-section>
+        <section class="host" id="getting-started-install" toc-section="getting-started/install">
             <h2>Install</h2>
             <code-block syntax="bash">${escape`${INSTALL_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="getting-started-package-json" toc-section>
+        <section class="host" id="getting-started-package-json" toc-section="getting-started/package-json">
             <h2>package.json</h2>
             <p class="note">The <code class="inline">prepare</code> script
                runs <code class="inline">ts-patch install</code> after
@@ -146,7 +146,7 @@ export default {
             <code-block syntax="json">${escape`${PACKAGE_JSON_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="getting-started-tsconfig" toc-section>
+        <section class="host" id="getting-started-tsconfig" toc-section="getting-started/tsconfig">
             <h2>tsconfig.json</h2>
             <p class="note">Two plugins.
                <code class="inline">yaw-ts-plugin</code> gives the IDE
@@ -159,7 +159,7 @@ export default {
             <code-block syntax="json">${escape`${TSCONFIG_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="getting-started-bundler-config" toc-section>
+        <section class="host" id="getting-started-bundler-config" toc-section="getting-started/bundler-config">
             <h2>Bundler config</h2>
             <p class="note">Each bundler has a plugin or loader that runs
                the yaw transform at bundle time. Pick one and drop the

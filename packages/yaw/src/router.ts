@@ -27,6 +27,13 @@ export class Router {
             }
             if (route.load !== undefined && route.path === path) return route.load();
         }
+        let best: Route | undefined;
+        for (const route of this.routes) {
+            if (route.load !== undefined && route.path !== '*' && path.startsWith(route.path + '/')) {
+                if (best === undefined || route.path.length > best.path.length) best = route;
+            }
+        }
+        if (best?.load !== undefined) return best.load();
         const wildcard = this.routes.find((r) => r.path === '*');
         return wildcard?.load?.();
     }

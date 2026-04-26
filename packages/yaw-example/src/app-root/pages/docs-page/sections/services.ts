@@ -84,7 +84,7 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
     providers: [Clock],
     directives: [TocSection],
     template: `
-        <h1 id="services" toc-section>Services</h1>
+        <h1 id="services" toc-section="services">Services</h1>
         <p class="lede">A service is any class registered with an
            <code class="inline">Injector</code>. Decorate it with
            <code class="inline">@Injectable</code>, put it in a
@@ -93,14 +93,14 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
            <code class="inline">@Inject()</code> on a field for components. The
            injector tree walks up the DOM; child providers shadow parents.</p>
 
-        <section class="host" id="services-a" toc-section>
+        <section class="host" id="services-a" toc-section="services/example">
             <h2>A service</h2>
             <p class="note">Plain class, decorated. A <code class="inline">BehaviorSubject</code>
                that ticks once a second.</p>
             <code-block syntax="ts">${escape`${SERVICE_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="services-register" toc-section>
+        <section class="host" id="services-register" toc-section="services/register">
             <h2>Registering it</h2>
             <p class="note">Two places. A component's
                <code class="inline">providers</code> array creates a child injector
@@ -109,7 +109,7 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
             <code-block syntax="ts">${escape`${PROVIDE_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="services-resolve" toc-section>
+        <section class="host" id="services-resolve" toc-section="services/resolve">
             <h2>Injecting it</h2>
             <p class="note">Two shapes, both token-driven. Services and directives
                list their deps in <code class="inline">@Injectable([...])</code>
@@ -123,7 +123,7 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
             <code-block syntax="ts">${escape`${RESOLVE_SOURCE}`}</code-block>
         </section>
 
-        <section class="ex" id="services-live" toc-section>
+        <section class="ex" id="services-live" toc-section="services/live">
             <h2>Live</h2>
             <p class="note">This section registers <code class="inline">Clock</code>
                in its own <code class="inline">providers</code>. The readout below

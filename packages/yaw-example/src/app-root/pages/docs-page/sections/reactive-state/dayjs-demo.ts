@@ -46,7 +46,7 @@ import { type AttributeCodec, Component, RxElement, state } from 'yaw';
     `,
 })
 export class DayjsDemo extends RxElement {
-    @state due: Dayjs = dayjs();
+    @state due!: Dayjs;
 
     get relative(): Observable<string> {
         return this.due$.pipe(map((d) => {
