@@ -53,7 +53,7 @@ const HOST_SOURCE = `@Component({
     styles: \`${METER_STYLES}\`,
 })
 export class SignalMeter extends RxElement {
-    @state strength = 65;
+    @state strength = 0;
 
     get meterStyle$(): Observable<string> {
         return this.strength$.pipe(map((s) => \`--pct: \${s / 100}\`));
@@ -85,7 +85,7 @@ export class SignalMeter extends RxElement {
                spectrum, the glow chases the stroke. The only thing the JS writes is the
                percentage.</p>
             <div class="split">
-                <code-block syntax="html">${escape`<signal-meter></signal-meter>`}</code-block>
+                <code-block syntax="html">${escape`<signal-meter strength="65"></signal-meter>`}</code-block>
                 <div class="live">${METER_TEMPLATE}</div>
             </div>
         </section>
@@ -93,7 +93,7 @@ export class SignalMeter extends RxElement {
     styles: `${METER_STYLES}\n${WRAPPER_STYLES}\n${DOC_STYLES}`,
 })
 export class SignalMeter extends RxElement {
-    @state strength = 65;
+    @state strength = 0;
 
     get meterStyle$(): Observable<string> {
         return this.strength$.pipe(map((s) => `--pct: ${String(s / 100)}`));

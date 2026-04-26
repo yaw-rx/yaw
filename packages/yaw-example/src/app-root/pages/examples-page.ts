@@ -22,7 +22,7 @@ import './examples-page/sections/calendar-example.js';
 
             <slider-example scroll-reveal></slider-example>
             <color-playground scroll-reveal></color-playground>
-            <signal-meter scroll-reveal></signal-meter>
+            <signal-meter strength="65" scroll-reveal></signal-meter>
             <row-firehose scroll-reveal></row-firehose>
             <!-- <calendar-example scroll-reveal></calendar-example> -->
             <nesting-example scroll-reveal="0"></nesting-example>

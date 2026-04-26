@@ -23,7 +23,8 @@ const PALETTE_STYLES = `
     label { color: #888; font-size: 0.8rem;
             font-family: monospace; text-transform: uppercase;
             letter-spacing: 0.08em; }
-    em { color: #8af; font-style: normal; }
+    em { color: #8af; font-style: normal;
+         display: inline-block; min-width: 4ch; text-align: right; }
     .out { background: #0a0a0a; padding: 0.6rem 0.75rem; border-radius: 4px;
            color: #8af; font-family: monospace; font-size: 0.8rem;
            border: 1px solid #1a1a1a; }

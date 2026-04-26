@@ -69,10 +69,11 @@ export class TocService {
             });
 
         this.activeId$.pipe(skip(1)).subscribe((id) => {
-            if (id && this.basePath !== undefined) {
-                const path = this.idToPath.get(id) ?? id;
-                history.replaceState(null, '', this.basePath + '/' + path);
-            }
+            if (!id || this.basePath === undefined) return;
+            const loc = window.location.pathname;
+            if (loc !== this.basePath && !loc.startsWith(this.basePath + '/')) return;
+            const path = this.idToPath.get(id) ?? id;
+            history.replaceState(null, '', this.basePath + '/' + path);
         });
     }
 
@@ -81,14 +82,12 @@ export class TocService {
         this.restored = true;
         const full = window.location.pathname;
         for (const [tocPath, id] of this.pathToId) {
-            const prefix = full.endsWith('/' + tocPath)
-                ? full.slice(0, full.length - tocPath.length - 1)
-                : undefined;
-            if (prefix !== undefined) {
-                this.basePath = prefix;
-                this.scrollTo(id);
-                return;
-            }
+            if (!full.endsWith('/' + tocPath)) continue;
+            const prefix = full.slice(0, full.length - tocPath.length - 1);
+            if (!prefix.startsWith('/')) continue;
+            this.basePath = prefix;
+            this.scrollTo(id);
+            return;
         }
         this.basePath = full;
     }
