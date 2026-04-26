@@ -1,6 +1,6 @@
 import { Component, RxElement, state } from 'yaw';
 import { readInert } from 'yaw-common';
-import { dedent, escapeHtml, highlightBash, highlightHtml, highlightJson, highlightTs } from './code-block/code-highlight.js';
+import { dedent, escapeHtml, highlightBash, highlightHtml, highlightJs, highlightJson, highlightTs } from './code-block/code-highlight.js';
 
 @Component({
     selector: 'code-block',
@@ -15,6 +15,7 @@ import { dedent, escapeHtml, highlightBash, highlightHtml, highlightJson, highli
         .tk-string { color: #c3e88d; }
         .tk-number { color: #f78c6c; }
         .tk-comment { color: #546e7a; font-style: italic; }
+        .tk-regex { color: #ff5370; }
         .tk-decorator { color: #ffcb6b; }
         .tk-type { color: #ffcb6b; }
         .tk-fn { color: #82aaff; }
@@ -31,6 +32,7 @@ export class CodeBlock extends RxElement {
         const source = dedent(readInert(this));
         const lang = this.syntax;
         const content = lang === 'ts' ? highlightTs(source)
+            : lang === 'js' ? highlightJs(source)
             : lang === 'html' ? highlightHtml(source)
             : lang === 'json' ? highlightJson(source)
             : lang === 'bash' ? highlightBash(source)

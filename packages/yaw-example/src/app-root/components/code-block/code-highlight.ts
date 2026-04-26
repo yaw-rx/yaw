@@ -21,7 +21,7 @@ export const dedent = (s: string): string => {
     return indent > 0 ? lines.map((l) => l.slice(indent)).join('\n') : lines.join('\n');
 };
 
-const TOKEN_RE = /(\/\/[^\n]*)|(\/\*[\s\S]*?\*\/)|(`(?:\\.|[^`\\])*`)|('(?:\\.|[^'\\])*')|("(?:\\.|[^"\\])*")|(@[A-Za-z_$][\w$]*)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)/g;
+const TOKEN_RE = /(\/\/[^\n]*)|(\/\*[\s\S]*?\*\/)|(`(?:\\.|[^`\\])*`)|('(?:\\.|[^'\\])*')|("(?:\\.|[^"\\])*")|(\/(?:\\.|[^\/\n\\])+\/[gimsuy]*)|(@[A-Za-z_$][\w$]*)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)/g;
 
 const IMPORT_RE = /import\s+([\s\S]*?)\s+from\s+['"][^'"]+['"]/g;
 
@@ -51,6 +51,8 @@ const collectImportNames = (src: string): Set<string> => {
     return names;
 };
 
+export const highlightJs = (src: string): string => highlightTs(src);
+
 export const highlightTs = (src: string): string => {
     const imports = collectImportNames(src);
     let out = '';
@@ -63,8 +65,9 @@ export const highlightTs = (src: string): string => {
         let cls: string;
         if (m[1] !== undefined || m[2] !== undefined) cls = 'tk-comment';
         else if (m[3] !== undefined || m[4] !== undefined || m[5] !== undefined) cls = 'tk-string';
-        else if (m[6] !== undefined) cls = 'tk-decorator';
-        else if (m[7] !== undefined) cls = 'tk-number';
+        else if (m[6] !== undefined) cls = 'tk-regex';
+        else if (m[7] !== undefined) cls = 'tk-decorator';
+        else if (m[8] !== undefined) cls = 'tk-number';
         else if (KEYWORDS.has(text)) cls = 'tk-keyword';
         else if (/^[A-Z][A-Z0-9_]*$/.test(text)) cls = 'tk-const';
         else if (/^[A-Z]/.test(text)) cls = 'tk-type';

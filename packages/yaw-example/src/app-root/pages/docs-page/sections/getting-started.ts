@@ -10,8 +10,7 @@ const PACKAGE_JSON_SOURCE = `{
     "type": "module",
     "scripts": {
         "prepare": "ts-patch install",
-        "dev": "vite",
-        "build": "vite build"
+        "typecheck": "tsc --build"
     },
     "dependencies": {
         "rxjs": "^7.8.1",
@@ -19,7 +18,6 @@ const PACKAGE_JSON_SOURCE = `{
     },
     "devDependencies": {
         "ts-patch": "^3.3.0",
-        "vite": "^5.0.0",
         "yaw-transformer": "*",
         "yaw-ts-plugin": "*"
     }
@@ -28,17 +26,92 @@ const PACKAGE_JSON_SOURCE = `{
 const TSCONFIG_SOURCE = `{
     "compilerOptions": {
         "target": "ES2022",
-        "module": "ESNext",
+        "module": "ES2022",
         "moduleResolution": "bundler",
         "lib": ["ES2022", "DOM"],
         "experimentalDecorators": true,
         "useDefineForClassFields": false,
         "plugins": [
             { "name": "yaw-ts-plugin" },
-            { "transform": "yaw-transformer", "type": "program" }
+            { "transform": "yaw-transformer", "import": "programTransformer", "transformProgram": true }
         ]
     }
 }`;
+
+const VITE_INSTALL = `npm install vite --save-dev`;
+
+const VITE_CONFIG_SOURCE = `import { defineConfig } from 'vite';
+import { vitePlugin } from 'yaw-transformer';
+
+export default defineConfig({
+    plugins: [vitePlugin()],
+    server: { port: 3000 },
+    build: { outDir: 'dist', target: 'es2022' },
+});`;
+
+const ROLLUP_INSTALL = `npm install rollup rollup-plugin-esbuild @rollup/plugin-node-resolve @rollup/plugin-commonjs --save-dev`;
+
+const ROLLUP_CONFIG_SOURCE = `import { rollupPlugin } from 'yaw-transformer';
+import esbuild from 'rollup-plugin-esbuild';
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+
+export default {
+    input: 'src/main.ts',
+    output: { dir: 'dist', format: 'es' },
+    plugins: [
+        rollupPlugin(),
+        resolve(),
+        commonjs(),
+        esbuild({ target: 'es2022' }),
+    ],
+};`;
+
+const ESBUILD_INSTALL = `npm install esbuild --save-dev`;
+
+const ESBUILD_CONFIG_SOURCE = `import { esbuildPlugin } from 'yaw-transformer';
+import { build } from 'esbuild';
+
+await build({
+    entryPoints: ['src/main.ts'],
+    bundle: true,
+    outdir: 'dist',
+    format: 'esm',
+    target: 'es2022',
+    plugins: [esbuildPlugin()],
+});`;
+
+const WEBPACK_INSTALL = `npm install webpack webpack-cli esbuild-loader html-webpack-plugin --save-dev`;
+
+const WEBPACK_CONFIG_SOURCE = `import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default {
+    mode: 'production',
+    entry: './src/main.ts',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'main.js',
+    },
+    resolve: {
+        extensions: ['.ts', '.js'],
+        extensionAlias: { '.js': ['.ts', '.js'] },
+    },
+    module: {
+        rules: [{
+            test: /\\.ts$/,
+            exclude: /node_modules/,
+            use: [
+                { loader: 'esbuild-loader', options: { target: 'es2022' } },
+                { loader: 'yaw-transformer/webpackLoader' },
+            ],
+        }],
+    },
+    plugins: [new HtmlWebpackPlugin({ template: './index.html' })],
+};`;
 
 @Component({
     selector: 'docs-getting-started',
@@ -65,7 +138,8 @@ const TSCONFIG_SOURCE = `{
                the local <code class="inline">tsc</code> binary so the
                transformer plugin in
                <code class="inline">tsconfig.json</code> is picked up
-               during compilation.</p>
+               during compilation. Add your bundler's dev and build
+               scripts alongside these.</p>
             <code-block syntax="json">${escape`${PACKAGE_JSON_SOURCE}`}</code-block>
         </section>
 
@@ -81,7 +155,84 @@ const TSCONFIG_SOURCE = `{
                is required for decorators to work correctly.</p>
             <code-block syntax="json">${escape`${TSCONFIG_SOURCE}`}</code-block>
         </section>
+
+        <section class="host" id="getting-started-bundler-config" toc-section>
+            <h2>Bundler config</h2>
+            <p class="note">Each bundler has a plugin or loader that runs
+               the yaw transform at bundle time. Pick one and drop the
+               config file in your project root.</p>
+
+            <details>
+                <summary>
+                    <h3>Vite</h3>
+                    <p class="note">Single plugin. Vite's dev server
+                       transforms each module as it's served.</p>
+                </summary>
+                <code-block syntax="bash">${escape`${VITE_INSTALL}`}</code-block>
+                <p class="note">Scripts:
+                   <code class="inline">"dev": "vite"</code>,
+                   <code class="inline">"build": "vite build"</code></p>
+                <code-block syntax="ts">${escape`${VITE_CONFIG_SOURCE}`}</code-block>
+            </details>
+
+            <details>
+                <summary>
+                    <h3>Rollup</h3>
+                    <p class="note">The Rollup plugin runs the transform
+                       during the build phase.
+                       <code class="inline">rollup-plugin-esbuild</code>
+                       handles TypeScript transpilation.</p>
+                </summary>
+                <code-block syntax="bash">${escape`${ROLLUP_INSTALL}`}</code-block>
+                <p class="note">Script:
+                   <code class="inline">"build": "rollup -c rollup.config.js"</code></p>
+                <code-block syntax="js">${escape`${ROLLUP_CONFIG_SOURCE}`}</code-block>
+            </details>
+
+            <details>
+                <summary>
+                    <h3>esbuild</h3>
+                    <p class="note">An esbuild plugin that transforms each
+                       <code class="inline">.ts</code> file through the
+                       yaw compiler before bundling.</p>
+                </summary>
+                <code-block syntax="bash">${escape`${ESBUILD_INSTALL}`}</code-block>
+                <p class="note">Script:
+                   <code class="inline">"build": "node esbuild.config.js"</code></p>
+                <code-block syntax="js">${escape`${ESBUILD_CONFIG_SOURCE}`}</code-block>
+            </details>
+
+            <details>
+                <summary>
+                    <h3>Webpack</h3>
+                    <p class="note">A webpack loader that runs before
+                       <code class="inline">esbuild-loader</code> in the
+                       chain. Loader order is bottom-up, so
+                       <code class="inline">yaw-transformer/webpackLoader</code>
+                       runs first.</p>
+                </summary>
+                <code-block syntax="bash">${escape`${WEBPACK_INSTALL}`}</code-block>
+                <p class="note">Script:
+                   <code class="inline">"build": "webpack --config webpack.config.js"</code></p>
+                <code-block syntax="js">${escape`${WEBPACK_CONFIG_SOURCE}`}</code-block>
+            </details>
+        </section>
     `,
-    styles: `:host { display: block; }\n${DOC_STYLES}`,
+    styles: `
+        :host { display: block; }
+        ${DOC_STYLES}
+        details { margin-bottom: 0.75rem; border: 1px solid #1a1a1a;
+                  border-radius: 6px; overflow: hidden; }
+        summary { cursor: pointer; padding: 0.75rem 1rem;
+                  background: #0a0a0a; list-style: none; }
+        summary::-webkit-details-marker { display: none; }
+        summary::marker { display: none; }
+        summary h3 { color: #fff; font-size: 0.95rem; font-weight: 600;
+                     margin: 0 0 0.25rem; }
+        summary .note { margin: 0; }
+        details[open] > summary { border-bottom: 1px solid #1a1a1a; }
+        details > code-block { margin: 0.75rem 1rem; }
+        details > .note { margin: 0.75rem 1rem; }
+    `,
 })
 export class DocsGettingStarted extends RxElement {}
