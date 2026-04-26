@@ -1,5 +1,8 @@
-import { Component, Inject, RxElement, Router, state } from 'yaw';
+import { Component, Inject, RxElement, state } from 'yaw';
+import { Router } from 'yaw/router';
+import { TocSection } from '../directives/toc-section.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
+import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
 @Component({
@@ -84,13 +87,14 @@ export class RouteDisplay extends RxElement {
 const API_SOURCE = `class Router {
     readonly route$: BehaviorSubject<string>;
     navigate(path: string): void;
-    resolve(path: string): CustomElementConstructor | undefined;
+    async resolve(path: string): Promise<CustomElementConstructor | undefined>;
 }`;
 
 const LIVE_USAGE = `<route-display></route-display>`;
 
 @Component({
     selector: 'docs-navigation',
+    directives: [TocSection],
     template: `
         <h1>Navigation</h1>
         <p class="lede">Routing is one service and one element.
@@ -103,8 +107,8 @@ const LIVE_USAGE = `<route-display></route-display>`;
 
         <section class="host" id="navigation-routes" toc-section>
             <h2 id="navigation" toc-section>Declaring routes</h2>
-            <p class="note">An array of <code class="inline">{ path, component }</code>,
-               plus an optional <code class="inline">{ path: '*', component }</code>
+            <p class="note">An array of <code class="inline">{ path, load }</code>,
+               plus an optional <code class="inline">{ path: '*', load }</code>
                wildcard. Provided through the <code class="inline">ROUTES</code>
                symbol so <code class="inline">Router</code> can depend on it.</p>
             <code-block syntax="ts">${escape`${ROUTE_CONFIG_SOURCE}`}</code-block>

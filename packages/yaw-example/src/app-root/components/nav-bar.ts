@@ -1,5 +1,6 @@
 import { map, type Observable } from 'rxjs';
-import { Component, Inject, RxElement, state, Router } from 'yaw';
+import { Component, Inject, RxElement, state } from 'yaw';
+import { Router } from 'yaw/router';
 
 @Component({
     selector: 'nav-bar',

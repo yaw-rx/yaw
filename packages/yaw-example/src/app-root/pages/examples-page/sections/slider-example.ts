@@ -1,5 +1,6 @@
 import { Component, RxElement, state } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
+import '../../../components/code-block.js';
 import { SLIDER_SOURCE } from '../components/yaw-slider.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 

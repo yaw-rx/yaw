@@ -1,8 +1,8 @@
-import { bootstrap, Router, ROUTES, DefaultGlobalDirectives } from 'yaw';
+import { bootstrap } from 'yaw';
+import { Router, ROUTES } from 'yaw/router';
+import { RxIf } from 'yaw/directives/rx-if';
+import { RxFor } from 'yaw/directives/rx-for';
 import { AppRoot } from './app-root.js';
-import './app-root/components/nav-bar.js';
-import './app-root/components/code-block.js';
-import { TocSection } from './app-root/pages/docs-page/directives/toc-section.js';
 
 bootstrap({
     root: AppRoot,
@@ -16,6 +16,6 @@ bootstrap({
         Router,
     ],
     globals: {
-        directives: [...DefaultGlobalDirectives, TocSection],
+        directives: [RxIf, RxFor],
     },
 });

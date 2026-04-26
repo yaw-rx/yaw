@@ -1,5 +1,7 @@
 import { Component, RxElement } from 'yaw';
+import { TocSection } from '../directives/toc-section.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
+import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
 const INSTALL_SOURCE = `npm install yaw rxjs
@@ -115,6 +117,7 @@ export default {
 
 @Component({
     selector: 'docs-getting-started',
+    directives: [TocSection],
     template: `
         <h1 id="getting-started" toc-section>Getting started</h1>
         <p class="lede">Install the runtime, the compiler plugin, and the

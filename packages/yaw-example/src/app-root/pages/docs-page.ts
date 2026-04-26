@@ -1,4 +1,5 @@
 import { Component, RxElement } from 'yaw';
+import { TocSection } from './docs-page/directives/toc-section.js';
 import { TocService } from './docs-page/services/toc-service.js';
 import './docs-page/sidebar.js';
 import './docs-page/sections/getting-started.js';
@@ -12,6 +13,7 @@ import './docs-page/sections/navigation.js';
 @Component({
     selector: 'docs-page',
     providers: [TocService],
+    directives: [TocSection],
     template: `
         <docs-sidebar></docs-sidebar>
         <main class="content">

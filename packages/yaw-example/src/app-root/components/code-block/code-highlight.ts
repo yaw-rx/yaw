@@ -138,7 +138,7 @@ export const highlightBash = (src: string): string => {
     return out;
 };
 
-const HTML_TOKEN_RE = /(<!--[\s\S]*?-->)|(<\/?)([a-zA-Z][\w-]*)((?:\s+[\w[\]().:^#-]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*)\s*(\/?)(>)/g;
+const HTML_TOKEN_RE = /(<!--[\s\S]*?-->)|(<!doctype\s+[^>]*>)|(<\/?)([a-zA-Z][\w-]*)((?:\s+[\w[\]().:^#-]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*)\s*(\/?)(>)/g;
 const HTML_ATTR_RE = /([\w[\]().:^#-]+)(?:(\s*=\s*)("[^"]*"|'[^']*'|[^\s"'>]+))?/g;
 
 const highlightAttrs = (attrs: string): string => {
@@ -169,12 +169,14 @@ export const highlightHtml = (src: string): string => {
         if (m.index > last) out += escapeHtml(src.slice(last, m.index));
         if (m[1] !== undefined) {
             out += `<span class="tk-comment">${escapeHtml(m[1])}</span>`;
+        } else if (m[2] !== undefined) {
+            out += `<span class="tk-keyword">${escapeHtml(m[2])}</span>`;
         } else {
-            const open = m[2]!;
-            const tag = m[3]!;
-            const attrs = m[4] ?? '';
-            const selfClose = m[5] ?? '';
-            const close = m[6]!;
+            const open = m[3]!;
+            const tag = m[4]!;
+            const attrs = m[5] ?? '';
+            const selfClose = m[6] ?? '';
+            const close = m[7]!;
             out += `<span class="tk-punct">${escapeHtml(open)}</span>`;
             out += `<span class="tk-tag">${escapeHtml(tag)}</span>`;
             if (attrs.length > 0) out += highlightAttrs(attrs);

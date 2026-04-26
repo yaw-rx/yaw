@@ -1,5 +1,7 @@
 import { Component, RxElement } from 'yaw';
+import { TocSection } from '../directives/toc-section.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
+import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
 const HTML_SOURCE = `<!doctype html>
@@ -10,10 +12,12 @@ const HTML_SOURCE = `<!doctype html>
     </body>
 </html>`;
 
-const MAIN_SOURCE = `import { bootstrap, Router, ROUTES, DefaultGlobalDirectives } from 'yaw';
+const MAIN_SOURCE = `import { bootstrap } from 'yaw';
+import { Router, ROUTES } from 'yaw/router';
+import { RxIf } from 'yaw/directives/rx-if';
+import { RxFor } from 'yaw/directives/rx-for';
 import { Decimal } from 'decimal.js';
 import { AppRoot } from './components/app-root.js';
-import './components/nav-bar.js';
 
 bootstrap({
     root: AppRoot,
@@ -25,7 +29,7 @@ bootstrap({
         Router,
     ],
     globals: {
-        directives: DefaultGlobalDirectives,
+        directives: [RxIf, RxFor],
         attributeCodecs: {
             Decimal: {
                 encode: (v) => v.toString(),
@@ -46,6 +50,7 @@ export class AppRoot extends RxElement {}`;
 
 @Component({
     selector: 'docs-bootstrap',
+    directives: [TocSection],
     template: `
         <h1 id="bootstrap" toc-section>Bootstrap</h1>
         <p class="lede">One call. A root component, a flat provider list, and the
@@ -68,13 +73,12 @@ export class AppRoot extends RxElement {}`;
                values, classes, or <code class="inline">{ provide, useValue }</code>
                tuples. <code class="inline">Router</code> is registered by class token;
                <code class="inline">ROUTES</code> is a symbol fed a value.
-               <code class="inline">DefaultGlobalDirectives</code> is the built-in pair —
-               <code class="inline">rx-if</code> and <code class="inline">rx-for</code>.
+               Global directives are listed explicitly —
+               <code class="inline">RxIf</code> and <code class="inline">RxFor</code>
+               from <code class="inline">yaw/directives/*</code>.
                <code class="inline">globals.attributeCodecs</code> teaches
                <code class="inline">readAttributes()</code> how to deserialise
-               non-primitive types from HTML attribute strings — components can
-               also declare codecs locally via
-               <code class="inline">@Component({ attributeCodecs })</code>.</p>
+               non-primitive types from HTML attribute strings.</p>
             <code-block syntax="ts">${escape`${MAIN_SOURCE}`}</code-block>
         </section>
 

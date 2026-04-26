@@ -1,5 +1,6 @@
 import { Component, RxElement, state } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
+import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
 const FIREHOSE_TEMPLATE = `

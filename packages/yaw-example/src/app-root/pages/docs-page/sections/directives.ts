@@ -1,6 +1,8 @@
 import { Component, Directive, RxElement } from 'yaw';
 import type { RxElementLike } from 'yaw';
+import { TocSection } from '../directives/toc-section.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
+import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 import './directives/for-demo.js';
 import './directives/scope-demo.js';
@@ -119,7 +121,7 @@ export class ForDemo extends RxElement {
 
 @Component({
     selector: 'docs-directives',
-    directives: [Bounce],
+    directives: [Bounce, TocSection],
     template: `
         <h1 id="directives" toc-section>Directives</h1>
         <p class="lede">Directives are classes with an attribute selector. When

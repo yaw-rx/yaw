@@ -8,6 +8,22 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./router": {
+      "import": "./dist/router.js",
+      "types": "./dist/router.d.ts"
+    },
+    "./router/outlet": {
+      "import": "./dist/components/rx-router-outlet.js",
+      "types": "./dist/components/rx-router-outlet.d.ts"
+    },
+    "./directives/rx-if": {
+      "import": "./dist/directives/rx-if.js",
+      "types": "./dist/directives/rx-if.d.ts"
+    },
+    "./directives/rx-for": {
+      "import": "./dist/directives/rx-for.js",
+      "types": "./dist/directives/rx-for.d.ts"
     }
   },
   "scripts": {

@@ -1,6 +1,8 @@
 import { BehaviorSubject } from 'rxjs';
 import { Component, Inject, Injectable, RxElement, state } from 'yaw';
+import { TocSection } from '../directives/toc-section.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
+import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
 @Injectable()
@@ -80,6 +82,7 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
 @Component({
     selector: 'docs-services',
     providers: [Clock],
+    directives: [TocSection],
     template: `
         <h1 id="services" toc-section>Services</h1>
         <p class="lede">A service is any class registered with an

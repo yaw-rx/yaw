@@ -1,4 +1,6 @@
 import { Component, RxElement } from 'yaw';
+import 'yaw/router/outlet';
+import './app-root/components/nav-bar.js';
 
 @Component({
     selector: 'app-root',

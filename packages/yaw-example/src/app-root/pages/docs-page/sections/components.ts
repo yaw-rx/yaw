@@ -1,5 +1,7 @@
 import { Component, RxElement, state } from 'yaw';
+import { TocSection } from '../directives/toc-section.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
+import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
 const COUNTER_TEMPLATE = `
@@ -79,6 +81,7 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
 
 @Component({
     selector: 'docs-components',
+    directives: [TocSection],
     template: `
         <h1 id="components" toc-section>Components</h1>
         <p class="lede">A component is an <code class="inline">RxElement</code>
@@ -87,6 +90,14 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
            <em>is</em> the DOM node. <code class="inline">@state</code>
            fields publish a hidden <code class="inline">*$</code> BehaviorSubject
            the template can subscribe to.</p>
+            <code-block syntax="ts">${escape`@Component({
+    selector: 'my-tag',      // custom element name — must contain a hyphen
+    template: \`...\`,         // HTML template string
+    styles: \`...\`,           // CSS — scoped to the selector
+    providers: [...],        // DI providers scoped to this component
+    directives: [...],       // directives available in this template
+    attributeCodecs: {...},  // local codec registrations for attribute marshalling
+})`}</code-block>
 
         <section class="host" id="components-whole" toc-section>
             <h2>A whole component</h2>
@@ -131,17 +142,28 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
 
         <section class="host" id="components-lifecycle" toc-section>
             <h2>Lifecycle</h2>
-            <p class="note"><code class="inline">onInit</code> runs after the
-               template has been rendered and the directives have attached —
-               query refs here. <code class="inline">onDestroy</code> runs on
-               <code class="inline">disconnectedCallback</code>, so return any
-               subscriptions you own.</p>
-            <code-block syntax="ts">${escape`override onInit(): void {
-                this.surface = this.querySelector('[data-rx-ref=surface]')!;
-            }
-            override onDestroy(): void {
-                cancelAnimationFrame(this.raf);
-            }`}</code-block>
+            <p class="note"><code class="inline">onInit</code> fires after
+               the element is fully wired — dependencies are injected,
+               attributes are hydrated, bindings are live, and the template
+               is in the DOM. <code class="inline">onDestroy</code> fires on
+               removal after the framework has torn down its own bindings
+               and directives — you only clean up what you own.</p>
+            <code-block syntax="ts">${escape`@Component({
+    selector: 'tick-counter',
+    template: \`<span>{{elapsed}}s</span>\`,
+})
+export class TickCounter extends RxElement {
+    @state elapsed = 0;
+    private sub!: Subscription;
+
+    override onInit(): void {
+        this.sub = interval(1000).subscribe(() => this.elapsed++);
+    }
+
+    override onDestroy(): void {
+        this.sub.unsubscribe();
+    }
+}`}</code-block>
         </section>
     `,
     styles: `

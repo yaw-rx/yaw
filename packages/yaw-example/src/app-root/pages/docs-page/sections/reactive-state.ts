@@ -1,5 +1,7 @@
 import { Component, RxElement } from 'yaw';
+import { TocSection } from '../directives/toc-section.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
+import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 import './reactive-state/date-ticker.js';
 import './reactive-state/decimal-demo.js';
@@ -39,23 +41,6 @@ export class MyThing extends RxElement {
     }
 }`;
 
-const STATE_INFERENCE_SOURCE = `@Component({ selector: 'my-thing', template: '...', styles: '...' })
-export class MyThing extends RxElement {
-    // explicit type annotation — transformer reads the type node directly
-    @state created: Date = new Date();
-    @state items: Map<string, number> = new Map();
-    @state buffer: Uint8Array = new Uint8Array();
-
-    // implicit from initialiser — transformer infers from the literal
-    @state count = 0;          // number
-    @state name = '';          // string
-    @state active = false;     // boolean
-    @state amount = 0n;        // bigint
-
-    // implicit from new expression
-    @state endpoint = new URL('https://example.com');  // URL
-    @state pattern = new RegExp('^\\\\d+$');             // RegExp
-}`;
 
 const BUILTIN_CODECS_SOURCE = `// every native JS type has a built-in codec:
 string    // passthrough
@@ -216,6 +201,7 @@ AttributeMarshalError
 
 @Component({
     selector: 'docs-reactive-state',
+    directives: [TocSection],
     template: `
         <h1 id="reactive-state" toc-section>Reactive state</h1>
         <p class="lede"><code class="inline">@state</code> turns a class field
@@ -251,17 +237,6 @@ AttributeMarshalError
                resolves method-call expressions to observables — so
                <code class="inline">${escape`{{doubled}}`}</code> subscribes automatically.</p>
             <code-block syntax="ts">${escape`${STATE_DOLLAR_SOURCE}`}</code-block>
-        </section>
-
-        <section class="host" id="state-inference" toc-section>
-            <h2>Type inference</h2>
-            <p class="note">The AST transformer reads the type from the
-               annotation or infers it from the initialiser. It emits a static
-               <code class="inline">__stateTypes</code> map on the class so the
-               codec registry knows which encoder/decoder to use at runtime.
-               The IDE plugin does the same analysis to inject typed
-               <code class="inline">declare</code> properties.</p>
-            <code-block syntax="ts">${escape`${STATE_INFERENCE_SOURCE}`}</code-block>
         </section>
 
         <section class="host" id="state-attribute-marshalling" toc-section>
