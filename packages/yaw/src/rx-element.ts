@@ -6,6 +6,11 @@ import { getDirectiveSelector, matchesSelector, type Directive } from './directi
 import { DirectiveInstantiationError, InvalidSelectorError } from './errors.js';
 import { setupBindings } from './setupBindings.js';
 import { decodeAttribute } from './attribute-codec/decode.js';
+import { ssgEnter, ssgLeave } from './ssg-registry.js';
+
+let pending = 0;
+let readyResolve: (() => void) | undefined;
+export const appReady = new Promise<void>((resolve) => { readyResolve = resolve; });
 
 const renderScopeStack: RxElementBase[] = [];
 
@@ -115,13 +120,17 @@ export class RxElementBase extends HTMLElement {
     }
 
     connectedCallback(): void {
+        pending++;
         this.setupHostNode();
         this.setupInjectorAndDeps();
         this.readAttributes();
         this.bindingTeardown = setupBindings(this);
         this.setupDirectives();
+        ssgEnter(this.constructor);
         this.renderTemplate();
+        ssgLeave();
         this.onInit();
+        queueMicrotask(() => { if (--pending === 0) readyResolve?.(); });
     }
 
     disconnectedCallback(): void {

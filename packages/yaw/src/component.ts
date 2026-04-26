@@ -65,6 +65,7 @@ const selectorCache = new Map<Function, string>();
 const providersCache = new Map<Function, readonly Provider[]>();
 const directivesCache = new Map<Function, readonly DirectiveCtor[]>();
 const stylesCache = new Map<Function, CSSStyleSheet>();
+const codecsCache = new Map<Function, Record<string, AttributeCodec>>();
 
 export const getTemplate = (ctor: Function): string | undefined => templateCache.get(ctor);
 export const getRawTemplate = (ctor: CustomElementConstructor): string | undefined => rawTemplateCache.get(ctor);
@@ -72,6 +73,20 @@ export const getSelector = (ctor: Function): string | undefined => selectorCache
 export const getProviders = (ctor: Function): readonly Provider[] | undefined => providersCache.get(ctor);
 export const getDirectives = (ctor: Function): readonly DirectiveCtor[] | undefined => directivesCache.get(ctor);
 export const getStyles = (ctor: Function): CSSStyleSheet | undefined => stylesCache.get(ctor);
+export const getCodecs = (ctor: Function): Record<string, AttributeCodec> | undefined => codecsCache.get(ctor);
+
+export const getComponentOptions = (ctor: Function): ComponentOptions | undefined => {
+    const selector = selectorCache.get(ctor);
+    if (selector === undefined) return undefined;
+    return {
+        selector,
+        template: rawTemplateCache.get(ctor as CustomElementConstructor),
+        styles: undefined,
+        providers: providersCache.get(ctor),
+        directives: directivesCache.get(ctor),
+        attributeCodecs: codecsCache.get(ctor),
+    };
+};
 
 const componentCtors = new WeakSet<Function>();
 
@@ -88,7 +103,10 @@ export const Component = (options: ComponentOptions) =>
         selectorCache.set(ctor, options.selector);
         if (options.providers !== undefined) providersCache.set(ctor, options.providers);
         if (options.directives !== undefined) directivesCache.set(ctor, options.directives);
-        if (options.attributeCodecs !== undefined) registerAttributeCodecs(options.attributeCodecs);
+        if (options.attributeCodecs !== undefined) {
+            codecsCache.set(ctor, options.attributeCodecs);
+            registerAttributeCodecs(options.attributeCodecs);
+        }
         if (options.styles !== undefined) {
             const sheet = new CSSStyleSheet();
             sheet.replaceSync(transformStyles(options.styles, options.selector));

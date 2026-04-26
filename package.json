@@ -8,7 +8,8 @@
     "packages/yaw-common",
     "packages/yaw-transformer",
     "packages/yaw-ts-plugin",
-    "packages/yaw-ts-plugin-audit"
+    "packages/yaw-ts-plugin-audit",
+    "packages/yaw-ssg"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",

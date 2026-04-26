@@ -1,0 +1,17 @@
+{
+  "name": "yaw-ssg",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "yaw-ssg": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch --preserveWatchOutput",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "puppeteer-core": "^24.0.0",
+    "yaw": "*"
+  }
+}

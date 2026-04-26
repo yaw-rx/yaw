@@ -6,12 +6,20 @@ export const ROUTES = Symbol('ROUTES');
 
 @Injectable([ROUTES])
 export class Router {
-    readonly route$ = new BehaviorSubject<string>(window.location.pathname);
+    readonly route$: BehaviorSubject<string>;
+    private readonly routePattern: RegExp;
 
     constructor(private readonly routes: readonly Route[]) {
+        const paths = routes.map((r) => r.path).filter((p) => p !== '*').sort((a, b) => b.length - a.length);
+        this.routePattern = new RegExp('^(' + paths.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')(?=/|$)');
+        this.route$ = new BehaviorSubject<string>(this.matchRoute(window.location.pathname));
         window.addEventListener('popstate', () => {
-            this.route$.next(window.location.pathname);
+            this.route$.next(this.matchRoute(window.location.pathname));
         });
+    }
+
+    private matchRoute(path: string): string {
+        return this.routePattern.exec(path)?.[1] ?? path;
     }
 
     navigate(path: string): void {

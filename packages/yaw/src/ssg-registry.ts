@@ -1,6 +1,6 @@
+import { getComponentOptions, isSSG } from './component.js';
 import type { ComponentOptions } from './component.js';
 import type { BootstrapGlobals } from './component.js';
-export { isSSG } from './component.js';
 
 export interface SSGNode extends ComponentOptions {
     readonly children: SSGNode[];
@@ -24,17 +24,18 @@ export const ssgInitRoot = (globals: BootstrapGlobals, rootNode: SSGNode): void 
     current = rootNode;
 };
 
-export const ssgEnter = (options: ComponentOptions): SSGNode => {
+export const ssgEnter = (ctor: Function): void => {
+    if (!isSSG()) return;
+    const options = getComponentOptions(ctor);
+    if (options === undefined) return;
     const node: SSGNode = { ...options, children: [] };
-    if (current !== undefined) {
-        (current.children as SSGNode[]).push(node);
-    }
+    if (current !== undefined) { (current.children as SSGNode[]).push(node); }
     parentStack.push(node);
     current = node;
-    return node;
 };
 
 export const ssgLeave = (): void => {
+    if (!isSSG()) return;
     parentStack.pop();
     current = parentStack.length > 0 ? parentStack[parentStack.length - 1] : undefined;
 };
