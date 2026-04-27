@@ -7,6 +7,7 @@ export default defineConfig({
     server: {
         port: 5176,
     },
+    publicDir: false,
     build: {
         outDir: 'dist',
         target: 'es2022',

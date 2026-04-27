@@ -22,8 +22,9 @@
  * 4. Click navigation: smooth scroll + hard snap after a delay
  *    (smooth scrollIntoView is buggy during page load on some clients).
  */
-import { asyncScheduler, BehaviorSubject, skip, Subject, throttleTime } from 'rxjs';
-import { Injectable } from 'yaw';
+import { asyncScheduler, BehaviorSubject, first, share, skip, Subject, throttleTime } from 'rxjs';
+import { Injectable, state } from 'yaw';
+import { holdReady, releaseReady } from 'yaw/ssg';
 
 const SNAP_DELAY = 700;
 
@@ -41,8 +42,8 @@ interface SectionRatioState {
 
 @Injectable()
 export class TocService {
-    readonly activeId$ = new BehaviorSubject<string>('');
-    readonly tree$ = new BehaviorSubject<readonly TocEntry[]>([]);
+    @state activeId = '';
+    @state tree: readonly TocEntry[] = [];
     readonly paths = new Map<string, readonly string[]>();
 
     private readonly entries: { id: string; label: string; depth: number; path: string }[] = [];
@@ -60,13 +61,20 @@ export class TocService {
     private restored = false;
 
     constructor() {
-        this.rebuildSubject
-            .pipe(throttleTime(100, asyncScheduler, { trailing: true, leading: false }))
-            .subscribe(() => {
-                this.rebuildTree();
-                this.buildObservers();
-                this.restoreFromUrl();
-            });
+        console.log('[toc] holdReady');
+        holdReady();
+        const rebuild$ = this.rebuildSubject.pipe(
+            throttleTime(100, asyncScheduler, { trailing: true, leading: false }),
+            share(),
+        );
+
+        rebuild$.subscribe(() => {
+            this.rebuildTree();
+            this.buildObservers();
+            this.restoreFromUrl();
+        });
+
+        rebuild$.pipe(first()).subscribe(() => { console.log('[toc] releaseReady, tree:', this.tree.length); releaseReady(); });
 
         this.activeId$.pipe(skip(1)).subscribe((id) => {
             if (!id || this.basePath === undefined) return;
@@ -175,8 +183,8 @@ export class TocService {
             if (winner && (diff[winner] || diff[this.lastWinner])) {
                 this.lastWinner = winner;
                 this.lastAreaState = currentArea;
-                if (winner !== this.activeId$.value) {
-                    this.activeId$.next(winner);
+                if (winner !== this.activeId) {
+                    this.activeId = winner;
                 }
             }
         });
@@ -220,6 +228,6 @@ export class TocService {
             stack.push(entry);
             this.paths.set(id, stack.map((e) => e.id));
         }
-        this.tree$.next(root);
+        this.tree = root;
     }
 }

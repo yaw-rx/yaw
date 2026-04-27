@@ -6,7 +6,7 @@ import { getDirectiveSelector, matchesSelector, type Directive } from './directi
 import { DirectiveInstantiationError, InvalidSelectorError } from './errors.js';
 import { setupBindings } from './setupBindings.js';
 import { decodeAttribute } from './attribute-codec/decode.js';
-import { ssgEnter, ssgLeave, ssgFinalize } from './ssg-registry.js';
+import { ssgEnter, ssgLeave, ssgFinalize, getComponentHydrateState } from './ssg-registry.js';
 import { isSSG } from './component.js';
 
 let pending = 0;
@@ -24,8 +24,14 @@ export const releaseReady = (): void => {
 };
 
 let hydrating = (globalThis as Record<string, unknown>)['__yaw_hydrate'] === true;
-export const setHydrating = (value: boolean): void => { hydrating = value; };
 export const isHydrating = (): boolean => hydrating;
+
+import { ReplaySubject } from 'rxjs';
+export const hydrationComplete$ = new ReplaySubject<void>(1);
+export const setHydrating = (value: boolean): void => {
+    hydrating = value;
+    if (!value) hydrationComplete$.next();
+};
 
 const renderScopeStack: RxElementBase[] = [];
 
@@ -122,9 +128,10 @@ export class RxElementBase extends HTMLElement {
 
     private restoreState(): void {
         if (!hydrating) return;
-        const raw = this.getAttribute('data-rx-state');
-        if (raw === null) return;
-        const state = JSON.parse(raw) as Record<string, unknown>;
+        const ssgId = this.getAttribute('data-ssg-id');
+        if (ssgId === null) return;
+        const state = getComponentHydrateState(ssgId);
+        if (state === undefined) return;
         const typeMap = (this.constructor as unknown as Record<string, unknown>)['__stateTypes'] as Record<string, string> | undefined;
         for (const [key, value] of Object.entries(state)) {
             const typeName = typeMap?.[key];

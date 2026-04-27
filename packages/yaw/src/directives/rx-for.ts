@@ -48,10 +48,10 @@
  * bootstrap, or omit it entirely. The core framework has no dependency
  * on it.
  */
-import { BehaviorSubject, type Subscription } from 'rxjs';
+import { BehaviorSubject, isObservable, type Subscription } from 'rxjs';
 import { Directive } from '../directive.js';
 import { BindParseError } from '../errors.js';
-import { parseBind, subscribeBind, registerScopeHook, type ParsedBind, type ScopeHookResult } from '../expression/bind.js';
+import { parseBind, subscribeBind, hydratedBind, resolveValue, registerScopeHook, type ParsedBind, type ScopeHookResult } from '../expression/bind.js';
 import type { RxElementLike } from '../directive.js';
 import { pushRenderScope, popRenderScope, RxElementBase, isHydrating } from '../rx-element.js';
 import { getTemplate } from '../component.js';
@@ -249,21 +249,27 @@ export class RxFor {
         }
     }
 
-    // splat mode — unchanged from original
     private initSplat(): void {
         if (isHydrating()) {
             this.hydrateSplat();
+            console.log('[rx-for:splat:hydrate]', this.source.raw, 'adopted', this.splatNodes.size, 'children, keys:', [...this.splatNodes.keys()]);
+            this.sub = hydratedBind(this.node, this.source).subscribe((v) => {
+                console.log('[rx-for:splat:emit]', this.source.raw, 'got', Array.isArray(v) ? v.length + ' items' : typeof v, v);
+                if (!Array.isArray(v)) {
+                    throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
+                }
+                this.updateSplat(v);
+            });
         } else {
             this.content = this.node.innerHTML;
             this.node.replaceChildren();
+            this.sub = subscribeBind(this.node, this.source, (v) => {
+                if (!Array.isArray(v)) {
+                    throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
+                }
+                this.updateSplat(v);
+            });
         }
-
-        this.sub = subscribeBind(this.node, this.source, (v) => {
-            if (!Array.isArray(v)) {
-                throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
-            }
-            this.updateSplat(v);
-        });
     }
 
     private hydrateSplat(): void {
@@ -277,10 +283,9 @@ export class RxFor {
             const rxForEl = tpl.content.querySelector('[rx-for]');
             if (rxForEl !== null) this.content = rxForEl.innerHTML;
         }
-        const key = this.keyField ?? 'id';
         for (const child of Array.from(this.node.children)) {
-            const k = (child as unknown as Record<string, unknown>)[key];
-            if (k !== undefined) this.splatNodes.set(k, child);
+            const k = child.getAttribute('data-rx-key');
+            if (k !== null) this.splatNodes.set(k, child);
         }
     }
 
@@ -288,7 +293,7 @@ export class RxFor {
         const key = this.keyField ?? 'id';
         const next = new Map<unknown, Element>();
         for (const item of incoming) {
-            const k = (item as Record<string, unknown>)[key];
+            const k = String((item as Record<string, unknown>)[key]);
             let el = this.splatNodes.get(k);
             if (el === undefined) {
                 const scope = this.node.hostNode instanceof RxElementBase ? this.node.hostNode : undefined;
@@ -300,6 +305,7 @@ export class RxFor {
             for (const [prop, val] of Object.entries(item as Record<string, unknown>)) {
                 (el as unknown as Record<string, unknown>)[prop] = val;
             }
+            el.setAttribute('data-rx-key', k);
             next.set(k, el);
         }
         for (const [k, el] of this.splatNodes) {
@@ -308,23 +314,29 @@ export class RxFor {
         this.splatNodes = next;
     }
 
-    // scope mode — new
     private initScope(): void {
         (this.node as any)[SCOPE_PROP] = this;
 
         if (isHydrating()) {
             this.hydrateScope();
+            console.log('[rx-for:scope:hydrate]', this.source.raw, 'adopted', this.scopeNodes.size, 'children, keys:', [...this.scopeNodes.keys()], 'subjects:', [...this.scopeNodes.values()].map(e => ({ key: e.el.getAttribute('data-rx-key'), value: e.subject.value })));
+            this.sub = hydratedBind(this.node, this.source).subscribe((v) => {
+                console.log('[rx-for:scope:emit]', this.source.raw, 'got', Array.isArray(v) ? v.length + ' items' : typeof v, v);
+                if (!Array.isArray(v)) {
+                    throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
+                }
+                this.updateScope(v);
+            });
         } else {
             this.content = this.node.innerHTML;
             while (this.node.firstChild) this.node.removeChild(this.node.firstChild);
+            this.sub = subscribeBind(this.node, this.source, (v) => {
+                if (!Array.isArray(v)) {
+                    throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
+                }
+                this.updateScope(v);
+            });
         }
-
-        this.sub = subscribeBind(this.node, this.source, (v) => {
-            if (!Array.isArray(v)) {
-                throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
-            }
-            this.updateScope(v);
-        });
     }
 
     private hydrateScope(): void {
@@ -339,11 +351,31 @@ export class RxFor {
             if (rxForEl !== null) this.content = rxForEl.innerHTML;
         }
 
+        const keyField = this.keyField;
+        let items: unknown[] = [];
+        try {
+            const val = resolveValue(this.node, this.source);
+            if (Array.isArray(val)) {
+                items = val;
+            } else if (isObservable(val)) {
+                val.subscribe(v => { if (Array.isArray(v)) items = v; }).unsubscribe();
+            }
+            console.log('[rx-for:scope:resolveValue]', this.source.raw, 'resolved to', val, 'type:', typeof val, 'isObs:', isObservable(val), 'ctor:', val?.constructor?.name, 'items:', items.length);
+        } catch (e) { console.log('[rx-for:scope:resolveValue]', this.source.raw, 'failed:', e); }
+
+        const itemByKey = new Map<string, { item: unknown; index: number }>();
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i]!;
+            const k = keyField ? String((item as Record<string, unknown>)[keyField]) : String(i);
+            itemByKey.set(k, { item, index: i });
+        }
+
         for (const child of this.node.querySelectorAll(':scope > [data-rx-item]')) {
             const key = child.getAttribute('data-rx-key');
             if (key === null) continue;
-            const subject = new BehaviorSubject<unknown>(undefined);
-            const index$ = this.indexName ? new BehaviorSubject<unknown>(undefined) : undefined;
+            const match = itemByKey.get(key);
+            const subject = new BehaviorSubject<unknown>(match?.item);
+            const index$ = this.indexName ? new BehaviorSubject<unknown>(match?.index) : undefined;
             this.scopeNodes.set(key, { el: child, subject, index$ });
         }
     }

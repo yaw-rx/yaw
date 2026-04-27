@@ -6,11 +6,12 @@
   "scripts": {
     "prepare": "ts-patch install",
     "dev": "vite",
-    "build": "vite build",
-    "build:vite": "vite build",
-    "build:rollup": "rollup -c rollup.config.js",
-    "build:esbuild": "node esbuild.config.js",
-    "build:webpack": "webpack --config webpack.config.js",
+    "build": "rm -rf dist && vite build",
+    "build:vite": "rm -rf dist && vite build",
+    "build:rollup": "rm -rf dist/rollup && rollup -c rollup.config.js",
+    "build:esbuild": "rm -rf dist/esbuild && node esbuild.config.js",
+    "build:webpack": "rm -rf dist/webpack && webpack --config webpack.config.js",
+    "build:ssg": "yaw-ssg dist public",
     "typecheck": "tsc --build"
   },
   "dependencies": {
@@ -33,6 +34,7 @@
     "vite": "^5.0.0",
     "webpack": "^5.0.0",
     "webpack-cli": "^6.0.0",
+    "yaw-ssg": "file:../yaw-ssg",
     "yaw-ts-plugin": "file:../yaw-ts-plugin"
   }
 }

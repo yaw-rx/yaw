@@ -39,11 +39,12 @@ import { Injector } from './di/injector.js';
 import type { Provider } from './di/types.js';
 import type { DirectiveCtor, RxElementLike } from './directive.js';
 import { BootstrapError, HydrationError } from './errors.js';
-import { registerHtmlMirrors } from './components/rx-elements.js';
-import { setHydrating } from './rx-element.js';
+import { registerHtmlMirrors, htmlTags } from './components/rx-elements.js';
+import { setHydrating, isHydrating, appReady } from './rx-element.js';
 import { transformTemplate, transformStyles } from 'yaw-common';
 import type { AttributeCodec } from './attribute-codec/types.js';
 import { registerAttributeCodecs } from './attribute-codec/registry.js';
+import { loadHydrateState, stripSsgAttributes } from './ssg-registry.js';
 
 export interface ComponentOptions {
     readonly selector: string;
@@ -118,7 +119,7 @@ export const Component = (options: ComponentOptions) =>
             stylesCache.set(ctor, sheet);
             document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
         }
-        if (hydrateMode) {
+        if (hydrateMode && isHydrating()) {
             deferredDefines.set(options.selector, ctor);
         } else {
             customElements.define(options.selector, ctor);
@@ -145,7 +146,7 @@ interface BootstrapOptions {
     readonly hydrate?: boolean;
 }
 
-export const bootstrap = (options: BootstrapOptions): void => {
+export const bootstrap = (options: BootstrapOptions): void | Promise<void> => {
     const selector = getSelector(options.root);
     if (selector === undefined) { throw new BootstrapError(`${options.root.name} has no @Component decorator`); }
     if (options.globals?.attributeCodecs !== undefined) { registerAttributeCodecs(options.globals.attributeCodecs); }
@@ -155,30 +156,71 @@ export const bootstrap = (options: BootstrapOptions): void => {
     const injector = new Injector(options.providers);
     (document.body as RxElementLike).__injector = injector;
     if (hydrateMode) {
+        loadHydrateState();
         setHydrating(true);
         if (document.body.querySelector(selector) === null) { throw new HydrationError(`no existing <${selector}> found in DOM`); }
+        const raw = window.location.pathname;
+        if (raw.length > 1 && raw.endsWith('/')) {
+            history.replaceState(null, '', raw.slice(0, -1) + window.location.search + window.location.hash);
+        }
+        const routes: Route[] = [];
+        for (const p of options.providers) {
+            if (typeof p === 'object' && p !== null && 'useValue' in p && Array.isArray(p.useValue)) {
+                for (const r of p.useValue as unknown[]) {
+                    if (r !== null && typeof r === 'object' && 'path' in r) routes.push(r as Route);
+                }
+            }
+        }
+        const path = window.location.pathname;
+        const match = routes.find(r => r.load !== undefined && path === r.path)
+            ?? routes.find(r => r.load !== undefined && r.path !== '*' && path.startsWith(r.path + '/'));
+        const endHydration = (): Promise<void> => appReady.then(() => {
+            console.log('[hydrate] ending hydration');
+            setHydrating(false);
+            stripSsgAttributes();
+            console.log('[hydrate] complete');
+        });
+        if (match?.load !== undefined) {
+            return match.load().then(() => { console.log('[hydrate] route loaded, defining elements'); hydrateFromDepGraph(); return endHydration(); });
+        }
+        console.log('[hydrate] no lazy route, defining elements');
         hydrateFromDepGraph();
+        return endHydration();
     } else {
         document.body.appendChild(document.createElement(selector));
     }
 };
 
+const mirrorSelectors = new Set(htmlTags.map(t => `rx-${t}`));
+
 const hydrateFromDepGraph = (): void => {
-    const el = document.getElementById('yaw-ssg-deps');
-    if (el === null) {
-        for (const [sel, ctor] of deferredDefines) { customElements.define(sel, ctor); }
-        return;
-    }
-    const root = JSON.parse(el.textContent!) as { selector: string; children: unknown[] };
-    const defineInOrder = (node: { selector: string; children: unknown[] }): void => {
-        const ctor = deferredDefines.get(node.selector);
-        if (ctor !== undefined) { customElements.define(node.selector, ctor); }
-        for (const child of node.children as { selector: string; children: unknown[] }[]) {
-            defineInOrder(child);
-        }
+    const isMirror = (sel: string): boolean => sel === 'rx-text' || mirrorSelectors.has(sel);
+
+    const define = (sel: string): void => {
+        if (isMirror(sel) || customElements.get(sel)) return;
+        const ctor = deferredDefines.get(sel);
+        if (ctor !== undefined) customElements.define(sel, ctor);
     };
-    defineInOrder(root);
-    for (const [sel, ctor] of deferredDefines) {
-        if (!customElements.get(sel)) { customElements.define(sel, ctor); }
+
+    const el = document.getElementById('yaw-ssg-deps');
+    if (el !== null) {
+        const defineInOrder = (node: { selector: string; children: unknown[] }): void => {
+            define(node.selector);
+            for (const child of node.children as { selector: string; children: unknown[] }[]) {
+                defineInOrder(child);
+            }
+        };
+        defineInOrder(JSON.parse(el.textContent!) as { selector: string; children: unknown[] });
     }
+
+    for (const [sel] of deferredDefines) define(sel);
+
+    for (const [sel, ctor] of deferredDefines) {
+        if (sel !== 'rx-text' && mirrorSelectors.has(sel) && !customElements.get(sel)) {
+            customElements.define(sel, ctor);
+        }
+    }
+
+    const rxText = deferredDefines.get('rx-text');
+    if (rxText !== undefined && !customElements.get('rx-text')) customElements.define('rx-text', rxText);
 };

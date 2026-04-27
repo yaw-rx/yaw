@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { cpSync } from 'fs';
+import { cpSync, rmSync } from 'fs';
 import { findBrowser } from './find-browser.js';
 import { serve } from './serve.js';
 import { discoverRoutes } from './discover.js';
@@ -13,6 +13,7 @@ async function main(): Promise<void> {
         process.exit(1);
     }
 
+    rmSync(outDir, { recursive: true, force: true });
     cpSync(distDir, outDir, { recursive: true });
     console.log(`Copied ${distDir} → ${outDir}`);
 

@@ -1,7 +1,23 @@
 import { BehaviorSubject } from 'rxjs';
+import { getComponentHydrateState, getServiceHydrateState } from './ssg-registry.js';
 
 const subjects = new WeakMap<object, Map<string | symbol, BehaviorSubject<unknown>>>();
 const observableKeys = new WeakMap<object, Set<string>>();
+
+const hydrateCache = new WeakMap<object, Record<string, unknown>>();
+
+const getHydrateState = (instance: object): Record<string, unknown> | undefined => {
+    if (hydrateCache.has(instance)) return hydrateCache.get(instance);
+    let state: Record<string, unknown> | undefined;
+    if (instance instanceof HTMLElement) {
+        const ssgId = instance.getAttribute('data-ssg-id');
+        if (ssgId !== null) state = getComponentHydrateState(ssgId);
+    } else {
+        state = getServiceHydrateState(instance.constructor.name);
+    }
+    if (state !== undefined) hydrateCache.set(instance, state);
+    return state;
+};
 
 const trackKey = (proto: object, key: string): void => {
     let keys = observableKeys.get(proto);
@@ -65,7 +81,9 @@ export const state = (target: object, propertyKey: string | symbol): void => {
             const bag = bagFor(this);
             const existing = bag.get(propertyKey);
             if (existing === undefined) {
-                bag.set(propertyKey, new BehaviorSubject(value));
+                bag.set(propertyKey, new BehaviorSubject(
+                    getHydrateState(this)?.[propertyKey as string] ?? value
+                ));
             } else {
                 if (existing.value !== value) existing.next(value);
             }

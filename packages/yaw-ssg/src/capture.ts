@@ -6,6 +6,7 @@ const HYDRATE_SCRIPT = '<script>globalThis.__yaw_hydrate=true;</script>';
 
 export async function captureRoute(browser: Browser, baseUrl: string, route: string, outDir: string): Promise<void> {
     const page = await browser.newPage();
+    page.on('console', (msg) => console.log(`[capture:${route}] ${msg.text()}`));
     await page.evaluateOnNewDocument(() => { (globalThis as Record<string, unknown>)['__yaw_ssg'] = true; });
     await page.goto(`${baseUrl}${route}`, { waitUntil: 'networkidle0' });
     await page.waitForSelector('body[data-ssg-ready]', { timeout: 30_000 });

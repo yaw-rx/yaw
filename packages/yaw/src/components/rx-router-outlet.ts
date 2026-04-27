@@ -1,6 +1,6 @@
 import { type Subscription, switchMap, tap } from 'rxjs';
 import { Component, getSelector } from '../component.js';
-import { RxElementBase, holdReady, releaseReady } from '../rx-element.js';
+import { RxElementBase, holdReady, releaseReady, isHydrating } from '../rx-element.js';
 import { Inject } from '../di/inject.js';
 import { Router } from '../router.js';
 import { ssgScope, ssgLeave } from '../ssg-registry.js';
@@ -17,12 +17,18 @@ export class RxRouterOutlet extends RxElementBase {
             switchMap(path => this.router.resolve(path)),
         ).subscribe(ctor => {
             this.current?.remove();
+            this.current = undefined;
             if (ctor === undefined) { releaseReady(); return; }
             const selector = getSelector(ctor);
             if (selector === undefined) { releaseReady(); return; }
-            ssgScope(this);
-            this.current = this.appendChild(document.createElement(selector));
-            ssgLeave();
+            if (this.current === undefined && isHydrating()) {
+                this.current = this.querySelector(':scope > ' + selector) ?? undefined;
+            }
+            if (this.current === undefined) {
+                ssgScope(this);
+                this.current = this.appendChild(document.createElement(selector));
+                ssgLeave();
+            }
             releaseReady();
         });
     }

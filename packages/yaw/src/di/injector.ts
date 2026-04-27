@@ -76,4 +76,8 @@ export class Injector {
     public child(providers: readonly Provider[]): Injector {
         return new Injector(providers, this);
     }
+
+    public forEachInstance(fn: (instance: unknown) => void): void {
+        for (const instance of this.instances.values()) fn(instance);
+    }
 }

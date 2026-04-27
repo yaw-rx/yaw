@@ -69,7 +69,7 @@ export const programTransformer = (
             return sf;
         }
         const orig = allOriginalSourceFiles.get(fileName);
-        if (orig !== undefined) return orig;
+        if (orig !== undefined && !(orig as any).redirectInfo) return orig;
         return originalGetSourceFile(fileName, languageVersionOrOptions, onError, shouldCreateNewSourceFile);
     };
 

@@ -50,7 +50,8 @@
  *   to claim it, or undefined to pass. When no hook is installed, the
  *   check is a single null comparison.
  */
-import { BehaviorSubject, isObservable, of, Subscription, switchMap, type Observable } from 'rxjs';
+import { BehaviorSubject, isObservable, of, Subscription, switchMap, skip, first, type Observable } from 'rxjs';
+import { hydrationComplete$ } from '../rx-element.js';
 import { BindNotSubscribableError, BindParseError, BindPathError, BindScopeError } from '../errors.js';
 import type { RxElementLike } from '../directive.js';
 
@@ -244,11 +245,10 @@ const segmentStream = (host: RxElementLike, parsed: ParsedBind, value: unknown, 
     return of(obj[segment]);
 };
 
-export const subscribeBind = (
+export const observeBind = (
     host: RxElementLike,
     parsed: ParsedBind,
-    onValue: (v: unknown) => void,
-): Subscription => {
+): Observable<unknown> => {
     const segments = parsed.path;
 
     let stream: Observable<unknown>;
@@ -324,8 +324,20 @@ export const subscribeBind = (
         }));
     }
 
-    return stream.subscribe(onValue);
+    return stream;
 };
+
+export const subscribeBind = (
+    host: RxElementLike,
+    parsed: ParsedBind,
+    onValue: (v: unknown) => void,
+): Subscription => observeBind(host, parsed).subscribe(onValue);
+
+export const hydratedBind = (
+    host: RxElementLike,
+    parsed: ParsedBind,
+): Observable<unknown> =>
+    hydrationComplete$.pipe(first(), switchMap(() => observeBind(host, parsed).pipe(skip(1))));
 
 export interface EventInvocation {
     invoke(event: Event): void;
@@ -376,8 +388,26 @@ export const resolveRefTarget = (host: RxElementLike, parsed: ParsedBind): { sco
 
 export const resolveValue = (host: RxElementLike, parsed: ParsedBind): unknown => {
     if (parsed.call) throw new BindParseError(parsed.raw, 'cannot read value from a method call');
-    const root = walkScope(host, parsed.carets, parsed.raw);
-    return walkPath(root, parsed.path);
+    let cur: unknown;
+    let startIndex: number;
+    if (scopeHook !== null) {
+        const claimed = scopeHook(host, parsed.path[0]!);
+        if (claimed !== undefined) {
+            cur = claimed.stream.value;
+            startIndex = claimed.consumed;
+        } else {
+            cur = walkScope(host, parsed.carets, parsed.raw);
+            startIndex = 0;
+        }
+    } else {
+        cur = walkScope(host, parsed.carets, parsed.raw);
+        startIndex = 0;
+    }
+    for (let i = startIndex; i < parsed.path.length; i++) {
+        if (cur === null || cur === undefined) throw new BindPathError(host.tagName, parsed.raw, parsed.path[i]!);
+        cur = (cur as Record<string, unknown>)[parsed.path[i]!];
+    }
+    return cur;
 };
 
 export const resolveWriteTarget = (host: RxElementLike, parsed: ParsedBind): (value: unknown) => void => {
