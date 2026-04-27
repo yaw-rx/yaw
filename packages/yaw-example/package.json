@@ -12,6 +12,12 @@
     "build:esbuild": "rm -rf dist/esbuild && node esbuild.config.js",
     "build:webpack": "rm -rf dist/webpack && webpack --config webpack.config.js",
     "build:ssg": "yaw-ssg dist public",
+    "docker:build:dev": "docker compose -f compose.dev.yaml build",
+    "docker:build:prod": "docker compose build",
+    "docker:up:dev": "docker compose -f compose.dev.yaml up",
+    "docker:up:prod": "docker compose up",
+    "docker:down:dev": "docker compose -f compose.dev.yaml down",
+    "docker:down:prod": "docker compose down",
     "typecheck": "tsc --build"
   },
   "dependencies": {

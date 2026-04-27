@@ -1,0 +1,9 @@
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: packages/yaw-example/Dockerfile
+      args:
+        NGINX_CONF: nginx.conf
+    ports:
+      - "3010:80"
