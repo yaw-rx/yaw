@@ -13,6 +13,16 @@ let pending = 0;
 let readyResolve: (() => void) | undefined;
 export const appReady = new Promise<void>((resolve) => { readyResolve = resolve; });
 
+export const holdReady = (): void => { pending++; };
+export const releaseReady = (): void => {
+    queueMicrotask(() => {
+        if (--pending === 0) {
+            if (isSSG()) ssgFinalize();
+            readyResolve?.();
+        }
+    });
+};
+
 let hydrating = (globalThis as Record<string, unknown>)['__yaw_hydrate'] === true;
 export const setHydrating = (value: boolean): void => { hydrating = value; };
 export const isHydrating = (): boolean => hydrating;
@@ -42,7 +52,12 @@ export class RxElementBase extends HTMLElement {
         if (isComponent(this.constructor)) { this.setAttribute('data-rx-host', ''); }
         if (!Object.prototype.hasOwnProperty.call(this, 'hostNode')) {
             const scope = renderScopeStack[renderScopeStack.length - 1];
-            if (scope !== undefined) { this.hostNode = scope; }
+            if (scope !== undefined) {
+                this.hostNode = scope;
+            } else if (hydrating) {
+                const host = this.parentElement?.closest('[data-rx-host]') as RxElementBase | null;
+                if (host !== null) { this.hostNode = host; }
+            }
         }
     }
 
@@ -147,9 +162,9 @@ export class RxElementBase extends HTMLElement {
         this.readAttributes();
         this.bindingTeardown = setupBindings(this);
         this.setupDirectives();
-        ssgEnter(this.constructor);
+        const ssgPushed = ssgEnter(this.constructor, this);
         this.renderTemplate();
-        ssgLeave();
+        if (ssgPushed) ssgLeave();
         this.onInit();
         queueMicrotask(() => {
             if (--pending === 0) {

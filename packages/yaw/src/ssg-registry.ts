@@ -10,24 +10,35 @@ export interface SSGNode {
 let root: SSGNode | undefined;
 let current: SSGNode | undefined;
 const parentStack: SSGNode[] = [];
+const nodeByElement = new WeakMap<Element, SSGNode>();
 
 export const getSSGRoot = (): SSGNode | undefined => root;
 
-export const ssgEnter = (ctor: Function): void => {
-    if (!isSSG()) return;
+export const ssgEnter = (ctor: Function, el?: Element): boolean => {
+    if (!isSSG()) return false;
     const selector = getSelector(ctor);
-    if (selector === undefined) return;
+    if (selector === undefined) return false;
     const node: SSGNode = { selector, children: [] };
     if (current !== undefined) { (current.children as SSGNode[]).push(node); }
     else { root = node; }
     parentStack.push(node);
     current = node;
+    if (el !== undefined) nodeByElement.set(el, node);
+    return true;
 };
 
 export const ssgLeave = (): void => {
     if (!isSSG()) return;
     parentStack.pop();
     current = parentStack.length > 0 ? parentStack[parentStack.length - 1] : undefined;
+};
+
+export const ssgScope = (el: Element): void => {
+    if (!isSSG()) return;
+    const node = nodeByElement.get(el);
+    if (node === undefined) return;
+    parentStack.push(node);
+    current = node;
 };
 
 let routeSource: (() => readonly string[]) | undefined;

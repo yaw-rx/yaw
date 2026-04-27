@@ -3,7 +3,7 @@ import { RxElementBase } from '../rx-element.js';
 
 export { htmlTags };
 
-export const registerHtmlMirrors = (): void => {
+export const registerHtmlMirrors = (deferred?: Map<string, CustomElementConstructor>): void => {
     for (const tag of htmlTags) {
         const selector = `rx-${tag}`;
         const ctor = class extends RxElementBase {};
@@ -13,6 +13,10 @@ export const registerHtmlMirrors = (): void => {
             sheet.replaceSync(transformStyles(`:host{${style}}`, selector));
             document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
         }
-        customElements.define(selector, ctor);
+        if (deferred !== undefined) {
+            deferred.set(selector, ctor);
+        } else {
+            customElements.define(selector, ctor);
+        }
     }
 };

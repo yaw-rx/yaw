@@ -149,7 +149,7 @@ export const bootstrap = (options: BootstrapOptions): void => {
     const selector = getSelector(options.root);
     if (selector === undefined) { throw new BootstrapError(`${options.root.name} has no @Component decorator`); }
     if (options.globals?.attributeCodecs !== undefined) { registerAttributeCodecs(options.globals.attributeCodecs); }
-    registerHtmlMirrors();
+    registerHtmlMirrors(hydrateMode ? deferredDefines : undefined);
     globalDirectives = options.globals?.directives ?? [];
     ssgMode = options.ssg === true || (globalThis as Record<string, unknown>)['__yaw_ssg'] === true;
     const injector = new Injector(options.providers);
