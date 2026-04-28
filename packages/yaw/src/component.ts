@@ -194,11 +194,13 @@ export const bootstrap = (options: BootstrapOptions): void | Promise<void> => {
 const mirrorSelectors = new Set(htmlTags.map(t => `rx-${t}`));
 
 const hydrateFromDepGraph = (): void => {
+    console.log('[hydrateFromDepGraph] deferredDefines:', [...deferredDefines.keys()]);
     const isMirror = (sel: string): boolean => sel === 'rx-text' || mirrorSelectors.has(sel);
 
     const define = (sel: string): void => {
         if (isMirror(sel) || customElements.get(sel)) return;
         const ctor = deferredDefines.get(sel);
+        console.log('[hydrateFromDepGraph] define', sel, 'found:', ctor !== undefined, 'alreadyDefined:', !!customElements.get(sel));
         if (ctor !== undefined) customElements.define(sel, ctor);
     };
 

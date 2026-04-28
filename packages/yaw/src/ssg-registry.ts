@@ -85,15 +85,18 @@ const serializeState = (): SSGStateBlob => {
         const id = String(nextId++);
         el.setAttribute('data-ssg-id', id);
         const typeMap = (el.constructor as unknown as Record<string, unknown>)['__stateTypes'] as Record<string, string> | undefined;
+        console.log('[ssg] component', el.tagName, 'typeMap', typeMap, 'keys', [...keys]);
         const state: Record<string, unknown> = {};
         for (const key of keys) {
             const value = (el as unknown as Record<string, unknown>)[key];
             const typeName = typeMap?.[key];
             const unwrapped = unwrapObservables(value);
+            console.log('[ssg]  field', key, 'typeName', typeName, 'type', typeof unwrapped, unwrapped?.constructor?.name);
             state[key] = typeName !== undefined ? encodeAttribute(typeName, key, unwrapped) : unwrapped;
         }
         blob.components[id] = state;
     }
+    console.log('[ssg] components done');
 
     const seen = new Set<object>();
     const collectServices = (injector: Injector): void => {
@@ -104,6 +107,7 @@ const serializeState = (): SSGStateBlob => {
             const keys = getObservableKeys(Object.getPrototypeOf(instance));
             if (keys.size === 0) return;
             const name = (instance as object).constructor.name;
+            console.log('[ssg] service', name, 'keys', [...keys]);
             const svc: Record<string, unknown> = {};
             for (const key of keys) {
                 svc[key] = unwrapObservables((instance as Record<string, unknown>)[key]);

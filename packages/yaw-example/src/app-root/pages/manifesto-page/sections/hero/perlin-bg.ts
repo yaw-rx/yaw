@@ -140,13 +140,17 @@ export class PerlinBg {
     }
 
     private async setup(): Promise<void> {
+        console.log('[perlin-bg] navigator.gpu:', !!navigator.gpu);
         if (!navigator.gpu) return;
 
         try {
             const adapter = await navigator.gpu.requestAdapter();
+            console.log('[perlin-bg] adapter:', !!adapter);
             if (!adapter) return;
 
             const device = await adapter.requestDevice();
+            console.log('[perlin-bg] device: ok');
+            device.onuncapturederror = (e) => console.warn('[perlin-bg] GPU:', e.error);
             this.device = device;
 
             const canvas = document.createElement('canvas');
@@ -155,18 +159,25 @@ export class PerlinBg {
             this.canvas = canvas;
 
             const ctx = canvas.getContext('webgpu');
+            console.log('[perlin-bg] context:', !!ctx);
             if (!ctx) { canvas.remove(); return; }
 
             const format = navigator.gpu.getPreferredCanvasFormat();
+            console.log('[perlin-bg] format:', format);
             ctx.configure({ device, format, alphaMode: 'opaque' });
 
             const module = device.createShaderModule({ code: SHADER });
+            const info = await module.getCompilationInfo();
+            const errors = info.messages.filter(m => m.type === 'error');
+            console.log('[perlin-bg] shader compiled, errors:', errors.length, 'warnings:', info.messages.length - errors.length);
+            for (const m of info.messages) console.warn('[perlin-bg] shader:', m.type, m.message);
 
             const pipeline = device.createRenderPipeline({
                 layout: 'auto',
                 vertex:   { module, entryPoint: 'vs' },
                 fragment: { module, entryPoint: 'fs', targets: [{ format }] },
             });
+            console.log('[perlin-bg] pipeline: ok');
 
             const uniformBuf = device.createBuffer({
                 size: 16,
@@ -177,6 +188,7 @@ export class PerlinBg {
                 layout: pipeline.getBindGroupLayout(0),
                 entries: [{ binding: 0, resource: { buffer: uniformBuf } }],
             });
+            console.log('[perlin-bg] bindGroup: ok');
 
             const uData = new Float32Array(4);
 
@@ -187,6 +199,7 @@ export class PerlinBg {
                 if (canvas.width !== cw || canvas.height !== ch) {
                     canvas.width = cw;
                     canvas.height = ch;
+                    console.log('[perlin-bg] resize:', cw, 'x', ch);
                 }
             };
             resize();
@@ -194,6 +207,7 @@ export class PerlinBg {
             this.resizeObserver.observe(this.node);
 
             const t0 = performance.now();
+            let logged = false;
 
             const frame = (): void => {
                 if (!this.canvas) return;
@@ -218,10 +232,12 @@ export class PerlinBg {
                 pass.draw(3);
                 pass.end();
                 device.queue.submit([encoder.finish()]);
+                if (!logged) { console.log('[perlin-bg] first frame rendered'); logged = true; }
             };
 
             this.raf = requestAnimationFrame(frame);
-        } catch {
+        } catch (e) {
+            console.warn('[perlin-bg] setup failed:', e);
             this.canvas?.remove();
         }
     }

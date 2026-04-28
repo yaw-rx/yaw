@@ -1,6 +1,7 @@
 import { BehaviorSubject } from 'rxjs';
 import { getComponentHydrateState, getServiceHydrateState } from './ssg-registry.js';
 
+
 const subjects = new WeakMap<object, Map<string | symbol, BehaviorSubject<unknown>>>();
 const observableKeys = new WeakMap<object, Set<string>>();
 
@@ -59,6 +60,7 @@ const ensure = (
     const bag = bagFor(instance);
     let subject = bag.get(key);
     if (subject === undefined) {
+        console.log('[BS:new]', (instance instanceof HTMLElement ? instance.tagName : instance.constructor.name), String(key), 'initial=', initial);
         subject = new BehaviorSubject(initial);
         bag.set(key, subject);
     }
@@ -75,16 +77,22 @@ export const state = (target: object, propertyKey: string | symbol): void => {
         configurable: true,
         enumerable: true,
         get(this: object): unknown {
+            const bag = subjects.get(this);
+            if (!bag?.has(propertyKey)) {
+                console.log('[observable] getter-before-setter', (this instanceof HTMLElement ? this.tagName : this.constructor.name), String(propertyKey));
+            }
             return ensure(this, propertyKey, undefined).value;
         },
         set(this: object, value: unknown) {
             const bag = bagFor(this);
             const existing = bag.get(propertyKey);
             if (existing === undefined) {
-                bag.set(propertyKey, new BehaviorSubject(
-                    getHydrateState(this)?.[propertyKey as string] ?? value
-                ));
+                const hs = getHydrateState(this);
+                const initial = hs?.[propertyKey as string] ?? value;
+                console.log('[observable] init', (this instanceof HTMLElement ? this.tagName : this.constructor.name), String(propertyKey), 'hydrate:', hs !== undefined, 'initial:', initial);
+                bag.set(propertyKey, new BehaviorSubject(initial));
             } else {
+                console.log('[BS:next]', (this instanceof HTMLElement ? this.tagName : this.constructor.name), String(propertyKey), 'old=', existing.value, 'new=', value);
                 if (existing.value !== value) existing.next(value);
             }
         },

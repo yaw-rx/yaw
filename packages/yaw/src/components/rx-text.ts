@@ -1,6 +1,6 @@
 import { type Subscription } from 'rxjs';
 import { Component } from '../component.js';
-import { parseBind, subscribeBind } from '../expression/bind.js';
+import { parseBind, subscribeBind, resolveEncoder } from '../expression/bind.js';
 import { RxElement } from '../rx-element.js';
 import { state } from '../observable.js';
 
@@ -12,7 +12,12 @@ export class RxText extends RxElement {
     override onInit(): void {
         if (this.bind === '') return;
         const parsed = parseBind(this.bind);
-        this.sub = subscribeBind(this, parsed, (v) => { this.textContent = String(v); });
+        const encode = resolveEncoder(this, parsed);
+        console.log('[rx-text] onInit bind=', this.bind, 'host=', this.parentElement?.closest('[data-rx-host]')?.tagName);
+        this.sub = subscribeBind(this, parsed, (v) => {
+            console.log('[rx-text] value received', this.bind, '→', v, typeof v);
+            this.textContent = encode(v);
+        });
     }
 
     override onDestroy(): void {

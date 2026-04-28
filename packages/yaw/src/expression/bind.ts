@@ -53,6 +53,7 @@
 import { BehaviorSubject, isObservable, of, Subscription, switchMap, skip, first, type Observable } from 'rxjs';
 import { hydrationComplete$ } from '../rx-element.js';
 import { BindNotSubscribableError, BindParseError, BindPathError, BindScopeError } from '../errors.js';
+import { encodeAttribute } from '../attribute-codec/encode.js';
 import type { RxElementLike } from '../directive.js';
 
 const walkPath = (root: unknown, path: readonly string[]): unknown => {
@@ -240,8 +241,12 @@ const segmentStream = (host: RxElementLike, parsed: ParsedBind, value: unknown, 
     const obj = value as Record<string, unknown>;
     if (isObservable(obj[segment])) return obj[segment] as Observable<unknown>;
     const reactive = obj[`${segment}$`];
-    if (isObservable(reactive)) return reactive as Observable<unknown>;
+    if (isObservable(reactive)) {
+        console.log('[segmentStream]', host.tagName, parsed.raw, segment, 'reactive$ found, value=', (reactive as BehaviorSubject<unknown>).value);
+        return reactive as Observable<unknown>;
+    }
     if (!(segment in obj)) throw new BindPathError(host.tagName, parsed.raw, segment);
+    console.log('[segmentStream]', host.tagName, parsed.raw, segment, 'plain value=', obj[segment]);
     return of(obj[segment]);
 };
 
@@ -269,6 +274,7 @@ export const observeBind = (
         }
     } else {
         const scope = walkScope(host, parsed.carets, parsed.raw);
+        console.log('[observeBind]', host.tagName, parsed.raw, 'scope=', scope.tagName, 'scopeCtor=', scope.constructor.name, 'hasHue$=', 'hue$' in scope);
         stream = of(scope as unknown);
         startIndex = 0;
         hasObservable = false;
@@ -332,6 +338,19 @@ export const subscribeBind = (
     parsed: ParsedBind,
     onValue: (v: unknown) => void,
 ): Subscription => observeBind(host, parsed).subscribe(onValue);
+
+export const resolveEncoder = (
+    host: RxElementLike,
+    parsed: ParsedBind,
+): ((v: unknown) => string) => {
+    if (parsed.path.length !== 1) return String;
+    const scope = walkScope(host, parsed.carets, parsed.raw);
+    const typeMap = (scope.constructor as unknown as Record<string, unknown>)['__stateTypes'] as Record<string, string> | undefined;
+    const typeName = typeMap?.[parsed.path[0]!];
+    if (typeName === undefined) return String;
+    const key = parsed.path[0]!;
+    return (v) => encodeAttribute(typeName, key, v);
+};
 
 export const hydratedBind = (
     host: RxElementLike,

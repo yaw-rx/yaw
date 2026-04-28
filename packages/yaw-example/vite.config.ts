@@ -10,6 +10,18 @@ export default defineConfig({
     publicDir: false,
     build: {
         outDir: 'dist',
-        target: 'es2022',
+        target: 'es2021',
+        minify: 'terser',
+        terserOptions: {
+            compress: {
+                passes: 3,
+                pure_getters: true,
+                unsafe_math: true,
+                unsafe_proto: true,
+                unsafe_regexp: true,
+                unsafe_undefined: true,
+            },
+            mangle: true,
+        },
     },
 });

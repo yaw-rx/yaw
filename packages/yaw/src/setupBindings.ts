@@ -1,6 +1,6 @@
 import { type Subscription } from 'rxjs';
 import { marshaller } from 'yaw-common';
-import { parseBind, subscribeBind, resolveEventHandler, resolveRefTarget, resolveValue, resolveWriteTarget } from './expression/bind.js';
+import { parseBind, subscribeBind, resolveEventHandler, resolveRefTarget, resolveValue, resolveWriteTarget, resolveEncoder } from './expression/bind.js';
 import { getSubject } from './observable.js';
 import type { RxElementLike } from './directive.js';
 
@@ -49,14 +49,16 @@ export const setupBindings = (element: RxElementLike): () => void => {
                 break;
             }
             case 'attr': {
+                const encode = resolveEncoder(element, parsed);
                 subs.push(subscribeBind(element, parsed, (v) => {
-                    element.setAttribute(memberPath[0]!, String(v));
+                    element.setAttribute(memberPath[0]!, encode(v));
                 }));
                 break;
             }
             case 'text': {
+                const encode = resolveEncoder(element, parsed);
                 subs.push(subscribeBind(element, parsed, (v) => {
-                    element.textContent = String(v);
+                    element.textContent = encode(v);
                 }));
                 break;
             }

@@ -166,6 +166,7 @@ export class RxElementBase extends HTMLElement {
         this.setupHostNode();
         this.setupInjectorAndDeps();
         this.restoreState();
+
         this.readAttributes();
         this.bindingTeardown = setupBindings(this);
         this.setupDirectives();
