@@ -127,6 +127,8 @@ fn ridge(p: vec3f) -> f32 {
 }
 `;
 
+const TARGET_FPS = 20;
+
 @Directive({ selector: '[perlin-bg]' })
 export class PerlinBg {
     node!: RxElementLike;
@@ -208,10 +210,14 @@ export class PerlinBg {
 
             const t0 = performance.now();
             let logged = false;
+            let lastFrame = 0;
+            const frameBudget = 1000 / TARGET_FPS;
 
-            const frame = (): void => {
+            const frame = (now: number): void => {
                 if (!this.canvas) return;
                 this.raf = requestAnimationFrame(frame);
+                if (now - lastFrame < frameBudget) return;
+                lastFrame = now;
 
                 uData[0] = canvas.width;
                 uData[1] = canvas.height;
