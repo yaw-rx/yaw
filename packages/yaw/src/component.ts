@@ -40,7 +40,7 @@ import type { Provider } from './di/types.js';
 import type { DirectiveCtor, RxElementLike } from './directive.js';
 import { BootstrapError, HydrationError } from './errors.js';
 import { registerHtmlMirrors, htmlTags } from './components/rx-elements.js';
-import { setHydrating, isHydrating, appReady } from './rx-element.js';
+import { setHydrating, isHydrating, appReady, flushHydrationBindings } from './rx-element.js';
 import { transformTemplate, transformStyles } from 'yaw-common';
 import type { AttributeCodec } from './attribute-codec/types.js';
 import { registerAttributeCodecs } from './attribute-codec/registry.js';
@@ -225,4 +225,6 @@ const hydrateFromDepGraph = (): void => {
 
     const rxText = deferredDefines.get('rx-text');
     if (rxText !== undefined && !customElements.get('rx-text')) customElements.define('rx-text', rxText);
+
+    flushHydrationBindings();
 };

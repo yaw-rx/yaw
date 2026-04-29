@@ -124,9 +124,7 @@ export class RxElementBase extends HTMLElement {
         if (slot !== null) { slot.replaceWith(projected); }
     }
 
-    connectedCallback(): void {
-        pending++;
-        this.#setupHostNode();
+    _initBindings(): void {
         this.#setupInjectorAndDeps();
         this.#bindingTeardown = setupBindings(this);
         this.#setupDirectives();
@@ -142,6 +140,16 @@ export class RxElementBase extends HTMLElement {
         });
     }
 
+    connectedCallback(): void {
+        pending++;
+        this.#setupHostNode();
+        if (hydrating) {
+            registerHydrationNode(this);
+            return;
+        }
+        this._initBindings();
+    }
+
     disconnectedCallback(): void {
         this.#bindingTeardown?.();
         for (const directive of this.#directives) { directive.onDestroy(); }
@@ -152,5 +160,30 @@ export class RxElementBase extends HTMLElement {
     onInit(): void {}
     onDestroy(): void {}
 }
+
+const hydrationRoots: RxElementBase[] = [];
+const hydrationChildren = new Map<RxElementBase, RxElementBase[]>();
+
+const registerHydrationNode = (el: RxElementBase): void => {
+    const parent = Object.prototype.hasOwnProperty.call(el, 'hostNode') ? el.hostNode : undefined;
+    if (parent !== undefined) {
+        let kids = hydrationChildren.get(parent);
+        if (kids === undefined) { kids = []; hydrationChildren.set(parent, kids); }
+        kids.push(el);
+    } else {
+        hydrationRoots.push(el);
+    }
+};
+
+export const flushHydrationBindings = (): void => {
+    const walk = (el: RxElementBase): void => {
+        el._initBindings();
+        const kids = hydrationChildren.get(el);
+        if (kids !== undefined) for (const child of kids) walk(child);
+    };
+    for (const root of hydrationRoots) walk(root);
+    hydrationRoots.length = 0;
+    hydrationChildren.clear();
+};
 
 export { RxElementBase as RxElement };
