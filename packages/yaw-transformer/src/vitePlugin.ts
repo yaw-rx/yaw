@@ -1,3 +1,4 @@
+import { transform } from 'esbuild';
 import { createTransformedProgram, type TransformedProgram } from './bundlerPlugin.js';
 import type { Plugin } from 'vite';
 
@@ -20,15 +21,21 @@ export const vitePlugin = (): Plugin => {
             }
         },
 
-        transform(code, id) {
+        async transform(code, id) {
             if (!id.endsWith('.ts') || id.includes('node_modules') || id.endsWith('.d.ts')) return null;
-            if (!code.includes('@Component')) return null;
+            if (!code.includes('@Component') && !code.includes('@state')) return null;
             if (tp === undefined) return null;
 
             const output = tp.getSource(id);
             if (output === undefined) return null;
 
-            return { code: output, map: null };
+            const result = await transform(output, {
+                loader: 'ts',
+                sourcefile: id,
+                sourcemap: 'external',
+                target: 'es2022',
+            });
+            return { code: result.code, map: result.map || null };
         },
     };
 };

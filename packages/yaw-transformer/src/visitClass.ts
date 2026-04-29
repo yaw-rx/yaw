@@ -55,12 +55,11 @@ const buildDollarDeclarations = (
     });
 
 export const visitClass = (node: ts.ClassDeclaration, checker: ts.TypeChecker, factory: ts.NodeFactory): ts.ClassDeclaration => {
-    if (!isComponentClass(node, checker)) return node;
-
     const stateTypes = getStateTypes(node, checker);
     const stateFieldInfos = getStateFieldInfos(node, checker);
+    const isComponent = isComponentClass(node, checker);
     const ctor = node.members.find(ts.isConstructorDeclaration);
-    const injected = ctor !== undefined ? getPrivateParams(ctor) : [];
+    const injected = isComponent && ctor !== undefined ? getPrivateParams(ctor) : [];
 
     if (injected.length === 0 && stateTypes.size === 0) return node;
 
@@ -70,11 +69,21 @@ export const visitClass = (node: ts.ClassDeclaration, checker: ts.TypeChecker, f
         members = members.map(m => {
             if (!ts.isPropertyDeclaration(m) || !ts.isIdentifier(m.name)) return m;
             const info = stateFieldInfos.get(m.name.text);
-            if (info === undefined || m.type !== undefined) return m;
-            return factory.updatePropertyDeclaration(
-                m, m.modifiers, m.name, m.questionToken,
-                typeNodeForName(info.typeName, factory), m.initializer,
-            );
+            if (info === undefined) return m;
+
+            const hasAccessor = m.modifiers?.some(mod => mod.kind === ts.SyntaxKind.AccessorKeyword) ?? false;
+            const needsType = m.type === undefined;
+
+            if (!hasAccessor || needsType) {
+                const mods = !hasAccessor
+                    ? [...(m.modifiers ?? []), factory.createModifier(ts.SyntaxKind.AccessorKeyword)]
+                    : m.modifiers;
+                return factory.updatePropertyDeclaration(
+                    m, mods, m.name, m.questionToken,
+                    needsType ? typeNodeForName(info.typeName, factory) : m.type, m.initializer,
+                );
+            }
+            return m;
         });
         members = [
             buildStateTypesProperty(stateTypes, factory),

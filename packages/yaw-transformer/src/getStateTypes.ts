@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-const isStateDecorator = (decorator: ts.Decorator, checker: ts.TypeChecker): boolean => {
+export const isStateDecorator = (decorator: ts.Decorator, checker: ts.TypeChecker): boolean => {
     const expr = decorator.expression;
     const sym = checker.getSymbolAtLocation(expr);
     return sym?.name === 'state';

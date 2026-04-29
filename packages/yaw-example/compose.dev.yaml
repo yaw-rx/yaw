@@ -10,7 +10,7 @@ services:
   ssl-proxy:
     image: nginx:alpine
     ports:
-      - "3443:443"
+      - "4443:443"
     volumes:
       - ./ssl:/etc/nginx/ssl:ro
       - ./nginx.dev.ssl.conf:/etc/nginx/conf.d/default.conf:ro

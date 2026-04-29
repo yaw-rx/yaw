@@ -1,8 +1,8 @@
 import { BehaviorSubject } from 'rxjs';
 import { getComponentHydrateState, getServiceHydrateState } from './ssg-registry.js';
+import { decodeAttribute } from './attribute-codec/decode.js';
 
-
-const subjects = new WeakMap<object, Map<string | symbol, BehaviorSubject<unknown>>>();
+const subjects = new WeakMap<object, Map<string, BehaviorSubject<unknown>>>();
 const observableKeys = new WeakMap<object, Set<string>>();
 
 const hydrateCache = new WeakMap<object, Record<string, unknown>>();
@@ -43,7 +43,7 @@ export const getObservableKeys = (proto: object): ReadonlySet<string> => {
     return all ?? new Set();
 };
 
-const bagFor = (instance: object): Map<string | symbol, BehaviorSubject<unknown>> => {
+const bagFor = (instance: object): Map<string, BehaviorSubject<unknown>> => {
     let bag = subjects.get(instance);
     if (bag === undefined) {
         bag = new Map();
@@ -52,59 +52,71 @@ const bagFor = (instance: object): Map<string | symbol, BehaviorSubject<unknown>
     return bag;
 };
 
-const ensure = (
-    instance: object,
-    key: string | symbol,
-    initial: unknown,
-): BehaviorSubject<unknown> => {
-    const bag = bagFor(instance);
-    let subject = bag.get(key);
-    if (subject === undefined) {
-        console.log('[BS:new]', (instance instanceof HTMLElement ? instance.tagName : instance.constructor.name), String(key), 'initial=', initial);
-        subject = new BehaviorSubject(initial);
-        bag.set(key, subject);
-    }
-    return subject;
-};
-
 export const getSubject = (instance: object, key: string): BehaviorSubject<unknown> | undefined =>
     subjects.get(instance)?.get(key);
 
-export const state = (target: object, propertyKey: string | symbol): void => {
-    if (typeof propertyKey === 'string') trackKey(target, propertyKey);
+const getStateTypeName = (ctor: Function, key: string): string | undefined => {
+    const map = (ctor as unknown as Record<string, unknown>)['__stateTypes'] as Record<string, string> | undefined;
+    return map?.[key];
+};
 
-    Object.defineProperty(target, propertyKey, {
-        configurable: true,
-        enumerable: true,
-        get(this: object): unknown {
-            const bag = subjects.get(this);
-            if (!bag?.has(propertyKey)) {
-                console.log('[observable] getter-before-setter', (this instanceof HTMLElement ? this.tagName : this.constructor.name), String(propertyKey));
+const parseRaw = (current: unknown, raw: string): unknown => {
+    if (typeof current === 'number') return Number(raw);
+    if (typeof current === 'boolean') return raw !== 'false';
+    return raw;
+};
+
+export const state = <This extends object, V>(
+    target: ClassAccessorDecoratorTarget<This, V>,
+    context: ClassAccessorDecoratorContext<This, V>,
+): ClassAccessorDecoratorResult<This, V> => {
+    const key = String(context.name);
+
+    context.addInitializer(function (this: This) {
+        trackKey(Object.getPrototypeOf(this) as object, key);
+
+        const declaredDefault = target.get.call(this);
+        let initial: unknown = declaredDefault;
+        const typeName = getStateTypeName(this.constructor, key);
+
+        const hs = getHydrateState(this as object);
+        if (hs?.[key] !== undefined) {
+            initial = typeName !== undefined
+                ? decodeAttribute(typeName, key, hs[key] as string)
+                : hs[key];
+            target.set.call(this, initial as V);
+        }
+
+        if (this instanceof HTMLElement) {
+            const raw = this.getAttribute(key);
+            if (raw !== null) {
+                initial = typeName !== undefined
+                    ? decodeAttribute(typeName, key, raw)
+                    : parseRaw(declaredDefault, raw);
+                target.set.call(this, initial as V);
             }
-            return ensure(this, propertyKey, undefined).value;
-        },
-        set(this: object, value: unknown) {
-            const bag = bagFor(this);
-            const existing = bag.get(propertyKey);
-            if (existing === undefined) {
-                const hs = getHydrateState(this);
-                const initial = hs?.[propertyKey as string] ?? value;
-                console.log('[observable] init', (this instanceof HTMLElement ? this.tagName : this.constructor.name), String(propertyKey), 'hydrate:', hs !== undefined, 'initial:', initial);
-                bag.set(propertyKey, new BehaviorSubject(initial));
-            } else {
-                console.log('[BS:next]', (this instanceof HTMLElement ? this.tagName : this.constructor.name), String(propertyKey), 'old=', existing.value, 'new=', value);
-                if (existing.value !== value) existing.next(value);
-            }
-        },
+        }
+
+        bagFor(this as object).set(key, new BehaviorSubject<unknown>(initial));
+
+        Object.defineProperty(this, `${key}$`, {
+            value: bagFor(this as object).get(key)!,
+            enumerable: false,
+            configurable: true,
+        });
     });
 
-    if (typeof propertyKey === 'string') {
-        Object.defineProperty(target, `${propertyKey}$`, {
-            configurable: true,
-            enumerable: false,
-            get(this: object): BehaviorSubject<unknown> {
-                return ensure(this, propertyKey, undefined);
-            },
-        });
-    }
+    return {
+        get(this: This): V {
+            const bs = subjects.get(this as object)?.get(key);
+            return bs !== undefined ? bs.value as V : target.get.call(this);
+        },
+        set(this: This, v: V): void {
+            const prev = target.get.call(this);
+            if (Object.is(prev, v)) return;
+            target.set.call(this, v);
+            const bs = subjects.get(this as object)?.get(key);
+            if (bs !== undefined) bs.next(v);
+        },
+    };
 };

@@ -179,6 +179,13 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
                     if (!tsModule.isIdentifier(member.name)) continue;
                     if (!hasDecoratorNamed(member, 'state')) continue;
 
+                    const hasAccessor = member.modifiers?.some(
+                        (m) => m.kind === tsModule.SyntaxKind.AccessorKeyword,
+                    ) ?? false;
+                    if (!hasAccessor) {
+                        injections.push({ originalPos: member.name.getStart(sf), text: 'accessor ' });
+                    }
+
                     const fieldName = member.name.text;
                     let typeText: string | undefined;
 

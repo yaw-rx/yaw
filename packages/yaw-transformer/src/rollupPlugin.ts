@@ -18,7 +18,7 @@ export const rollupPlugin = (): RollupPlugin => {
 
         transform(code, id) {
             if (!id.endsWith('.ts') || id.includes('node_modules') || id.endsWith('.d.ts')) return null;
-            if (!code.includes('@Component')) return null;
+            if (!code.includes('@Component') && !code.includes('@state')) return null;
             if (tp === undefined) return null;
             const output = tp.getSource(id);
             if (output === undefined) return null;

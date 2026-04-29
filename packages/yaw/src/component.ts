@@ -99,7 +99,7 @@ const hydrateMode = (globalThis as Record<string, unknown>)['__yaw_hydrate'] ===
 export const isComponent = (ctor: Function): boolean => componentCtors.has(ctor);
 
 export const Component = (options: ComponentOptions) =>
-    (ctor: CustomElementConstructor): void => {
+    (ctor: CustomElementConstructor, _context: ClassDecoratorContext): void => {
         componentCtors.add(ctor);
         const { template } = options;
         if (template !== undefined) {

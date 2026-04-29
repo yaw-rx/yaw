@@ -4,6 +4,7 @@ import { vitePlugin } from 'yaw-transformer';
 export default defineConfig({
     root: '.',
     plugins: [vitePlugin()],
+    esbuild: { target: 'es2022' },
     server: {
         port: 5176,
     },

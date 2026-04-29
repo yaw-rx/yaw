@@ -6,7 +6,7 @@ import { state } from '../observable.js';
 
 @Component({ selector: 'rx-text', template: '' })
 export class RxText extends RxElement {
-    @state bind = '';
+    @state accessor bind = '';
     private sub: Subscription | undefined;
 
     override onInit(): void {

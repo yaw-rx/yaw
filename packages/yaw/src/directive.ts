@@ -38,6 +38,6 @@ export const matchesSelector = (el: RxElementLike, selector: string): boolean =>
 };
 
 export const Directive = (options: DirectiveOptions) =>
-    (ctor: DirectiveCtor): void => {
+    (ctor: DirectiveCtor, _context: ClassDecoratorContext): void => {
         directiveSelectors.set(ctor, options.selector);
     };

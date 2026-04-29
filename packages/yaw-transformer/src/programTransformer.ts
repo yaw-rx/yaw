@@ -18,7 +18,7 @@ export const programTransformer = (
     for (const sf of program.getSourceFiles()) {
         if (sf.isDeclarationFile) continue;
         if (sf.fileName.includes('node_modules')) continue;
-        if (!sf.getFullText().includes('@Component')) continue;
+        if (!sf.getFullText().includes('@Component') && !sf.getFullText().includes('@state')) continue;
 
         const result = ts.transform(sf, [transformerFactory]);
         const output = printer.printFile(result.transformed[0]!);

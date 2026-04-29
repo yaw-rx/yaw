@@ -1,12 +1,10 @@
 import { getTemplate, getProviders, getDirectives, getGlobalDirectives, isComponent } from './component.js';
 import { Injector } from './di/injector.js';
 import { getPropDeps } from './di/inject.js';
-import { getObservableKeys } from './observable.js';
 import { getDirectiveSelector, matchesSelector, type Directive } from './directive.js';
 import { DirectiveInstantiationError, InvalidSelectorError } from './errors.js';
 import { setupBindings } from './setupBindings.js';
-import { decodeAttribute } from './attribute-codec/decode.js';
-import { ssgEnter, ssgLeave, ssgFinalize, getComponentHydrateState } from './ssg-registry.js';
+import { ssgEnter, ssgLeave, ssgFinalize } from './ssg-registry.js';
 import { isSSG } from './component.js';
 
 let pending = 0;
@@ -41,8 +39,8 @@ export const popRenderScope = (): void => { renderScopeStack.pop(); };
 export class RxElementBase extends HTMLElement {
     declare hostNode: RxElementBase;
     __injector: Injector | undefined;
-    private readonly directives: Directive[] = [];
-    private bindingTeardown: (() => void) | undefined;
+    #directives: Directive[] = [];
+    #bindingTeardown: (() => void) | undefined;
 
     static resolveInjector(el: Element): Injector {
         let node: Element | null = el;
@@ -54,7 +52,7 @@ export class RxElementBase extends HTMLElement {
         throw new Error('No injector found in tree');
     }
 
-    private setupHostNode(): void {
+    #setupHostNode(): void {
         if (isComponent(this.constructor)) { this.setAttribute('data-rx-host', ''); }
         if (!Object.prototype.hasOwnProperty.call(this, 'hostNode')) {
             const scope = renderScopeStack[renderScopeStack.length - 1];
@@ -67,7 +65,7 @@ export class RxElementBase extends HTMLElement {
         }
     }
 
-    private setupInjectorAndDeps(): void {
+    #setupInjectorAndDeps(): void {
         const providers = getProviders(this.constructor);
         if (providers !== undefined) {
             this.__injector = RxElementBase.resolveInjector(this).child(providers);
@@ -81,7 +79,7 @@ export class RxElementBase extends HTMLElement {
         }
     }
 
-    private setupDirectives(): void {
+    #setupDirectives(): void {
         const hostCtor = Object.prototype.hasOwnProperty.call(this, 'hostNode')
             ? this.hostNode.constructor
             : this.constructor;
@@ -109,11 +107,11 @@ export class RxElementBase extends HTMLElement {
                 directive.parsed = directive.parseExpr ? directive.parseExpr(raw) : { expr: raw };
             }
             directive.onInit();
-            this.directives.push(directive);
+            this.#directives.push(directive);
         }
     }
 
-    private renderTemplate(): void {
+    #renderTemplate(): void {
         if (hydrating) return;
         const template = getTemplate(this.constructor);
         if (template === undefined) { return; }
@@ -126,52 +124,14 @@ export class RxElementBase extends HTMLElement {
         if (slot !== null) { slot.replaceWith(projected); }
     }
 
-    private restoreState(): void {
-        if (!hydrating) return;
-        const ssgId = this.getAttribute('data-ssg-id');
-        if (ssgId === null) return;
-        const state = getComponentHydrateState(ssgId);
-        if (state === undefined) return;
-        const typeMap = (this.constructor as unknown as Record<string, unknown>)['__stateTypes'] as Record<string, string> | undefined;
-        for (const [key, value] of Object.entries(state)) {
-            const typeName = typeMap?.[key];
-            (this as unknown as Record<string, unknown>)[key] = typeName !== undefined
-                ? decodeAttribute(typeName, key, value as string)
-                : value;
-        }
-    }
-
-    private readAttributes(): void {
-        const keys = getObservableKeys(Object.getPrototypeOf(this) as object);
-        const typeMap = (this.constructor as unknown as Record<string, unknown>)['__stateTypes'] as Record<string, string> | undefined;
-        for (const key of keys) {
-            const raw = this.getAttribute(key);
-            if (raw === null) continue;
-            const typeName = typeMap?.[key];
-            if (typeName !== undefined) {
-                (this as unknown as Record<string, unknown>)[key] = decodeAttribute(typeName, key, raw);
-            } else {
-                const current = (this as unknown as Record<string, unknown>)[key];
-                switch (typeof current) {
-                    case 'number':  (this as unknown as Record<string, unknown>)[key] = Number(raw); break;
-                    case 'boolean': (this as unknown as Record<string, unknown>)[key] = raw !== 'false'; break;
-                    default:        (this as unknown as Record<string, unknown>)[key] = raw; break;
-                }
-            }
-        }
-    }
-
     connectedCallback(): void {
         pending++;
-        this.setupHostNode();
-        this.setupInjectorAndDeps();
-        this.restoreState();
-
-        this.readAttributes();
-        this.bindingTeardown = setupBindings(this);
-        this.setupDirectives();
+        this.#setupHostNode();
+        this.#setupInjectorAndDeps();
+        this.#bindingTeardown = setupBindings(this);
+        this.#setupDirectives();
         const ssgPushed = ssgEnter(this.constructor, this);
-        this.renderTemplate();
+        this.#renderTemplate();
         if (ssgPushed) ssgLeave();
         this.onInit();
         queueMicrotask(() => {
@@ -183,9 +143,9 @@ export class RxElementBase extends HTMLElement {
     }
 
     disconnectedCallback(): void {
-        this.bindingTeardown?.();
-        for (const directive of this.directives) { directive.onDestroy(); }
-        this.directives.length = 0;
+        this.#bindingTeardown?.();
+        for (const directive of this.#directives) { directive.onDestroy(); }
+        this.#directives.length = 0;
         this.onDestroy();
     }
 
