@@ -3,99 +3,6 @@ import { memoiseBindMarshaller } from './bind-marshaller/memoise-bind-marshaller
 
 export const marshaller = memoiseBindMarshaller(new SingleRegexBindMarshaller());
 
-export const htmlTags = [
-    'a', 'abbr', 'address', 'area', 'article', 'aside', 'audio',
-    'b', 'bdi', 'bdo', 'blockquote', 'br', 'button',
-    'canvas', 'caption', 'cite', 'code', 'col', 'colgroup',
-    'data', 'datalist', 'dd', 'del', 'details', 'dfn', 'dialog', 'div', 'dl', 'dt',
-    'em', 'embed',
-    'fieldset', 'figcaption', 'figure', 'footer', 'form',
-    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr',
-    'i', 'iframe', 'img', 'input', 'ins',
-    'kbd',
-    'label', 'legend', 'li', 'link',
-    'main', 'map', 'mark', 'menu', 'meter',
-    'nav',
-    'object', 'ol', 'optgroup', 'option', 'output',
-    'p', 'picture', 'pre', 'progress',
-    'q',
-    's', 'samp', 'search', 'section', 'select', 'slot', 'small', 'source', 'span',
-    'strong', 'sub', 'summary', 'sup',
-    'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'tr', 'track',
-    'u', 'ul',
-    'var', 'video',
-    'wbr',
-] as const;
-
-const blockOnly = [
-    'address', 'article', 'aside', 'details', 'dialog', 'div',
-    'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form',
-    'header', 'hgroup', 'legend',
-    'main', 'menu', 'nav', 'search', 'section', 'summary',
-] as const;
-
-const inlineBlock = [
-    'button', 'img', 'input', 'label', 'meter', 'progress', 'select', 'textarea',
-    'audio', 'video', 'canvas', 'iframe',
-] as const;
-
-export const mirrorStyles: ReadonlyMap<string, string> = new Map<string, string>([
-    ...blockOnly.map((t) => [t, 'display:block'] as [string, string]),
-    ...inlineBlock.map((t) => [t, 'display:inline-block'] as [string, string]),
-    ['slot', 'display:contents'],
-    ['table', 'display:table'],
-    ['caption', 'display:table-caption'],
-    ['col', 'display:table-column'],
-    ['colgroup', 'display:table-column-group'],
-    ['tbody', 'display:table-row-group'],
-    ['td', 'display:table-cell'],
-    ['tfoot', 'display:table-footer-group'],
-    ['th', 'display:table-cell;font-weight:bold;text-align:center'],
-    ['thead', 'display:table-header-group'],
-    ['tr', 'display:table-row'],
-    ['h1', 'display:block;font-size:2em;font-weight:bold;margin:0.67em 0'],
-    ['h2', 'display:block;font-size:1.5em;font-weight:bold;margin:0.83em 0'],
-    ['h3', 'display:block;font-size:1.17em;font-weight:bold;margin:1em 0'],
-    ['h4', 'display:block;font-weight:bold;margin:1.33em 0'],
-    ['h5', 'display:block;font-size:0.83em;font-weight:bold;margin:1.67em 0'],
-    ['h6', 'display:block;font-size:0.67em;font-weight:bold;margin:2.33em 0'],
-    ['p', 'display:block;margin:1em 0'],
-    ['blockquote', 'display:block;margin:1em 40px'],
-    ['pre', 'display:block;font-family:monospace;white-space:pre;margin:1em 0'],
-    ['hr', 'display:block;border-style:inset;border-width:1px;margin:0.5em auto'],
-    ['ul', 'display:block;list-style-type:disc;padding-inline-start:40px;margin:1em 0'],
-    ['ol', 'display:block;list-style-type:decimal;padding-inline-start:40px;margin:1em 0'],
-    ['li', 'display:list-item'],
-    ['dl', 'display:block;margin:1em 0'],
-    ['dd', 'display:block;margin-inline-start:40px'],
-    ['code', 'font-family:monospace'],
-    ['kbd', 'font-family:monospace'],
-    ['samp', 'font-family:monospace'],
-    ['strong', 'font-weight:bold'],
-    ['b', 'font-weight:bold'],
-    ['em', 'font-style:italic'],
-    ['i', 'font-style:italic'],
-    ['cite', 'font-style:italic'],
-    ['dfn', 'font-style:italic'],
-    ['var', 'font-style:italic'],
-    ['u', 'text-decoration:underline'],
-    ['ins', 'text-decoration:underline'],
-    ['s', 'text-decoration:line-through'],
-    ['del', 'text-decoration:line-through'],
-    ['mark', 'background-color:yellow;color:black'],
-    ['small', 'font-size:smaller'],
-    ['sub', 'vertical-align:sub;font-size:smaller'],
-    ['sup', 'vertical-align:super;font-size:smaller'],
-    ['a', 'color:#06c;text-decoration:underline;cursor:pointer'],
-]);
-
-const htmlTagSet = new Set(htmlTags);
-
-const rewriteSelectorTags = (selectors: string): string =>
-    selectors.replace(/(^|[\s>+~,(])([a-z][a-z0-9-]*)/g, (match, prefix: string, tag: string) =>
-        htmlTagSet.has(tag as (typeof htmlTags)[number]) ? `${prefix}rx-${tag}` : match
-    );
-
 const scopeSelector = (sel: string, host: string): string => {
     const trimmed = sel.trim();
     if (trimmed === '' || trimmed.startsWith('@')) return sel;
@@ -109,10 +16,9 @@ const scopeSelector = (sel: string, host: string): string => {
 };
 
 export const transformStyles = (css: string, host?: string): string =>
-    css.replace(/([^{}]*)\{/g, (_m, sel: string) => {
-        const rewritten = rewriteSelectorTags(sel);
-        return `${host !== undefined ? scopeSelector(rewritten, host) : rewritten}{`;
-    });
+    host !== undefined
+        ? css.replace(/([^{}]*)\{/g, (_m, sel: string) => `${scopeSelector(sel, host)}{`)
+        : css;
 
 const KEYWORDS = new Set(['true', 'false', 'null', '$event']);
 
@@ -181,9 +87,9 @@ const transformTextNode = (node: Text, depth: number): void => {
         }
         found = true;
         if (m.index > last) frag.appendChild(doc.createTextNode(text.slice(last, m.index)));
-        const rxText = doc.createElement('rx-text');
-        rxText.setAttribute('bind', injectCarets(expr, depth));
-        frag.appendChild(rxText);
+        const span = doc.createElement('span');
+        span.setAttribute(marshaller.encode('text', []), injectCarets(expr, depth));
+        frag.appendChild(span);
         last = m.index + m[0].length;
     }
     if (!found) return;
@@ -228,15 +134,6 @@ const transformAttributes = (el: Element, depth: number): void => {
     }
 };
 
-const renameElement = (el: Element, newTag: string): Element => {
-    const doc = el.ownerDocument!;
-    const next = doc.createElement(newTag);
-    for (const attr of Array.from(el.attributes)) next.setAttribute(attr.name, attr.value);
-    while (el.firstChild !== null) next.appendChild(el.firstChild);
-    el.replaceWith(next);
-    return next;
-};
-
 const walk = (node: Node, depth: number): void => {
     if (node.nodeType === 3) {
         transformTextNode(node as Text, depth);
@@ -244,7 +141,7 @@ const walk = (node: Node, depth: number): void => {
     }
     if (node.nodeType !== 1) return;
 
-    let el = node as Element;
+    const el = node as Element;
     const tag = el.tagName.toLowerCase();
 
     if (tag === 'template') {
@@ -253,13 +150,9 @@ const walk = (node: Node, depth: number): void => {
         return;
     }
 
-    const isHtml = htmlTagSet.has(tag as (typeof htmlTags)[number]);
-
     transformAttributes(el, depth);
 
-    if (isHtml) el = renameElement(el, `rx-${tag}`);
-
-    const childDepth = isHtml ? depth : depth + 1;
+    const childDepth = tag.includes('-') ? depth + 1 : depth;
     for (const child of Array.from(el.childNodes)) { walk(child, childDepth); }
 };
 
@@ -278,12 +171,11 @@ export class TemplateWalkError extends Error {
  * Compiles a template string into its runtime form.
  *
  * The walker performs these rewrites on the parsed DOM:
- *   - Text nodes:  {{expr}}              => <rx-text bind="expr">
+ *   - Text nodes:  {{expr}}              => <span data-rx-bind-text="expr">
  *   - Attributes:  [attr]="expr"         => data-rx-bind-{attr}
  *                  [class.name]="expr"   => data-rx-class-{name}
  *                  onEvent="handler"     => data-rx-on-{event}
  *                  #ref                  => data-rx-ref="ref"
- *   - Tags:        built-in HTML tags    => rx-{tag} (mirror elements)
  *   - Expressions: up-walk carets "^" are injected for nested custom-element scopes.
  *
  * To display content verbatim (without any of the above), wrap it with {@link escape}

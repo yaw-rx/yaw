@@ -2,9 +2,8 @@ import { type Subscription } from 'rxjs';
 import { marshaller } from 'yaw-common';
 import { parseBind, subscribeBind, resolveEventHandler, resolveRefTarget, resolveValue, resolveWriteTarget, resolveEncoder } from './expression/bind.js';
 import { getSubject } from './observable.js';
-import type { RxElementLike } from './directive.js';
 
-export const setupBindings = (element: RxElementLike): () => void => {
+export const setupBindings = (element: HTMLElement): () => void => {
     const subs: Subscription[] = [];
     const listeners: Array<{ event: string; fn: EventListener }> = [];
     let refTeardown: (() => void) | undefined;

@@ -29,7 +29,7 @@ const directiveSelectors = new Map<DirectiveCtor, string>();
 export const getDirectiveSelector = (ctor: DirectiveCtor): string | undefined =>
     directiveSelectors.get(ctor);
 
-export const matchesSelector = (el: RxElementLike, selector: string): boolean => {
+export const matchesSelector = (el: Element, selector: string): boolean => {
     if (selector.endsWith('*]')) {
         const prefix = selector.slice(1, -2);
         return Array.from(el.attributes).some((a) => a.name.startsWith(prefix));

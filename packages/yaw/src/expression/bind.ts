@@ -54,7 +54,6 @@ import { BehaviorSubject, isObservable, of, Subscription, switchMap, skip, first
 import { hydrationComplete$ } from '../rx-element.js';
 import { BindNotSubscribableError, BindParseError, BindPathError, BindScopeError } from '../errors.js';
 import { encodeAttribute } from '../attribute-codec/encode.js';
-import type { RxElementLike } from '../directive.js';
 
 const walkPath = (root: unknown, path: readonly string[]): unknown => {
     let cur = root;
@@ -157,7 +156,7 @@ export interface ScopeHookResult {
     readonly consumed: number;
 }
 
-type ScopeHook = (host: RxElementLike, segment: string) => ScopeHookResult | undefined;
+type ScopeHook = (host: Element, segment: string) => ScopeHookResult | undefined;
 let scopeHook: ScopeHook | null = null;
 
 export const registerScopeHook = (hook: ScopeHook): void => { scopeHook = hook; };
@@ -189,11 +188,11 @@ export const parseBind = (raw: string): ParsedBind => {
     return parsed;
 };
 
-const nextHost = (el: Element): RxElementLike | undefined =>
-    (el.parentElement?.closest('[data-rx-host]') ?? undefined) as RxElementLike | undefined;
+const nextHost = (el: Element): Element | undefined =>
+    (el.parentElement?.closest('[data-rx-host]') ?? undefined) as Element | undefined;
 
-const walkScope = (host: RxElementLike, carets: number, raw: string): RxElementLike => {
-    let scope: RxElementLike | undefined = nextHost(host);
+const walkScope = (host: Element, carets: number, raw: string): Element => {
+    let scope: Element | undefined = nextHost(host);
     for (let i = 0; i < carets; i++) {
         if (scope === undefined) throw new BindScopeError(host.tagName, raw, carets);
         scope = nextHost(scope);
@@ -202,7 +201,7 @@ const walkScope = (host: RxElementLike, carets: number, raw: string): RxElementL
     return scope;
 };
 
-const resolveRef = (host: RxElementLike, ref: ParsedRef, raw: string): unknown => {
+const resolveRef = (host: Element, ref: ParsedRef, raw: string): unknown => {
     let cur: unknown;
     let startIndex: number;
 
@@ -227,14 +226,14 @@ const resolveRef = (host: RxElementLike, ref: ParsedRef, raw: string): unknown =
     return cur;
 };
 
-const resolveArgs = (host: RxElementLike, parsed: ParsedBind, event: unknown): unknown[] =>
+const resolveArgs = (host: Element, parsed: ParsedBind, event: unknown): unknown[] =>
     parsed.args.map((arg) => {
         if (arg.kind === 'literal') return arg.value;
         if (arg.kind === 'event') return event;
         return resolveRef(host, arg.ref, parsed.raw);
     });
 
-const segmentStream = (host: RxElementLike, parsed: ParsedBind, value: unknown, segment: string): Observable<unknown> => {
+const segmentStream = (host: Element, parsed: ParsedBind, value: unknown, segment: string): Observable<unknown> => {
     if (value === null || value === undefined) {
         throw new BindPathError(host.tagName, parsed.raw, segment);
     }
@@ -251,7 +250,7 @@ const segmentStream = (host: RxElementLike, parsed: ParsedBind, value: unknown, 
 };
 
 export const observeBind = (
-    host: RxElementLike,
+    host: Element,
     parsed: ParsedBind,
 ): Observable<unknown> => {
     const segments = parsed.path;
@@ -334,13 +333,13 @@ export const observeBind = (
 };
 
 export const subscribeBind = (
-    host: RxElementLike,
+    host: Element,
     parsed: ParsedBind,
     onValue: (v: unknown) => void,
 ): Subscription => observeBind(host, parsed).subscribe(onValue);
 
 export const resolveEncoder = (
-    host: RxElementLike,
+    host: Element,
     parsed: ParsedBind,
 ): ((v: unknown) => string) => {
     if (parsed.path.length !== 1) return String;
@@ -353,7 +352,7 @@ export const resolveEncoder = (
 };
 
 export const hydratedBind = (
-    host: RxElementLike,
+    host: Element,
     parsed: ParsedBind,
 ): Observable<unknown> =>
     hydrationComplete$.pipe(first(), switchMap(() => observeBind(host, parsed).pipe(skip(1))));
@@ -362,7 +361,7 @@ export interface EventInvocation {
     invoke(event: Event): void;
 }
 
-export const resolveEventHandler = (host: RxElementLike, parsed: ParsedBind): EventInvocation => {
+export const resolveEventHandler = (host: Element, parsed: ParsedBind): EventInvocation => {
     const segments = parsed.path;
     let cur: unknown;
     let startIndex: number;
@@ -399,13 +398,13 @@ export const resolveEventHandler = (host: RxElementLike, parsed: ParsedBind): Ev
     };
 };
 
-export const resolveRefTarget = (host: RxElementLike, parsed: ParsedBind): { scope: RxElementLike; key: string } => {
+export const resolveRefTarget = (host: Element, parsed: ParsedBind): { scope: Element; key: string } => {
     if (parsed.call) throw new BindParseError(parsed.raw, 'ref cannot be a method call');
     if (parsed.path.length !== 1) throw new BindParseError(parsed.raw, 'ref must be a single identifier');
     return { scope: walkScope(host, parsed.carets, parsed.raw), key: parsed.path[0]! };
 };
 
-export const resolveValue = (host: RxElementLike, parsed: ParsedBind): unknown => {
+export const resolveValue = (host: Element, parsed: ParsedBind): unknown => {
     if (parsed.call) throw new BindParseError(parsed.raw, 'cannot read value from a method call');
     let cur: unknown;
     let startIndex: number;
@@ -429,7 +428,7 @@ export const resolveValue = (host: RxElementLike, parsed: ParsedBind): unknown =
     return cur;
 };
 
-export const resolveWriteTarget = (host: RxElementLike, parsed: ParsedBind): (value: unknown) => void => {
+export const resolveWriteTarget = (host: Element, parsed: ParsedBind): (value: unknown) => void => {
     if (parsed.call) throw new BindParseError(parsed.raw, 'model binding cannot be a method call');
     const root = walkScope(host, parsed.carets, parsed.raw);
     const target = walkPath(root, parsed.path.slice(0, -1));

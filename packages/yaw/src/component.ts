@@ -4,9 +4,9 @@
  * The @Component decorator defines a component. When it runs:
  *
  *   1. The template is compiled via transformTemplate — mustache bindings
- *      become <rx-text>, attribute bindings become data-rx-bind-*, event
- *      handlers become data-rx-on-*, HTML tags become rx-* mirrors, and
- *      carets are injected based on custom-element nesting depth.
+ *      become <span data-rx-bind-text>, attribute bindings become
+ *      data-rx-bind-*, event handlers become data-rx-on-*, and carets
+ *      are injected based on custom-element nesting depth.
  *
  *   2. The compiled template, selector, providers, and directives are
  *      stored in Maps keyed by constructor. These are the framework's
@@ -39,12 +39,12 @@ import { Injector } from './di/injector.js';
 import type { Provider } from './di/types.js';
 import type { DirectiveCtor, RxElementLike } from './directive.js';
 import { BootstrapError, HydrationError } from './errors.js';
-import { registerHtmlMirrors, htmlTags } from './components/rx-elements.js';
 import { setHydrating, isHydrating, appReady, flushHydrationBindings } from './rx-element.js';
 import { transformTemplate, transformStyles } from 'yaw-common';
 import type { AttributeCodec } from './attribute-codec/types.js';
 import { registerAttributeCodecs } from './attribute-codec/registry.js';
 import { loadHydrateState, stripSsgAttributes } from './ssg-registry.js';
+import { startNativeObserver, flushNativeBindings } from './native-bindings.js';
 
 export interface ComponentOptions {
     readonly selector: string;
@@ -150,7 +150,6 @@ export const bootstrap = (options: BootstrapOptions): void | Promise<void> => {
     const selector = getSelector(options.root);
     if (selector === undefined) { throw new BootstrapError(`${options.root.name} has no @Component decorator`); }
     if (options.globals?.attributeCodecs !== undefined) { registerAttributeCodecs(options.globals.attributeCodecs); }
-    registerHtmlMirrors(hydrateMode ? deferredDefines : undefined);
     globalDirectives = options.globals?.directives ?? [];
     ssgMode = options.ssg === true || (globalThis as Record<string, unknown>)['__yaw_ssg'] === true;
     const injector = new Injector(options.providers);
@@ -187,20 +186,15 @@ export const bootstrap = (options: BootstrapOptions): void | Promise<void> => {
         hydrateFromDepGraph();
         return endHydration();
     } else {
+        startNativeObserver();
         document.body.appendChild(document.createElement(selector));
     }
 };
 
-const mirrorSelectors = new Set(htmlTags.map(t => `rx-${t}`));
-
 const hydrateFromDepGraph = (): void => {
-    console.log('[hydrateFromDepGraph] deferredDefines:', [...deferredDefines.keys()]);
-    const isMirror = (sel: string): boolean => sel === 'rx-text' || mirrorSelectors.has(sel);
-
     const define = (sel: string): void => {
-        if (isMirror(sel) || customElements.get(sel)) return;
+        if (customElements.get(sel)) return;
         const ctor = deferredDefines.get(sel);
-        console.log('[hydrateFromDepGraph] define', sel, 'found:', ctor !== undefined, 'alreadyDefined:', !!customElements.get(sel));
         if (ctor !== undefined) customElements.define(sel, ctor);
     };
 
@@ -217,14 +211,7 @@ const hydrateFromDepGraph = (): void => {
 
     for (const [sel] of deferredDefines) define(sel);
 
-    for (const [sel, ctor] of deferredDefines) {
-        if (sel !== 'rx-text' && mirrorSelectors.has(sel) && !customElements.get(sel)) {
-            customElements.define(sel, ctor);
-        }
-    }
-
-    const rxText = deferredDefines.get('rx-text');
-    if (rxText !== undefined && !customElements.get('rx-text')) customElements.define('rx-text', rxText);
-
     flushHydrationBindings();
+    startNativeObserver();
+    flushNativeBindings();
 };

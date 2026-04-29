@@ -166,9 +166,8 @@ interface ScopeEntry {
 
 const SCOPE_PROP = '__rxForScope';
 
-registerScopeHook((host: RxElementLike, segment: string): ScopeHookResult | undefined => {
-    // walk up via closest('[rx-for]') — native browser call
-    let rxForEl: Element | null = (host as Element).closest('[rx-for]');
+registerScopeHook((host: Element, segment: string): ScopeHookResult | undefined => {
+    let rxForEl: Element | null = host.closest('[rx-for]');
     while (rxForEl !== null) {
         const directive = (rxForEl as any)[SCOPE_PROP] as RxFor | undefined;
         if (directive !== undefined && directive.mode === 'scope') {

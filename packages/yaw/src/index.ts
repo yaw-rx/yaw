@@ -13,5 +13,3 @@ export { decodeAttribute } from './attribute-codec/decode.js';
 export { encodeAttribute } from './attribute-codec/encode.js';
 export type { Route } from './component.js';
 export type { Directive as DirectiveInterface, DirectiveCtor, ParsedExpr, RxElementLike } from './directive.js';
-
-export { RxText } from './components/rx-text.js';
