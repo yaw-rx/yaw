@@ -106,11 +106,15 @@ const serializeState = (): SSGStateBlob => {
             seen.add(instance as object);
             const keys = getObservableKeys(Object.getPrototypeOf(instance));
             if (keys.size === 0) return;
-            const name = (instance as object).constructor.name;
+            const ctor = (instance as object).constructor;
+            const name = ctor.name;
+            const typeMap = (ctor as unknown as Record<string, unknown>)['__stateTypes'] as Record<string, string> | undefined;
             console.log('[ssg] service', name, 'keys', [...keys]);
             const svc: Record<string, unknown> = {};
             for (const key of keys) {
-                svc[key] = unwrapObservables((instance as Record<string, unknown>)[key]);
+                const unwrapped = unwrapObservables((instance as Record<string, unknown>)[key]);
+                const typeName = typeMap?.[key];
+                svc[key] = typeName !== undefined ? encodeAttribute(typeName, key, unwrapped) : unwrapped;
             }
             blob.services[name] = svc;
         });

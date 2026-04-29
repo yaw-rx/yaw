@@ -27,8 +27,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
 
-    "experimentalDecorators": true,
-    "useDefineForClassFields": false,
 
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
