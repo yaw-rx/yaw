@@ -39,12 +39,12 @@ import { Injector } from './di/injector.js';
 import type { Provider } from './di/types.js';
 import type { DirectiveCtor, RxElementLike } from './directive.js';
 import { BootstrapError, HydrationError } from './errors.js';
-import { setHydrating, isHydrating, appReady, flushHydrationBindings } from './rx-element.js';
+import { setHydrating, isHydrating, appReady } from './rx-element.js';
 import { transformTemplate, transformStyles } from 'yaw-common';
 import type { AttributeCodec } from './attribute-codec/types.js';
 import { registerAttributeCodecs } from './attribute-codec/registry.js';
 import { loadHydrateState, stripSsgAttributes } from './ssg-registry.js';
-import { startNativeObserver, flushNativeBindings } from './native-bindings.js';
+import { startObserver, flushExistingBindings } from './native-bindings.js';
 
 export interface ComponentOptions {
     readonly selector: string;
@@ -186,7 +186,7 @@ export const bootstrap = (options: BootstrapOptions): void | Promise<void> => {
         hydrateFromDepGraph();
         return endHydration();
     } else {
-        startNativeObserver();
+        startObserver();
         document.body.appendChild(document.createElement(selector));
     }
 };
@@ -211,7 +211,6 @@ const hydrateFromDepGraph = (): void => {
 
     for (const [sel] of deferredDefines) define(sel);
 
-    flushHydrationBindings();
-    startNativeObserver();
-    flushNativeBindings();
+    flushExistingBindings();
+    startObserver();
 };

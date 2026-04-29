@@ -100,8 +100,9 @@ export class TocService {
         this.basePath = full;
     }
 
-    register(id: string, label: string, depth: number, path: string, element: HTMLElement): void {
-        this.elements.set(id, element);
+    registerSection(path: string, depth: number): void {
+        const id = path.replace(/\//g, '-');
+        const label = path.split('/').pop()!;
         this.entries.push({ id, label, depth, path });
         if (path) {
             this.idToPath.set(id, path);
@@ -110,15 +111,28 @@ export class TocService {
         this.scheduleRebuild();
     }
 
-    unregister(id: string): void {
+    unregisterSection(path: string): void {
+        const id = path.replace(/\//g, '-');
         this.elements.delete(id);
-        const path = this.idToPath.get(id);
-        if (path !== undefined) {
-            this.idToPath.delete(id);
-            this.pathToId.delete(path);
-        }
-        const idx = this.entries.findIndex((e) => e.id === id);
+        this.idToPath.delete(id);
+        this.pathToId.delete(path);
+        const idx = this.entries.findIndex((e) => e.path === path);
         if (idx !== -1) this.entries.splice(idx, 1);
+        this.disconnectObservers();
+        this.scheduleRebuild();
+    }
+
+    registerAnchor(path: string, label: string, element: HTMLElement): void {
+        const id = path.replace(/\//g, '-');
+        this.elements.set(id, element);
+        const entry = this.entries.find((e) => e.path === path);
+        if (entry) entry.label = label;
+        this.scheduleRebuild();
+    }
+
+    unregisterAnchor(path: string): void {
+        const id = path.replace(/\//g, '-');
+        this.elements.delete(id);
         this.disconnectObservers();
         this.scheduleRebuild();
     }
@@ -212,21 +226,33 @@ export class TocService {
 
     private rebuildTree(): void {
         const root: TocEntry[] = [];
-        const stack: TocEntry[] = [];
         this.paths.clear();
 
-        for (const { id, label, depth } of this.entries) {
+        const nodesByPath = new Map<string, TocEntry>();
+
+        for (const { id, label, depth, path } of this.entries) {
             const entry: TocEntry = { id, label, depth, childEntries: [] };
-            while (stack.length > 0 && stack[stack.length - 1]!.depth >= depth) {
-                stack.pop();
-            }
-            if (stack.length === 0) {
-                root.push(entry);
+            nodesByPath.set(path, entry);
+
+            const lastSlash = path.lastIndexOf('/');
+            const parentPath = lastSlash === -1 ? null : path.slice(0, lastSlash);
+            const parent = parentPath !== null ? nodesByPath.get(parentPath) : undefined;
+
+            if (parent) {
+                parent.childEntries.push(entry);
             } else {
-                stack[stack.length - 1]!.childEntries.push(entry);
+                root.push(entry);
             }
-            stack.push(entry);
-            this.paths.set(id, stack.map((e) => e.id));
+
+            const trail: string[] = [];
+            let cur: string | null = path;
+            while (cur !== null) {
+                const cid = cur.replace(/\//g, '-');
+                trail.unshift(cid);
+                const s = cur.lastIndexOf('/');
+                cur = s === -1 ? null : cur.slice(0, s);
+            }
+            this.paths.set(id, trail);
         }
         this.tree = root;
     }

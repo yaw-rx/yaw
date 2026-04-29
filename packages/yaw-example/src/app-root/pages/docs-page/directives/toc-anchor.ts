@@ -9,7 +9,7 @@ const TOP_OFFSET = 80;
 export class TocAnchor {
     node!: RxElementLike;
     private readonly toc: TocService;
-    private id: string | undefined;
+    private path: string | undefined;
 
     constructor(toc: TocService) {
         this.toc = toc;
@@ -18,24 +18,13 @@ export class TocAnchor {
     onInit(): void {
         const { node } = this;
         node.style.scrollMarginTop = `${String(TOP_OFFSET)}px`;
-
-        this.id = node.id;
-        if (!this.id) return;
-
-        let depth = 0;
-        let ancestor: Element | null = node.parentElement;
-        while (ancestor !== null) {
-            if (ancestor.hasAttribute('toc-section')) depth++;
-            ancestor = ancestor.parentElement;
-        }
-
+        this.path = node.getAttribute('toc-anchor') || undefined;
+        if (!this.path) return;
         const label = node.textContent ?? '';
-        this.toc.register(this.id, label, depth, node as HTMLElement);
+        this.toc.registerAnchor(this.path, label, node as HTMLElement);
     }
 
     onDestroy(): void {
-        if (this.id) {
-            this.toc.unregister(this.id);
-        }
+        if (this.path) this.toc.unregisterAnchor(this.path);
     }
 }

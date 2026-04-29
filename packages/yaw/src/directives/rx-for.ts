@@ -53,7 +53,7 @@ import { Directive } from '../directive.js';
 import { BindParseError } from '../errors.js';
 import { parseBind, subscribeBind, hydratedBind, resolveValue, registerScopeHook, type ParsedBind, type ScopeHookResult } from '../expression/bind.js';
 import type { RxElementLike } from '../directive.js';
-import { pushRenderScope, popRenderScope, RxElementBase, isHydrating } from '../rx-element.js';
+import { isHydrating } from '../rx-element.js';
 import { getTemplate } from '../component.js';
 
 // ---------------------------------------------------------------------------
@@ -295,10 +295,7 @@ export class RxFor {
             const k = String((item as Record<string, unknown>)[key]);
             let el = this.splatNodes.get(k);
             if (el === undefined) {
-                const scope = this.node.hostNode instanceof RxElementBase ? this.node.hostNode : undefined;
-                if (scope !== undefined) pushRenderScope(scope);
                 this.node.insertAdjacentHTML('beforeend', this.content);
-                if (scope !== undefined) popRenderScope();
                 el = this.node.lastElementChild!;
             }
             for (const [prop, val] of Object.entries(item as Record<string, unknown>)) {
@@ -425,11 +422,7 @@ export class RxFor {
                 const entry: ScopeEntry = { el: itemEl, subject, index$ };
                 this.scopeNodes.set(key, entry);
 
-                // push host onto render scope so children get correct hostNode
-                const scope = this.node.hostNode instanceof RxElementBase ? this.node.hostNode : undefined;
-                if (scope !== undefined) pushRenderScope(scope);
                 this.node.appendChild(frag);
-                if (scope !== undefined) popRenderScope();
 
                 // after appendChild, itemEl is now in the DOM — update entry ref
                 // (the element reference stays valid after appendChild from fragment)

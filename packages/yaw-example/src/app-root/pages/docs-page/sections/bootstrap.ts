@@ -1,5 +1,6 @@
 import { Component, RxElement } from 'yaw';
 import { TocSection } from '../directives/toc-section.js';
+import { TocAnchor } from '../directives/toc-anchor.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
@@ -52,25 +53,25 @@ export class AppRoot extends RxElement {}`;
 
 @Component({
     selector: 'docs-bootstrap',
-    directives: [TocSection],
+    directives: [TocSection, TocAnchor],
     template: `
-        <h1 id="bootstrap" toc-section="bootstrap">Bootstrap</h1>
+        <h1 toc-anchor="bootstrap">Bootstrap</h1>
         <p class="lede">One call. A root component, a flat provider list, and the
            built-in global directives. <code class="inline">bootstrap()</code> creates
            the root injector, registers every imported <code class="inline">@Component</code>
            as a custom element, then mounts the root component on
            <code class="inline">document.body</code> itself. No modules, no zones.</p>
 
-        <section class="host" id="bootstrap-html" toc-section="bootstrap/html">
-            <h2>index.html</h2>
+        <section class="host" toc-section="bootstrap/html">
+            <h2 toc-anchor="bootstrap/html">index.html</h2>
             <p class="note">The HTML entry is empty — just a module script.
                <code class="inline">bootstrap()</code> creates and appends the root
                element from the component's selector; you don't place it by hand.</p>
             <code-block syntax="html">${escape`${HTML_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="bootstrap-main" toc-section="bootstrap/main">
-            <h2>main.ts</h2>
+        <section class="host" toc-section="bootstrap/main">
+            <h2 toc-anchor="bootstrap/main">main.ts</h2>
             <p class="note"><code class="inline">providers</code> is a flat array —
                values, classes, or <code class="inline">{ provide, useValue }</code>
                tuples. <code class="inline">Router</code> is registered by class token;
@@ -84,8 +85,8 @@ export class AppRoot extends RxElement {}`;
             <code-block syntax="ts">${escape`${MAIN_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="bootstrap-root" toc-section="bootstrap/root">
-            <h2>The root component</h2>
+        <section class="host" toc-section="bootstrap/root">
+            <h2 toc-anchor="bootstrap/root">The root component</h2>
             <p class="note">An ordinary <code class="inline">@Component</code> — no
                flag, no magic. <code class="inline">bootstrap()</code> reads its selector,
                does <code class="inline">document.body.appendChild(document.createElement(selector))</code>,

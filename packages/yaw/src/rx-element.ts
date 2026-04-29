@@ -31,11 +31,6 @@ export const setHydrating = (value: boolean): void => {
     if (!value) hydrationComplete$.next();
 };
 
-const renderScopeStack: RxElementBase[] = [];
-
-export const pushRenderScope = (scope: RxElementBase): void => { renderScopeStack.push(scope); };
-export const popRenderScope = (): void => { renderScopeStack.pop(); };
-
 export const resolveInjector = (el: Element): Injector => {
     let node: Element | null = el;
     while (node !== null) {
@@ -82,19 +77,15 @@ export const setupDirectivesFor = (el: Element): Directive[] => {
 export class RxElementBase extends HTMLElement {
     declare hostNode: RxElementBase;
     __injector: Injector | undefined;
+    #initialized = false;
     #directives: Directive[] = [];
     #bindingTeardown: (() => void) | undefined;
 
     #setupHostNode(): void {
         if (isComponent(this.constructor)) { this.setAttribute('data-rx-host', ''); }
         if (!Object.prototype.hasOwnProperty.call(this, 'hostNode')) {
-            const scope = renderScopeStack[renderScopeStack.length - 1];
-            if (scope !== undefined) {
-                this.hostNode = scope;
-            } else if (hydrating) {
-                const host = this.parentElement?.closest('[data-rx-host]') as RxElementBase | null;
-                if (host !== null) { this.hostNode = host; }
-            }
+            const host = this.parentElement?.closest('[data-rx-host]') as RxElementBase | null;
+            if (host !== null) { this.hostNode = host; }
         }
     }
 
@@ -118,14 +109,14 @@ export class RxElementBase extends HTMLElement {
         if (template === undefined) { return; }
         const projected = document.createDocumentFragment();
         while (this.firstChild !== null) { projected.appendChild(this.firstChild); }
-        pushRenderScope(this);
         this.innerHTML = template;
-        popRenderScope();
         const slot = this.querySelector('slot');
         if (slot !== null) { slot.replaceWith(projected); }
     }
 
     _initBindings(): void {
+        if (this.#initialized) return;
+        this.#initialized = true;
         this.#setupInjectorAndDeps();
         this.#bindingTeardown = setupBindings(this);
         this.#directives = setupDirectivesFor(this);
@@ -144,11 +135,6 @@ export class RxElementBase extends HTMLElement {
     connectedCallback(): void {
         pending++;
         this.#setupHostNode();
-        if (hydrating) {
-            registerHydrationNode(this);
-            return;
-        }
-        this._initBindings();
     }
 
     disconnectedCallback(): void {
@@ -161,30 +147,5 @@ export class RxElementBase extends HTMLElement {
     onInit(): void {}
     onDestroy(): void {}
 }
-
-const hydrationRoots: RxElementBase[] = [];
-const hydrationChildren = new Map<RxElementBase, RxElementBase[]>();
-
-const registerHydrationNode = (el: RxElementBase): void => {
-    const parent = Object.prototype.hasOwnProperty.call(el, 'hostNode') ? el.hostNode : undefined;
-    if (parent !== undefined) {
-        let kids = hydrationChildren.get(parent);
-        if (kids === undefined) { kids = []; hydrationChildren.set(parent, kids); }
-        kids.push(el);
-    } else {
-        hydrationRoots.push(el);
-    }
-};
-
-export const flushHydrationBindings = (): void => {
-    const walk = (el: RxElementBase): void => {
-        el._initBindings();
-        const kids = hydrationChildren.get(el);
-        if (kids !== undefined) for (const child of kids) walk(child);
-    };
-    for (const root of hydrationRoots) walk(root);
-    hydrationRoots.length = 0;
-    hydrationChildren.clear();
-};
 
 export { RxElementBase as RxElement };

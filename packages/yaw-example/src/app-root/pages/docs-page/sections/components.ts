@@ -1,5 +1,6 @@
 import { Component, RxElement, state } from 'yaw';
 import { TocSection } from '../directives/toc-section.js';
+import { TocAnchor } from '../directives/toc-anchor.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
@@ -84,9 +85,9 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
 
 @Component({
     selector: 'docs-components',
-    directives: [TocSection],
+    directives: [TocSection, TocAnchor],
     template: `
-        <h1 id="components" toc-section="components">Components</h1>
+        <h1 toc-anchor="components">Components</h1>
         <p class="lede">A component is an <code class="inline">RxElement</code>
            subclass decorated with <code class="inline">@Component</code>. The
            decorator registers a real custom element; the class instance
@@ -104,16 +105,16 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
     attributeCodecs: {...},  // local codec registrations for attribute marshalling
 })`}</code-block>
 
-        <section class="host" id="components-whole" toc-section="components/whole">
-            <h2>A whole component</h2>
+        <section class="host" toc-section="components/whole">
+            <h2 toc-anchor="components/whole">A whole component</h2>
             <p class="note">Two observables, two methods, three bindings. No
                reconciliation, no diff — the subject emits, the binding applies
                the new value.</p>
             <code-block syntax="ts">${escape`${COUNTER_SOURCE}`}</code-block>
         </section>
 
-        <section class="ex" id="components-use" toc-section="components/use">
-            <h2>In use</h2>
+        <section class="ex" toc-section="components/use">
+            <h2 toc-anchor="components/use">In use</h2>
             <p class="note">The source above, rendered live. Click the buttons.</p>
             <div class="split">
                 <code-block syntax="html">${escape`<hello-counter></hello-counter>`}</code-block>
@@ -121,15 +122,15 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
             </div>
         </section>
 
-        <section class="host" id="components-bindings" toc-section="components/bindings">
-            <h2>Template bindings</h2>
+        <section class="host" toc-section="components/bindings">
+            <h2 toc-anchor="components/bindings">Template bindings</h2>
             <p class="note">The full vocabulary. Every binding compiles to a
                subscription on a resolved observable — no other runtime.</p>
             <code-block syntax="html">${escape`${BINDINGS_SNIPPET}`}</code-block>
         </section>
 
-        <section class="host" id="components-escape" toc-section="components/escape">
-            <h2>Escaping mustaches and HTML</h2>
+        <section class="host" toc-section="components/escape">
+            <h2 toc-anchor="components/escape">Escaping mustaches and HTML</h2>
             <p class="note">A template compiles its mustache expressions into
                observable bindings, and rewrites built-in HTML tags into their
                reactive mirrors. To show those characters as literal text --
@@ -145,8 +146,8 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
             <code-block syntax="ts">${escape`${ESCAPE_SNIPPET}`}</code-block>
         </section>
 
-        <section class="host" id="components-lifecycle" toc-section="components/lifecycle">
-            <h2>Lifecycle</h2>
+        <section class="host" toc-section="components/lifecycle">
+            <h2 toc-anchor="components/lifecycle">Lifecycle</h2>
             <p class="note"><code class="inline">onInit</code> fires after
                the element is fully wired — dependencies are injected,
                attributes are hydrated, bindings are live, and the template

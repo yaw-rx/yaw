@@ -1,6 +1,7 @@
 import { Component, Inject, RxElement, state } from 'yaw';
 import { Router } from 'yaw/router';
 import { TocSection } from '../directives/toc-section.js';
+import { TocAnchor } from '../directives/toc-anchor.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
@@ -105,9 +106,9 @@ const LIVE_USAGE = `<route-display></route-display>`;
 
 @Component({
     selector: 'docs-navigation',
-    directives: [TocSection],
+    directives: [TocSection, TocAnchor],
     template: `
-        <h1>Navigation</h1>
+        <h1 toc-anchor="navigation">Navigation</h1>
         <p class="lede">Routing is one service and one element.
            <code class="inline">Router</code> owns a
            <code class="inline">route$</code> BehaviorSubject of the current path;
@@ -116,8 +117,8 @@ const LIVE_USAGE = `<route-display></route-display>`;
            highlighting active links, driving transitions, lazy-loading routes —
            is just reading the subject.</p>
 
-        <section class="host" id="navigation-routes" toc-section="navigation/routes">
-            <h2 id="navigation" toc-section="navigation">Declaring routes</h2>
+        <section class="host" toc-section="navigation/routes">
+            <h2 toc-anchor="navigation/routes">Declaring routes</h2>
             <p class="note">An array of <code class="inline">{ path, load }</code>,
                plus an optional <code class="inline">{ path: '*', load }</code>
                wildcard. Provided through the <code class="inline">ROUTES</code>
@@ -125,8 +126,8 @@ const LIVE_USAGE = `<route-display></route-display>`;
             <code-block syntax="ts">${escape`${ROUTE_CONFIG_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="navigation-outlet" toc-section="navigation/outlet">
-            <h2>The outlet</h2>
+        <section class="host" toc-section="navigation/outlet">
+            <h2 toc-anchor="navigation/outlet">The outlet</h2>
             <p class="note"><code class="inline">&lt;rx-router-outlet&gt;</code>
                renders the component whose path matches
                <code class="inline">route$</code>. Put it once in your app
@@ -134,8 +135,8 @@ const LIVE_USAGE = `<route-display></route-display>`;
             <code-block syntax="ts">${escape`${OUTLET_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="navigation-navigate" toc-section="navigation/navigate">
-            <h2>Navigating</h2>
+        <section class="host" toc-section="navigation/navigate">
+            <h2 toc-anchor="navigation/navigate">Navigating</h2>
             <p class="note">Declare <code class="inline">@Inject() router!: Router</code>
                on a field, subscribe to <code class="inline">route$</code> in
                <code class="inline">onInit</code>, call
@@ -144,8 +145,8 @@ const LIVE_USAGE = `<route-display></route-display>`;
             <code-block syntax="ts">${escape`${NAVIGATE_SOURCE}`}</code-block>
         </section>
 
-        <section class="ex" id="navigation-live" toc-section="navigation/live">
-            <h2>Live</h2>
+        <section class="ex" toc-section="navigation/live">
+            <h2 toc-anchor="navigation/live">Live</h2>
             <p class="note">Press a button — the path updates, the URL changes,
                and the outlet swaps the page. Watch the nav bar at the top pick
                up the active-link class, because it's subscribed to the same
@@ -156,8 +157,8 @@ const LIVE_USAGE = `<route-display></route-display>`;
             </div>
         </section>
 
-        <section class="host" id="navigation-api" toc-section="navigation/api">
-            <h2>Router API</h2>
+        <section class="host" toc-section="navigation/api">
+            <h2 toc-anchor="navigation/api">Router API</h2>
             <code-block syntax="ts">${escape`${API_SOURCE}`}</code-block>
         </section>
     `,

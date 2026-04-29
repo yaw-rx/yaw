@@ -1,5 +1,5 @@
 import { setupBindings } from './setupBindings.js';
-import { setupDirectivesFor, isHydrating } from './rx-element.js';
+import { setupDirectivesFor, RxElementBase } from './rx-element.js';
 import type { Directive } from './directive.js';
 
 const hasBinding = (el: Element): boolean => {
@@ -9,24 +9,16 @@ const hasBinding = (el: Element): boolean => {
     return false;
 };
 
-const hasDirective = (el: Element): boolean => {
-    for (let i = 0; i < el.attributes.length; i++) {
-        if (el.attributes[i]!.name.startsWith('rx-')) return true;
-    }
-    return false;
-};
-
-const isNative = (el: Element): boolean => !el.tagName.includes('-');
-
-const pending: Element[] = [];
 const teardowns = new WeakMap<Element, () => void>();
 const directiveInstances = new WeakMap<Element, Directive[]>();
 
-const init = (el: Element): void => {
+const initNative = (el: Element): void => {
     if (teardowns.has(el)) return;
     const directives = setupDirectivesFor(el);
+    const hasBind = hasBinding(el);
+    if (directives.length === 0 && !hasBind) return;
     if (directives.length > 0) directiveInstances.set(el, directives);
-    teardowns.set(el, setupBindings(el as HTMLElement));
+    teardowns.set(el, hasBind ? setupBindings(el as HTMLElement) : () => {});
 };
 
 const destroy = (el: Element): void => {
@@ -41,21 +33,23 @@ const destroy = (el: Element): void => {
 
 const processAdded = (el: Element): void => {
     if (!el.isConnected) return;
-    if (isNative(el) && (hasBinding(el) || hasDirective(el))) {
-        if (isHydrating()) { pending.push(el); } else { init(el); }
+    if (el instanceof RxElementBase) {
+        el._initBindings();
+        return;
     }
+    initNative(el);
     let child = el.firstElementChild;
     while (child !== null) {
-        if (isNative(child)) processAdded(child);
+        processAdded(child);
         child = child.nextElementSibling;
     }
 };
 
 const processRemoved = (el: Element): void => {
-    if (isNative(el)) destroy(el);
+    destroy(el);
     let child = el.firstElementChild;
     while (child !== null) {
-        if (isNative(child)) processRemoved(child);
+        processRemoved(child);
         child = child.nextElementSibling;
     }
 };
@@ -71,11 +65,22 @@ const observer = new MutationObserver((records) => {
     }
 });
 
-export const startNativeObserver = (): void => {
+export const startObserver = (): void => {
     observer.observe(document.body, { childList: true, subtree: true });
 };
 
-export const flushNativeBindings = (): void => {
-    for (const el of pending) init(el);
-    pending.length = 0;
+export const flushExistingBindings = (): void => {
+    const walk = (el: Element): void => {
+        if (el instanceof RxElementBase) {
+            el._initBindings();
+        } else {
+            initNative(el);
+        }
+        let child = el.firstElementChild;
+        while (child !== null) {
+            walk(child);
+            child = child.nextElementSibling;
+        }
+    };
+    walk(document.body);
 };

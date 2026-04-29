@@ -1,5 +1,6 @@
 import { Component, RxElement } from 'yaw';
 import { TocSection } from './docs-page/directives/toc-section.js';
+import { TocAnchor } from './docs-page/directives/toc-anchor.js';
 import { TocService } from './docs-page/services/toc-service.js';
 import './docs-page/sidebar.js';
 import './docs-page/sections/getting-started.js';
@@ -13,25 +14,26 @@ import './docs-page/sections/navigation.js';
 @Component({
     selector: 'docs-page',
     providers: [TocService],
-    directives: [TocSection],
+    directives: [TocSection, TocAnchor],
     template: `
         <docs-sidebar></docs-sidebar>
         <main class="content">
-            <header class="intro" id="docs" toc-section="docs">
-                <h1>Docs</h1>
+            <header class="intro" toc-section="docs">
+                <h1 toc-anchor="docs">Docs</h1>
                 <p class="lede">The whole framework on one page. Bootstrap, components,
                    directives, services, navigation — each section is the full story
                    of that primitive, with the real source right next to a live example
                    where it makes sense.</p>
             </header>
 
-            <docs-getting-started id="getting-started" toc-section="getting-started"></docs-getting-started>
-            <docs-bootstrap id="bootstrap" toc-section="bootstrap"></docs-bootstrap>
-            <docs-components id="components" toc-section="components"></docs-components>
-            <docs-reactive-state id="reactive-state" toc-section="reactive-state"></docs-reactive-state>
-            <docs-directives id="directives" toc-section="directives"></docs-directives>
-            <docs-services id="services" toc-section="services"></docs-services>
-            <docs-navigation id="navigation" toc-section="navigation"></docs-navigation>
+            <docs-getting-started toc-section="getting-started"></docs-getting-started>
+            <docs-bootstrap toc-section="bootstrap"></docs-bootstrap>
+            <docs-components toc-section="components"></docs-components>
+            <docs-reactive-state toc-section="reactive-state"></docs-reactive-state>
+            <docs-directives toc-section="directives"></docs-directives>
+            <docs-services toc-section="services"></docs-services>
+            <docs-navigation toc-section="navigation"></docs-navigation>
+
         </main>
     `,
     styles: `

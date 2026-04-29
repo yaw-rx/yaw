@@ -1,6 +1,7 @@
 import { BehaviorSubject } from 'rxjs';
 import { Component, Inject, Injectable, RxElement, state } from 'yaw';
 import { TocSection } from '../directives/toc-section.js';
+import { TocAnchor } from '../directives/toc-anchor.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
@@ -90,9 +91,9 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
 @Component({
     selector: 'docs-services',
     providers: [Clock],
-    directives: [TocSection],
+    directives: [TocSection, TocAnchor],
     template: `
-        <h1 id="services" toc-section="services">Services</h1>
+        <h1 toc-anchor="services">Services</h1>
         <p class="lede">A service is any class registered with an
            <code class="inline">Injector</code>. Decorate it with
            <code class="inline">@Injectable</code>, put it in a
@@ -101,15 +102,15 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
            <code class="inline">@Inject()</code> on a field for components. The
            injector tree walks up the DOM; child providers shadow parents.</p>
 
-        <section class="host" id="services-a" toc-section="services/example">
-            <h2>A service</h2>
+        <section class="host" toc-section="services/example">
+            <h2 toc-anchor="services/example">A service</h2>
             <p class="note">Plain class, decorated. A <code class="inline">BehaviorSubject</code>
                that ticks once a second.</p>
             <code-block syntax="ts">${escape`${SERVICE_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="services-register" toc-section="services/register">
-            <h2>Registering it</h2>
+        <section class="host" toc-section="services/register">
+            <h2 toc-anchor="services/register">Registering it</h2>
             <p class="note">Two places. A component's
                <code class="inline">providers</code> array creates a child injector
                scoped to that subtree. <code class="inline">bootstrap()</code> puts
@@ -117,8 +118,8 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
             <code-block syntax="ts">${escape`${PROVIDE_SOURCE}`}</code-block>
         </section>
 
-        <section class="host" id="services-resolve" toc-section="services/resolve">
-            <h2>Injecting it</h2>
+        <section class="host" toc-section="services/resolve">
+            <h2 toc-anchor="services/resolve">Injecting it</h2>
             <p class="note">Two shapes, both token-driven. Services and directives
                list their deps in <code class="inline">@Injectable([...])</code>
                and the injector passes them as constructor arguments. Components
@@ -131,8 +132,8 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
             <code-block syntax="ts">${escape`${RESOLVE_SOURCE}`}</code-block>
         </section>
 
-        <section class="ex" id="services-live" toc-section="services/live">
-            <h2>Live</h2>
+        <section class="ex" toc-section="services/live">
+            <h2 toc-anchor="services/live">Live</h2>
             <p class="note">This section registers <code class="inline">Clock</code>
                in its own <code class="inline">providers</code>. The readout below
                declares <code class="inline">@Inject() clock!: Clock</code> and
