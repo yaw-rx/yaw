@@ -135,6 +135,7 @@ export class RxElementBase extends HTMLElement {
     connectedCallback(): void {
         pending++;
         this.#setupHostNode();
+        this._initBindings();
     }
 
     disconnectedCallback(): void {
