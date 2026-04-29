@@ -34,6 +34,11 @@ export const vitePlugin = (): Plugin => {
                 sourcefile: id,
                 sourcemap: 'external',
                 target: 'es2022',
+                tsconfigRaw: {
+                    compilerOptions: {
+                        verbatimModuleSyntax: true,
+                    },
+                },
             });
             return { code: result.code, map: result.map || null };
         },
