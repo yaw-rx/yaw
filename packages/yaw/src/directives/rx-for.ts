@@ -251,9 +251,7 @@ export class RxFor {
     private initSplat(): void {
         if (isHydrating()) {
             this.hydrateSplat();
-            console.log('[rx-for:splat:hydrate]', this.source.raw, 'adopted', this.splatNodes.size, 'children, keys:', [...this.splatNodes.keys()]);
             this.sub = hydratedBind(this.node, this.source).subscribe((v) => {
-                console.log('[rx-for:splat:emit]', this.source.raw, 'got', Array.isArray(v) ? v.length + ' items' : typeof v, v);
                 if (!Array.isArray(v)) {
                     throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
                 }
@@ -271,17 +269,20 @@ export class RxFor {
         }
     }
 
-    private hydrateSplat(): void {
+    private recoverTemplate(): void {
         const hostCtor = Object.prototype.hasOwnProperty.call(this.node, 'hostNode')
             ? this.node.hostNode.constructor
             : this.node.constructor;
         const rawTemplate = getTemplate(hostCtor);
-        if (rawTemplate !== undefined) {
-            const tpl = document.createElement('template');
-            tpl.innerHTML = rawTemplate;
-            const rxForEl = tpl.content.querySelector('[rx-for]');
-            if (rxForEl !== null) this.content = rxForEl.innerHTML;
-        }
+        if (rawTemplate === undefined) return;
+        const tpl = document.createElement('template');
+        tpl.innerHTML = rawTemplate;
+        const rxForEl = tpl.content.querySelector('[rx-for]');
+        if (rxForEl !== null) this.content = rxForEl.innerHTML;
+    }
+
+    private hydrateSplat(): void {
+        this.recoverTemplate();
         for (const child of Array.from(this.node.children)) {
             const k = child.getAttribute('data-rx-key');
             if (k !== null) this.splatNodes.set(k, child);
@@ -315,9 +316,7 @@ export class RxFor {
 
         if (isHydrating()) {
             this.hydrateScope();
-            console.log('[rx-for:scope:hydrate]', this.source.raw, 'adopted', this.scopeNodes.size, 'children, keys:', [...this.scopeNodes.keys()], 'subjects:', [...this.scopeNodes.values()].map(e => ({ key: e.el.getAttribute('data-rx-key'), value: e.subject.value })));
             this.sub = hydratedBind(this.node, this.source).subscribe((v) => {
-                console.log('[rx-for:scope:emit]', this.source.raw, 'got', Array.isArray(v) ? v.length + ' items' : typeof v, v);
                 if (!Array.isArray(v)) {
                     throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
                 }
@@ -336,16 +335,7 @@ export class RxFor {
     }
 
     private hydrateScope(): void {
-        const hostCtor = Object.prototype.hasOwnProperty.call(this.node, 'hostNode')
-            ? this.node.hostNode.constructor
-            : this.node.constructor;
-        const rawTemplate = getTemplate(hostCtor);
-        if (rawTemplate !== undefined) {
-            const tpl = document.createElement('template');
-            tpl.innerHTML = rawTemplate;
-            const rxForEl = tpl.content.querySelector('[rx-for]');
-            if (rxForEl !== null) this.content = rxForEl.innerHTML;
-        }
+        this.recoverTemplate();
 
         const keyField = this.keyField;
         let items: unknown[] = [];
@@ -356,8 +346,7 @@ export class RxFor {
             } else if (isObservable(val)) {
                 val.subscribe(v => { if (Array.isArray(v)) items = v; }).unsubscribe();
             }
-            console.log('[rx-for:scope:resolveValue]', this.source.raw, 'resolved to', val, 'type:', typeof val, 'isObs:', isObservable(val), 'ctor:', val?.constructor?.name, 'items:', items.length);
-        } catch (e) { console.log('[rx-for:scope:resolveValue]', this.source.raw, 'failed:', e); }
+        } catch { /* source not yet available during hydration */ }
 
         const itemByKey = new Map<string, { item: unknown; index: number }>();
         for (let i = 0; i < items.length; i++) {

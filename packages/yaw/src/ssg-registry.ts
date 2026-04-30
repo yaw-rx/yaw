@@ -43,19 +43,15 @@ const serializeState = (): SSGStateBlob => {
         const id = String(nextId++);
         el.setAttribute('data-ssg-id', id);
         const typeMap = (el.constructor as unknown as Record<string, unknown>)['__stateTypes'] as Record<string, string> | undefined;
-        console.log('[ssg] component', el.tagName, 'typeMap', typeMap, 'keys', [...keys]);
         const state: Record<string, unknown> = {};
         for (const key of keys) {
             const value = (el as unknown as Record<string, unknown>)[key];
             const typeName = typeMap?.[key];
             const unwrapped = unwrapObservables(value);
-            console.log('[ssg]  field', key, 'typeName', typeName, 'type', typeof unwrapped, unwrapped?.constructor?.name);
             state[key] = typeName !== undefined ? encodeAttribute(typeName, key, unwrapped) : unwrapped;
         }
         blob.components[id] = state;
     }
-    console.log('[ssg] components done');
-
     const seen = new Set<object>();
     const collectServices = (injector: Injector): void => {
         injector.forEachInstance((instance: unknown) => {
@@ -67,7 +63,6 @@ const serializeState = (): SSGStateBlob => {
             const ctor = (instance as object).constructor;
             const name = ctor.name;
             const typeMap = (ctor as unknown as Record<string, unknown>)['__stateTypes'] as Record<string, string> | undefined;
-            console.log('[ssg] service', name, 'keys', [...keys]);
             const svc: Record<string, unknown> = {};
             for (const key of keys) {
                 const unwrapped = unwrapObservables((instance as Record<string, unknown>)[key]);
@@ -135,12 +130,7 @@ const flattenStyles = (): void => {
 export const ssgFinalize = (): void => {
     if (finalized) return;
     finalized = true;
-    console.log('[ssg] ssgFinalize running');
     const blob = serializeState();
-    for (const [name, state] of Object.entries(blob.services)) {
-        const t = state['tree'];
-        console.log('[ssg] service', name, Object.keys(state), Array.isArray(t) ? `tree:${t.length}` : '');
-    }
     flattenStyles();
 
     const stateEl = document.createElement('script');

@@ -175,15 +175,12 @@ export const bootstrap = (options: BootstrapOptions): void | Promise<void> => {
         const match = routes.find(r => r.load !== undefined && path === r.path)
             ?? routes.find(r => r.load !== undefined && r.path !== '*' && path.startsWith(r.path + '/'));
         const endHydration = (): void => {
-            console.log('[hydrate] ending hydration');
             setHydrating(false);
             stripSsgAttributes();
-            console.log('[hydrate] complete');
         };
         if (match?.load !== undefined) {
-            return match.load().then(() => { console.log('[hydrate] route loaded, defining elements'); hydrateDefineAll(); endHydration(); });
+            return match.load().then(() => { hydrateDefineAll(); endHydration(); });
         }
-        console.log('[hydrate] no lazy route, defining elements');
         hydrateDefineAll();
         endHydration();
     } else {

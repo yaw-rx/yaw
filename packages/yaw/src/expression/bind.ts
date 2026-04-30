@@ -201,24 +201,30 @@ const walkScope = (host: Element, carets: number, raw: string): Element => {
     return scope;
 };
 
-const resolveRef = (host: Element, ref: ParsedRef, raw: string): unknown => {
-    let cur: unknown;
-    let startIndex: number;
+interface ResolvedScope {
+    readonly root: unknown;
+    readonly startIndex: number;
+}
 
+const resolveScope = (host: Element, ref: ParsedRef, raw: string): ResolvedScope => {
     if (scopeHook !== null) {
         const claimed = scopeHook(host, ref.path[0]!);
-        if (claimed !== undefined) {
-            cur = claimed.stream.value;
-            startIndex = claimed.consumed;
-        } else {
-            cur = walkScope(host, ref.carets, raw);
-            startIndex = 0;
-        }
-    } else {
-        cur = walkScope(host, ref.carets, raw);
-        startIndex = 0;
+        if (claimed !== undefined) return { root: claimed.stream.value, startIndex: claimed.consumed };
     }
+    return { root: walkScope(host, ref.carets, raw), startIndex: 0 };
+};
 
+const resolveScopeStream = (host: Element, ref: ParsedRef, raw: string): { stream: Observable<unknown>; startIndex: number; hooked: boolean } => {
+    if (scopeHook !== null) {
+        const claimed = scopeHook(host, ref.path[0]!);
+        if (claimed !== undefined) return { stream: claimed.stream, startIndex: claimed.consumed, hooked: true };
+    }
+    return { stream: of(walkScope(host, ref.carets, raw) as unknown), startIndex: 0, hooked: false };
+};
+
+const resolveRef = (host: Element, ref: ParsedRef, raw: string): unknown => {
+    const { root, startIndex } = resolveScope(host, ref, raw);
+    let cur = root;
     for (let i = startIndex; i < ref.path.length; i++) {
         if (cur === null || cur === undefined) throw new BindPathError(host.tagName, raw, ref.path[i]!);
         cur = (cur as Record<string, unknown>)[ref.path[i]!];
@@ -240,12 +246,8 @@ const segmentStream = (host: Element, parsed: ParsedBind, value: unknown, segmen
     const obj = value as Record<string, unknown>;
     if (isObservable(obj[segment])) return obj[segment] as Observable<unknown>;
     const reactive = obj[`${segment}$`];
-    if (isObservable(reactive)) {
-        console.log('[segmentStream]', host.tagName, parsed.raw, segment, 'reactive$ found, value=', (reactive as BehaviorSubject<unknown>).value);
-        return reactive as Observable<unknown>;
-    }
+    if (isObservable(reactive)) return reactive as Observable<unknown>;
     if (!(segment in obj)) throw new BindPathError(host.tagName, parsed.raw, segment);
-    console.log('[segmentStream]', host.tagName, parsed.raw, segment, 'plain value=', obj[segment]);
     return of(obj[segment]);
 };
 
@@ -254,50 +256,23 @@ export const observeBind = (
     parsed: ParsedBind,
 ): Observable<unknown> => {
     const segments = parsed.path;
+    const { stream: initial, startIndex, hooked } = resolveScopeStream(host, parsed, parsed.raw);
+    let stream: Observable<unknown> = initial;
 
-    let stream: Observable<unknown>;
-    let startIndex: number;
-    let hasObservable: boolean;
-
-    if (scopeHook !== null) {
-        const claimed = scopeHook(host, segments[0]!);
-        if (claimed !== undefined) {
-            stream = claimed.stream;
-            startIndex = claimed.consumed;
-            hasObservable = true;
-        } else {
-            const scope = walkScope(host, parsed.carets, parsed.raw);
-            stream = of(scope as unknown);
-            startIndex = 0;
-            hasObservable = false;
-        }
-    } else {
-        const scope = walkScope(host, parsed.carets, parsed.raw);
-        console.log('[observeBind]', host.tagName, parsed.raw, 'scope=', scope.tagName, 'scopeCtor=', scope.constructor.name, 'hasHue$=', 'hue$' in scope);
-        stream = of(scope as unknown);
-        startIndex = 0;
-        hasObservable = false;
-    }
-
-    // Chain-reactive rule: the switchMap pipeline needs at least one observable
-    // segment to stay alive. A chain of only of() segments emits once and dies.
-    // The observable segment is the live source — everything downstream of it
-    // re-evaluates when it emits. The scope hook satisfies this by construction
-    // (the BehaviorSubject IS the observable root). For host-mode bindings, we
-    // walk the path synchronously to verify at least one segment is reactive.
-    if (!hasObservable && !parsed.call) {
-        const scope = walkScope(host, parsed.carets, parsed.raw);
-        let cur: unknown = scope;
+    if (!hooked && !parsed.call) {
+        const { root } = resolveScope(host, parsed, parsed.raw);
+        let cur: unknown = root;
+        let found = false;
         for (let i = startIndex; i < segments.length; i++) {
             if (cur === null || cur === undefined) break;
             const obj = cur as Record<string, unknown>;
             if (isObservable(obj[segments[i]!]) || isObservable(obj[`${segments[i]!}$`])) {
-                hasObservable = true;
+                found = true;
                 break;
             }
             cur = obj[segments[i]!];
         }
-        if (!hasObservable) {
+        if (!found) {
             throw new BindNotSubscribableError(
                 host.tagName, parsed.raw,
                 `no observable segment in chain — add @state or use a reactive source`,
@@ -363,22 +338,8 @@ export interface EventInvocation {
 
 export const resolveEventHandler = (host: Element, parsed: ParsedBind): EventInvocation => {
     const segments = parsed.path;
-    let cur: unknown;
-    let startIndex: number;
-
-    if (scopeHook !== null) {
-        const claimed = scopeHook(host, segments[0]!);
-        if (claimed !== undefined) {
-            cur = claimed.stream.value;
-            startIndex = claimed.consumed;
-        } else {
-            cur = walkScope(host, parsed.carets, parsed.raw);
-            startIndex = 0;
-        }
-    } else {
-        cur = walkScope(host, parsed.carets, parsed.raw);
-        startIndex = 0;
-    }
+    const { root, startIndex } = resolveScope(host, parsed, parsed.raw);
+    let cur: unknown = root;
 
     for (let i = startIndex; i < segments.length - 1; i++) {
         if (cur === null || cur === undefined) throw new BindPathError(host.tagName, parsed.raw, segments[i]!);
@@ -406,26 +367,7 @@ export const resolveRefTarget = (host: Element, parsed: ParsedBind): { scope: El
 
 export const resolveValue = (host: Element, parsed: ParsedBind): unknown => {
     if (parsed.call) throw new BindParseError(parsed.raw, 'cannot read value from a method call');
-    let cur: unknown;
-    let startIndex: number;
-    if (scopeHook !== null) {
-        const claimed = scopeHook(host, parsed.path[0]!);
-        if (claimed !== undefined) {
-            cur = claimed.stream.value;
-            startIndex = claimed.consumed;
-        } else {
-            cur = walkScope(host, parsed.carets, parsed.raw);
-            startIndex = 0;
-        }
-    } else {
-        cur = walkScope(host, parsed.carets, parsed.raw);
-        startIndex = 0;
-    }
-    for (let i = startIndex; i < parsed.path.length; i++) {
-        if (cur === null || cur === undefined) throw new BindPathError(host.tagName, parsed.raw, parsed.path[i]!);
-        cur = (cur as Record<string, unknown>)[parsed.path[i]!];
-    }
-    return cur;
+    return resolveRef(host, parsed, parsed.raw);
 };
 
 export const resolveWriteTarget = (host: Element, parsed: ParsedBind): (value: unknown) => void => {
