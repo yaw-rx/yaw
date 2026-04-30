@@ -48,7 +48,8 @@
  * bootstrap, or omit it entirely. The core framework has no dependency
  * on it.
  */
-import { BehaviorSubject, isObservable, type Subscription } from 'rxjs';
+import { BehaviorSubject, type Subscription } from 'rxjs';
+import { isObservable } from '../is-observable.js';
 import { Directive } from '../directive.js';
 import { BindParseError } from '../errors.js';
 import { parseBind, subscribeBind, hydratedBind, resolveValue, registerScopeHook, type ParsedBind, type ScopeHookResult } from '../expression/bind.js';

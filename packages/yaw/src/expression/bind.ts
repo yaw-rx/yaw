@@ -50,7 +50,8 @@
  *   to claim it, or undefined to pass. When no hook is installed, the
  *   check is a single null comparison.
  */
-import { BehaviorSubject, isObservable, of, Subscription, switchMap, skip, first, type Observable } from 'rxjs';
+import { BehaviorSubject, of, Subscription, switchMap, skip, first, type Observable } from 'rxjs';
+import { isObservable } from '../is-observable.js';
 import { hydrationComplete$ } from '../rx-element.js';
 import { BindNotSubscribableError, BindParseError, BindPathError, BindScopeError } from '../errors.js';
 import { encodeAttribute } from '../attribute-codec/encode.js';

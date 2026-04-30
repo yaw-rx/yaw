@@ -4,11 +4,11 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/yaw",
     "packages/yaw-common",
     "packages/yaw-transformer",
     "packages/yaw-ts-plugin",
     "packages/yaw-ts-plugin-audit",
+    "packages/yaw",
     "packages/yaw-ssg"
   ],
   "scripts": {

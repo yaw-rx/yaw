@@ -5,9 +5,6 @@ export default defineConfig({
     root: '.',
     plugins: [vitePlugin()],
     esbuild: { target: 'es2022' },
-    resolve: {
-        conditions: ['es2015', 'import'],
-    },
     server: {
         port: 5176,
     },

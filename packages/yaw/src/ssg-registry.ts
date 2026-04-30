@@ -1,4 +1,4 @@
-import { isObservable } from 'rxjs';
+import { isObservable } from './is-observable.js';
 import { getObservableKeys } from './observable.js';
 import { encodeAttribute } from './attribute-codec/encode.js';
 import type { RxElementLike } from './directive.js';
