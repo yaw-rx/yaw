@@ -37,7 +37,7 @@ import './docs-page/sections/navigation.js';
         </main>
     `,
     styles: `
-        :host { display: flex; background: #000; min-height: calc(100vh / 1.75);
+        :host { display: flex; background: #000; min-height: calc(100vh / var(--zoom, 1.75));
                 color: #ccc; box-sizing: border-box; }
         .content { flex: 1 1 0; min-width: 0; box-sizing: border-box;
                    padding: 6rem 2rem 4rem 2rem; }

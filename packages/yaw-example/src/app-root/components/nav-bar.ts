@@ -12,8 +12,8 @@ import { Router } from 'yaw/router';
                 <a [class.active]="isActive('/showcase')" onclick="navigateShowcase">Showcase</a>
                 <a [class.active]="isActive('/examples')" onclick="navigateExamples">Examples</a>
                 <a [class.active]="isActive('/docs')" onclick="navigateDocs">Docs</a>
-                <a [class.active]="isActive('/react')" onclick="navigateReact">vs React</a>
-                <a [class.active]="isActive('/angular')" onclick="navigateAngular">vs Angular</a>
+                <a [class.active]="isActive('/react')" onclick="navigateReact">vs&nbsp;React</a>
+                <a [class.active]="isActive('/angular')" onclick="navigateAngular">vs&nbsp;Angular</a>
             </div>
         </nav>
     `,
@@ -23,12 +23,17 @@ import { Router } from 'yaw/router';
               padding: 1rem 2rem; background: rgba(0,0,0,0.85);
               backdrop-filter: blur(8px); border-bottom: 1px solid #222; }
         .logo { font-weight: 900; font-size: 1.4rem; color: #fff;
-                text-decoration: none; letter-spacing: -1px; cursor: pointer; }
+                text-decoration: none; letter-spacing: -1px; cursor: pointer;
+                margin-right: 2rem; }
         .links { display: flex; gap: 2rem; }
         .links a { color: #888; text-decoration: none; font-size: 0.9rem;
-                   letter-spacing: 0.05em; cursor: pointer; transition: color 0.2s; }
+                   letter-spacing: 0.05em; cursor: pointer; transition: color 0.2s;
+                   white-space: nowrap; position: relative; }
         .links a:hover { color: #fff; }
-        .links a.active { color: #fff; border-bottom: 2px solid #fff; padding-bottom: 2px; }
+        .links a.active { color: #fff; }
+        .links a.active::after { content: ''; position: absolute;
+                   left: 0; right: 0; bottom: -4px;
+                   height: 2px; background: #fff; }
     `
 })
 export class NavBar extends RxElement {

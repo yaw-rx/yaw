@@ -1,9 +1,29 @@
 import { defineConfig } from 'vite';
 import { vitePlugin } from 'yaw-transformer';
+import { readFileSync } from 'fs';
+
+const rawExtensions = ['.css', '.html', '.wgsl'];
+
+const rawAssets = {
+    name: 'raw-assets',
+    enforce: 'pre' as const,
+    resolveId(source: string, importer: string | undefined) {
+        if (importer && rawExtensions.some(ext => source.endsWith(ext))) {
+            const path = source.startsWith('.') ? new URL(source, 'file://' + importer).pathname : null;
+            if (path) return path + '?raw-asset';
+        }
+    },
+    load(id: string) {
+        if (id.endsWith('?raw-asset')) {
+            const file = id.slice(0, -'?raw-asset'.length);
+            return `export default ${JSON.stringify(readFileSync(file, 'utf-8'))}`;
+        }
+    },
+};
 
 export default defineConfig({
     root: '.',
-    plugins: [vitePlugin()],
+    plugins: [rawAssets, vitePlugin()],
     esbuild: { target: 'es2022' },
     resolve: {
         dedupe: ['rxjs'],

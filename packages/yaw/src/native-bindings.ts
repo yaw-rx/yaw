@@ -1,5 +1,6 @@
 import { setupBindings } from './setupBindings.js';
-import { setupDirectivesFor, RxElementBase } from './rx-element.js';
+import { setupDirectivesFor } from './directives/setup.js';
+import { RxElementBase } from './rx-element.js';
 import type { Directive } from './directive.js';
 
 const hasBinding = (el: Element): boolean => {

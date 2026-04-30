@@ -52,7 +52,7 @@
  */
 import { BehaviorSubject, of, Subscription, switchMap, skip, first, type Observable } from 'rxjs';
 import { isObservable } from '../is-observable.js';
-import { hydrationComplete$ } from '../rx-element.js';
+import { hydrationComplete$ } from '../ssg/hydrate/hydration-state.js';
 import { BindNotSubscribableError, BindParseError, BindPathError, BindScopeError } from '../errors.js';
 import { encodeAttribute } from '../attribute-codec/encode.js';
 

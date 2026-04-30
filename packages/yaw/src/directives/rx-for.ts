@@ -54,7 +54,7 @@ import { Directive } from '../directive.js';
 import { BindParseError } from '../errors.js';
 import { parseBind, subscribeBind, hydratedBind, resolveValue, registerScopeHook, type ParsedBind, type ScopeHookResult } from '../expression/bind.js';
 import type { RxElementLike } from '../directive.js';
-import { isHydrating } from '../rx-element.js';
+import { isHydrating } from '../ssg/hydrate/hydration-state.js';
 import { getTemplate } from '../component.js';
 
 // ---------------------------------------------------------------------------

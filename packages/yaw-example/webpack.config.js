@@ -20,6 +20,11 @@ export default {
     module: {
         rules: [
             {
+                test: /\.(css|html|wgsl)$/,
+                include: path.resolve(__dirname, 'src'),
+                type: 'asset/source',
+            },
+            {
                 test: /\.ts$/,
                 exclude: /node_modules/,
                 use: [

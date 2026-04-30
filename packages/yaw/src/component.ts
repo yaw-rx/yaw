@@ -39,7 +39,7 @@ import { Injector } from './di/injector.js';
 import type { Provider } from './di/types.js';
 import type { DirectiveCtor, RxElementLike } from './directive.js';
 import { BootstrapError, HydrationError } from './errors.js';
-import { setHydrating, isHydrating } from './rx-element.js';
+import { setHydrating, isHydrating } from './ssg/hydrate/hydration-state.js';
 import { transformTemplate, transformStyles } from 'yaw-common';
 import type { AttributeCodec } from './attribute-codec/types.js';
 import { registerAttributeCodecs } from './attribute-codec/registry.js';
@@ -138,6 +138,7 @@ export const isSSG = (): boolean => ssgMode;
 export interface BootstrapGlobals {
     readonly directives?: readonly DirectiveCtor[];
     readonly attributeCodecs?: Record<string, AttributeCodec>;
+    readonly styles?: string;
 }
 
 interface BootstrapOptions {
@@ -152,6 +153,11 @@ export const bootstrap = async (options: BootstrapOptions): Promise<void> => {
     const selector = getSelector(options.root);
     if (selector === undefined) { throw new BootstrapError(`${options.root.name} has no @Component decorator`); }
     if (options.globals?.attributeCodecs !== undefined) { registerAttributeCodecs(options.globals.attributeCodecs); }
+    if (options.globals?.styles !== undefined) {
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync(options.globals.styles);
+        document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    }
     globalDirectives = options.globals?.directives ?? [];
     ssgMode = options.ssg === true || (globalThis as Record<string, unknown>)['__yaw_ssg'] === true;
     if (ssgMode) {

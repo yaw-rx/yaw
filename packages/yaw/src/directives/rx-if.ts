@@ -2,7 +2,7 @@ import { type Subscription } from 'rxjs';
 import { Directive } from '../directive.js';
 import { parseBind, subscribeBind } from '../expression/bind.js';
 import type { RxElementLike } from '../directive.js';
-import { isHydrating } from '../rx-element.js';
+import { isHydrating } from '../ssg/hydrate/hydration-state.js';
 
 @Directive({ selector: '[rx-if]' })
 export class RxIf {

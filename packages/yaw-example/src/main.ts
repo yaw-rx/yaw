@@ -1,9 +1,11 @@
 import { bootstrap } from 'yaw';
 import { Router, ROUTES } from 'yaw/router';
 import { AppRoot } from './app-root.js';
+import globalStyles from './main.css';
 
 bootstrap({
     root: AppRoot,
+    globals: { styles: globalStyles },
     providers: [
         { provide: ROUTES, useValue: [
             { path: '/',         load: () => import('./app-root/pages/manifesto-page.js').then(m => m.ManifestoPage) },
