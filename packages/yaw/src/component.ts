@@ -43,8 +43,10 @@ import { setHydrating, isHydrating } from './rx-element.js';
 import { transformTemplate, transformStyles } from 'yaw-common';
 import type { AttributeCodec } from './attribute-codec/types.js';
 import { registerAttributeCodecs } from './attribute-codec/registry.js';
-import { loadHydrateState, stripSsgAttributes, ssgFinalize } from './ssg-registry.js';
 import { startObserver, flushExistingBindings } from './native-bindings.js';
+import { getObservableKeys } from './observable.js';
+import { isObservable } from './is-observable.js';
+import { encodeAttribute } from './attribute-codec/encode.js';
 
 export interface ComponentOptions {
     readonly selector: string;
@@ -146,16 +148,24 @@ interface BootstrapOptions {
     readonly hydrate?: boolean;
 }
 
-export const bootstrap = (options: BootstrapOptions): void | Promise<void> => {
+export const bootstrap = async (options: BootstrapOptions): Promise<void> => {
     const selector = getSelector(options.root);
     if (selector === undefined) { throw new BootstrapError(`${options.root.name} has no @Component decorator`); }
     if (options.globals?.attributeCodecs !== undefined) { registerAttributeCodecs(options.globals.attributeCodecs); }
     globalDirectives = options.globals?.directives ?? [];
     ssgMode = options.ssg === true || (globalThis as Record<string, unknown>)['__yaw_ssg'] === true;
-    if (ssgMode) (globalThis as Record<string, unknown>)['__yaw_ssg_finalize'] = ssgFinalize;
+    if (ssgMode) {
+        (globalThis as Record<string, unknown>)['__yaw_ssg_internals'] = {
+            getObservableKeys,
+            isObservable,
+            encodeAttribute,
+            Injector,
+        };
+    }
     const injector = new Injector(options.providers);
     (document.body as RxElementLike).__injector = injector;
     if (hydrateMode) {
+        const { loadHydrateState } = await import('./ssg/hydrate/load-hydrate-state.js');
         loadHydrateState();
         setHydrating(true);
         if (document.body.querySelector(selector) === null) { throw new HydrationError(`no existing <${selector}> found in DOM`); }
@@ -174,15 +184,19 @@ export const bootstrap = (options: BootstrapOptions): void | Promise<void> => {
         const path = window.location.pathname;
         const match = routes.find(r => r.load !== undefined && path === r.path)
             ?? routes.find(r => r.load !== undefined && r.path !== '*' && path.startsWith(r.path + '/'));
-        const endHydration = (): void => {
+        const endHydration = async (): Promise<void> => {
             setHydrating(false);
+            const { stripSsgAttributes } = await import('./ssg/hydrate/strip-ssg-attributes.js');
             stripSsgAttributes();
         };
         if (match?.load !== undefined) {
-            return match.load().then(() => { hydrateDefineAll(); endHydration(); });
+            await match.load();
+            hydrateDefineAll();
+            await endHydration();
+            return;
         }
         hydrateDefineAll();
-        endHydration();
+        await endHydration();
     } else {
         startObserver();
         document.body.appendChild(document.createElement(selector));

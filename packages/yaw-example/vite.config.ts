@@ -5,6 +5,9 @@ export default defineConfig({
     root: '.',
     plugins: [vitePlugin()],
     esbuild: { target: 'es2022' },
+    resolve: {
+        dedupe: ['rxjs'],
+    },
     server: {
         port: 5176,
     },

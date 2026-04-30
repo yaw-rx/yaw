@@ -25,9 +25,21 @@
       "import": "./dist/directives/rx-for.js",
       "types": "./dist/directives/rx-for.d.ts"
     },
-    "./ssg": {
-      "import": "./dist/ssg-registry.js",
-      "types": "./dist/ssg-registry.d.ts"
+    "./ssg/hydrate/load-hydrate-state": {
+      "import": "./dist/ssg/hydrate/load-hydrate-state.js",
+      "types": "./dist/ssg/hydrate/load-hydrate-state.d.ts"
+    },
+    "./ssg/hydrate/get-component-hydrate-state": {
+      "import": "./dist/ssg/hydrate/get-component-hydrate-state.js",
+      "types": "./dist/ssg/hydrate/get-component-hydrate-state.d.ts"
+    },
+    "./ssg/hydrate/get-service-hydrate-state": {
+      "import": "./dist/ssg/hydrate/get-service-hydrate-state.js",
+      "types": "./dist/ssg/hydrate/get-service-hydrate-state.d.ts"
+    },
+    "./ssg/hydrate/strip-ssg-attributes": {
+      "import": "./dist/ssg/hydrate/strip-ssg-attributes.js",
+      "types": "./dist/ssg/hydrate/strip-ssg-attributes.d.ts"
     }
   },
   "scripts": {

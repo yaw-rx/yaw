@@ -1,5 +1,6 @@
 import { BehaviorSubject } from 'rxjs';
-import { getComponentHydrateState, getServiceHydrateState } from './ssg-registry.js';
+import { getComponentHydrateState } from './ssg/hydrate/get-component-hydrate-state.js';
+import { getServiceHydrateState } from './ssg/hydrate/get-service-hydrate-state.js';
 import { decodeAttribute } from './attribute-codec/decode.js';
 
 const subjects = new WeakMap<object, Map<string, BehaviorSubject<unknown>>>();

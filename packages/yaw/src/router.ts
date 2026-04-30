@@ -2,7 +2,6 @@ import { BehaviorSubject } from 'rxjs';
 import type { Route } from './component.js';
 import { isSSG } from './component.js';
 import { Injectable } from './di/injectable.js';
-import { registerRouteSource } from './ssg-registry.js';
 
 export const ROUTES = Symbol('ROUTES');
 
@@ -18,7 +17,7 @@ export class Router {
         window.addEventListener('popstate', () => {
             this.route$.next(this.matchRoute(window.location.pathname));
         });
-        if (isSSG()) registerRouteSource(() => this.paths);
+        if (isSSG()) (globalThis as Record<string, unknown>)['__yaw_ssg_route_source'] = () => this.paths;
     }
 
     private matchRoute(path: string): string {
