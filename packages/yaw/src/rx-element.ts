@@ -4,7 +4,6 @@ import { getPropDeps } from './di/inject.js';
 import { getDirectiveSelector, matchesSelector, type Directive } from './directive.js';
 import { DirectiveInstantiationError, InvalidSelectorError } from './errors.js';
 import { setupBindings } from './setupBindings.js';
-import { ssgEnter, ssgLeave } from './ssg-registry.js';
 
 let hydrating = (globalThis as Record<string, unknown>)['__yaw_hydrate'] === true;
 export const isHydrating = (): boolean => hydrating;
@@ -105,9 +104,7 @@ export class RxElementBase extends HTMLElement {
         this.#setupInjectorAndDeps();
         this.#bindingTeardown = setupBindings(this);
         this.#directives = setupDirectivesFor(this);
-        const ssgPushed = ssgEnter(this.constructor, this);
         this.#renderTemplate();
-        if (ssgPushed) ssgLeave();
         this.onInit();
     }
 

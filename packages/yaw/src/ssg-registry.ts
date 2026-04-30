@@ -1,49 +1,8 @@
 import { isObservable } from 'rxjs';
-import { getSelector, isSSG } from './component.js';
 import { getObservableKeys } from './observable.js';
 import { encodeAttribute } from './attribute-codec/encode.js';
 import type { RxElementLike } from './directive.js';
 import { Injector } from './di/injector.js';
-
-export interface SSGNode {
-    readonly selector: string;
-    readonly children: SSGNode[];
-}
-
-const roots: SSGNode[] = [];
-let current: SSGNode | undefined;
-const parentStack: SSGNode[] = [];
-const nodeByElement = new WeakMap<Element, SSGNode>();
-
-export const getSSGRoot = (): SSGNode | undefined =>
-    roots.length === 1 ? roots[0] : roots.length > 1 ? { selector: '', children: roots } : undefined;
-
-export const ssgEnter = (ctor: Function, el?: Element): boolean => {
-    if (!isSSG()) return false;
-    const selector = getSelector(ctor);
-    if (selector === undefined) return false;
-    const node: SSGNode = { selector, children: [] };
-    if (current !== undefined) { (current.children as SSGNode[]).push(node); }
-    else { roots.push(node); }
-    parentStack.push(node);
-    current = node;
-    if (el !== undefined) nodeByElement.set(el, node);
-    return true;
-};
-
-export const ssgLeave = (): void => {
-    if (!isSSG()) return;
-    parentStack.pop();
-    current = parentStack.length > 0 ? parentStack[parentStack.length - 1] : undefined;
-};
-
-export const ssgScope = (el: Element): void => {
-    if (!isSSG()) return;
-    const node = nodeByElement.get(el);
-    if (node === undefined) return;
-    parentStack.push(node);
-    current = node;
-};
 
 let routeSource: (() => readonly string[]) | undefined;
 
@@ -189,15 +148,6 @@ export const ssgFinalize = (): void => {
     stateEl.id = 'yaw-ssg-state';
     stateEl.textContent = JSON.stringify(blob);
     document.head.appendChild(stateEl);
-
-    const ssgRoot = getSSGRoot();
-    if (ssgRoot !== undefined) {
-        const el = document.createElement('script');
-        el.type = 'application/json';
-        el.id = 'yaw-ssg-deps';
-        el.textContent = JSON.stringify(ssgRoot);
-        document.head.appendChild(el);
-    }
 
     if (routeSource !== undefined) {
         const el = document.createElement('script');

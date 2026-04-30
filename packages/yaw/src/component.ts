@@ -181,10 +181,10 @@ export const bootstrap = (options: BootstrapOptions): void | Promise<void> => {
             console.log('[hydrate] complete');
         };
         if (match?.load !== undefined) {
-            return match.load().then(() => { console.log('[hydrate] route loaded, defining elements'); hydrateFromDepGraph(); endHydration(); });
+            return match.load().then(() => { console.log('[hydrate] route loaded, defining elements'); hydrateDefineAll(); endHydration(); });
         }
         console.log('[hydrate] no lazy route, defining elements');
-        hydrateFromDepGraph();
+        hydrateDefineAll();
         endHydration();
     } else {
         startObserver();
@@ -192,26 +192,10 @@ export const bootstrap = (options: BootstrapOptions): void | Promise<void> => {
     }
 };
 
-const hydrateFromDepGraph = (): void => {
-    const define = (sel: string): void => {
-        if (customElements.get(sel)) return;
-        const ctor = deferredDefines.get(sel);
-        if (ctor !== undefined) customElements.define(sel, ctor);
-    };
-
-    const el = document.getElementById('yaw-ssg-deps');
-    if (el !== null) {
-        const defineInOrder = (node: { selector: string; children: unknown[] }): void => {
-            define(node.selector);
-            for (const child of node.children as { selector: string; children: unknown[] }[]) {
-                defineInOrder(child);
-            }
-        };
-        defineInOrder(JSON.parse(el.textContent!) as { selector: string; children: unknown[] });
+const hydrateDefineAll = (): void => {
+    for (const [sel, ctor] of deferredDefines) {
+        if (!customElements.get(sel)) customElements.define(sel, ctor);
     }
-
-    for (const [sel] of deferredDefines) define(sel);
-
     flushExistingBindings();
     startObserver();
 };

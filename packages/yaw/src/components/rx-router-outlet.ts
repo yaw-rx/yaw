@@ -3,7 +3,6 @@ import { Component, getSelector } from '../component.js';
 import { RxElementBase } from '../rx-element.js';
 import { Inject } from '../di/inject.js';
 import { Router } from '../router.js';
-import { ssgScope, ssgLeave } from '../ssg-registry.js';
 
 @Component({ selector: 'rx-router-outlet' })
 export class RxRouterOutlet extends RxElementBase {
@@ -22,9 +21,7 @@ export class RxRouterOutlet extends RxElementBase {
             if (selector === undefined) return;
             this.current = this.querySelector(':scope > ' + selector) ?? undefined;
             if (this.current === undefined) {
-                ssgScope(this);
                 this.current = this.appendChild(document.createElement(selector));
-                ssgLeave();
             }
         });
     }
