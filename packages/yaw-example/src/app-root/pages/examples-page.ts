@@ -1,5 +1,4 @@
 import { Component, RxElement } from 'yaw';
-import { ScrollReveal } from '../directives/scroll-reveal.js';
 import './examples-page/components/yaw-slider.js';
 import './examples-page/sections/slider-example.js';
 import './examples-page/sections/color-playground.js';
@@ -10,7 +9,6 @@ import './examples-page/sections/calendar-example.js';
 
 @Component({
     selector: 'examples-page',
-    directives: [ScrollReveal],
     template: `
         <div class="page">
             <header class="intro">
@@ -20,12 +18,12 @@ import './examples-page/sections/calendar-example.js';
                    every code block you see is the truth of what's running beside it.</p>
             </header>
 
-            <slider-example scroll-reveal></slider-example>
-            <color-playground scroll-reveal></color-playground>
-            <signal-meter strength="65" scroll-reveal></signal-meter>
-            <row-firehose scroll-reveal></row-firehose>
-            <!-- <calendar-example scroll-reveal></calendar-example> -->
-            <nesting-example scroll-reveal="0"></nesting-example>
+            <slider-example></slider-example>
+            <color-playground></color-playground>
+            <signal-meter strength="65"></signal-meter>
+            <row-firehose></row-firehose>
+            <!-- <calendar-example></calendar-example> -->
+            <nesting-example></nesting-example>
         </div>
     `,
     styles: `

@@ -1,11 +1,9 @@
 import { Component, RxElement, state } from 'yaw';
-import { ScrollReveal } from '../../../directives/scroll-reveal.js';
 
 @Component({
     selector: 'manifesto-section',
-    directives: [ScrollReveal],
     template: `
-        <section scroll-reveal>
+        <section>
             <h2 class="heading">{{heading}}</h2>
             <div class="body"><slot></slot></div>
         </section>

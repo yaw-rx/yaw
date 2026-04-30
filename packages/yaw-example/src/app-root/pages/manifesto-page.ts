@@ -1,5 +1,4 @@
 import { Component, RxElement } from 'yaw';
-import { ScrollReveal } from '../directives/scroll-reveal.js';
 import '../components/code-block.js';
 import './manifesto-page/sections/hero.js';
 import './manifesto-page/sections/stat-counter.js';
@@ -20,7 +19,6 @@ const YAW_SNIPPET = `
 
 @Component({
     selector: 'manifesto-page',
-    directives: [ScrollReveal],
     template: `
         <hero-section></hero-section>
 

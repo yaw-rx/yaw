@@ -1,10 +1,8 @@
 import { Component, RxElement } from 'yaw';
-import { ScrollReveal } from '../directives/scroll-reveal.js';
 import './showcase-page/sections/drum-sequencer.js';
 
 @Component({
     selector: 'showcase-page',
-    directives: [ScrollReveal],
     template: `
         <div class="page">
             <header class="intro">
@@ -12,7 +10,7 @@ import './showcase-page/sections/drum-sequencer.js';
                 <p class="lede">Real applications built with YAW.</p>
             </header>
 
-            <drum-sequencer scroll-reveal></drum-sequencer>
+            <drum-sequencer></drum-sequencer>
         </div>
     `,
     styles: `

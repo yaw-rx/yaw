@@ -228,7 +228,9 @@ export default {
         details { margin-bottom: 0.75rem; border: 1px solid #1a1a1a;
                   border-radius: 6px; overflow: hidden; }
         summary { cursor: pointer; padding: 0.75rem 1rem;
-                  background: #0a0a0a; list-style: none; }
+                  background: #0a0a0a; list-style: none;
+                  transition: background 0.15s; }
+        summary:hover { background: #151515; }
         summary::-webkit-details-marker { display: none; }
         summary::marker { display: none; }
         summary h3 { color: #fff; font-size: 0.95rem; font-weight: 600;
