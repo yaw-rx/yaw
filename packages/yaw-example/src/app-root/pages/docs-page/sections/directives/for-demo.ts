@@ -17,7 +17,7 @@ interface Cell {
     `,
     styles: `
         :host { display: block; }
-        .row { display: flex; gap: 0.4rem; }
+        .row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
         .cell { padding: 0.5rem 0.9rem; background: #050505;
                 border: 1px solid #1a1a1a; border-radius: 4px;
                 color: #8af; font-family: monospace; font-size: 0.9rem; }

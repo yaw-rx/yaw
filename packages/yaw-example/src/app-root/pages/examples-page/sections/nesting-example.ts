@@ -8,6 +8,7 @@ import './nesting-example/components/page-echo.js';
 
 const NESTING_STYLES = `
     :host { display: block; }
+    .buttons { display: flex; flex-wrap: wrap; gap: 0.3rem; }
     .state { margin: 0.75rem 0 0; font-family: monospace;
              color: #888; font-size: 0.85rem; }
     .state .status { color: #8af; }
@@ -24,9 +25,11 @@ const WRAPPER_STYLES = `
 `;
 
 const DEPTH_1 = `<!-- depth 0: button is a direct child of the host -->
-<button onclick="increment(1)">+1</button>
-<button onclick="increment(-1)">-1</button>
-<button onclick="reset">reset</button>
+<div class="buttons">
+    <button onclick="increment(1)">+1</button>
+    <button onclick="increment(-1)">-1</button>
+    <button onclick="reset">reset</button>
+</div>
 <p class="state">count = {{count}} <span class="status">({{status}})</span></p>`;
 
 const DEPTH_2 = `<!-- depth 1: button wrapped in one <nested-level> -->
