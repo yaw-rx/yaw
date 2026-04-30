@@ -1,9 +1,11 @@
 import { Component, RxElement, state } from 'yaw';
+import { RxFor } from 'yaw/directives/rx-for';
 import type { DayCell } from './types.js';
 import './calendar-week/calendar-day.js';
 
 @Component({
     selector: 'calendar-week',
+    directives: [RxFor],
     template: `
         <div class="days" rx-for="days by key">
             <calendar-day></calendar-day>

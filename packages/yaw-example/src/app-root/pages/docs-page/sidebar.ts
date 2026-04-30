@@ -10,11 +10,13 @@
  */
 import { type Observable } from 'rxjs';
 import { Component, Inject, RxElement } from 'yaw';
+import { RxFor } from 'yaw/directives/rx-for';
 import { TocService, type TocEntry } from './services/toc-service.js';
 import { TocNode } from './sidebar/toc-node.js';
 
 @Component({
     selector: 'docs-sidebar',
+    directives: [RxFor],
     template: `
         <aside>
             <nav rx-for="nodes by id">

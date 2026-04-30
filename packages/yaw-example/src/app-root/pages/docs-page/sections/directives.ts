@@ -1,5 +1,7 @@
 import { Component, Directive, RxElement } from 'yaw';
 import type { RxElementLike } from 'yaw';
+import { RxFor } from 'yaw/directives/rx-for';
+import { RxIf } from 'yaw/directives/rx-if';
 import { TocSection } from '../directives/toc-section.js';
 import { TocAnchor } from '../directives/toc-anchor.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
@@ -133,7 +135,7 @@ export class ForDemo extends RxElement {
 
 @Component({
     selector: 'docs-directives',
-    directives: [Bounce, TocSection, TocAnchor],
+    directives: [Bounce, TocSection, TocAnchor, RxFor, RxIf],
     template: `
         <h1 toc-anchor="directives">Directives</h1>
         <p class="lede">Directives are classes with an attribute selector. When

@@ -1,9 +1,11 @@
 import { timer } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Component, RxElement } from 'yaw';
+import { RxIf } from 'yaw/directives/rx-if';
 
 @Component({
     selector: 'blink-demo',
+    directives: [RxIf],
     template: `<p rx-if="isVisible">Now you see me</p>`,
     styles: `
         :host { display: block; min-height: 1.5rem; }

@@ -14,10 +14,12 @@
  * calls expand() on it, and the recursion handles the rest.
  */
 import { Component, Inject, RxElement, state } from 'yaw';
+import { RxFor } from 'yaw/directives/rx-for';
 import { TocService, type TocEntry } from '../services/toc-service.js';
 
 @Component({
     selector: 'toc-node',
+    directives: [RxFor],
     template: `
         <a [class.active]="active" onclick="goto(id)">{{label}}</a>
         <div class="children" [class.expanded]="expanded">

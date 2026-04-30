@@ -231,6 +231,11 @@ export class RxFor {
     private content = '';
     private splatNodes = new Map<unknown, Element>();
 
+    private assertArray(v: unknown): asserts v is unknown[] {
+        if (!Array.isArray(v))
+            throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
+    }
+
     onInit(): void {
         const raw = this.node.getAttribute('rx-for') ?? '';
         const p = parseRxFor(raw);
@@ -253,18 +258,14 @@ export class RxFor {
         if (isHydrating()) {
             this.hydrateSplat();
             this.sub = hydratedBind(this.node, this.source).subscribe((v) => {
-                if (!Array.isArray(v)) {
-                    throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
-                }
+                this.assertArray(v);
                 this.updateSplat(v);
             });
         } else {
             this.content = this.node.innerHTML;
             this.node.replaceChildren();
             this.sub = subscribeBind(this.node, this.source, (v) => {
-                if (!Array.isArray(v)) {
-                    throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
-                }
+                this.assertArray(v);
                 this.updateSplat(v);
             });
         }
@@ -318,18 +319,14 @@ export class RxFor {
         if (isHydrating()) {
             this.hydrateScope();
             this.sub = hydratedBind(this.node, this.source).subscribe((v) => {
-                if (!Array.isArray(v)) {
-                    throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
-                }
+                this.assertArray(v);
                 this.updateScope(v);
             });
         } else {
             this.content = this.node.innerHTML;
             while (this.node.firstChild) this.node.removeChild(this.node.firstChild);
             this.sub = subscribeBind(this.node, this.source, (v) => {
-                if (!Array.isArray(v)) {
-                    throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
-                }
+                this.assertArray(v);
                 this.updateScope(v);
             });
         }

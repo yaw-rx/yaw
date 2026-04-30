@@ -1,7 +1,5 @@
 import { bootstrap } from 'yaw';
 import { Router, ROUTES } from 'yaw/router';
-import { RxIf } from 'yaw/directives/rx-if';
-import { RxFor } from 'yaw/directives/rx-for';
 import { AppRoot } from './app-root.js';
 
 bootstrap({
@@ -15,7 +13,4 @@ bootstrap({
         ] },
         Router,
     ],
-    globals: {
-        directives: [RxIf, RxFor],
-    },
 });

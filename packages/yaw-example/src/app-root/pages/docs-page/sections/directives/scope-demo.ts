@@ -1,8 +1,10 @@
 import { of } from 'rxjs';
 import { Component, RxElement, state } from 'yaw';
+import { RxFor } from 'yaw/directives/rx-for';
 
 @Component({
     selector: 'scope-demo',
+    directives: [RxFor],
     template: `
         <div class="teams" rx-for="team, teamIdx of teams by id">
             <div class="team">

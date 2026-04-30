@@ -1,5 +1,6 @@
 import { of, type Observable } from 'rxjs';
 import { Component, RxElement } from 'yaw';
+import { RxFor } from 'yaw/directives/rx-for';
 
 interface Cell {
     readonly key: string;
@@ -8,6 +9,7 @@ interface Cell {
 
 @Component({
     selector: 'for-demo',
+    directives: [RxFor],
     template: `
         <div class="row" rx-for="cells by key">
             <span class="cell"></span>

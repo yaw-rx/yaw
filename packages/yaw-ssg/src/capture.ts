@@ -1,7 +1,7 @@
 import { writeFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import type { Browser } from 'puppeteer-core';
-import prettier from 'prettier';
+// import prettier from 'prettier';
 
 const HYDRATE_SCRIPT = '<script>globalThis.__yaw_hydrate=true;</script>';
 
@@ -14,7 +14,7 @@ export async function captureRoute(browser: Browser, baseUrl: string, route: str
     await page.evaluate(() => { (globalThis as unknown as Record<string, () => void>)['__yaw_ssg_finalize']!(); });
     let html = await page.content();
     html = html.replace('<head>', '<head>\n' + HYDRATE_SCRIPT);
-    html = await prettier.format(html, { parser: 'html', printWidth: 120, tabWidth: 4, htmlWhitespaceSensitivity: 'ignore' });
+    // html = await prettier.format(html, { parser: 'html', printWidth: 120, tabWidth: 4, htmlWhitespaceSensitivity: 'ignore' });
     const outPath = route === '/' ? join(outDir, 'index.html') : join(outDir, route, 'index.html');
     mkdirSync(dirname(outPath), { recursive: true });
     writeFileSync(outPath, html);

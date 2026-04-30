@@ -1,5 +1,6 @@
 import { interval, map, Subscription, type Observable } from 'rxjs';
 import { Component, Inject, RxElement, state } from 'yaw';
+import { RxFor } from 'yaw/directives/rx-for';
 import { AudioEngine } from './drum-machine/utils/audio-engine.js';
 import { StepTicker } from './drum-machine/utils/step-ticker.js';
 import { TrackRow } from './drum-machine/track-row.js';
@@ -10,6 +11,7 @@ import type { TrackSeed } from './drum-machine/types.js';
 
 @Component({
     selector: 'drum-machine',
+    directives: [RxFor],
     providers: [AudioEngine, StepTicker],
     template: `
         <div class="transport">
