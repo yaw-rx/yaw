@@ -39,11 +39,11 @@ import { Injector } from './di/injector.js';
 import type { Provider } from './di/types.js';
 import type { DirectiveCtor, RxElementLike } from './directive.js';
 import { BootstrapError, HydrationError } from './errors.js';
-import { setHydrating, isHydrating, appReady } from './rx-element.js';
+import { setHydrating, isHydrating } from './rx-element.js';
 import { transformTemplate, transformStyles } from 'yaw-common';
 import type { AttributeCodec } from './attribute-codec/types.js';
 import { registerAttributeCodecs } from './attribute-codec/registry.js';
-import { loadHydrateState, stripSsgAttributes } from './ssg-registry.js';
+import { loadHydrateState, stripSsgAttributes, ssgFinalize } from './ssg-registry.js';
 import { startObserver, flushExistingBindings } from './native-bindings.js';
 
 export interface ComponentOptions {
@@ -152,6 +152,7 @@ export const bootstrap = (options: BootstrapOptions): void | Promise<void> => {
     if (options.globals?.attributeCodecs !== undefined) { registerAttributeCodecs(options.globals.attributeCodecs); }
     globalDirectives = options.globals?.directives ?? [];
     ssgMode = options.ssg === true || (globalThis as Record<string, unknown>)['__yaw_ssg'] === true;
+    if (ssgMode) (globalThis as Record<string, unknown>)['__yaw_ssg_finalize'] = ssgFinalize;
     const injector = new Injector(options.providers);
     (document.body as RxElementLike).__injector = injector;
     if (hydrateMode) {
@@ -173,18 +174,18 @@ export const bootstrap = (options: BootstrapOptions): void | Promise<void> => {
         const path = window.location.pathname;
         const match = routes.find(r => r.load !== undefined && path === r.path)
             ?? routes.find(r => r.load !== undefined && r.path !== '*' && path.startsWith(r.path + '/'));
-        const endHydration = (): Promise<void> => appReady.then(() => {
+        const endHydration = (): void => {
             console.log('[hydrate] ending hydration');
             setHydrating(false);
             stripSsgAttributes();
             console.log('[hydrate] complete');
-        });
+        };
         if (match?.load !== undefined) {
-            return match.load().then(() => { console.log('[hydrate] route loaded, defining elements'); hydrateFromDepGraph(); return endHydration(); });
+            return match.load().then(() => { console.log('[hydrate] route loaded, defining elements'); hydrateFromDepGraph(); endHydration(); });
         }
         console.log('[hydrate] no lazy route, defining elements');
         hydrateFromDepGraph();
-        return endHydration();
+        endHydration();
     } else {
         startObserver();
         document.body.appendChild(document.createElement(selector));

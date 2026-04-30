@@ -4,22 +4,7 @@ import { getPropDeps } from './di/inject.js';
 import { getDirectiveSelector, matchesSelector, type Directive } from './directive.js';
 import { DirectiveInstantiationError, InvalidSelectorError } from './errors.js';
 import { setupBindings } from './setupBindings.js';
-import { ssgEnter, ssgLeave, ssgFinalize } from './ssg-registry.js';
-import { isSSG } from './component.js';
-
-let pending = 0;
-let readyResolve: (() => void) | undefined;
-export const appReady = new Promise<void>((resolve) => { readyResolve = resolve; });
-
-export const holdReady = (): void => { pending++; };
-export const releaseReady = (): void => {
-    queueMicrotask(() => {
-        if (--pending === 0) {
-            if (isSSG()) ssgFinalize();
-            readyResolve?.();
-        }
-    });
-};
+import { ssgEnter, ssgLeave } from './ssg-registry.js';
 
 let hydrating = (globalThis as Record<string, unknown>)['__yaw_hydrate'] === true;
 export const isHydrating = (): boolean => hydrating;
@@ -124,16 +109,9 @@ export class RxElementBase extends HTMLElement {
         this.#renderTemplate();
         if (ssgPushed) ssgLeave();
         this.onInit();
-        queueMicrotask(() => {
-            if (--pending === 0) {
-                if (isSSG()) ssgFinalize();
-                readyResolve?.();
-            }
-        });
     }
 
     connectedCallback(): void {
-        pending++;
         this.#setupHostNode();
     }
 

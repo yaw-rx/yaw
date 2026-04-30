@@ -20,18 +20,22 @@ COPY packages/yaw-example/package.json packages/yaw-example/
 RUN npm ci
 
 COPY tsconfig.base.json tsconfig.json ./
-COPY packages/yaw-common packages/yaw-common
-COPY packages/yaw packages/yaw
-COPY packages/yaw-transformer packages/yaw-transformer
-COPY packages/yaw-ts-plugin packages/yaw-ts-plugin
-COPY packages/yaw-ssg packages/yaw-ssg
-COPY packages/yaw-example packages/yaw-example
 
-RUN npm run build -w packages/yaw-common \
- && npm run build -w packages/yaw-transformer \
- && npm run build -w packages/yaw \
- && npm run build -w packages/yaw-ssg \
- && cd packages/yaw-example && npm run build
+COPY packages/yaw-common packages/yaw-common
+RUN npm run build -w packages/yaw-common
+
+COPY packages/yaw-transformer packages/yaw-transformer
+RUN npm run build -w packages/yaw-transformer
+
+COPY packages/yaw packages/yaw
+RUN npm run build -w packages/yaw
+
+COPY packages/yaw-ssg packages/yaw-ssg
+RUN npm run build -w packages/yaw-ssg
+
+COPY packages/yaw-ts-plugin packages/yaw-ts-plugin
+COPY packages/yaw-example packages/yaw-example
+RUN cd packages/yaw-example && npm run build
 
 # SSG capture -- @sparticuz/chromium provides a headless binary
 FROM ssg-base AS ssg

@@ -22,9 +22,8 @@
  * 4. Click navigation: smooth scroll + hard snap after a delay
  *    (smooth scrollIntoView is buggy during page load on some clients).
  */
-import { asyncScheduler, BehaviorSubject, first, share, skip, Subject, throttleTime } from 'rxjs';
+import { asyncScheduler, BehaviorSubject, share, skip, Subject, throttleTime } from 'rxjs';
 import { Injectable, state } from 'yaw';
-import { holdReady, releaseReady } from 'yaw/ssg';
 
 const SNAP_DELAY = 700;
 
@@ -61,8 +60,6 @@ export class TocService {
     private restored = false;
 
     constructor() {
-        console.log('[toc] holdReady');
-        holdReady();
         const rebuild$ = this.rebuildSubject.pipe(
             throttleTime(100, asyncScheduler, { trailing: true, leading: false }),
             share(),
@@ -74,7 +71,6 @@ export class TocService {
             this.restoreFromUrl();
         });
 
-        rebuild$.pipe(first()).subscribe(() => { console.log('[toc] releaseReady, tree:', this.tree.length); releaseReady(); });
 
         this.activeId$.pipe(skip(1)).subscribe((id) => {
             if (!id || this.basePath === undefined) return;

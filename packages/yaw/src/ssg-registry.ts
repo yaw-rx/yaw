@@ -4,7 +4,6 @@ import { getObservableKeys } from './observable.js';
 import { encodeAttribute } from './attribute-codec/encode.js';
 import type { RxElementLike } from './directive.js';
 import { Injector } from './di/injector.js';
-export { holdReady, releaseReady } from './rx-element.js';
 
 export interface SSGNode {
     readonly selector: string;
