@@ -127,7 +127,7 @@ fn ridge(p: vec3f) -> f32 {
 }
 `;
 
-const TARGET_FPS = 20;
+const TARGET_FPS = 30;
 
 @Directive({ selector: '[perlin-bg]' })
 export class PerlinBg {
@@ -196,8 +196,10 @@ export class PerlinBg {
 
             const resize = (): void => {
                 const { width: w, height: h } = this.node.getBoundingClientRect();
-                const cw = Math.max(1, Math.floor(w));
-                const ch = Math.max(1, Math.floor(h));
+                const ratio = screen.width / window.innerWidth;
+                const scale = ratio < 1 ? ratio * 0.5 : 1;
+                const cw = Math.max(1, Math.floor(w * scale));
+                const ch = Math.max(1, Math.floor(h * scale));
                 if (canvas.width !== cw || canvas.height !== ch) {
                     canvas.width = cw;
                     canvas.height = ch;
