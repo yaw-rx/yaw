@@ -29,7 +29,7 @@ import { TocNode } from './sidebar/toc-node.js';
                 flex: 0 0 220px;
                 position: sticky; top: 4rem;
                 align-self: flex-start;
-                height: calc((100vh / var(--zoom, 1.75)) - 4rem);
+                height: calc(100vh - 4rem);
                 padding: 1.25rem 1.5rem;
                 border-right: 1px solid #151515;
                 overflow-y: auto; }
