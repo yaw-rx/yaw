@@ -5,6 +5,9 @@ import { SidebarDrawer } from '../directives/sidebar-drawer.js';
 import { TocService } from './docs-page/services/toc-service.js';
 import './docs-page/sidebar.js';
 import './examples-page/components/yaw-slider.js';
+import './examples-page/components/signal-meter.js';
+import './examples-page/components/color-playground.js';
+import './examples-page/components/row-firehose.js';
 import './examples-page/sections/slider-example.js';
 import './examples-page/sections/color-playground.js';
 import './examples-page/sections/signal-meter.js';
@@ -27,9 +30,9 @@ import './examples-page/sections/calendar-example.js';
             </header>
 
             <slider-example toc-section="custom-slider"></slider-example>
-            <color-playground toc-section="reactive-palette"></color-playground>
-            <signal-meter toc-section="signal-meter" strength="65"></signal-meter>
-            <row-firehose toc-section="v8-firehose"></row-firehose>
+            <color-playground-example toc-section="reactive-palette"></color-playground-example>
+            <signal-meter-example toc-section="signal-meter"></signal-meter-example>
+            <row-firehose-example toc-section="v8-firehose"></row-firehose-example>
             <!-- <calendar-example></calendar-example> -->
             <nesting-example toc-section="nesting-example"></nesting-example>
         </main>
@@ -37,8 +40,8 @@ import './examples-page/sections/calendar-example.js';
     styles: `
         :host { display: flex; background: #000; min-height: 100vh;
                 color: #ccc; box-sizing: border-box; }
-        .content { flex: 1 1 0; min-width: 0; box-sizing: border-box;
-                   padding: 6rem 1.25rem 4rem 1.25rem; }
+        :host > .content { flex: 1 1 0; min-width: 0; box-sizing: border-box;
+                          padding: 6rem 1.25rem 4rem 1.25rem; }
         .intro { margin-bottom: 2.5rem; }
         h1 { color: #fff; font-size: 2.5rem; font-weight: 900;
              letter-spacing: -1px; margin: 0 0 1rem; }

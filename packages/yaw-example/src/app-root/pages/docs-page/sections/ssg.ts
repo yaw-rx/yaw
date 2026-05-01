@@ -4,6 +4,76 @@ import { TocAnchor } from '../directives/toc-anchor.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
+import '../../examples-page/components/signal-meter.js';
+
+@Component({
+    selector: 'lighthouse-meters',
+    template: `
+        <div class="col">
+            <signal-meter hueStart="0" hueEnd="120" lightness="22" glow="1"></signal-meter>
+            <span class="label">Performance</span>
+        </div>
+        <div class="col">
+            <signal-meter hueStart="0" hueEnd="120" lightness="22" glow="1"></signal-meter>
+            <span class="label">Accessibility</span>
+        </div>
+        <div class="col">
+            <signal-meter hueStart="0" hueEnd="120" lightness="22" glow="1"></signal-meter>
+            <span class="label">Best Practices</span>
+        </div>
+    `,
+    styles: `
+        :host { display: flex; gap: 1.5rem; max-width: 72ch; margin-top: 0.625rem; }
+        .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+        signal-meter .meter { width: 100%; height: auto; aspect-ratio: 1; }
+        .label { font-size: 0.7rem; color: #666; font-family: monospace;
+                 text-transform: uppercase; letter-spacing: 0.08em; }
+        @media (max-width: 530px) {
+            :host { flex-direction: column; align-items: center; }
+            signal-meter .meter { width: 10rem; }
+        }
+    `,
+})
+export class LighthouseMeters extends RxElement {
+    private observer: IntersectionObserver | undefined;
+    private rafs = new Map<Element, number>();
+
+    override onInit(): void {
+        this.observer = new IntersectionObserver((entries) => {
+            for (const entry of entries) {
+                const meter = entry.target.querySelector('signal-meter') as RxElement & { strength: number } | null;
+                if (!meter) continue;
+                if (entry.isIntersecting) {
+                    this.animateMeter(meter);
+                } else {
+                    const raf = this.rafs.get(meter);
+                    if (raf) cancelAnimationFrame(raf);
+                    meter.strength = 0;
+                }
+            }
+        }, { threshold: 0.3 });
+        for (const col of Array.from(this.querySelectorAll('.col'))) {
+            this.observer.observe(col);
+        }
+    }
+
+    override onDestroy(): void {
+        this.observer?.disconnect();
+        for (const raf of this.rafs.values()) cancelAnimationFrame(raf);
+    }
+
+    private animateMeter(meter: RxElement & { strength: number }): void {
+        const duration = 1200;
+        const start = performance.now();
+        const tick = (now: number): void => {
+            const t = Math.min(1, (now - start) / duration);
+            const eased = 1 - Math.pow(1 - t, 3);
+            meter.strength = Math.round(eased * 100);
+            if (t < 1) this.rafs.set(meter, requestAnimationFrame(tick));
+        };
+        this.rafs.set(meter, requestAnimationFrame(tick));
+    }
+}
 
 @Component({
     selector: 'docs-ssg',
@@ -16,6 +86,8 @@ import { DOC_STYLES } from '../../../utils/doc-styles.js';
            fully rendered DOM, and writes static HTML files. On load,
            the framework hydrates from the captured state — no flash,
            no re-render.</p>
+
+        <lighthouse-meters></lighthouse-meters>
 
         <section class="host" toc-section="ssg/cli">
             <h2 toc-anchor="ssg/cli">The CLI</h2>
@@ -52,6 +124,36 @@ npm run build:ssg`}</code-block>
                automatically. It ships a stripped-down Chromium
                binary built for headless environments.</p>
             <code-block syntax="bash">${escape`npm install @sparticuz/chromium --save-dev`}</code-block>
+        </section>
+
+        <section class="host" toc-section="ssg/routes">
+            <h2 toc-anchor="ssg/routes">Route discovery</h2>
+            <p class="note">The CLI loads the root page and reads the
+               route table from the framework's router. Every registered
+               route is captured as its own
+               <code class="inline">index.html</code>. All routes are
+               captured in parallel — each in its own browser tab,
+               rendered natively by the browser's own layout engine, not
+               serialized through a single-threaded JS renderer. The
+               bundle is cached after the first page, so subsequent
+               pages only pay the route-change and render cost. Each
+               page waits for the network to settle (no in-flight
+               requests for 500ms), then snapshots the DOM. A full site
+               typically captures in single-digit seconds, not the
+               minutes you'd wait for a framework that re-executes your
+               entire component tree in Node.</p>
+        </section>
+
+        <section class="host" toc-section="ssg/hydration">
+            <h2 toc-anchor="ssg/hydration">Hydration</h2>
+            <p class="note">During capture, the CLI serializes every
+               component's <code class="inline">@state</code> and every
+               service's observable state into a JSON blob embedded in
+               the HTML. On load, the framework reads the blob, restores
+               state into each component and service, and wires up
+               bindings — the DOM is already correct so nothing visually
+               changes. The user sees the static page instantly and
+               interactivity kicks in once the JS loads.</p>
         </section>
 
         <section class="host" toc-section="ssg/docker">
@@ -94,27 +196,6 @@ EXPOSE 80`}</code-block>
                Alpine doesn't have them, so the capture stage uses
                <code class="inline">node:24-slim</code> (Debian). The
                final image is just nginx serving static files.</p>
-        </section>
-
-        <section class="host" toc-section="ssg/hydration">
-            <h2 toc-anchor="ssg/hydration">Hydration</h2>
-            <p class="note">During capture, the CLI serializes every
-               component's <code class="inline">@state</code> and every
-               service's observable state into a JSON blob embedded in
-               the HTML. On load, the framework reads the blob, restores
-               state into each component and service, and wires up
-               bindings — the DOM is already correct so nothing visually
-               changes. The user sees the static page instantly and
-               interactivity kicks in once the JS loads.</p>
-        </section>
-
-        <section class="host" toc-section="ssg/routes">
-            <h2 toc-anchor="ssg/routes">Route discovery</h2>
-            <p class="note">The CLI loads the root page and reads the
-               route table from the framework's router. Every registered
-               route is captured as its own
-               <code class="inline">index.html</code>. No configuration
-               needed — if you registered a route, it gets captured.</p>
         </section>
     `,
     styles: `
