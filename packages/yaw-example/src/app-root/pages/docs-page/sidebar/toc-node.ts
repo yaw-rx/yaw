@@ -13,9 +13,11 @@
  * The sidebar finds the active leaf by id (one querySelector call),
  * calls expand() on it, and the recursion handles the rest.
  */
+import { combineLatest } from 'rxjs';
 import { Component, Inject, RxElement, state } from 'yaw';
 import { RxFor } from 'yaw/directives/rx-for';
 import { TocService, type TocEntry } from '../services/toc-service.js';
+import { SidebarService } from '../../../services/sidebar-service.js';
 
 @Component({
     selector: 'toc-node',
@@ -56,19 +58,20 @@ export class TocNode extends RxElement {
     @state active = false;
 
     @Inject(TocService) private readonly toc!: TocService;
+    @Inject(SidebarService) private readonly sidebar!: SidebarService;
 
-    expand(): void {
-        this.expanded = true;
-        const host = this.hostNode;
-        if (host instanceof TocNode) host.expand();
-    }
-
-    collapse(): void {
-        this.expanded = false;
-        this.active = false;
+    override onInit(): void {
+        combineLatest([this.toc.activeId$, this.toc.expandAll$]).subscribe(
+            ([activeId, expandAll]: [string, boolean]) => {
+                const path = this.toc.paths.get(activeId);
+                this.active = this.id === activeId;
+                this.expanded = expandAll || (path !== undefined && path.includes(this.id));
+            }
+        );
     }
 
     goto(id: string): void {
         this.toc.scrollTo(id);
+        this.sidebar.close();
     }
 }

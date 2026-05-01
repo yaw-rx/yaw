@@ -41,12 +41,14 @@ import { TocNode } from './sidebar/toc-node.js';
 
         nav { display: flex; flex-direction: column; gap: 0.15rem;
               font-family: monospace; }
+        @media (max-width: 768px) {
+            :host { position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                    height: 100vh; border-right: none; }
+        }
     `,
 })
 export class DocsSidebar extends RxElement {
     @Inject(TocService) private readonly toc!: TocService;
-    private prevPath: TocNode[] = [];
-    private prevLeaf: TocNode | null = null;
 
     get nodes$(): Observable<readonly TocEntry[]> {
         return this.toc.tree$;
@@ -62,39 +64,6 @@ export class DocsSidebar extends RxElement {
             }, 300);
         });
         mo.observe(this, { childList: true, subtree: true });
-
-        this.toc.activeId$.subscribe((id: string) => {
-            if (!id) return;
-            const leaf = this.querySelector(`#${CSS.escape(id)}`) as TocNode | null;
-            if (!leaf) return;
-
-            const newPath = this.collectPath(leaf);
-            const shared = this.sharedLength(this.prevPath, newPath);
-
-            if (this.prevLeaf) this.prevLeaf.active = false;
-            for (let i = shared; i < this.prevPath.length; i++) {
-                this.prevPath[i]!.collapse();
-            }
-
-            const path = this.collectPath(leaf);
-            console.log('active:', id, 'leaf:', leaf?.tagName, 'path:', path.map(n => n.id), 'hostNode:', (leaf as any)?.hostNode?.tagName, 'instanceof:', leaf instanceof TocNode);
-
-            leaf.active = true;
-            leaf.expand();
-
-            this.prevPath = newPath;
-            this.prevLeaf = leaf;
-        });
-    }
-
-    private collectPath(leaf: TocNode): TocNode[] {
-        const path: TocNode[] = [];
-        let node: RxElement | undefined = leaf;
-        while (node instanceof TocNode) {
-            path.unshift(node);
-            node = (node as any).hostNode;
-        }
-        return path;
     }
 
     #measureWidth(): void {
@@ -112,13 +81,5 @@ export class DocsSidebar extends RxElement {
         for (let i = 0; i < nodes.length; i++) {
             nodes[i]!.expanded = wasExpanded[i]!;
         }
-    }
-
-    private sharedLength(a: TocNode[], b: TocNode[]): number {
-        const len = Math.min(a.length, b.length);
-        for (let i = 0; i < len; i++) {
-            if (a[i] !== b[i]) return i;
-        }
-        return len;
     }
 }

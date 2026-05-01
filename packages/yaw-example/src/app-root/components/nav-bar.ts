@@ -1,12 +1,14 @@
 import { map, type Observable } from 'rxjs';
 import { Component, Inject, RxElement, state } from 'yaw';
 import { Router } from 'yaw/router';
+import { Hamburger } from '../directives/hamburger.js';
 
 @Component({
     selector: 'nav-bar',
+    directives: [Hamburger],
     template: `
         <nav>
-            <a class="logo" onclick="navigateHome">YAW</a>
+            <a class="logo" hamburger>YAW</a>
             <div class="links">
                 <a [class.active]="isActive('/')" onclick="navigateHome">Manifesto</a>
                 <a [class.active]="isActive('/showcase')" onclick="navigateShowcase">Showcase</a>
@@ -18,13 +20,19 @@ import { Router } from 'yaw/router';
         </nav>
     `,
     styles: `
-        nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+        nav { position: fixed; top: 0; left: 0; right: 0; z-index: 300;
               display: flex; justify-content: space-between; align-items: center;
               padding: 1rem 2rem; background: rgba(0,0,0,0.85);
               backdrop-filter: blur(8px); border-bottom: 1px solid #222; }
         .logo { font-weight: 900; font-size: 1.4rem; color: #fff;
                 text-decoration: none; letter-spacing: -1px; cursor: pointer;
-                margin-right: 2rem; }
+                margin-right: 2rem; position: relative; }
+        .logo.has-menu::after { content: ''; position: absolute;
+                   bottom: -7px; left: 0; width: 100%; height: 8px;
+                   background:
+                       linear-gradient(#8af, #8af) center 0    / 70% 1.5px no-repeat,
+                       linear-gradient(#8af, #8af) center 50%  / 50% 1.5px no-repeat,
+                       linear-gradient(#8af, #8af) center 100% / 30% 1.5px no-repeat; }
         .links { display: flex; gap: 2rem; overflow-x: auto; scrollbar-width: none; }
         .links::-webkit-scrollbar { display: none; }
         .links a { color: #888; text-decoration: none; font-size: 0.9rem;

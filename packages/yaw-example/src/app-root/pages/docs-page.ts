@@ -1,6 +1,7 @@
 import { Component, RxElement } from 'yaw';
 import { TocSection } from './docs-page/directives/toc-section.js';
 import { TocAnchor } from './docs-page/directives/toc-anchor.js';
+import { SidebarDrawer } from '../directives/sidebar-drawer.js';
 import { TocService } from './docs-page/services/toc-service.js';
 import './docs-page/sidebar.js';
 import './docs-page/sections/getting-started.js';
@@ -14,9 +15,9 @@ import './docs-page/sections/navigation.js';
 @Component({
     selector: 'docs-page',
     providers: [TocService],
-    directives: [TocSection, TocAnchor],
+    directives: [TocSection, TocAnchor, SidebarDrawer],
     template: `
-        <docs-sidebar></docs-sidebar>
+        <docs-sidebar sidebar-drawer></docs-sidebar>
         <main class="content">
             <header class="intro" toc-section="docs">
                 <h1 toc-anchor="docs">Docs</h1>
@@ -40,7 +41,7 @@ import './docs-page/sections/navigation.js';
         :host { display: flex; background: #000; min-height: 100vh;
                 color: #ccc; box-sizing: border-box; }
         .content { flex: 1 1 0; min-width: 0; box-sizing: border-box;
-                   padding: 6rem 2rem 4rem 2rem; }
+                   padding: 6rem 1.25rem 4rem 1.25rem; }
         .content > [id] { scroll-margin-top: 5rem; display: block; }
         [toc-section] { margin-left: calc(var(--toc-depth, 0) * 1.5rem); }
         h1[toc-section] { margin-left: 0; }

@@ -25,7 +25,7 @@
 import { asyncScheduler, BehaviorSubject, share, skip, Subject, throttleTime } from 'rxjs';
 import { Injectable, state } from 'yaw';
 
-const SNAP_DELAY = 700;
+const SNAP_DELAY = 400;
 
 export interface TocEntry {
     readonly id: string;
@@ -42,6 +42,7 @@ interface SectionRatioState {
 @Injectable()
 export class TocService {
     @state activeId = '';
+    @state expandAll = false;
     @state tree: readonly TocEntry[] = [];
     readonly paths = new Map<string, readonly string[]>();
 
@@ -137,11 +138,19 @@ export class TocService {
         const el = this.elements.get(id);
         if (!el) return;
         el.scrollIntoView({ behavior: 'smooth' });
-        setTimeout(() => el.scrollIntoView(true), SNAP_DELAY);
+        setTimeout(() => el.scrollIntoView({ behavior: 'instant', block: 'start' }), SNAP_DELAY);
     }
 
     private scheduleRebuild(): void {
         this.rebuildSubject.next();
+    }
+
+    pause(): void {
+        this.disconnectObservers();
+    }
+
+    resume(): void {
+        this.buildObservers();
     }
 
     private disconnectObservers(): void {
