@@ -10,6 +10,7 @@ import { DOC_STYLES } from '../../../utils/doc-styles.js';
 import './directives/for-demo.js';
 import './directives/scope-demo.js';
 import './directives/blink-demo.js';
+import './directives/if-demo.js';
 
 @Directive({ selector: '[bounce]' })
 export class Bounce {
@@ -53,34 +54,30 @@ export class Bounce {
     }
 }`;
 
-const SCROLL_REVEAL_SOURCE = `import { Directive } from 'yaw';
-import type { RxElementLike, ParsedExpr } from 'yaw';
 
-@Directive({ selector: '[scroll-reveal]' })
-export class ScrollReveal {
-    node!: RxElementLike;
-    parsed?: ParsedExpr;
-    private observer: IntersectionObserver | undefined;
+const IF_DEMO_SOURCE = `import { map, type Observable } from 'rxjs';
+import { Component, RxElement, state } from 'yaw';
+import { RxIf } from 'yaw/directives/rx-if';
 
-    onInit(): void {
-        const threshold = this.parsed?.expr ? parseFloat(this.parsed.expr) : 0.15;
-        this.node.classList.add('reveal');
-        this.observer = new IntersectionObserver(
-            (entries) => {
-                for (const entry of entries) {
-                    if (entry.isIntersecting) {
-                        this.node.classList.add('revealed');
-                        this.observer?.unobserve(this.node);
-                    }
-                }
-            },
-            { threshold }
-        );
-        this.observer.observe(this.node);
+@Component({
+    selector: 'if-demo',
+    directives: [RxIf],
+    template: \`
+        <button onclick="toggle">{{label}}</button>
+        <div rx-if="isLoggedIn">
+            <p>Welcome back, Jonathan</p>
+        </div>
+    \`,
+})
+export class IfDemo extends RxElement {
+    @state isLoggedIn = false;
+
+    toggle(): void {
+        this.isLoggedIn = !this.isLoggedIn;
     }
 
-    onDestroy(): void {
-        this.observer?.disconnect();
+    get label$(): Observable<string> {
+        return this.isLoggedIn$.pipe(map((v) => v ? 'logout' : 'login'));
     }
 }`;
 
@@ -179,12 +176,37 @@ export class ForDemo extends RxElement {
             </div>
         </section>
 
-        <section class="host" toc-section="directives/scroll-reveal">
-            <h2 toc-anchor="directives/scroll-reveal">Another: ScrollReveal</h2>
-            <p class="note">A real directive from this project — fades its host
-               in when it enters the viewport. Same shape, different hook: an
-               IntersectionObserver swapped in for the animation.</p>
-            <code-block syntax="ts">${escape`${SCROLL_REVEAL_SOURCE}`}</code-block>
+        <section class="host" toc-section="directives/blink">
+            <h2 toc-anchor="directives/blink">Another: Blink</h2>
+            <p class="note">Same shape, different animation — an opacity loop
+               via the Web Animations API. Place
+               <code class="inline">[blink]</code> on any element.</p>
+            <code-block syntax="ts">${escape`import { Directive } from 'yaw';
+import type { RxElementLike } from 'yaw';
+
+@Directive({ selector: '[blink]' })
+export class Blink {
+    node!: RxElementLike;
+    private animation: Animation | undefined;
+
+    onInit(): void {
+        this.animation = this.node.animate(
+            [{ opacity: 1 }, { opacity: 0 }, { opacity: 1 }],
+            { duration: 1000, iterations: Infinity },
+        );
+    }
+
+    onDestroy(): void {
+        this.animation?.cancel();
+    }
+}`}</code-block>
+            <section class="ex">
+                <h2>In action</h2>
+                <div class="split">
+                    <code-block syntax="html">${escape`<p blink>Now you see me</p>`}</code-block>
+                    <div class="live"><blink-demo></blink-demo></div>
+                </div>
+            </section>
         </section>
 
         <section class="host" toc-section="directives/builtin">
@@ -204,39 +226,24 @@ export class ForDemo extends RxElement {
                    are detached from the DOM; when it turns truthy again the original
                    nodes come back — no re-creation, no hidden
                    <code class="inline">display: none</code>.</p>
+                <code-block syntax="ts">${escape`${IF_DEMO_SOURCE}`}</code-block>
+                <p class="note">The template reads naturally — place
+                   <code class="inline">rx-if</code> on the element you
+                   want to conditionally render. The expression points at
+                   a boolean on the host.</p>
                 <code-block syntax="html">${escape`<div rx-if="isLoggedIn">
     <p>Welcome back, {{name}}</p>
 </div>`}</code-block>
-
-                    <h3>A blink tag</h3>
-                    <p class="note"><code class="inline">blink-demo</code> drives
-                       <code class="inline">rx-if</code> from a two-second timer —
-                       no button, no state toggle.
-                       <code class="inline">timer(0, 2000)</code> emits 0 immediately
-                       then increments every two seconds;
-                       <code class="inline">map(n =&gt; n % 2 === 0)</code> turns that
-                       into an alternating boolean. The element is removed and
-                       reinserted by the framework on each flip.</p>
-                    <code-block syntax="ts">${escape`import { Component, RxElement } from 'yaw';
-import { timer } from 'rxjs';
-import { map } from 'rxjs/operators';
-
-@Component({
-    selector: 'blink-demo',
-    template: \`<p rx-if="isVisible">Now you see me</p>\`,
-})
-export class BlinkDemo extends RxElement {
-    get isVisible$() {
-        return timer(0, 2000).pipe(map(n => n % 2 === 0));
-    }
-}`}</code-block>
-                    <section class="ex">
-                        <h2>In action</h2>
-                        <div class="split">
-                            <code-block syntax="html">${escape`<blink-demo></blink-demo>`}</code-block>
-                            <div class="live"><blink-demo></blink-demo></div>
-                        </div>
-                    </section>
+                <p class="note">Click the button — the paragraph mounts
+                   and unmounts. No fade, no hide. The DOM nodes are
+                   physically removed and reinserted.</p>
+                <section class="ex">
+                    <h2>In action</h2>
+                    <div class="split">
+                        <code-block syntax="html">${escape`<if-demo></if-demo>`}</code-block>
+                        <div class="live"><if-demo></if-demo></div>
+                    </div>
+                </section>
                 </section>
 
             <section toc-section="directives/builtin/rx-for">
