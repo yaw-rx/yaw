@@ -1,4 +1,9 @@
 import { Component, RxElement } from 'yaw';
+import { TocSection } from './docs-page/directives/toc-section.js';
+import { TocAnchor } from './docs-page/directives/toc-anchor.js';
+import { SidebarDrawer } from '../directives/sidebar-drawer.js';
+import { TocService } from './docs-page/services/toc-service.js';
+import './docs-page/sidebar.js';
 import './examples-page/components/yaw-slider.js';
 import './examples-page/sections/slider-example.js';
 import './examples-page/sections/color-playground.js';
@@ -9,27 +14,31 @@ import './examples-page/sections/calendar-example.js';
 
 @Component({
     selector: 'examples-page',
+    providers: [TocService],
+    directives: [TocSection, TocAnchor, SidebarDrawer],
     template: `
-        <div class="page">
-            <header class="intro">
-                <h1>Examples</h1>
+        <docs-sidebar sidebar-drawer></docs-sidebar>
+        <main class="content">
+            <header class="intro" toc-section="intro">
+                <h1 toc-anchor="intro">Examples</h1>
                 <p class="lede">Small, real components — each exercising one piece of the
                    framework. Source strings are the same strings the browser renders, so
                    every code block you see is the truth of what's running beside it.</p>
             </header>
 
-            <slider-example></slider-example>
-            <color-playground></color-playground>
-            <signal-meter strength="65"></signal-meter>
-            <row-firehose></row-firehose>
+            <slider-example toc-section="custom-slider"></slider-example>
+            <color-playground toc-section="reactive-palette"></color-playground>
+            <signal-meter toc-section="signal-meter" strength="65"></signal-meter>
+            <row-firehose toc-section="v8-firehose"></row-firehose>
             <!-- <calendar-example></calendar-example> -->
-            <nesting-example></nesting-example>
-        </div>
+            <nesting-example toc-section="nesting-example"></nesting-example>
+        </main>
     `,
     styles: `
-        :host { display: block; background: #000; min-height: calc(100vh / 1.75);
-                padding: 6rem 1.25rem 4rem; color: #ccc; box-sizing: border-box; }
-        .page { max-width: 1200px; margin: 0 auto; }
+        :host { display: flex; background: #000; min-height: 100vh;
+                color: #ccc; box-sizing: border-box; }
+        .content { flex: 1 1 0; min-width: 0; box-sizing: border-box;
+                   padding: 6rem 1.25rem 4rem 1.25rem; }
         .intro { margin-bottom: 2.5rem; }
         h1 { color: #fff; font-size: 2.5rem; font-weight: 900;
              letter-spacing: -1px; margin: 0 0 1rem; }

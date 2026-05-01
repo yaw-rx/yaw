@@ -2,6 +2,8 @@ import { Component, RxElement, state } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
+import { TocSection } from '../../docs-page/directives/toc-section.js';
+import { TocAnchor } from '../../docs-page/directives/toc-anchor.js';
 
 const FIREHOSE_TEMPLATE = `
     <div class="controls">
@@ -127,8 +129,9 @@ export class RowFirehose extends RxElement {
 
 @Component({
     selector: 'row-firehose',
+    directives: [TocSection, TocAnchor],
     template: `
-        <h1>V8 firehose</h1>
+        <h1 toc-anchor="v8-firehose">V8 firehose</h1>
         <p class="lede">Click flood. <code class="inline">amount</code> rows get appended to
            a scrollable container over <code class="inline">seconds</code> seconds —
            raw DOM, direct <code class="inline">insertAdjacentHTML</code>, no virtualization,

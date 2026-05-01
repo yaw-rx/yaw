@@ -97,26 +97,92 @@ const ESCAPE_SNIPPET = [
 ].join('\n');
 
 const REACTIVE_SNIPPET = `<!-- text (mustache) -->
+<!-- interpolate name from this host -->
 <p>hello, {{name}}</p>
+<!-- interpolate greeting from the parent host -->
+<p>{{^greeting}}</p>
+<!-- interpolate title from the grandparent host -->
+<p>{{^^title}}</p>
+
+<!-- ---------------------------------------- -->
 
 <!-- property -->
+<!-- set value from this host's query -->
 <input [value]="query">
+<!-- set value from the parent host's query -->
+<input [value]="^query">
+<!-- set value from the grandparent host's query -->
+<input [value]="^^query">
+
+<!-- ---------------------------------------- -->
 
 <!-- attribute -->
+<!-- set href from this host's profileUrl -->
 <a [href]="profileUrl">profile</a>
+<!-- set href from the parent host's profileUrl -->
+<a [href]="^profileUrl">profile</a>
+<!-- set href from the grandparent host's profileUrl -->
+<a [href]="^^profileUrl">profile</a>
+
+<!-- ---------------------------------------- -->
 
 <!-- class toggle -->
+<!-- toggle active from this host's isSelected -->
 <li [class.active]="isSelected">...</li>
+<!-- toggle active from the parent host's isSelected -->
+<li [class.active]="^isSelected">...</li>
+<!-- toggle active from the grandparent host's isSelected -->
+<li [class.active]="^^isSelected">...</li>
+
+<!-- ---------------------------------------- -->
 
 <!-- style -->
+<!-- set style from this host's barStyle -->
 <div [style]="barStyle"></div>
+<!-- set style from the parent host's barStyle -->
+<div [style]="^barStyle"></div>
+<!-- set style from the grandparent host's barStyle -->
+<div [style]="^^barStyle"></div>
 
-<!-- model (two-way) -->
-<input [(value)]="query">`;
+<!-- ---------------------------------------- -->
+
+<!-- model -->
+<!-- write this element's value to the host's volume -->
+<my-slider [(value)]="volume"></my-slider>
+<!-- write this element's value to the parent host's volume -->
+<my-slider [(value)]="^volume"></my-slider>
+<!-- write this element's value to the grandparent host's volume -->
+<my-slider [(value)]="^^volume"></my-slider>`;
 
 const IMPERATIVE_SNIPPET = `<!-- event -->
+<!-- call a method on this host -->
 <button onclick="submit">send</button>
+<!-- call a method on the parent host -->
+<button onclick="^submit">send</button>
+<!-- call a method on the grandparent host -->
+<button onclick="^^submit">send</button>
+
+<!-- ---------------------------------------- -->
+
+<!-- event with static arguments (only literals, no reactive values) -->
+<!-- call a method on this host -->
 <button onclick="increment(5)">+5</button>
+<!-- call a method on the parent host -->
+<button onclick="^increment(-1)">-1</button>
+<!-- call a method on the grandparent host -->
+<button onclick="^^increment(10)">+10</button>
+
+<!-- ---------------------------------------- -->
+
+<!-- event with $event (passes the native DOM event to the method) -->
+<!-- call a method on this host -->
+<div onpointerdown="grab($event)"></div>
+<!-- call a method on the parent host -->
+<div onpointermove="^drag($event)"></div>
+<!-- call a method on the grandparent host -->
+<div onpointerup="^^release($event)"></div>
+
+<!-- ---------------------------------------- -->
 
 <!-- ref -->
 <canvas #surface></canvas>`;
@@ -132,6 +198,18 @@ const IMPERATIVE_SNIPPET = `<!-- event -->
            decorator takes a selector — the HTML tag name — along
            with the template, styles, and any directives, services,
            or codecs the component needs.</p>
+        <p class="lede">A class decorated with
+           <code class="inline">@Component</code> is a <em>host</em>
+           — it owns a template and provides the scope that bindings
+           resolve against: its <code class="inline">@state</code>
+           fields, methods, and injected services. Vanilla HTML tags
+           like <code class="inline">${escape`<div>`}</code> or
+           <code class="inline">${escape`<span>`}</code> are not
+           hosts. When a binding needs to reach beyond the nearest
+           host, a <code class="inline">^</code> prefix targets the
+           next host up the DOM tree,
+           <code class="inline">^^</code> the one above that, and
+           so on.</p>
             <code-block syntax="ts">${escape`import { Component, RxElement } from 'yaw';
 
 @Component({
@@ -168,22 +246,44 @@ const IMPERATIVE_SNIPPET = `<!-- event -->
                and stay in sync, and imperative bindings that fire
                once.</p>
             <h3>Reactive</h3>
-            <p class="note">Subscribe to an observable and update the
-               DOM whenever it emits.
-               <code class="inline">@state</code> promotes a field to
-               an observable; any property that returns an observable
-               works too.</p>
+            <p class="note">Expressions resolve against the component
+               whose template you are writing in — an
+               <code class="inline">@state</code> field, an observable
+               getter, or a plain property like
+               <code class="inline">count</code> or
+               <code class="inline">svc.icon</code>.
+               Prefix with <code class="inline">^</code> to read
+               from the parent host, or
+               <code class="inline">^^</code> the grandparent
+               (see the
+               <a href="/examples/nesting-example">Nesting example</a>).
+               Mustaches (<code class="inline">${escape`{{expr}}`}</code>)
+               write text content; bracket bindings target a specific
+               property, attribute, class, or style on the element.</p>
+            <p class="note">The model binding writes in the opposite
+               direction. When you place
+               <code class="inline">[(value)]="count"</code> on a
+               component in your template, that component's
+               <code class="inline">value</code> state writes into
+               your <code class="inline">count</code>
+               (see the
+               <a href="/examples/custom-slider">Custom slider</a>).
+               Carets work the same way —
+               <code class="inline">[(value)]="^count"</code>
+               writes to your parent host's
+               <code class="inline">count</code> instead of
+               yours.</p>
             <table class="binding-table">
                 <thead>
                     <tr><th>Binding</th><th>Syntax</th><th>Description</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td>text (mustache)</td><td><code>${escape`{{expr}}`}</code></td><td>Subscribes to an observable and writes its value as the element's text content whenever it emits</td></tr>
-                    <tr><td>property</td><td><code>[prop]="expr"</code></td><td>Subscribes and sets a JavaScript property on the element, like <code>.value</code> on an input</td></tr>
-                    <tr><td>attribute</td><td><code>[attr]="expr"</code></td><td>Subscribes and sets an HTML attribute on the element</td></tr>
-                    <tr><td>class</td><td><code>[class.name]="expr"</code></td><td>Subscribes and adds or removes a CSS class based on whether the value is truthy</td></tr>
-                    <tr><td>style</td><td><code>[style]="expr"</code></td><td>Subscribes and sets an inline CSS style property on the element</td></tr>
-                    <tr><td>model</td><td><code>[(prop)]="expr"</code></td><td>Pushes observable values to the DOM and writes DOM changes back to the observable, keeping both in sync</td></tr>
+                    <tr><td>text (mustache)</td><td><code>${escape`{{expr}}`}</code></td><td>Subscribes to an observable and updates the element's <code>textContent</code> whenever it emits</td></tr>
+                    <tr><td>property</td><td><code>[prop]="expr"</code></td><td>Subscribes and sets a JavaScript property on the element</td></tr>
+                    <tr><td>attribute</td><td><code>[attr]="expr"</code></td><td>Subscribes and calls <code>setAttribute</code> on the element whenever it emits</td></tr>
+                    <tr><td>class</td><td><code>[class.name]="expr"</code></td><td>Subscribes and toggles a CSS class on the element's <code>classList</code> based on truthiness</td></tr>
+                    <tr><td>style</td><td><code>[style]="expr"</code></td><td>Subscribes and sets an inline style property on the element via <code>element.style</code></td></tr>
+                    <tr><td>model</td><td><code>[(prop)]="expr"</code></td><td>Subscribes to the element's own <code>@state</code> field and writes each new value to a property on the host (<code>hostProp</code>) or an ancestor host (<code>^parentHostProp</code>)</td></tr>
                 </tbody>
             </table>
             <code-block syntax="html">${escape`${REACTIVE_SNIPPET}`}</code-block>

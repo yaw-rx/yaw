@@ -3,6 +3,8 @@ import { Component, RxElement, state } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
+import { TocSection } from '../../docs-page/directives/toc-section.js';
+import { TocAnchor } from '../../docs-page/directives/toc-anchor.js';
 
 const METER_TEMPLATE = `
     <div class="meter" [style]="meterStyle">
@@ -62,8 +64,9 @@ export class SignalMeter extends RxElement {
 
 @Component({
     selector: 'signal-meter',
+    directives: [TocSection, TocAnchor],
     template: `
-        <h1>SVG signal meter</h1>
+        <h1 toc-anchor="signal-meter">SVG signal meter</h1>
         <p class="lede">One <code class="inline">@state</code>, one <code class="inline">[style]</code>
            binding. The slider writes a number, the component forwards it as a
            <code class="inline">--pct</code> custom property, and SVG

@@ -3,14 +3,17 @@ import { escape } from '../../../components/code-block/code-highlight.js';
 import '../../../components/code-block.js';
 import { SLIDER_SOURCE } from '../components/yaw-slider.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
+import { TocSection } from '../../docs-page/directives/toc-section.js';
+import { TocAnchor } from '../../docs-page/directives/toc-anchor.js';
 
 const USAGE = `<yaw-slider [(value)]="value" min="0" max="100"></yaw-slider>
 <p>value = {{value}}</p>`;
 
 @Component({
     selector: 'slider-example',
+    directives: [TocSection, TocAnchor],
     template: `
-        <h1>Custom slider</h1>
+        <h1 toc-anchor="custom-slider">Custom slider</h1>
         <p class="lede">Native form controls can't survive the mirror walk, so we build our
            own. One component, <code class="inline">pointerdown</code> /
            <code class="inline">move</code> / <code class="inline">up</code>, plus two

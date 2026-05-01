@@ -3,6 +3,8 @@ import { Component, RxElement, state } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
+import { TocSection } from '../../docs-page/directives/toc-section.js';
+import { TocAnchor } from '../../docs-page/directives/toc-anchor.js';
 
 const PALETTE_TEMPLATE = `
     <label>H <em>{{hue}}°</em></label>
@@ -63,8 +65,9 @@ export class ColorPlayground extends RxElement {
 
 @Component({
     selector: 'color-playground',
+    directives: [TocSection, TocAnchor],
     template: `
-        <h1>Reactive palette</h1>
+        <h1 toc-anchor="reactive-palette">Reactive palette</h1>
         <p class="lede">Three <code class="inline">@state</code> fields, three
            <code class="inline">yaw-slider</code> instances bound via
            <code class="inline">[(value)]</code>. One <code class="inline">combineLatest</code>

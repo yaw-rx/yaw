@@ -3,6 +3,8 @@ import { Component, RxElement, state } from 'yaw';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
+import { TocSection } from '../../docs-page/directives/toc-section.js';
+import { TocAnchor } from '../../docs-page/directives/toc-anchor.js';
 import './nesting-example/components/nested-level.js';
 import './nesting-example/components/page-echo.js';
 
@@ -148,9 +150,10 @@ export class NestingExample extends RxElement {
 
 @Component({
     selector: 'nesting-example',
+    directives: [TocSection, TocAnchor],
     template: `
         <div class="page">
-            <h1>Nesting example</h1>
+            <h1 toc-anchor="nesting-example">Nesting example</h1>
 
             <p class="lede">This example is one component,
                <code class="inline">&lt;nesting-example&gt;</code>. It owns one piece

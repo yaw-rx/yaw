@@ -2,6 +2,7 @@ export const DOC_STYLES = `
     h1 { color: #fff; font-size: 2rem; font-weight: 900;
          letter-spacing: -1px; margin: 0 0 0.75rem; }
     .lede { color: #888; line-height: 1.7; margin-bottom: 2rem; max-width: 72ch; }
+    .lede + .lede { margin-top: 0.75rem; }
     .lede + code-block { margin-top: 1rem; }
     .inline { background: #111; padding: 0.1rem 0.4rem;
               border-radius: 3px; font-size: 0.9em; color: #8af;
