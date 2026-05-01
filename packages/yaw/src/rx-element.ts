@@ -65,6 +65,7 @@ export class RxElementBase extends HTMLElement {
         this.#bindingTeardown?.();
         for (const directive of this.#directives) { directive.onDestroy(); }
         this.#directives.length = 0;
+        this.__injector?.destroyInstances();
         this.onDestroy();
     }
 

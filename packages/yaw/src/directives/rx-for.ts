@@ -356,6 +356,7 @@ export class RxFor {
         for (const child of this.node.querySelectorAll(':scope > [data-rx-item]')) {
             const key = child.getAttribute('data-rx-key');
             if (key === null) continue;
+            if (this.scopeNodes.has(key)) continue;
             const match = itemByKey.get(key);
             const subject = new BehaviorSubject<unknown>(match?.item);
             const index$ = this.indexName ? new BehaviorSubject<unknown>(match?.index) : undefined;
@@ -388,7 +389,9 @@ export class RxFor {
                         )?.el ?? null
                         : null;
                     if (existing.el.previousElementSibling !== expectedPrev) {
-                        this.node.appendChild(existing.el);
+                        for (const el of this.node.querySelectorAll(`:scope > [data-rx-key="${key}"]`)) {
+                            this.node.appendChild(el);
+                        }
                     }
                 }
             } else {
@@ -403,8 +406,12 @@ export class RxFor {
                 tpl.innerHTML = this.content;
                 const frag = tpl.content;
                 const itemEl = frag.firstElementChild!;
-                itemEl.setAttribute('data-rx-item', '');
-                itemEl.setAttribute('data-rx-key', key);
+                let el: Element | null = itemEl;
+                while (el !== null) {
+                    el.setAttribute('data-rx-item', '');
+                    el.setAttribute('data-rx-key', key);
+                    el = el.nextElementSibling;
+                }
 
                 const entry: ScopeEntry = { el: itemEl, subject, index$ };
                 this.scopeNodes.set(key, entry);
@@ -421,7 +428,9 @@ export class RxFor {
             if (!seen.has(key)) {
                 entry.subject.complete();
                 entry.index$?.complete();
-                entry.el.remove();
+                for (const el of this.node.querySelectorAll(`:scope > [data-rx-key="${key}"]`)) {
+                    el.remove();
+                }
                 this.scopeNodes.delete(key);
             }
         }

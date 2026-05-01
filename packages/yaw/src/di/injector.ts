@@ -60,6 +60,9 @@ export class Injector {
         if (provider !== undefined) {
             const instance = provider.create(this);
             this.instances.set(token, instance);
+            if (instance != null && typeof (instance as Record<string, unknown>)['onInit'] === 'function') {
+                (instance as { onInit(): void }).onInit();
+            }
             return instance as T;
         }
         if (this.parent !== null) {
@@ -75,6 +78,14 @@ export class Injector {
 
     public child(providers: readonly Provider[]): Injector {
         return new Injector(providers, this);
+    }
+
+    public destroyInstances(): void {
+        for (const instance of this.instances.values()) {
+            if (instance != null && typeof (instance as Record<string, unknown>)['onDestroy'] === 'function') {
+                (instance as { onDestroy(): void }).onDestroy();
+            }
+        }
     }
 
     public forEachInstance(fn: (instance: unknown) => void): void {
