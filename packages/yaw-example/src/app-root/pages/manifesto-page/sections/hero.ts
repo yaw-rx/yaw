@@ -26,6 +26,9 @@ import { PerlinBg } from './hero/perlin-bg.js';
                  letter-spacing: -4px; line-height: 1; margin: 0 0 0.5rem; }
         .sub { font-size: 1.25rem; color: #838383; line-height: 1.6; margin: 0 0 4rem; }
         .stats { display: flex; gap: 4rem; justify-content: center; }
+        @media (max-width: 480px) {
+            .stats { gap: 1.5rem; }
+        }
     `
 })
 export class HeroSection extends RxElement {}

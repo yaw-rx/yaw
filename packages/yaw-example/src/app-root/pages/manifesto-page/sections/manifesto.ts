@@ -17,6 +17,10 @@ import { Component, RxElement, state } from 'yaw';
         .reveal { opacity: 0; transform: translateY(24px);
                   transition: opacity 0.6s ease, transform 0.6s ease; }
         .revealed { opacity: 1; transform: none; }
+        @media (max-width: 480px) {
+            :host { padding: 3rem 1rem; }
+            .heading { font-size: 1.5rem; }
+        }
     `
 })
 export class ManifestoSection extends RxElement {

@@ -25,7 +25,8 @@ import { Router } from 'yaw/router';
         .logo { font-weight: 900; font-size: 1.4rem; color: #fff;
                 text-decoration: none; letter-spacing: -1px; cursor: pointer;
                 margin-right: 2rem; }
-        .links { display: flex; gap: 2rem; }
+        .links { display: flex; gap: 2rem; overflow-x: auto; scrollbar-width: none; }
+        .links::-webkit-scrollbar { display: none; }
         .links a { color: #888; text-decoration: none; font-size: 0.9rem;
                    letter-spacing: 0.05em; cursor: pointer; transition: color 0.2s;
                    white-space: nowrap; position: relative; }
@@ -34,6 +35,17 @@ import { Router } from 'yaw/router';
         .links a.active::after { content: ''; position: absolute;
                    left: 0; right: 0; bottom: -4px;
                    height: 2px; background: #fff; }
+        @media (max-width: 768px) {
+            nav { padding: 0.75rem 1rem; }
+            .logo { margin-right: 1rem; }
+            .links { gap: 1rem; }
+        }
+        @media (max-width: 480px) {
+            nav { padding: 0.75rem 0.5rem 0.75rem 0.75rem; }
+            .logo { margin-right: 0.75rem; font-size: 1.2rem; }
+            .links { gap: 0.75rem; }
+            .links a { font-size: 0.75rem; letter-spacing: 0; }
+        }
     `
 })
 export class NavBar extends RxElement {

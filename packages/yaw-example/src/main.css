@@ -1,3 +1,7 @@
+html {
+    font-size: 100.0%;
+}
+
 html, body {
     margin: 0;
     background: #000;

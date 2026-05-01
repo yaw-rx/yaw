@@ -10,6 +10,10 @@ import { Component, RxElement, state } from 'yaw';
                  letter-spacing: -2px; line-height: 1; font-variant-numeric: tabular-nums; }
         .label { display: block; font-size: 0.75rem; color: #555; letter-spacing: 0.1em;
                  text-transform: uppercase; margin-top: 0.5rem; }
+        @media (max-width: 480px) {
+            .value { font-size: 2.5rem; }
+            .label { font-size: 0.65rem; }
+        }
     `
 })
 export class StatCounter extends RxElement {
