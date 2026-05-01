@@ -45,7 +45,7 @@ import './docs-page/sections/navigation.js';
         .content { flex: 1 1 0; min-width: 0; box-sizing: border-box;
                    padding: 6rem 1.25rem 4rem 1.25rem; }
         .content > [id] { scroll-margin-top: 5rem; display: block; }
-        [toc-section] { margin-left: calc(var(--toc-depth, 0) * 1.5rem); }
+        [toc-section] { margin-left: calc(var(--toc-depth, 0) * 0.6rem); }
         h1[toc-section] { margin-left: 0; }
         [toc-section][style*="--toc-depth"]::before {
             content: '';
@@ -61,6 +61,12 @@ import './docs-page/sections/navigation.js';
         h1 { color: #fff; font-size: 2.5rem; font-weight: 900;
              letter-spacing: -1px; margin: 0 0 1rem; }
         .lede { color: #888; line-height: 1.7; max-width: 72ch; margin: 0; }
+        @media (max-width: 640px) {
+            [toc-section] { margin-left: calc(var(--toc-depth, 0) * 0.5rem); }
+        }
+        @media (max-width: 500px) {
+            [toc-section] { margin-left: calc(var(--toc-depth, 0) * 0.4rem); }
+        }
     `,
 })
 export class DocsPage extends RxElement {}
