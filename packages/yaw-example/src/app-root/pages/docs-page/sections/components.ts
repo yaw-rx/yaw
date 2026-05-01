@@ -282,6 +282,12 @@ export class TickCounter extends RxElement {
             .binding-table td:nth-child(2) { font-size: 0.72rem; }
             .binding-table td { padding: 0.3rem 0.3rem; }
         }
+        @media (max-width: 420px) {
+            .binding-table { font-size: 0.6rem; }
+            .binding-table td:nth-child(2) { font-size: 0.52rem; }
+            .binding-table td { padding: 0.15rem 0.15rem; }
+            .binding-table th { padding: 0.2rem 0.15rem; font-size: 0.6rem; }
+        }
     `,
 })
 export class DocsComponents extends RxElement {}
