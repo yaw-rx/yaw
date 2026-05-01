@@ -3,7 +3,7 @@ import { Router, ROUTES } from 'yaw/router';
 import { AppRoot } from './app-root.js';
 import globalStyles from './main.css';
 
-bootstrap({
+await bootstrap({
     root: AppRoot,
     globals: { styles: globalStyles },
     providers: [

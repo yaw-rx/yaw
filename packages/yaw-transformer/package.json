@@ -19,11 +19,6 @@
       "import": "./dist/getStateTypes.js",
       "require": "./dist/cjs/getStateTypes.js",
       "types": "./dist/getStateTypes.d.ts"
-    },
-    "./webpackLoader": {
-      "import": "./dist/webpackLoader.js",
-      "require": "./dist/cjs/webpackLoader.js",
-      "types": "./dist/webpackLoader.d.ts"
     }
   },
   "scripts": {
@@ -35,6 +30,5 @@
     "yaw-common": "*"
   },
   "devDependencies": {
-    "vite": "^5.0.0"
   }
 }

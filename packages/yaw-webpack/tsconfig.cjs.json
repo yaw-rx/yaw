@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist/cjs",
+    "rootDir": "./src",
+    "types": ["node"],
+    "module": "CommonJS",
+    "moduleResolution": "node10",
+    "verbatimModuleSyntax": false,
+    "ignoreDeprecations": "6.0",
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "paths": {
+      "yaw-transformer": ["../yaw-transformer/src/index.ts"]
+    }
+  },
+  "references": [
+    { "path": "../yaw-transformer" }
+  ],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

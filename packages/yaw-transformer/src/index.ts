@@ -6,7 +6,3 @@ export { visitClass } from './visitClass.js';
 export { default as transformer, default } from './transformer.js';
 export { programTransformer } from './programTransformer.js';
 export { createTransformedProgram, type TransformedProgram } from './bundlerPlugin.js';
-export { vitePlugin } from './vitePlugin.js';
-export { rollupPlugin } from './rollupPlugin.js';
-export { esbuildPlugin } from './esbuildPlugin.js';
-export { default as webpackLoader } from './webpackLoader.js';

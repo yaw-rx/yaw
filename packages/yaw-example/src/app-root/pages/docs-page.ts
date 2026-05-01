@@ -4,6 +4,7 @@ import { TocAnchor } from './docs-page/directives/toc-anchor.js';
 import { SidebarDrawer } from '../directives/sidebar-drawer.js';
 import { TocService } from './docs-page/services/toc-service.js';
 import './docs-page/sidebar.js';
+import './docs-page/sections/core-concepts.js';
 import './docs-page/sections/getting-started.js';
 import './docs-page/sections/bootstrap.js';
 import './docs-page/sections/components.js';
@@ -27,6 +28,7 @@ import './docs-page/sections/navigation.js';
                    where it makes sense.</p>
             </header>
 
+            <docs-core-concepts toc-section="core-concepts"></docs-core-concepts>
             <docs-getting-started toc-section="getting-started"></docs-getting-started>
             <docs-bootstrap toc-section="bootstrap"></docs-bootstrap>
             <docs-components toc-section="components"></docs-components>

@@ -88,12 +88,12 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
     directives: [TocSection, TocAnchor],
     template: `
         <h1 toc-anchor="components">Components</h1>
-        <p class="lede">A component is an <code class="inline">RxElement</code>
-           subclass decorated with <code class="inline">@Component</code>. The
-           decorator registers a real custom element; the class instance
-           <em>is</em> the DOM node. <code class="inline">@state</code>
-           fields publish a hidden <code class="inline">*$</code> BehaviorSubject
-           the template can subscribe to.</p>
+        <p class="lede">You write a class that extends
+           <code class="inline">RxElement</code> and decorate it
+           with <code class="inline">@Component</code>. The
+           decorator takes a selector — the HTML tag name — along
+           with the template, styles, and any directives, services,
+           or codecs the component needs.</p>
             <code-block syntax="ts">${escape`import { Component, RxElement } from 'yaw';
 
 @Component({
@@ -105,8 +105,8 @@ const BINDINGS_SNIPPET = `<!-- text: RxJS Observable or plain expression -->
     attributeCodecs: {...},  // local codec registrations for attribute marshalling
 })`}</code-block>
 
-        <section class="host" toc-section="components/whole">
-            <h2 toc-anchor="components/whole">A whole component</h2>
+        <section class="host" toc-section="components/example">
+            <h2 toc-anchor="components/example">An example component</h2>
             <p class="note">Two observables, two methods, three bindings. No
                reconciliation, no diff — the subject emits, the binding applies
                the new value.</p>

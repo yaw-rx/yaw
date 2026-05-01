@@ -19,7 +19,11 @@
     "docker:up:prod": "docker compose up",
     "docker:down:dev": "docker compose -f compose.dev.yaml down --volumes --remove-orphans",
     "docker:down:prod": "docker compose down",
-    "typecheck": "tsc --build"
+    "typecheck": "tsc --build",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --check src/",
+    "format:fix": "prettier --write src/"
   },
   "dependencies": {
     "dayjs": "^1.11.20",
@@ -41,7 +45,15 @@
     "vite": "^5.0.0",
     "webpack": "^5.0.0",
     "webpack-cli": "^6.0.0",
+    "yaw-vite": "file:../yaw-vite",
+    "yaw-rollup": "file:../yaw-rollup",
+    "yaw-esbuild": "file:../yaw-esbuild",
+    "yaw-webpack": "file:../yaw-webpack",
     "yaw-ssg": "file:../yaw-ssg",
-    "yaw-ts-plugin": "file:../yaw-ts-plugin"
+    "yaw-ts-plugin": "file:../yaw-ts-plugin",
+    "@eslint/js": "^9.39.0",
+    "eslint": "^9.39.0",
+    "typescript-eslint": "^8.59.0",
+    "prettier": "^3.8.0"
   }
 }

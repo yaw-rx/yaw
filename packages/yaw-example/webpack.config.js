@@ -29,7 +29,7 @@ export default {
                 exclude: /node_modules/,
                 use: [
                     { loader: 'esbuild-loader', options: { target: 'es2022' } },
-                    { loader: 'yaw-transformer/webpackLoader' },
+                    { loader: 'yaw-webpack/loader' },
                 ],
             },
         ],
