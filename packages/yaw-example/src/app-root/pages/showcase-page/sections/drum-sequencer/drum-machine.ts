@@ -1,4 +1,4 @@
-import { interval, map, Subscription, type Observable } from 'rxjs';
+import { EMPTY, filter, interval, map, Subscription, switchMap, type Observable } from 'rxjs';
 import { Component, Inject, RxElement, state } from 'yaw';
 import { RxFor } from 'yaw/directives/rx-for';
 import { AudioEngine } from './drum-machine/utils/audio-engine.js';
@@ -96,14 +96,38 @@ export class DrumMachine extends RxElement {
     @Inject(StepTicker) private readonly ticker!: StepTicker;
 
     private currentStep = -1;
-    private sub: Subscription | undefined;
     private tempoSub: Subscription | undefined;
 
     override onInit(): void {
         const initial: Record<string, readonly boolean[]> = {};
         for (const v of VOICES) initial[v.key] = defaultPattern(v.key);
         this.pattern = initial;
-        this.tempoSub = this.tempo$.subscribe(() => { if (this.playing) this.startLoop(); });
+
+        // 10ms poll derives step position from a fractional phase accumulator.
+        // Tempo is read live each tick — changing it adjusts the rate, not the position.
+        const TICK = 10;
+        this.tempoSub = this.playing$.pipe(
+            switchMap((playing: boolean) => {
+                if (!playing) return EMPTY;
+                let prev = performance.now();
+                let phase = 0;
+                let last = -1;
+                return interval(TICK).pipe(
+                    map(() => {
+                        const now = performance.now();
+                        // fraction of one step elapsed since last tick
+                        phase += (now - prev) / (60_000 / this.tempo / 4);
+                        prev = now;
+                        // integer part = absolute step count, mod 16 = sequencer position
+                        const step = Math.floor(phase) % STEPS;
+                        if (step === last) return -1;
+                        last = step;
+                        return step;
+                    }),
+                    filter((step: number) => step >= 0),
+                );
+            }),
+        ).subscribe((step) => this.playStep(step));
     }
 
     override onDestroy(): void {
@@ -134,31 +158,22 @@ export class DrumMachine extends RxElement {
     }
 
     togglePlay(): void {
-        if (this.playing) { this.stopLoop(); return; }
-        this.startLoop();
-    }
-
-    private startLoop(): void {
-        this.sub?.unsubscribe();
-        this.playing = true;
-        const ms = 60_000 / this.tempo / 4;
-        this.sub = interval(ms).subscribe(() => {
-            const next = (this.currentStep + 1) % STEPS;
-            this.currentStep = next;
-            this.ticker.set(next);
-            this.playStep(next);
-        });
+        this.playing = !this.playing;
+        if (!this.playing) {
+            this.currentStep = -1;
+            this.ticker.set(-1);
+        }
     }
 
     private stopLoop(): void {
-        this.sub?.unsubscribe();
-        this.sub = undefined;
         this.playing = false;
         this.currentStep = -1;
         this.ticker.set(-1);
     }
 
     private playStep(step: number): void {
+        this.currentStep = step;
+        this.ticker.set(step);
         const rows = this.querySelectorAll('track-row');
         for (const el of Array.from(rows)) {
             const row = el as TrackRow;
