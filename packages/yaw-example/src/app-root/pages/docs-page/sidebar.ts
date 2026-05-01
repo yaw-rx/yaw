@@ -87,6 +87,22 @@ export class DocsSidebar extends RxElement {
         return path;
     }
 
+    #measureWidth(): void {
+        const nav = this.querySelector('nav');
+        if (!nav) return;
+        const collapsed = nav.querySelectorAll('.children:not(.expanded)');
+        for (const el of collapsed) {
+            (el as HTMLElement).style.maxHeight = 'none';
+            (el as HTMLElement).style.overflow = 'visible';
+        }
+        const width = nav.scrollWidth;
+        for (const el of collapsed) {
+            (el as HTMLElement).style.maxHeight = '';
+            (el as HTMLElement).style.overflow = '';
+        }
+        this.style.flexBasis = `${width + 2}px`;
+    }
+
     private sharedLength(a: TocNode[], b: TocNode[]): number {
         const len = Math.min(a.length, b.length);
         for (let i = 0; i < len; i++) {
