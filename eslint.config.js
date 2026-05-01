@@ -13,13 +13,7 @@ export default tseslint.config(
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        project: [
-          './packages/yaw-common/tsconfig.json',
-          './packages/yaw/tsconfig.json',
-          './packages/yaw-transformer/tsconfig.json',
-          './packages/yaw-example/tsconfig.json',
-          './packages/yaw-ts-plugin/tsconfig.json',
-        ],
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
         ecmaVersion: 'latest',
         sourceType: 'module',
