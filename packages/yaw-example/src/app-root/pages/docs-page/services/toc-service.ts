@@ -138,7 +138,7 @@ export class TocService {
         const el = this.elements.get(id);
         if (!el) return;
         el.scrollIntoView({ behavior: 'smooth' });
-        setTimeout(() => el.scrollIntoView({ behavior: 'instant', block: 'start' }), SNAP_DELAY);
+        // setTimeout(() => el.scrollIntoView({ behavior: 'instant', block: 'start' }), SNAP_DELAY);
     }
 
     private scheduleRebuild(): void {

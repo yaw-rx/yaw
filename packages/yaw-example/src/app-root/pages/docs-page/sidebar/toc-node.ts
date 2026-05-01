@@ -5,13 +5,9 @@
  * If it has children, rx-for stamps child <toc-node> elements.
  * Recursion stops when children is empty.
  *
- * Active highlighting and expansion are managed by two methods:
- *   expand() — adds .expanded to this node and recurses up via
- *              hostNode to expand every ancestor to the root.
- *   collapse() — removes .expanded from this node.
- *
- * The sidebar finds the active leaf by id (one querySelector call),
- * calls expand() on it, and the recursion handles the rest.
+ * Each node self-manages active/expanded state via combineLatest
+ * on TocService.activeId$ and TocService.expandAll$, using the
+ * precomputed ancestor paths in TocService.paths.
  */
 import { combineLatest } from 'rxjs';
 import { Component, Inject, RxElement, state } from 'yaw';
