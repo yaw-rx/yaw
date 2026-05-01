@@ -12,8 +12,8 @@ import { Hamburger } from '../directives/hamburger.js';
             <div class="links">
                 <a [class.active]="isActive('/')" onclick="navigateHome">Manifesto</a>
                 <a [class.active]="isActive('/showcase')" onclick="navigateShowcase">Showcase</a>
-                <a [class.active]="isActive('/examples')" onclick="navigateExamples">Examples</a>
                 <a [class.active]="isActive('/docs')" onclick="navigateDocs">Docs</a>
+                <a [class.active]="isActive('/examples')" onclick="navigateExamples">Examples</a>
                 <a [class.active]="isActive('/react')" onclick="navigateReact">vs&nbsp;React</a>
                 <a [class.active]="isActive('/angular')" onclick="navigateAngular">vs&nbsp;Angular</a>
             </div>

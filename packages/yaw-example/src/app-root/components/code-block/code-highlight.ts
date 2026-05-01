@@ -122,7 +122,7 @@ export const highlightBash = (src: string): string => {
         else if (m[2] !== undefined) out += `<span class="tk-string">${escapeHtml(m[2])}</span>`;
         else if (m[3] !== undefined) {
             const raw = m[3];
-            const leading = /^\s/.test(raw) ? raw[0] : '';
+            const leading = /^\s/.test(raw) ? raw[0]! : '';
             const flag = leading ? raw.slice(1) : raw;
             out += escapeHtml(leading) + `<span class="tk-const">${escapeHtml(flag)}</span>`;
         }
@@ -131,6 +131,42 @@ export const highlightBash = (src: string): string => {
         else if (m[6] !== undefined) {
             const cls = BASH_COMMANDS.has(m[6]) ? 'tk-keyword' : 'tk-ident';
             out += `<span class="${cls}">${escapeHtml(m[6])}</span>`;
+        }
+        last = m.index + m[0].length;
+    }
+    if (last < src.length) out += escapeHtml(src.slice(last));
+    return out;
+};
+
+const DOCKERFILE_INSTRUCTIONS = new Set([
+    'FROM', 'RUN', 'CMD', 'ENTRYPOINT', 'COPY', 'ADD', 'WORKDIR',
+    'ENV', 'ARG', 'EXPOSE', 'VOLUME', 'USER', 'LABEL', 'STAGEARG',
+    'ONBUILD', 'HEALTHCHECK', 'SHELL', 'MAINTAINER',
+]);
+
+const DOCKERFILE_TOKEN_RE = /(#[^\n]*)|((?:"(?:\\.|[^"\\])*")|(?:'[^']*'))|(\\$)|(\b(?:AS)\b)|([A-Z][A-Z_]{1,})|(\b\d+(?:\.\d+)?\b)|([|;&><]+)|(--[\w][\w-]*)|([A-Za-z_@][\w.@/:*=-]*[\w*]|[A-Za-z_][\w]*)/g;
+
+export const highlightDockerfile = (src: string): string => {
+    let out = '';
+    let last = 0;
+    let m: RegExpExecArray | null;
+    DOCKERFILE_TOKEN_RE.lastIndex = 0;
+    while ((m = DOCKERFILE_TOKEN_RE.exec(src)) !== null) {
+        if (m.index > last) out += escapeHtml(src.slice(last, m.index));
+        if (m[1] !== undefined) out += `<span class="tk-comment">${escapeHtml(m[1])}</span>`;
+        else if (m[2] !== undefined) out += `<span class="tk-string">${escapeHtml(m[2])}</span>`;
+        else if (m[3] !== undefined) out += `<span class="tk-punct">${escapeHtml(m[3])}</span>`;
+        else if (m[4] !== undefined) out += `<span class="tk-keyword">${escapeHtml(m[4])}</span>`;
+        else if (m[5] !== undefined) {
+            const cls = DOCKERFILE_INSTRUCTIONS.has(m[5]) ? 'tk-keyword' : 'tk-const';
+            out += `<span class="${cls}">${escapeHtml(m[5])}</span>`;
+        }
+        else if (m[6] !== undefined) out += `<span class="tk-number">${escapeHtml(m[6])}</span>`;
+        else if (m[7] !== undefined) out += `<span class="tk-punct">${escapeHtml(m[7])}</span>`;
+        else if (m[8] !== undefined) out += `<span class="tk-const">${escapeHtml(m[8])}</span>`;
+        else if (m[9] !== undefined) {
+            const cls = BASH_COMMANDS.has(m[9]) ? 'tk-fn' : 'tk-ident';
+            out += `<span class="${cls}">${escapeHtml(m[9])}</span>`;
         }
         last = m.index + m[0].length;
     }

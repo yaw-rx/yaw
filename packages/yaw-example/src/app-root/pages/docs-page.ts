@@ -12,6 +12,7 @@ import './docs-page/sections/reactive-state.js';
 import './docs-page/sections/directives.js';
 import './docs-page/sections/services.js';
 import './docs-page/sections/navigation.js';
+import './docs-page/sections/ssg.js';
 
 @Component({
     selector: 'docs-page',
@@ -36,6 +37,7 @@ import './docs-page/sections/navigation.js';
             <docs-directives toc-section="directives"></docs-directives>
             <docs-services toc-section="services"></docs-services>
             <docs-navigation toc-section="navigation"></docs-navigation>
+            <docs-ssg toc-section="ssg"></docs-ssg>
 
         </main>
     `,
