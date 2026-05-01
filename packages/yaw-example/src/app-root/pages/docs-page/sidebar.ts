@@ -26,11 +26,11 @@ import { TocNode } from './sidebar/toc-node.js';
     `,
     styles: `
         :host { display: block; box-sizing: border-box;
-                flex: 0 0 220px;
+                flex: 0 0 auto;
                 position: sticky; top: 4rem;
                 align-self: flex-start;
                 height: calc(100vh - 4rem);
-                padding: 1.25rem 1.5rem;
+                padding: 0.5rem 1.5rem 0.5rem 2rem;
                 border-right: 1px solid #151515;
                 overflow-y: auto; }
 
@@ -53,7 +53,17 @@ export class DocsSidebar extends RxElement {
     }
 
     override onInit(): void {
-        this.toc.activeId$.subscribe((id) => {
+        let timer: number | undefined;
+        const mo = new MutationObserver(() => {
+            clearTimeout(timer);
+            timer = window.setTimeout(() => {
+                mo.disconnect();
+                this.#measureWidth();
+            }, 300);
+        });
+        mo.observe(this, { childList: true, subtree: true });
+
+        this.toc.activeId$.subscribe((id: string) => {
             if (!id) return;
             const leaf = this.querySelector(`#${CSS.escape(id)}`) as TocNode | null;
             if (!leaf) return;
@@ -88,19 +98,20 @@ export class DocsSidebar extends RxElement {
     }
 
     #measureWidth(): void {
-        const nav = this.querySelector('nav');
-        if (!nav) return;
-        const collapsed = nav.querySelectorAll('.children:not(.expanded)');
-        for (const el of collapsed) {
-            (el as HTMLElement).style.maxHeight = 'none';
-            (el as HTMLElement).style.overflow = 'visible';
+        const nodes = this.querySelectorAll<TocNode>('toc-node');
+        const wasExpanded: boolean[] = [];
+        for (const node of nodes) {
+            wasExpanded.push(node.expanded);
+            node.expanded = true;
         }
-        const width = nav.scrollWidth;
-        for (const el of collapsed) {
-            (el as HTMLElement).style.maxHeight = '';
-            (el as HTMLElement).style.overflow = '';
+        const prev = this.style.cssText;
+        this.style.cssText = 'position:fixed;left:-9999px;width:auto;visibility:hidden;';
+        const width = this.scrollWidth;
+        this.style.cssText = prev;
+        this.style.flexBasis = `${width}px`;
+        for (let i = 0; i < nodes.length; i++) {
+            nodes[i]!.expanded = wasExpanded[i]!;
         }
-        this.style.flexBasis = `${width + 2}px`;
     }
 
     private sharedLength(a: TocNode[], b: TocNode[]): number {

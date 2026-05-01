@@ -32,10 +32,11 @@ import { TocService, type TocEntry } from '../services/toc-service.js';
         :host { display: flex; flex-direction: column; }
 
         a { color: #666; text-decoration: none; cursor: pointer;
-            padding: 0.20rem 0; font-size: 0.60rem; font-weight: 400;
+            padding: 0.20rem 0; font-size: 0.8rem; font-weight: 400;
             transition: color 0.15s;
             border-left: 2px solid transparent;
-            padding-left: 0.6rem; margin-left: -0.6rem; }
+            padding-left: 0.6rem; margin-left: -0.6rem;
+            white-space: nowrap; }
         a:hover { color: #fff; }
         a.active { color: #8af; border-left-color: #8af; }
 
