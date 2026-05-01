@@ -272,11 +272,16 @@ export class TickCounter extends RxElement {
         .live { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; }
         .binding-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 0.5rem 0 1.5rem; }
         .binding-table th { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid #333; color: #aaa; font-weight: 600; }
-        .binding-table td { padding: 0.4rem 0.75rem; border-bottom: 1px solid #1a1a1a; vertical-align: top; }
+        .binding-table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid #1a1a1a; vertical-align: top; }
         .binding-table td:first-child { white-space: nowrap; font-weight: 600; color: #fff; }
-        .binding-table td:nth-child(2) { white-space: nowrap; }
+        .binding-table td:nth-child(2) { white-space: nowrap; font-size: 0.8rem; }
         .binding-table code { color: #8af; }
         h3 { color: #ccc; font-size: 1rem; margin: 1.5rem 0 0.25rem; }
+        @media (max-width: 640px) {
+            .binding-table { font-size: 0.8rem; }
+            .binding-table td:nth-child(2) { font-size: 0.72rem; }
+            .binding-table td { padding: 0.3rem 0.3rem; }
+        }
     `,
 })
 export class DocsComponents extends RxElement {}

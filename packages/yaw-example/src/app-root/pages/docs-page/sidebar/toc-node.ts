@@ -40,7 +40,7 @@ import { SidebarService } from '../../../services/sidebar-service.js';
 
         .children { display: flex; flex-direction: column;
                     max-height: 0; overflow: hidden; opacity: 0;
-                    padding-left: 0.85rem; margin-left: 0.1rem;
+                    padding-left: 0.42rem; margin-left: 0.1rem;
                     border-left: 1px solid #1a1a1a; }
         .children.expanded { max-height: 800px; opacity: 1;
                              padding-top: 0.15rem; padding-bottom: 0.35rem; }

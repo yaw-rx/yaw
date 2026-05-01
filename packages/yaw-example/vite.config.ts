@@ -14,7 +14,7 @@ export default defineConfig({
     publicDir: false,
     build: {
         outDir: 'dist',
-        target: 'es2021',
+        target: 'es2022',
         minify: 'terser',
         terserOptions: {
             compress: {

@@ -15,9 +15,10 @@ COPY packages/yaw-common/package.json packages/yaw-common/
 COPY packages/yaw/package.json packages/yaw/
 COPY packages/yaw-transformer/package.json packages/yaw-transformer/
 COPY packages/yaw-ts-plugin/package.json packages/yaw-ts-plugin/
+COPY packages/yaw-vite/package.json packages/yaw-vite/
 COPY packages/yaw-ssg/package.json packages/yaw-ssg/
 COPY packages/yaw-example/package.json packages/yaw-example/
-RUN npm ci
+RUN npm ci && npm install @rollup/rollup-linux-x64-musl --no-save
 
 COPY tsconfig.base.json tsconfig.json ./
 
@@ -29,6 +30,9 @@ RUN npm run build -w packages/yaw-transformer
 
 COPY packages/yaw packages/yaw
 RUN npm run build -w packages/yaw
+
+COPY packages/yaw-vite packages/yaw-vite
+RUN npm run build -w packages/yaw-vite
 
 COPY packages/yaw-ssg packages/yaw-ssg
 RUN npm run build -w packages/yaw-ssg
