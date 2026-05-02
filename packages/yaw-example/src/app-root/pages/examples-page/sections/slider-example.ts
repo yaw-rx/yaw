@@ -17,8 +17,8 @@ const USAGE = `<yaw-slider [(value)]="value" min="0" max="100"></yaw-slider>
         <p class="lede">Native form controls can't survive the mirror walk, so we build our
            own. One component, <code class="inline">pointerdown</code> /
            <code class="inline">move</code> / <code class="inline">up</code>, plus two
-           <code class="inline">[style]</code> bindings for the fill and the thumb. Two-way
-           model binding — <code class="inline">[(value)]="propName"</code> — is the
+           <code class="inline">[style]</code> bindings for the fill and the thumb. A
+           tap binding — <code class="inline">[(value)]="propName"</code> — is the
            whole of the public API.</p>
 
         <section class="host">

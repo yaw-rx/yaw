@@ -1,6 +1,7 @@
 import { type Subscription } from 'rxjs';
 import { marshaller } from 'yaw-common';
 import { parseBind, subscribeBind, resolveEventHandler, resolveRefTarget, resolveValue, resolveWriteTarget, resolveEncoder } from './expression/bind.js';
+import { BindPathError } from './errors.js';
 import { getSubject } from './observable.js';
 
 export const setupBindings = (element: HTMLElement): () => void => {
@@ -21,8 +22,14 @@ export const setupBindings = (element: HTMLElement): () => void => {
                     let target: unknown = element;
                     for (let i = 0; i < memberPath.length - 1; i++) {
                         target = (target as Record<string, unknown>)[memberPath[i]!];
+                        if (target === null || target === undefined) throw new BindPathError(element.tagName, memberPath.join('.'), memberPath[i]!);
                     }
                     (target as Record<string, unknown>)[memberPath[memberPath.length - 1]!] = v;
+                    if (memberPath.length > 1) {
+                        const subject = getSubject(element, memberPath[0]!);
+                        if (subject === undefined) throw new BindPathError(element.tagName, memberPath.join('.'), `${memberPath[0]} is not @state`);
+                        subject.next((element as unknown as Record<string, unknown>)[memberPath[0]!]);
+                    }
                 }));
                 break;
             }
@@ -67,7 +74,7 @@ export const setupBindings = (element: HTMLElement): () => void => {
                 }));
                 break;
             }
-            case 'model': {
+            case 'tap': {
                 const write = resolveWriteTarget(element, parsed);
                 const subject = getSubject(element, memberPath[0]!);
                 if (subject !== undefined) {

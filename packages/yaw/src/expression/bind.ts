@@ -372,7 +372,7 @@ export const resolveValue = (host: Element, parsed: ParsedBind): unknown => {
 };
 
 export const resolveWriteTarget = (host: Element, parsed: ParsedBind): (value: unknown) => void => {
-    if (parsed.call) throw new BindParseError(parsed.raw, 'model binding cannot be a method call');
+    if (parsed.call) throw new BindParseError(parsed.raw, 'tap binding cannot be a method call');
     const root = walkScope(host, parsed.carets, parsed.raw);
     const target = walkPath(root, parsed.path.slice(0, -1));
     const key = parsed.path.at(-1);

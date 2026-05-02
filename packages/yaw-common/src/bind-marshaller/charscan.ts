@@ -8,7 +8,7 @@ const DOT = 46;
 
 const KIND_MAP: Record<string, BindKind> = {
     'class': 'class', 'style': 'style', 'attr': 'attr',
-    'prop': 'prop', 'ref': 'ref', 'on': 'on', 'text': 'text',
+    'prop': 'prop', 'ref': 'ref', 'on': 'on', 'text': 'text', 'tap': 'tap',
 };
 
 const ACRONYM_2: Record<string, string> = { 'ns': 'NS' };

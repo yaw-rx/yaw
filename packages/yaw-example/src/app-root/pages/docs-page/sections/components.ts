@@ -146,7 +146,7 @@ const REACTIVE_SNIPPET = `<!-- text (mustache) -->
 
 <!-- ---------------------------------------- -->
 
-<!-- model -->
+<!-- tap -->
 <!-- write this element's value to the host's volume -->
 <my-slider [(value)]="volume"></my-slider>
 <!-- write this element's value to the parent host's volume -->
@@ -260,7 +260,7 @@ const IMPERATIVE_SNIPPET = `<!-- event -->
                Mustaches (<code class="inline">${escape`{{expr}}`}</code>)
                write text content; bracket bindings target a specific
                property, attribute, class, or style on the element.</p>
-            <p class="note">The model binding writes in the opposite
+            <p class="note">The tap binding writes in the opposite
                direction. When you place
                <code class="inline">[(value)]="count"</code> on a
                component in your template, that component's
@@ -283,7 +283,7 @@ const IMPERATIVE_SNIPPET = `<!-- event -->
                     <tr><td>attribute</td><td><code>[attr]="expr"</code></td><td>Subscribes and calls <code>setAttribute</code> on the element whenever it emits</td></tr>
                     <tr><td>class</td><td><code>[class.name]="expr"</code></td><td>Subscribes and toggles a CSS class on the element's <code>classList</code> based on truthiness</td></tr>
                     <tr><td>style</td><td><code>[style]="expr"</code></td><td>Subscribes and sets an inline style property on the element via <code>element.style</code></td></tr>
-                    <tr><td>model</td><td><code>[(prop)]="expr"</code></td><td>Subscribes to the element's own <code>@state</code> field and writes each new value to a property on the host (<code>hostProp</code>) or an ancestor host (<code>^parentHostProp</code>)</td></tr>
+                    <tr><td>tap</td><td><code>[(prop)]="expr"</code></td><td>Subscribes to the element's own <code>@state</code> field and writes each new value to a property on the host (<code>hostProp</code>) or an ancestor host (<code>^parentHostProp</code>)</td></tr>
                 </tbody>
             </table>
             <code-block syntax="html">${escape`${REACTIVE_SNIPPET}`}</code-block>

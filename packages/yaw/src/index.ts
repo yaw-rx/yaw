@@ -3,6 +3,7 @@ export { Component, bootstrap, getRawTemplate } from './component.js';
 export type { ComponentOptions, BootstrapGlobals } from './component.js';
 export { Directive } from './directive.js';
 export { state } from './observable.js';
+export { StateSubject } from './state-subject.js';
 export { Injectable } from './di/injectable.js';
 export { Inject } from './di/inject.js';
 export { Injector } from './di/injector.js';

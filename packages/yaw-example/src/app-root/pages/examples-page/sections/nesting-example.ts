@@ -57,7 +57,7 @@ ${DEPTH_2}
 
 ${DEPTH_3}
 
-<!-- model binding: page-echo's accent pushes up to the host -->
+<!-- tap binding: page-echo's accent pushes up to the host -->
 <page-echo [(accent)]="accent"></page-echo>
 `;
 
@@ -98,7 +98,7 @@ const PAGE_ECHO_SOURCE = `@Component({
             <button onclick="^increment(2)">^increment(2)</button>
             <button onclick="^reset">^reset</button>
 
-            <!-- local accent — pushes to host via model binding -->
+            <!-- local accent — pushes to host via tap binding -->
             <code>accent {{ accent }}</code>
             <button onclick="cycleAccent" [style]="accentBtnStyle">accent</button>
 
@@ -209,7 +209,7 @@ export class NestingExample extends RxElement {
                (<code class="inline">^count</code>,
                <code class="inline">^increment(2)</code>) reach
                <em>out</em> to the host that placed the tag.
-               <strong>Model binding</strong> — the host writes
+               <strong>Tap binding</strong> — the host writes
                <code class="inline">&lt;page-echo
                [(accent)]="accent"&gt;</code> — keeps the child's
                <code class="inline">accent</code> and the host's
@@ -222,12 +222,12 @@ export class NestingExample extends RxElement {
                the panel, but nothing outside ever sees it.</p>
 
             <section class="host">
-                <h2><code class="inline">&lt;page-echo&gt;</code> — carets and model binding</h2>
+                <h2><code class="inline">&lt;page-echo&gt;</code> — carets and tap binding</h2>
                 <p class="note">Three kinds of state in one component.
                    <code class="inline">^</code> bindings reach out to the
                    host's <code class="inline">count</code> and methods.
                    <code class="inline">accent</code> is local but the
-                   model binding on the tag pushes each new value up to the
+                   tap binding on the tag pushes each new value up to the
                    host, which drives the live section's background.
                    <code class="inline">blend</code> is purely local — it
                    toggles <code class="inline">mix-blend-mode: difference</code>
@@ -282,7 +282,7 @@ export class NestingExample extends RxElement {
                    and every counter updates. Click
                    <code class="inline">accent</code> in the
                    <code class="inline">&lt;page-echo&gt;</code> panel to
-                   cycle the background — that is the model binding pushing
+                   cycle the background — that is the tap binding pushing
                    a local value up to the host.</p>
                 <div class="live" [style.background]="accent">${NESTING_TEMPLATE}</div>
             </section>

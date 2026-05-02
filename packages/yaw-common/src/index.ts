@@ -108,9 +108,9 @@ const transformAttributes = (el: Element, depth: number): void => {
             rewrites.push({ remove: name, add: [marshaller.encode('class', [classMatch[1]!]), injectCarets(value, depth)] });
             continue;
         }
-        const modelMatch = /^\[\((.+)\)\]$/.exec(name);
-        if (modelMatch !== null) {
-            rewrites.push({ remove: name, add: [marshaller.encode('model', modelMatch[1]!.split('.')), injectCarets(value, depth)] });
+        const tapMatch = /^\[\((.+)\)\]$/.exec(name);
+        if (tapMatch !== null) {
+            rewrites.push({ remove: name, add: [marshaller.encode('tap', tapMatch[1]!.split('.')), injectCarets(value, depth)] });
             continue;
         }
         const bindMatch = /^\[(.+)\]$/.exec(name);

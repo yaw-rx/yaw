@@ -210,14 +210,25 @@ AttributeMarshalError
     directives: [TocSection, TocAnchor],
     template: `
         <h1 toc-anchor="reactive-state">Reactive state</h1>
-        <p class="lede"><code class="inline">@state</code> turns a class field
-           into a reactive primitive. Under the hood it is a
-           <code class="inline">BehaviorSubject</code> — but you write to it
-           like a plain property, read it as an observable via the
-           <code class="inline">$</code> getter, and pass it through HTML
-           attributes with automatic type marshalling. The transformer, the
+        <p class="lede">
+           One of the main concepts in this framework you need to understand is
+           reactive state. The <code class="inline">@state</code> decorator a standard
+           (TC39) ClassAccessorDecorator turns a class field into a reactive primitive.
+           Under the hood it replaces the field with an
+           <code class="inline">accessor</code> backed by a
+           <code class="inline">BehaviorSubject</code>, exposed as
+           <code class="inline">fieldName$</code>. Reading the field
+           returns the subject's current value. When you write to it
+           using a plain property set it does a whole entity replacement
+           and calls <code class="inline">fieldName$.next(newValue)</code>.
+           That's all it does. There is nothing else up our sleeves.
+        </p>
+
+        <p>
+           A transformer, the
            codec registry, and the IDE plugin work together so nothing is
-           stringly-typed and nothing is <code class="inline">any</code>.</p>
+           stringly-typed and nothing is <code class="inline">any</code>.
+        </p>
         <code-block class="install" syntax="bash">${escape`npm install yaw-transformer yaw-ts-plugin ts-patch --save-dev`}</code-block>
 
         <section class="host" toc-section="reactive-state/decorator">

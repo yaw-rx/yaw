@@ -20,7 +20,7 @@ import { Component, RxElement, state } from 'yaw';
                 </div>
             </div>
             <div class="section">
-                <div class="label">local <code class="inline">accent</code> state pushes to the host via model binding</div>
+                <div class="label">local <code class="inline">accent</code> state pushes to the host via tap binding</div>
                 <div class="body">
                     <div class="row">
                         <code><span class="pre">accent</span> {{ accent }}</code>
