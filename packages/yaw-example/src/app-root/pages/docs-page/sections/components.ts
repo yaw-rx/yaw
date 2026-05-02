@@ -737,8 +737,8 @@ get latency(): Observable<{ p99: number }> { ... }
                 </thead>
                 <tbody>
                     <tr><td>static</td><td><code>attr="value"</code></td><td>Read once when the element connects, decoded via the element's <code>@state</code> field codec into its typed value</td></tr>
-                    <tr><td>reactive</td><td><code>[attr]="path"</code></td><td>Subscribes to a host's observable and pushes each emission into the respective <code>@state</code> field on the element</td></tr>
-                    <tr><td>reactive (nested)</td><td><code>[attr.prop]="path"</code></td><td>Subscribes to a host's observable and writes each emission into a nested property on the element's <code>@state</code> field, re-emitting the subject</td></tr>
+                    <tr><td>reactive</td><td><code>[attr]="path"</code></td><td>Subscribes to the host's observable and pushes each emission into the respective <code>@state</code> field on the element</td></tr>
+                    <tr><td>reactive (nested)</td><td><code>[attr.prop]="path"</code></td><td>Subscribes to the host's observable and writes each emission into a nested property on the element's <code>@state</code> field, re-emitting the subject</td></tr>
                     <tr><td>reactive (parent)</td><td><code>[attr]="^path"</code></td><td>Subscribes to the parent of the host's observable and pushes each emission into the respective <code>@state</code> field on the element</td></tr>
                     <tr><td>reactive (grandparent)</td><td><code>[attr]="^^path"</code></td><td>Same, but reads from the grandparent of the host</td></tr>
                 </tbody>
