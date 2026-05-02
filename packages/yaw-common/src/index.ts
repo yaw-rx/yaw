@@ -113,6 +113,11 @@ const transformAttributes = (el: Element, depth: number): void => {
             rewrites.push({ remove: name, add: [marshaller.encode('tap', tapMatch[1]!.split('.')), injectCarets(value, depth)] });
             continue;
         }
+        const styleMatch = /^\[style\.(.+)\]$/.exec(name);
+        if (styleMatch !== null) {
+            rewrites.push({ remove: name, add: [marshaller.encode('style', [styleMatch[1]!]), injectCarets(value, depth)] });
+            continue;
+        }
         const bindMatch = /^\[(.+)\]$/.exec(name);
         if (bindMatch !== null) {
             rewrites.push({ remove: name, add: [marshaller.encode('prop', bindMatch[1]!.split('.')), injectCarets(value, depth)] });

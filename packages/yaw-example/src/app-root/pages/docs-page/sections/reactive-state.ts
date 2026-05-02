@@ -213,11 +213,11 @@ AttributeMarshalError
         <p class="lede">
            One of the main concepts in this framework you need to understand is
            reactive state. The <code class="inline">@state</code> decorator a standard
-           (TC39) ClassAccessorDecorator turns a class field into a reactive primitive.
+           (TC39) <code class="inline">ClassAccessorDecorator</code> turns a class field into a reactive primitive.
            Under the hood it replaces the field with an
            <code class="inline">accessor</code> backed by the
            <code class="inline">StateSubject</code> which is a <code class="inline">BehaviourSubject</code>, 
-           exposed as <code class="inline">fieldName$</code>. Reading the field
+           exposed as <code class="inline">fieldName$</code> on the class. Reading the field
            returns the subject's current value. When you write to it
            using a plain property set it does a whole entity replacement
            and calls <code class="inline">fieldName$.next(newValue)</code>.
@@ -227,13 +227,13 @@ AttributeMarshalError
         <p class="lede">
             Due to the simplicity of the implementation (which was done for performance reasons) there is an edge case you
             need to be aware of... When <code class="inline">@state field: ${escape`<type>`}</code> relates to a
-            complex type e.g. a nested object <code class="inline">{nested:{a: number}}</code> or a <code class="inline">Set</code>, <code class="inline">Array</code>, <code class="inline">Map</code> etcthe...
-            mutating a member on this e.g. <code class="inline">this.field.nested.a = 'foo'</code> does not invoke the setter
+            complex type e.g. a nested object <code class="inline">{nested:{a: number}}</code> or a <code class="inline">Set</code>, <code class="inline">Array</code>, <code class="inline">Map</code> etc, etc
+            ...mutating a member on this e.g. <code class="inline">this.field.nested.a = 'foo'</code> does not invoke the setter on <code class="inline">field</code>
             and thus the <code class="inline">field$</code> subject will not fire!
         </p>
 
         <p class="lede">
-            To deal with the lack of subject firing during complex mutations, <code class="inline">StateSubject</code> provides
+            To deal with the lack of subject firing, during complex mutations, <code class="inline">StateSubject</code> provides
             a method <code class="inline">this.field$.touch()</code> which you can use to force an update:
         </p>
 

@@ -1,5 +1,4 @@
 import ts from 'typescript';
-import { isComponentClass } from './isComponentClass.js';
 import { getStateTypes, getStateFieldInfos } from './getStateTypes.js';
 
 interface VersionedSourceFile extends ts.SourceFile {
@@ -15,8 +14,6 @@ const buildTextPatches = (sf: ts.SourceFile, checker: ts.TypeChecker): string | 
 
     ts.forEachChild(sf, (node) => {
         if (!ts.isClassDeclaration(node)) return;
-        const isComponent = isComponentClass(node, checker);
-        if (!isComponent) return;
 
         const stateTypes = getStateTypes(node, checker);
         const stateFieldInfos = getStateFieldInfos(node, checker);

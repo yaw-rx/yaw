@@ -46,10 +46,11 @@ FROM ssg-base AS ssg
 
 WORKDIR /repo
 COPY --from=build /repo /repo
-RUN npm install @sparticuz/chromium -w packages/yaw-ssg
+RUN npm install @sparticuz/chromium -w packages/yaw-ssg \
+ && npm ls @yaw-rx/ssg 2>/dev/null; ls -la node_modules/.bin/ | grep ssg || true
 
 WORKDIR /repo/packages/yaw-example
-RUN npm run build:ssg
+RUN node ../yaw-ssg/dist/cli.js dist public
 
 FROM nginx:alpine
 COPY --from=ssg /repo/packages/yaw-example/public /usr/share/nginx/html
