@@ -802,7 +802,7 @@ get latency(): Observable<{ p99: number }> { ... }
                 </thead>
                 <tbody>
                     <tr><td>event</td><td><code>onclick="method"</code></td><td>Listens for a DOM event and calls a method on the host or an ancestor host</td></tr>
-                    <tr><td>ref</td><td><code>#name</code></td><td>Captures the DOM element as a property so you can use it in <code>onInit</code> or methods</td></tr>
+                    <tr><td>ref</td><td><code>#name</code></td><td>Captures the DOM element as a property so you can use it in <code>onRender</code> or methods</td></tr>
                 </tbody>
             </table>
             <code-block syntax="html">${escape`${IMPERATIVE_SNIPPET}`}</code-block>
