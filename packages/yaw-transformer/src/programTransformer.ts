@@ -42,7 +42,7 @@ const buildTextPatches = (sf: ts.SourceFile, checker: ts.TypeChecker): string | 
             const typeText = info.typeNode !== undefined
                 ? sourceText.slice(info.typeNode.pos, info.typeNode.end).trim()
                 : info.typeName;
-            return `    declare ${k}$: BehaviorSubject<${typeText}>;`;
+            return `    declare ${k}$: StateSubject<${typeText}>;`;
         }).join('\n');
 
         injections.push({
@@ -54,16 +54,16 @@ const buildTextPatches = (sf: ts.SourceFile, checker: ts.TypeChecker): string | 
     if (injections.length === 0) return undefined;
 
     if (needsBsImport) {
-        const hasBsImport = sf.statements.some(s =>
+        const hasSsImport = sf.statements.some(s =>
             ts.isImportDeclaration(s) &&
             ts.isStringLiteral(s.moduleSpecifier) &&
-            s.moduleSpecifier.text === 'rxjs' &&
+            s.moduleSpecifier.text === '@yaw-rx/core' &&
             s.importClause?.namedBindings &&
             ts.isNamedImports(s.importClause.namedBindings) &&
-            s.importClause.namedBindings.elements.some(e => e.name.text === 'BehaviorSubject'),
+            s.importClause.namedBindings.elements.some(e => e.name.text === 'StateSubject'),
         );
-        if (!hasBsImport) {
-            injections.push({ pos: sourceText.length, text: "\nimport type { BehaviorSubject } from 'rxjs';\n" });
+        if (!hasSsImport) {
+            injections.push({ pos: sourceText.length, text: "\nimport type { StateSubject } from '@yaw-rx/core';\n" });
         }
     }
 

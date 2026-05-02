@@ -9,6 +9,7 @@ import './reactive-state/decimal-demo.js';
 import './reactive-state/address-demo.js';
 import './reactive-state/plaindate-demo.js';
 import './reactive-state/dayjs-demo.js';
+import './reactive-state/touch-demo.js';
 
 const STATE_DECORATOR_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
 

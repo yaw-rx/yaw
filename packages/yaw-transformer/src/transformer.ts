@@ -11,14 +11,14 @@ import { visitClass } from './visitClass.js';
  * @returns A transformer factory that visits each source file and rewrites
  *          qualifying `@Component` class declarations via `visitClass`.
  */
-const hasBehaviorSubjectImport = (sf: ts.SourceFile): boolean =>
+const hasStateSubjectImport = (sf: ts.SourceFile): boolean =>
     sf.statements.some(s =>
         ts.isImportDeclaration(s) &&
         ts.isStringLiteral(s.moduleSpecifier) &&
-        s.moduleSpecifier.text === 'rxjs' &&
+        s.moduleSpecifier.text === '@yaw-rx/core' &&
         s.importClause?.namedBindings &&
         ts.isNamedImports(s.importClause.namedBindings) &&
-        s.importClause.namedBindings.elements.some(e => e.name.text === 'BehaviorSubject'),
+        s.importClause.namedBindings.elements.some(e => e.name.text === 'StateSubject'),
     );
 
 const transformer =
@@ -40,7 +40,7 @@ const transformer =
                             m.modifiers?.some(mod => mod.kind === ts.SyntaxKind.DeclareKeyword) &&
                             m.type && ts.isTypeReferenceNode(m.type) &&
                             ts.isIdentifier(m.type.typeName) &&
-                            m.type.typeName.text === 'BehaviorSubject',
+                            m.type.typeName.text === 'StateSubject',
                         );
                     }
                     return result;
@@ -48,17 +48,17 @@ const transformer =
                 context,
             );
 
-            if (needsBsImport && !hasBehaviorSubjectImport(visited)) {
+            if (needsBsImport && !hasStateSubjectImport(visited)) {
                 const importDecl = factory.createImportDeclaration(
                     undefined,
                     factory.createImportClause(
                         true,
                         undefined,
                         factory.createNamedImports([
-                            factory.createImportSpecifier(false, undefined, factory.createIdentifier('BehaviorSubject')),
+                            factory.createImportSpecifier(false, undefined, factory.createIdentifier('StateSubject')),
                         ]),
                     ),
-                    factory.createStringLiteral('rxjs'),
+                    factory.createStringLiteral('@yaw-rx/core'),
                 );
                 return factory.updateSourceFile(visited, [...visited.statements, importDecl]);
             }

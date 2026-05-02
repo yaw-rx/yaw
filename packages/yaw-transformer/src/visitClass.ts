@@ -49,7 +49,7 @@ const buildDollarDeclarations = (
             [factory.createModifier(ts.SyntaxKind.DeclareKeyword)],
             `${key}$`,
             undefined,
-            factory.createTypeReferenceNode('BehaviorSubject', [innerType]),
+            factory.createTypeReferenceNode('StateSubject', [innerType]),
             undefined,
         );
     });

@@ -165,21 +165,21 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
             const sf = tsModule.createSourceFile(fileName, sourceText, tsModule.ScriptTarget.Latest, true);
             const injections: Injection[] = [];
 
-            let hasBehaviorSubjectImport = false;
+            let hasStateSubjectImport = false;
             tsModule.forEachChild(sf, (node) => {
                 if (!tsModule.isImportDeclaration(node)) return;
                 const spec = node.moduleSpecifier;
-                if (!tsModule.isStringLiteral(spec) || spec.text !== 'rxjs') return;
+                if (!tsModule.isStringLiteral(spec) || spec.text !== '@yaw-rx/core') return;
                 const clause = node.importClause;
                 if (!clause?.namedBindings || !tsModule.isNamedImports(clause.namedBindings)) return;
                 for (const el of clause.namedBindings.elements) {
-                    if (el.name.text === 'BehaviorSubject') { hasBehaviorSubjectImport = true; return; }
+                    if (el.name.text === 'StateSubject') { hasStateSubjectImport = true; return; }
                 }
             });
-            const needsImport = !hasBehaviorSubjectImport;
+            const needsImport = !hasStateSubjectImport;
             D(`  needsImport=${needsImport} (AST check)`);
             if (needsImport) {
-                injections.push({ originalPos: sourceText.length, text: "\nimport type { BehaviorSubject } from 'rxjs';" });
+                injections.push({ originalPos: sourceText.length, text: "\nimport type { StateSubject } from '@yaw-rx/core';" });
             }
 
             const checkerTypes = checkerTypeCache.get(fileName);
@@ -237,7 +237,7 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
 
                 if (fields.length > 0) {
                     const declarations = fields.map((f) =>
-                        `    declare ${f.name}$: BehaviorSubject<${f.typeText}>;`
+                        `    declare ${f.name}$: StateSubject<${f.typeText}>;`
                     ).join('\n');
                     D(`    injecting ${fields.length} declarations at pos ${node.members.end}`);
                     injections.push({ originalPos: node.members.end, text: '\n' + declarations + '\n' });
