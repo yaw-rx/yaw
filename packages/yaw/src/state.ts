@@ -120,7 +120,7 @@ export const state = <This extends object, V>(
         },
         set(this: This, v: V): void {
             const prev = target.get.call(this);
-            if (Object.is(prev, v)) return;
+            if (typeof v !== 'object' && Object.is(prev, v)) return;
             target.set.call(this, v);
             const bs = subjects.get(this as object)?.get(key);
             if (bs !== undefined) bs.next(v);
