@@ -4,7 +4,11 @@
     { "path": "./packages/yaw-common" },
     { "path": "./packages/yaw" },
     { "path": "./packages/yaw-transformer" },
-    { "path": "./packages/yaw-ts-plugin" }
+    { "path": "./packages/yaw-ts-plugin" },
+    { "path": "./packages/yaw-vite" },
+    { "path": "./packages/yaw-rollup" },
+    { "path": "./packages/yaw-esbuild" },
+    { "path": "./packages/yaw-webpack" }
   ],
   "files": []
 }

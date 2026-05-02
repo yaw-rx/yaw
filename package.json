@@ -9,7 +9,11 @@
     "packages/yaw-ts-plugin",
     "packages/yaw-ts-plugin-audit",
     "packages/yaw",
-    "packages/yaw-ssg"
+    "packages/yaw-ssg",
+    "packages/yaw-vite",
+    "packages/yaw-rollup",
+    "packages/yaw-esbuild",
+    "packages/yaw-webpack"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
