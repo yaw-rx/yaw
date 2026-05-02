@@ -8,11 +8,10 @@ export const ROW_FIREHOSE_TEMPLATE = `
             <button onclick="clear">clear</button>
             <span class="fps"><span class="dot" [style.background]="dotColor"></span><em>{{fps}}</em> fps</span>
         </div>
-        <div class="stats">
-            <span class="stat">rows: <em>{{count}}</em></span>
-            <span class="stat">batch: <em>{{batch}}</em></span>
-            <span class="stat">inserts/s: <em>{{ips}}</em></span>
-        </div>
+        <table class="stats">
+            <tr><th>rows</th><th>inserts/frame</th><th>inserts/s</th></tr>
+            <tr><td>{{count}}</td><td>{{batch}}</td><td>{{ips}}</td></tr>
+        </table>
     </div>
     <div class="graphs">
         <rx-graph label="fps" color="#4f4" [points]="fpsPoints"></rx-graph>
@@ -42,8 +41,11 @@ export const ROW_FIREHOSE_STYLES = `
              padding: 0.5rem 1rem; font: inherit; font-size: 0.85rem;
              font-family: monospace; cursor: pointer; border-radius: 6px; }
     button:hover { background: #1a1a1a; border-color: #8af; color: #8af; }
-    .stats { display: flex; gap: 1.25rem; margin-left: auto; }
-    .stat { color: #888; font-family: monospace; font-size: 0.8rem; }
+    .stats { border-collapse: collapse; font-family: monospace; font-size: 0.8rem; }
+    .stats th { color: #666; font-weight: normal; padding: 0.2rem 0.5rem;
+                text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; }
+    .stats td { color: #8af; padding: 0.2rem 0.5rem;
+                border-top: 1px solid #1a1a1a; }
     em { color: #8af; font-style: normal; }
 
     .graphs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
@@ -58,14 +60,14 @@ export const ROW_FIREHOSE_STYLES = `
     .scroll::-webkit-scrollbar-thumb:hover { background: #8af; }
     .anchor { overflow-anchor: auto; height: 1px; }
 
-    .head { display: grid; grid-template-columns: auto auto 1fr; gap: 0 1.5rem;
+    .head { display: grid; grid-template-columns: 5ch 12ch 1fr; gap: 0 1.5rem;
             padding: 0.65rem 1rem; background: #0a0a0a; color: #666;
             font-family: monospace; font-size: 0.7rem;
             text-transform: uppercase; letter-spacing: 0.1em;
             border: 1px solid #1a1a1a; border-bottom: none;
             border-radius: 8px 8px 0 0; }
     .body { overflow-anchor: none; width: 100%; }
-    .body > .row { display: grid; grid-template-columns: auto auto 1fr; gap: 0 1.5rem;
+    .body > .row { display: grid; grid-template-columns: 5ch 12ch 1fr; gap: 0 1.5rem;
                    padding: 0.3rem 1rem; font-family: monospace;
                    font-size: 0.8rem; color: #ccc;
                    border-bottom: 1px solid #0a0a0a; }
@@ -84,18 +86,63 @@ export class RowFirehose extends RxElement {
     @state batch = 0;
     @state ips = 0;
     @state label = 'flood';
+    @state fps = 0;
+    @state dotColor = '#555';
+    @state fpsPoints: number[] = [];
+    @state ipsPoints: number[] = [];
 
     body!: HTMLElement;
-    private raf = 0;
+    private fpsRaf = 0;
+    private fpsLast = 0;
+    private insertRaf = 0;
+    private graphInterval = 0;
     private running = false;
-    private current = 16;
-    private direction: 1 | -1 = 1;
-    private low = 0;
-    private high = 0;
+    private current = INITIAL_BATCH;
+    private fpsSamples: number[] = [];
     private ipsSamples: number[] = [];
-    private lastTick = 0;
+    private lastInsertTick = 0;
 
-    override onDestroy(): void { this.stop(); }
+    // P controller: measures fps via rAF timing, adjusts batch size
+    fpsTick(now: number): void {
+        const dt = now - this.fpsLast;
+        this.fpsLast = now;
+        if (dt > 0) {
+            this.fpsSamples.push(dt);
+            if (this.fpsSamples.length > FPS_WINDOW) this.fpsSamples.shift();
+            const avgDt = this.fpsSamples.reduce((a, b) => a + b, 0)
+                        / this.fpsSamples.length;
+            this.fps = Math.round(1000 / avgDt);
+            if (this.running) {
+                const error = (this.fps - TARGET_FPS) / TARGET_FPS;
+                this.dotColor = error < 0 ? '#f44' : '#4f4';
+                this.current = Math.max(MIN_BATCH,
+                    Math.round(this.current * (1 + KP * error)));
+                this.batch = this.current;
+            }
+        }
+        this.fpsRaf = requestAnimationFrame((t) => this.fpsTick(t));
+    }
+
+    override onInit(): void {
+        this.fpsLast = performance.now();
+        this.fpsRaf = requestAnimationFrame((t) => this.fpsTick(t));
+        this.graphInterval = window.setInterval(() => {
+            this.fpsPoints$.value.push(this.fps);
+            if (this.fpsPoints$.value.length > GRAPH_POINTS)
+                this.fpsPoints$.value.shift();
+            this.fpsPoints$.touch();
+            this.ipsPoints$.value.push(this.ips);
+            if (this.ipsPoints$.value.length > GRAPH_POINTS)
+                this.ipsPoints$.value.shift();
+            this.ipsPoints$.touch();
+        }, GRAPH_SAMPLE_MS);
+    }
+
+    override onDestroy(): void {
+        cancelAnimationFrame(this.fpsRaf);
+        clearInterval(this.graphInterval);
+        this.stop();
+    }
 
     toggle(): void {
         if (this.running) { this.stop(); } else { this.start(); }
@@ -112,27 +159,27 @@ export class RowFirehose extends RxElement {
     private start(): void {
         this.running = true;
         this.label = 'stop';
-        this.current = 16;
-        this.direction = 1;
+        this.current = INITIAL_BATCH;
         this.ipsSamples = [];
-        this.lastTick = performance.now();
-        this.raf = requestAnimationFrame((t) => this.tick(t));
+        this.lastInsertTick = performance.now();
+        this.insertRaf = requestAnimationFrame(() => this.insertTick());
     }
 
     private stop(): void {
-        cancelAnimationFrame(this.raf);
+        cancelAnimationFrame(this.insertRaf);
         this.running = false;
         this.label = 'flood';
+        this.dotColor = '#555';
     }
 
-    private tick(now: number): void {
+    private insertTick(): void {
         if (!this.running) return;
-        const dt = now - this.lastTick;
-        this.lastTick = now;
+        const now = performance.now();
+        const dt = now - this.lastInsertTick;
+        this.lastInsertTick = now;
+
         const n = this.current;
         const base = this.count;
-
-        const t0 = performance.now();
         let html = '';
         for (let i = 0; i < n; i++) {
             const idx = base + i + 1;
@@ -140,44 +187,21 @@ export class RowFirehose extends RxElement {
         }
         this.body.insertAdjacentHTML('beforeend', html);
         this.count = base + n;
-        this.batch = n;
-        const cost = performance.now() - t0;
 
         if (dt > 0) {
             this.ipsSamples.push(n / (dt / 1000));
-            if (this.ipsSamples.length > 10) this.ipsSamples.shift();
-            const avg = this.ipsSamples.reduce((a, b) => a + b, 0) / this.ipsSamples.length;
+            if (this.ipsSamples.length > IPS_WINDOW) this.ipsSamples.shift();
+            const avg = this.ipsSamples.reduce((a, b) => a + b, 0)
+                      / this.ipsSamples.length;
             this.ips = Math.round(avg);
         }
 
-        const budget = 16.67;
-        const breached = cost > budget;
-        if (this.direction === 1) {
-            if (!breached) {
-                this.current *= 2;
-            } else {
-                this.low = Math.floor(this.current / 2);
-                this.high = this.current;
-                this.direction = -1;
-                this.current = Math.floor((this.low + this.high) / 2);
-            }
-        } else {
-            if (breached) { this.high = this.current; }
-            else { this.low = this.current; }
-            if (this.high - this.low <= 1) {
-                this.direction = 1;
-                this.current = this.low;
-            } else {
-                this.current = Math.floor((this.low + this.high) / 2);
-            }
-        }
-
-        this.raf = requestAnimationFrame((t) => this.tick(t));
+        this.insertRaf = requestAnimationFrame(() => this.insertTick());
     }
 }`;
 
 const TARGET_FPS = 60;
-const KP = 0.15;
+const KP = 0.2;
 const FPS_WINDOW = 60;
 const IPS_WINDOW = 10;
 const MIN_BATCH = 1;

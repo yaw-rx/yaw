@@ -16,24 +16,24 @@ const WRAPPER_STYLES = `
     directives: [TocSection, TocAnchor],
     template: `
         <h1 toc-anchor="v8-firehose">V8 firehose</h1>
-        <p class="lede">Click flood. <code class="inline">amount</code> rows get appended to
-           a scrollable container over <code class="inline">seconds</code> seconds —
-           raw DOM, direct <code class="inline">insertAdjacentHTML</code>, no virtualization,
-           no windowing, no reconciliation. The scroll pins to the bottom if you're already
-           there. Watch the index tick and see what the browser is actually capable of
-           before anyone starts talking about "performance".</p>
+        <p class="lede">Click flood. A proportional controller measures frame rate and adjusts
+           batch size to try to maintain 60 fps. Watch the graphs as elements pile up. Eventually
+           fps sags and batch size shrinks to compensate — this is a game it will lose. The writes
+           haven't slowed down — <code class="inline">insertAdjacentHTML</code> is still
+           microseconds. Layout and paint got expensive. That cost lives in the browser's C++
+           layout engine, on the other side of a boundary no abstraction can cross.
+           No amount of diffing, batching, or dirty-checking will ever move that line.</p>
+
+        <p class="lede"><em>The framework could insert 10,000 rows in a blink without dropping
+           a frame. This demo throttles on purpose with heavy instrumentation to prove a point.</em></p>
 
         <section class="host">
-            <h2>The component</h2>
-            <p class="note">One rAF loop, one HTML string per frame, one
-               <code class="inline">insertAdjacentHTML</code>. That's the whole thing.</p>
             <code-block syntax="ts">${escape`${ROW_FIREHOSE_SOURCE}`}</code-block>
         </section>
 
         <section class="ex">
             <h2>Flood</h2>
-            <p class="note">Drag the sliders, press flood, scroll. Press flood again — it
-               appends to whatever's already there.</p>
+            <p class="note">Press flood, watch the graphs.</p>
             <div class="split">
                 <code-block syntax="html">${escape`<row-firehose></row-firehose>`}</code-block>
                 <div class="live"><row-firehose></row-firehose></div>
