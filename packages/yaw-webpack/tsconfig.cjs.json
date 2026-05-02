@@ -10,10 +10,7 @@
     "ignoreDeprecations": "6.0",
     "declaration": false,
     "declarationMap": false,
-    "sourceMap": false,
-    "paths": {
-      "yaw-transformer": ["../yaw-transformer/src/index.ts"]
-    }
+    "sourceMap": false
   },
   "references": [
     { "path": "../yaw-transformer" }

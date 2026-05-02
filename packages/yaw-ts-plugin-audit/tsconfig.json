@@ -5,11 +5,8 @@
     "rootDir": "./src",
     "noEmit": true,
     "plugins": [
-      { "name": "yaw-ts-plugin" }
-    ],
-    "paths": {
-      "yaw": ["../yaw/src/index.ts"]
-    }
+      { "name": "@yaw-rx/ts-plugin" }
+    ]
   },
   "references": [
     { "path": "../yaw" }

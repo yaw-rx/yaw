@@ -1,4 +1,4 @@
-import { Component, RxElement } from 'yaw';
+import { Component, RxElement } from '@yaw-rx/core';
 import { Blink } from './blink-demo/blink.js';
 
 @Component({

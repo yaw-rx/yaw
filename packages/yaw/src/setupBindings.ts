@@ -1,8 +1,8 @@
 import { type Subscription } from 'rxjs';
-import { marshaller } from 'yaw-common';
+import { marshaller } from '@yaw-rx/common';
 import { parseBind, subscribeBind, resolveEventHandler, resolveRefTarget, resolveValue, resolveWriteTarget, resolveEncoder } from './expression/bind.js';
 import { BindPathError } from './errors.js';
-import { getSubject } from './observable.js';
+import { getSubject } from './state.js';
 
 export const setupBindings = (element: HTMLElement): () => void => {
     const subs: Subscription[] = [];

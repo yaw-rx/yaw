@@ -1,5 +1,5 @@
 import { map, type Observable } from 'rxjs';
-import { Component, RxElement, state } from 'yaw';
+import { Component, RxElement, state } from '@yaw-rx/core';
 
 export const SLIDER_TEMPLATE = `
     <div class="track"

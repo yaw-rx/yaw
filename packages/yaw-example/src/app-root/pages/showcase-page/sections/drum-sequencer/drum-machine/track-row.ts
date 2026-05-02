@@ -1,6 +1,6 @@
 import { combineLatest, map, type Observable } from 'rxjs';
-import { Component, RxElement, state } from 'yaw';
-import { RxFor } from 'yaw/directives/rx-for';
+import { Component, RxElement, state } from '@yaw-rx/core';
+import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import { STEPS } from './consts.js';
 import type { Cell } from './types.js';
 import './track-row/step-cell.js';

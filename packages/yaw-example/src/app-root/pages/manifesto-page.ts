@@ -1,4 +1,4 @@
-import { Component, RxElement } from 'yaw';
+import { Component, RxElement } from '@yaw-rx/core';
 import '../components/code-block.js';
 import './manifesto-page/sections/hero.js';
 import './manifesto-page/sections/stat-counter.js';

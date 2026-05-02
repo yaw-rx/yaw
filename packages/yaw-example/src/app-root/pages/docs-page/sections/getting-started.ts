@@ -1,4 +1,4 @@
-import { Component, RxElement } from 'yaw';
+import { Component, RxElement } from '@yaw-rx/core';
 import { TocSection } from '../directives/toc-section.js';
 import { TocAnchor } from '../directives/toc-anchor.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
@@ -6,12 +6,12 @@ import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 
 const INSTALL_SOURCE = `npm install yaw rxjs
-npm install yaw-transformer yaw-ts-plugin yaw-ssg ts-patch --save-dev
+npm install @yaw-rx/transformer @yaw-rx/ts-plugin @yaw-rx/ssg ts-patch --save-dev
 # bundler integration — pick one:
-npm install yaw-vite --save-dev
-# npm install yaw-rollup --save-dev
-# npm install yaw-esbuild --save-dev
-# npm install yaw-webpack --save-dev`;
+npm install @yaw-rx/vite --save-dev
+# npm install @yaw-rx/rollup --save-dev
+# npm install @yaw-rx/esbuild --save-dev
+# npm install @yaw-rx/webpack --save-dev`;
 
 const PACKAGE_JSON_SOURCE = `{
     "name": "my-app",
@@ -30,9 +30,9 @@ const PACKAGE_JSON_SOURCE = `{
     },
     "devDependencies": {
         "ts-patch": "^3.3.0",
-        "yaw-transformer": "*",
-        "yaw-ts-plugin": "*",
-        "yaw-ssg": "*",
+        "@yaw-rx/transformer": "*",
+        "@yaw-rx/ts-plugin": "*",
+        "@yaw-rx/ssg": "*",
         "@eslint/js": "^9.39.0",
         "eslint": "^9.39.0",
         "typescript-eslint": "^8.59.0",
@@ -47,8 +47,8 @@ const TSCONFIG_SOURCE = `{
         "moduleResolution": "bundler",
         "lib": ["ES2022", "DOM"],
         "plugins": [
-            { "name": "yaw-ts-plugin" },
-            { "transform": "yaw-transformer", "import": "programTransformer", "transformProgram": true }
+            { "name": "@yaw-rx/ts-plugin" },
+            { "transform": "@yaw-rx/transformer", "import": "programTransformer", "transformProgram": true }
         ]
     }
 }`;
@@ -94,10 +94,10 @@ const PRETTIER_CONFIG_SOURCE = `{
     "endOfLine": "lf"
 }`;
 
-const VITE_INSTALL = `npm install vite yaw-vite --save-dev`;
+const VITE_INSTALL = `npm install vite @yaw-rx/vite --save-dev`;
 
 const VITE_CONFIG_SOURCE = `import { defineConfig } from 'vite';
-import { viteTransform, viteAssets } from 'yaw-vite';
+import { viteTransform, viteAssets } from '@yaw-rx/vite';
 
 export default defineConfig({
     plugins: [viteAssets(['.css', '.html', '.wgsl']), viteTransform()],
@@ -107,9 +107,9 @@ export default defineConfig({
     build: { outDir: 'dist', target: 'es2022' },
 });`;
 
-const ROLLUP_INSTALL = `npm install rollup yaw-rollup rollup-plugin-esbuild @rollup/plugin-node-resolve @rollup/plugin-commonjs --save-dev`;
+const ROLLUP_INSTALL = `npm install rollup @yaw-rx/rollup rollup-plugin-esbuild @rollup/plugin-node-resolve @rollup/plugin-commonjs --save-dev`;
 
-const ROLLUP_CONFIG_SOURCE = `import { rollupTransform, rollupAssets } from 'yaw-rollup';
+const ROLLUP_CONFIG_SOURCE = `import { rollupTransform, rollupAssets } from '@yaw-rx/rollup';
 import esbuild from 'rollup-plugin-esbuild';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
@@ -126,9 +126,9 @@ export default {
     ],
 };`;
 
-const ESBUILD_INSTALL = `npm install esbuild yaw-esbuild --save-dev`;
+const ESBUILD_INSTALL = `npm install esbuild @yaw-rx/esbuild --save-dev`;
 
-const ESBUILD_CONFIG_SOURCE = `import { esbuildTransform, esbuildAssets } from 'yaw-esbuild';
+const ESBUILD_CONFIG_SOURCE = `import { esbuildTransform, esbuildAssets } from '@yaw-rx/esbuild';
 import { build } from 'esbuild';
 
 await build({
@@ -142,7 +142,7 @@ await build({
     plugins: [esbuildAssets(['.css', '.html', '.wgsl']), esbuildTransform()],
 });`;
 
-const WEBPACK_INSTALL = `npm install webpack webpack-cli yaw-webpack esbuild-loader html-webpack-plugin --save-dev`;
+const WEBPACK_INSTALL = `npm install webpack webpack-cli @yaw-rx/webpack esbuild-loader html-webpack-plugin --save-dev`;
 
 const WEBPACK_CONFIG_SOURCE = `import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -173,7 +173,7 @@ export default {
                 exclude: /node_modules/,
                 use: [
                     { loader: 'esbuild-loader', options: { target: 'es2022' } },
-                    { loader: 'yaw-webpack/loader' },
+                    { loader: '@yaw-rx/webpack/loader' },
                 ],
             },
         ],
@@ -210,9 +210,9 @@ export default {
         <section class="host" toc-section="getting-started/tsconfig">
             <h2 toc-anchor="getting-started/tsconfig">tsconfig.json</h2>
             <p class="note">Two plugins.
-               <code class="inline">yaw-ts-plugin</code> gives the IDE
+               <code class="inline">@yaw-rx/ts-plugin</code> gives the IDE
                full type information for reactive state.
-               <code class="inline">yaw-transformer</code> runs at
+               <code class="inline">@yaw-rx/transformer</code> runs at
                build time via <code class="inline">ts-patch</code> and
                emits metadata the runtime needs.</p>
             <code-block syntax="json">${escape`${TSCONFIG_SOURCE}`}</code-block>
@@ -274,7 +274,7 @@ export default {
                 <summary>
                     <h3>Webpack</h3>
                     <p class="note">Loader order is bottom-up —
-                       <code class="inline">yaw-webpack/loader</code>
+                       <code class="inline">@yaw-rx/webpack/loader</code>
                        runs first, then
                        <code class="inline">esbuild-loader</code>
                        transpiles. Webpack's native
@@ -294,7 +294,7 @@ export default {
                instead of <code class="inline">project</code>.
                <code class="inline">project</code> creates its own
                TypeScript program without the
-               <code class="inline">yaw-transformer</code> plugin, so
+               <code class="inline">@yaw-rx/transformer</code> plugin, so
                types the transformer generates are missing and linting
                fails. <code class="inline">projectService</code>
                delegates to the patched compiler that has the

@@ -1,5 +1,5 @@
-import { Component, Inject, RxElement, state } from 'yaw';
-import { RxFor } from 'yaw/directives/rx-for';
+import { Component, Inject, RxElement, state } from '@yaw-rx/core';
+import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import { type Subscription } from 'rxjs';
 import { WeatherService } from './weather-service.js';
 

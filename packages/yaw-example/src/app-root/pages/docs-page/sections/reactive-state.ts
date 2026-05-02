@@ -1,4 +1,4 @@
-import { Component, RxElement } from 'yaw';
+import { Component, RxElement } from '@yaw-rx/core';
 import { TocSection } from '../directives/toc-section.js';
 import { TocAnchor } from '../directives/toc-anchor.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
@@ -10,7 +10,7 @@ import './reactive-state/address-demo.js';
 import './reactive-state/plaindate-demo.js';
 import './reactive-state/dayjs-demo.js';
 
-const STATE_DECORATOR_SOURCE = `import { Component, RxElement, state } from 'yaw';
+const STATE_DECORATOR_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({ selector: 'my-thing', template: '...', styles: '...' })
 export class MyThing extends RxElement {
@@ -26,7 +26,7 @@ export class MyThing extends RxElement {
 // 2. Creates a count$ getter returning BehaviorSubject<number>
 // 3. Registers the field for attribute marshalling`;
 
-const STATE_DOLLAR_SOURCE = `import { Component, RxElement, state } from 'yaw';
+const STATE_DOLLAR_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
 import { map, type Observable } from 'rxjs';
 
 @Component({
@@ -61,7 +61,7 @@ Object    // JSON.parse / JSON.stringify
 Uint8Array, Int8Array, Float32Array, ...  // JSON array`;
 
 
-const DATE_TICKER_SOURCE = `import { Component, RxElement, state } from 'yaw';
+const DATE_TICKER_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
     selector: 'date-ticker',
@@ -75,7 +75,7 @@ export class DateTicker extends RxElement {
 }`;
 
 const DECIMAL_SOURCE = `import Decimal from 'decimal.js';
-import { Component, RxElement, state } from 'yaw';
+import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
     selector: 'decimal-demo',
@@ -100,7 +100,7 @@ export class DecimalDemo extends RxElement {
 }`;
 
 const ADDRESS_SOURCE = `import { getAddress, type Address } from 'viem';
-import { Component, RxElement, state } from 'yaw';
+import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
     selector: 'address-demo',
@@ -127,7 +127,7 @@ export class AddressDemo extends RxElement {
     }
 }`;
 
-const PLAINDATE_SOURCE = `import { Component, RxElement, state } from 'yaw';
+const PLAINDATE_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
 
 // Temporal is native — no import, no polyfill
 @Component({
@@ -152,7 +152,7 @@ export class PlainDateDemo extends RxElement {
 }`;
 
 const DAYJS_SOURCE = `import dayjs, { type Dayjs } from 'dayjs';
-import { Component, RxElement, state } from 'yaw';
+import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
     selector: 'dayjs-demo',
@@ -178,11 +178,11 @@ export class DayjsDemo extends RxElement {
 const PLUGIN_SOURCE = `// tsconfig.json — one line
 {
     "compilerOptions": {
-        "plugins": [{ "name": "yaw-ts-plugin" }]
+        "plugins": [{ "name": "@yaw-rx/ts-plugin" }]
     }
 }`;
 
-const PLUGIN_WHAT_SOURCE = `import { Component, RxElement, state } from 'yaw';
+const PLUGIN_WHAT_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({ selector: 'my-thing', template: '...', styles: '...' })
 export class MyThing extends RxElement {
@@ -215,9 +215,9 @@ AttributeMarshalError
            reactive state. The <code class="inline">@state</code> decorator a standard
            (TC39) ClassAccessorDecorator turns a class field into a reactive primitive.
            Under the hood it replaces the field with an
-           <code class="inline">accessor</code> backed by a
-           <code class="inline">BehaviorSubject</code>, exposed as
-           <code class="inline">fieldName$</code>. Reading the field
+           <code class="inline">accessor</code> backed by the
+           <code class="inline">StateSubject</code> which is a <code class="inline">BehaviourSubject</code>, 
+           exposed as <code class="inline">fieldName$</code>. Reading the field
            returns the subject's current value. When you write to it
            using a plain property set it does a whole entity replacement
            and calls <code class="inline">fieldName$.next(newValue)</code>.
@@ -225,11 +225,15 @@ AttributeMarshalError
         </p>
 
         <p>
+
+        </p>
+
+        <p>
            A transformer, the
            codec registry, and the IDE plugin work together so nothing is
            stringly-typed and nothing is <code class="inline">any</code>.
         </p>
-        <code-block class="install" syntax="bash">${escape`npm install yaw-transformer yaw-ts-plugin ts-patch --save-dev`}</code-block>
+        <code-block class="install" syntax="bash">${escape`npm install @yaw-rx/transformer @yaw-rx/ts-plugin ts-patch --save-dev`}</code-block>
 
         <section class="host" toc-section="reactive-state/decorator">
             <h2 toc-anchor="reactive-state/decorator">@state</h2>
@@ -258,7 +262,7 @@ AttributeMarshalError
 
         <section class="host" toc-section="reactive-state/plugin">
             <h2 toc-anchor="reactive-state/plugin">IDE plugin</h2>
-            <p class="note"><code class="inline">yaw-ts-plugin</code> is a
+            <p class="note"><code class="inline">@yaw-rx/ts-plugin</code> is a
                TypeScript language service plugin. It intercepts the source
                before type-checking and injects
                <code class="inline">declare</code> property declarations for

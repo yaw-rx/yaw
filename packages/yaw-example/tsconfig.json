@@ -5,8 +5,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "plugins": [
-      { "name": "yaw-ts-plugin" },
-      { "transform": "yaw-transformer", "import": "programTransformer", "transformProgram": true }
+      { "name": "@yaw-rx/ts-plugin" },
+      { "transform": "@yaw-rx/transformer", "import": "programTransformer", "transformProgram": true }
     ]
   },
   "references": [

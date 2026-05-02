@@ -1,5 +1,5 @@
 import { transform } from 'esbuild';
-import { createTransformedProgram, type TransformedProgram } from 'yaw-transformer';
+import { createTransformedProgram, type TransformedProgram } from '@yaw-rx/transformer';
 import type { Plugin } from 'vite';
 
 export const viteTransform = (): Plugin => {

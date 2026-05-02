@@ -9,8 +9,8 @@
  * Shared ancestors stay expanded.
  */
 import { type Observable } from 'rxjs';
-import { Component, Inject, RxElement } from 'yaw';
-import { RxFor } from 'yaw/directives/rx-for';
+import { Component, Inject, RxElement } from '@yaw-rx/core';
+import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import { TocService, type TocEntry } from './services/toc-service.js';
 import { TocNode } from './sidebar/toc-node.js';
 

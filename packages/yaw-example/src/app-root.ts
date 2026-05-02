@@ -1,4 +1,4 @@
-import { Component, RxElement } from 'yaw';
+import { Component, RxElement } from '@yaw-rx/core';
 import 'yaw/router/outlet';
 import './app-root/components/nav-bar.js';
 import { SidebarService } from './app-root/services/sidebar-service.js';

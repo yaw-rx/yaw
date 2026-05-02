@@ -1,6 +1,6 @@
 import { EMPTY, filter, interval, map, Subscription, switchMap, type Observable } from 'rxjs';
-import { Component, Inject, RxElement, state } from 'yaw';
-import { RxFor } from 'yaw/directives/rx-for';
+import { Component, Inject, RxElement, state } from '@yaw-rx/core';
+import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import { AudioEngine } from './drum-machine/utils/audio-engine.js';
 import { StepTicker } from './drum-machine/utils/step-ticker.js';
 import { TrackRow } from './drum-machine/track-row.js';

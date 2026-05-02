@@ -1,6 +1,6 @@
 import { of, type Observable } from 'rxjs';
-import { Component, RxElement } from 'yaw';
-import { RxFor } from 'yaw/directives/rx-for';
+import { Component, RxElement } from '@yaw-rx/core';
+import { RxFor } from '@yaw-rx/core/directives/rx-for';
 
 interface Cell {
     readonly key: string;

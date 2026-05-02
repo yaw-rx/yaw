@@ -1,5 +1,5 @@
 {
-  "name": "yaw-common",
+  "name": "@yaw-rx/common",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",

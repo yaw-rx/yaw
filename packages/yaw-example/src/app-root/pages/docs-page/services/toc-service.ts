@@ -23,7 +23,7 @@
  *    (smooth scrollIntoView is buggy during page load on some clients).
  */
 import { asyncScheduler, BehaviorSubject, share, skip, Subject, throttleTime } from 'rxjs';
-import { Injectable, state } from 'yaw';
+import { Injectable, state } from '@yaw-rx/core';
 
 const SNAP_DELAY = 400;
 

@@ -1,5 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
-import { Injectable } from 'yaw';
+import { Injectable } from '@yaw-rx/core';
 
 @Injectable()
 export class StepTicker {

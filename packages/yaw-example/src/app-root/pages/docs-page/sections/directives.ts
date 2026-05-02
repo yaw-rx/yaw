@@ -1,7 +1,7 @@
-import { Component, Directive, RxElement } from 'yaw';
-import type { RxElementLike } from 'yaw';
-import { RxFor } from 'yaw/directives/rx-for';
-import { RxIf } from 'yaw/directives/rx-if';
+import { Component, Directive, RxElement } from '@yaw-rx/core';
+import type { RxElementLike } from '@yaw-rx/core';
+import { RxFor } from '@yaw-rx/core/directives/rx-for';
+import { RxIf } from '@yaw-rx/core/directives/rx-if';
 import { TocSection } from '../directives/toc-section.js';
 import { TocAnchor } from '../directives/toc-anchor.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
@@ -33,8 +33,8 @@ export class Bounce {
     }
 }
 
-const BOUNCE_SOURCE = `import { Directive } from 'yaw';
-import type { RxElementLike } from 'yaw';
+const BOUNCE_SOURCE = `import { Directive } from '@yaw-rx/core';
+import type { RxElementLike } from '@yaw-rx/core';
 
 @Directive({ selector: '[bounce]' })
 export class Bounce {
@@ -56,8 +56,8 @@ export class Bounce {
 
 
 const IF_DEMO_SOURCE = `import { map, type Observable } from 'rxjs';
-import { Component, RxElement, state } from 'yaw';
-import { RxIf } from 'yaw/directives/rx-if';
+import { Component, RxElement, state } from '@yaw-rx/core';
+import { RxIf } from '@yaw-rx/core/directives/rx-if';
 
 @Component({
     selector: 'if-demo',
@@ -81,7 +81,7 @@ export class IfDemo extends RxElement {
     }
 }`;
 
-const USAGE_SOURCE = `import { Component, RxElement } from 'yaw';
+const USAGE_SOURCE = `import { Component, RxElement } from '@yaw-rx/core';
 import { Bounce } from './bounce.js';
 
 @Component({
@@ -107,7 +107,7 @@ const SCOPE_DEMO_SOURCE = `// item + index + destructure + nesting — one examp
     </ul>
 </div>`;
 
-const FOR_DEMO_SOURCE = `import { Component, RxElement } from 'yaw';
+const FOR_DEMO_SOURCE = `import { Component, RxElement } from '@yaw-rx/core';
 import { of, type Observable } from 'rxjs';
 
 interface Cell { key: string; textContent: string; }
@@ -181,8 +181,8 @@ export class ForDemo extends RxElement {
             <p class="note">Same shape, different animation — an opacity loop
                via the Web Animations API. Place
                <code class="inline">[blink]</code> on any element.</p>
-            <code-block syntax="ts">${escape`import { Directive } from 'yaw';
-import type { RxElementLike } from 'yaw';
+            <code-block syntax="ts">${escape`import { Directive } from '@yaw-rx/core';
+import type { RxElementLike } from '@yaw-rx/core';
 
 @Directive({ selector: '[blink]' })
 export class Blink {

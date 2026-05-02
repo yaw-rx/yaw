@@ -1,4 +1,4 @@
-import { createTransformedProgram, type TransformedProgram } from 'yaw-transformer';
+import { createTransformedProgram, type TransformedProgram } from '@yaw-rx/transformer';
 
 let tp: TransformedProgram | undefined;
 let lastCompilation: unknown;

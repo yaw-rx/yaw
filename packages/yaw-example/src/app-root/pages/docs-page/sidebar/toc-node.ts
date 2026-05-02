@@ -10,8 +10,8 @@
  * precomputed ancestor paths in TocService.paths.
  */
 import { combineLatest } from 'rxjs';
-import { Component, Inject, RxElement, state } from 'yaw';
-import { RxFor } from 'yaw/directives/rx-for';
+import { Component, Inject, RxElement, state } from '@yaw-rx/core';
+import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import { TocService, type TocEntry } from '../services/toc-service.js';
 import { SidebarService } from '../../../services/sidebar-service.js';
 

@@ -1,5 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
-import { Component, Inject, Injectable, RxElement, state } from 'yaw';
+import { Component, Inject, Injectable, RxElement, state } from '@yaw-rx/core';
 import { TocSection } from '../directives/toc-section.js';
 import { TocAnchor } from '../directives/toc-anchor.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
@@ -34,7 +34,7 @@ export class ClockReadout extends RxElement {
 }
 
 const SERVICE_SOURCE = `import { BehaviorSubject } from 'rxjs';
-import { Injectable } from 'yaw';
+import { Injectable } from '@yaw-rx/core';
 
 @Injectable()
 export class Clock {
@@ -44,8 +44,8 @@ export class Clock {
     }
 }`;
 
-const PROVIDE_SOURCE = `import { bootstrap, Component, RxElement } from 'yaw';
-import { Router } from 'yaw/router';
+const PROVIDE_SOURCE = `import { bootstrap, Component, RxElement } from '@yaw-rx/core';
+import { Router } from '@yaw-rx/core/router';
 import { Clock } from './clock.js';
 import { AppRoot } from './app-root.js';
 
@@ -63,7 +63,7 @@ bootstrap({
     providers: [Clock, Router, ...],
 });`;
 
-const RESOLVE_SOURCE = `import { Component, Inject, Injectable, RxElement, state } from 'yaw';
+const RESOLVE_SOURCE = `import { Component, Inject, Injectable, RxElement, state } from '@yaw-rx/core';
 import { Clock } from './clock.js';
 
 // components: @Inject(Token) on a field

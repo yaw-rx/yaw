@@ -1,5 +1,5 @@
-import { Component, RxElement, state } from 'yaw';
-import { readInert } from 'yaw-common';
+import { Component, RxElement, state } from '@yaw-rx/core';
+import { readInert } from '@yaw-rx/common';
 import { dedent, escapeHtml, highlightBash, highlightDockerfile, highlightHtml, highlightJs, highlightJson, highlightTs } from './code-block/code-highlight.js';
 
 @Component({

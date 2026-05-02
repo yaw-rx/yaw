@@ -1,4 +1,4 @@
-import { Injectable } from 'yaw';
+import { Injectable } from '@yaw-rx/core';
 
 @Injectable()
 export class AudioEngine {

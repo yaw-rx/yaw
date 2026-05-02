@@ -1,4 +1,4 @@
-import { Component, RxElement } from 'yaw';
+import { Component, RxElement } from '@yaw-rx/core';
 import { PerlinBg } from './hero/perlin-bg.js';
 
 @Component({

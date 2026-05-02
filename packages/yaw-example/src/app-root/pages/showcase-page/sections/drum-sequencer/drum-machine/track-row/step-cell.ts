@@ -1,5 +1,5 @@
 import { combineLatest, distinctUntilChanged, map, type Observable } from 'rxjs';
-import { Component, Inject, RxElement, state } from 'yaw';
+import { Component, Inject, RxElement, state } from '@yaw-rx/core';
 import { StepTicker } from '../utils/step-ticker.js';
 
 @Component({

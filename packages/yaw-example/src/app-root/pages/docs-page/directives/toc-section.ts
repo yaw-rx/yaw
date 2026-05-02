@@ -1,5 +1,5 @@
-import { Directive, Injectable } from 'yaw';
-import type { RxElementLike } from 'yaw';
+import { Directive, Injectable } from '@yaw-rx/core';
+import type { RxElementLike } from '@yaw-rx/core';
 import { TocService } from '../services/toc-service.js';
 
 @Directive({ selector: '[toc-section]' })

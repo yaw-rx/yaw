@@ -40,11 +40,11 @@ import type { Provider } from './di/types.js';
 import type { DirectiveCtor, RxElementLike } from './directive.js';
 import { BootstrapError, HydrationError } from './errors.js';
 import { setHydrating, isHydrating } from './ssg/hydrate/hydration-state.js';
-import { transformTemplate, transformStyles } from 'yaw-common';
+import { transformTemplate, transformStyles } from '@yaw-rx/common';
 import type { AttributeCodec } from './attribute-codec/types.js';
 import { registerAttributeCodecs } from './attribute-codec/registry.js';
 import { startObserver, flushExistingBindings } from './native-bindings.js';
-import { getObservableKeys } from './observable.js';
+import { getObservableKeys } from './state.js';
 import { isObservable } from './is-observable.js';
 import { encodeAttribute } from './attribute-codec/encode.js';
 

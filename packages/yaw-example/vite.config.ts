@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import { viteTransform, viteAssets } from 'yaw-vite';
+import { viteTransform, viteAssets } from '@yaw-rx/vite';
 
 export default defineConfig({
     root: '.',

@@ -1,6 +1,6 @@
 import dayjs, { type Dayjs } from 'dayjs';
 import { map, type Observable } from 'rxjs';
-import { type AttributeCodec, Component, RxElement, state } from 'yaw';
+import { type AttributeCodec, Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
     selector: 'dayjs-demo',

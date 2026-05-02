@@ -1,4 +1,4 @@
-import { Component, RxElement } from 'yaw';
+import { Component, RxElement } from '@yaw-rx/core';
 import './showcase-page/sections/drum-sequencer.js';
 
 @Component({

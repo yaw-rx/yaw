@@ -1,5 +1,5 @@
 import { combineLatest, map, type Observable } from 'rxjs';
-import { Component, RxElement, state } from 'yaw';
+import { Component, RxElement, state } from '@yaw-rx/core';
 
 export const SIGNAL_METER_TEMPLATE = `
     <div class="meter" [style]="meterStyle">

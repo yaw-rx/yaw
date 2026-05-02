@@ -1,5 +1,5 @@
-import { Directive } from 'yaw';
-import type { RxElementLike } from 'yaw';
+import { Directive } from '@yaw-rx/core';
+import type { RxElementLike } from '@yaw-rx/core';
 
 const SHADER = /* wgsl */ `
 

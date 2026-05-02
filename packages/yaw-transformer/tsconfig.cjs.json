@@ -9,10 +9,7 @@
     "ignoreDeprecations": "6.0",
     "declaration": false,
     "declarationMap": false,
-    "sourceMap": false,
-    "paths": {
-      "yaw-common": ["../yaw-common/src/index.ts"]
-    }
+    "sourceMap": false
   },
   "references": [
     { "path": "../yaw-common" }

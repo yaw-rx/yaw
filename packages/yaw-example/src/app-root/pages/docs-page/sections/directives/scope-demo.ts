@@ -1,6 +1,6 @@
 import { of } from 'rxjs';
-import { Component, RxElement, state } from 'yaw';
-import { RxFor } from 'yaw/directives/rx-for';
+import { Component, RxElement, state } from '@yaw-rx/core';
+import { RxFor } from '@yaw-rx/core/directives/rx-for';
 
 @Component({
     selector: 'scope-demo',

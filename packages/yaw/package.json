@@ -1,5 +1,5 @@
 {
-  "name": "yaw",
+  "name": "@yaw-rx/core",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -48,7 +48,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "yaw-common": "*",
+    "@yaw-rx/common": "*",
     "rxjs": "8.0.0-alpha.14"
   }
 }

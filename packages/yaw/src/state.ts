@@ -3,7 +3,13 @@ import { getComponentHydrateState } from './ssg/hydrate/get-component-hydrate-st
 import { getServiceHydrateState } from './ssg/hydrate/get-service-hydrate-state.js';
 import { decodeAttribute } from './attribute-codec/decode.js';
 
-const subjects = new WeakMap<object, Map<string, BehaviorSubject<unknown>>>();
+export class StateSubject<T> extends BehaviorSubject<T> {
+    touch(): void {
+        this.next(this.value);
+    }
+}
+
+const subjects = new WeakMap<object, Map<string, StateSubject<unknown>>>();
 const observableKeys = new WeakMap<object, Set<string>>();
 
 const hydrateCache = new WeakMap<object, Record<string, unknown>>();
@@ -44,7 +50,7 @@ export const getObservableKeys = (proto: object): ReadonlySet<string> => {
     return all ?? new Set();
 };
 
-const bagFor = (instance: object): Map<string, BehaviorSubject<unknown>> => {
+const bagFor = (instance: object): Map<string, StateSubject<unknown>> => {
     let bag = subjects.get(instance);
     if (bag === undefined) {
         bag = new Map();
@@ -98,7 +104,7 @@ export const state = <This extends object, V>(
             }
         }
 
-        bagFor(this as object).set(key, new BehaviorSubject<unknown>(initial));
+        bagFor(this as object).set(key, new StateSubject<unknown>(initial));
 
         Object.defineProperty(this, `${key}$`, {
             value: bagFor(this as object).get(key)!,

@@ -1,6 +1,6 @@
 import { map, type Observable } from 'rxjs';
-import { Component, RxElement, state } from 'yaw';
-import { RxIf } from 'yaw/directives/rx-if';
+import { Component, RxElement, state } from '@yaw-rx/core';
+import { RxIf } from '@yaw-rx/core/directives/rx-if';
 
 @Component({
     selector: 'if-demo',

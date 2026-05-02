@@ -1,4 +1,4 @@
-import { Component, RxElement } from 'yaw';
+import { Component, RxElement } from '@yaw-rx/core';
 import { TocSection } from './docs-page/directives/toc-section.js';
 import { TocAnchor } from './docs-page/directives/toc-anchor.js';
 import { SidebarDrawer } from '../directives/sidebar-drawer.js';

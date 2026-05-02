@@ -1,6 +1,6 @@
 import { map, type Observable } from 'rxjs';
-import { Component, Inject, RxElement, state } from 'yaw';
-import { Router } from 'yaw/router';
+import { Component, Inject, RxElement, state } from '@yaw-rx/core';
+import { Router } from '@yaw-rx/core/router';
 import { Hamburger } from '../directives/hamburger.js';
 
 @Component({

@@ -1,9 +1,9 @@
 {
-  "name": "yaw-ssg",
+  "name": "@yaw-rx/ssg",
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "yaw-ssg": "./dist/cli.js"
+    "@yaw-rx/ssg": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
@@ -14,6 +14,6 @@
     "prettier": "^3.0.0",
     "puppeteer-core": "^24.0.0",
     "sirv": "^3.0.0",
-    "yaw": "*"
+    "@yaw-rx/core": "*"
   }
 }

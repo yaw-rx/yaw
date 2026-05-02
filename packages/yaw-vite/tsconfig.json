@@ -4,10 +4,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "composite": true,
-    "types": ["node"],
-    "paths": {
-      "yaw-transformer": ["../yaw-transformer/src/index.ts"]
-    }
+    "types": ["node"]
   },
   "references": [
     { "path": "../yaw-transformer" }

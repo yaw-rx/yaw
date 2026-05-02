@@ -1,4 +1,4 @@
-import { Injectable, state } from 'yaw';
+import { Injectable, state } from '@yaw-rx/core';
 import { combineLatest, switchMap, from, timer, type Subscription } from 'rxjs';
 
 export interface Forecast {

@@ -1,4 +1,4 @@
-import { Injectable, state } from 'yaw';
+import { Injectable, state } from '@yaw-rx/core';
 
 @Injectable()
 export class SidebarService {

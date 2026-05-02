@@ -1,4 +1,4 @@
-import { Component, RxElement, state } from 'yaw';
+import { Component, RxElement, state } from '@yaw-rx/core';
 
 export const ROW_FIREHOSE_TEMPLATE = `
     <div class="controls">

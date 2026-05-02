@@ -1,4 +1,4 @@
-import { type AttributeCodec, Component, RxElement, state } from 'yaw';
+import { type AttributeCodec, Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
     selector: 'plaindate-demo',

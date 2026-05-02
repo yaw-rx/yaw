@@ -1,5 +1,5 @@
-import { bootstrap } from 'yaw';
-import { Router, ROUTES } from 'yaw/router';
+import { bootstrap } from '@yaw-rx/core';
+import { Router, ROUTES } from '@yaw-rx/core/router';
 import { AppRoot } from './app-root.js';
 import globalStyles from './main.css';
 

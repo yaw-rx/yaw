@@ -1,5 +1,5 @@
 import { map } from 'rxjs';
-import { Component, RxElement, state } from 'yaw';
+import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
     selector: 'page-echo',

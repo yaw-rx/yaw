@@ -1,4 +1,4 @@
-import { Component, RxElement, state } from 'yaw';
+import { Component, RxElement, state } from '@yaw-rx/core';
 import { TocSection } from '../directives/toc-section.js';
 import { TocAnchor } from '../directives/toc-anchor.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
@@ -34,8 +34,8 @@ export class HelloCounter extends RxElement {
     dec(): void { this.count -= 1; }
 }
 
-const WEATHER_SOURCE = `import { Component, Inject, RxElement, state } from 'yaw';
-import { RxFor } from 'yaw/directives/rx-for';
+const WEATHER_SOURCE = `import { Component, Inject, RxElement, state } from '@yaw-rx/core';
+import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import { type Subscription } from 'rxjs';
 import { WeatherService } from './weather-service.js';
 
@@ -78,8 +78,8 @@ export class WeatherCard extends RxElement {
 }`;
 
 const ESCAPE_SNIPPET = [
-    "import { Component, RxElement } from 'yaw';",
-    "import { escape } from 'yaw-common';",
+    "import { Component, RxElement } from '@yaw-rx/core';",
+    "import { escape } from '@yaw-rx/common';",
     '',
     '@Component({',
     '    template: `',
@@ -210,7 +210,7 @@ const IMPERATIVE_SNIPPET = `<!-- event -->
            next host up the DOM tree,
            <code class="inline">^^</code> the one above that, and
            so on.</p>
-            <code-block syntax="ts">${escape`import { Component, RxElement } from 'yaw';
+            <code-block syntax="ts">${escape`import { Component, RxElement } from '@yaw-rx/core';
 
 @Component({
     selector: 'my-tag',      // custom element name — must contain a hyphen
@@ -329,7 +329,7 @@ const IMPERATIVE_SNIPPET = `<!-- event -->
                it, or dumping source verbatim into a
                <code class="inline">code-block</code> -- wrap the content with
                <code class="inline">escape</code> from
-               <code class="inline">yaw-common</code>. It escapes HTML entities
+               <code class="inline">@yaw-rx/common</code>. It escapes HTML entities
                and marks the subtree so the compiler leaves it alone. An empty
                or whitespace-only mustache that survives compilation throws
                <code class="inline">TemplateWalkError</code>, pointing you
@@ -345,7 +345,7 @@ const IMPERATIVE_SNIPPET = `<!-- event -->
                is in the DOM. <code class="inline">onDestroy</code> fires on
                removal after the framework has torn down its own bindings
                and directives — you only clean up what you own.</p>
-            <code-block syntax="ts">${escape`import { Component, RxElement, state } from 'yaw';
+            <code-block syntax="ts">${escape`import { Component, RxElement, state } from '@yaw-rx/core';
 import { interval, type Subscription } from 'rxjs';
 
 @Component({

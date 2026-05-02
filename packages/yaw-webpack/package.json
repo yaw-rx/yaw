@@ -1,5 +1,5 @@
 {
-  "name": "yaw-webpack",
+  "name": "@yaw-rx/webpack",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -21,6 +21,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "yaw-transformer": "*"
+    "@yaw-rx/transformer": "*"
   }
 }

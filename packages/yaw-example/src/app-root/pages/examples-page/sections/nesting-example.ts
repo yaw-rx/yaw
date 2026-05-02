@@ -1,5 +1,5 @@
 import { map, type Observable } from 'rxjs';
-import { Component, RxElement, state } from 'yaw';
+import { Component, RxElement, state } from '@yaw-rx/core';
 import { escape } from '../../../components/code-block/code-highlight.js';
 import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';

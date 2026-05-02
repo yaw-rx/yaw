@@ -1,5 +1,5 @@
 {
-  "name": "yaw-esbuild",
+  "name": "@yaw-rx/esbuild",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -24,6 +24,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "yaw-transformer": "*"
+    "@yaw-rx/transformer": "*"
   }
 }

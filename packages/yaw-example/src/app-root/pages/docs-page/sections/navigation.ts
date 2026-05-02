@@ -1,5 +1,5 @@
-import { Component, Inject, RxElement, state } from 'yaw';
-import { Router } from 'yaw/router';
+import { Component, Inject, RxElement, state } from '@yaw-rx/core';
+import { Router } from '@yaw-rx/core/router';
 import { TocSection } from '../directives/toc-section.js';
 import { TocAnchor } from '../directives/toc-anchor.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
@@ -51,8 +51,8 @@ export class RouteDisplay extends RxElement {
     }
 }
 
-const ROUTE_CONFIG_SOURCE = `import { bootstrap } from 'yaw';
-import { Router, ROUTES } from 'yaw/router';
+const ROUTE_CONFIG_SOURCE = `import { bootstrap } from '@yaw-rx/core';
+import { Router, ROUTES } from '@yaw-rx/core/router';
 import { AppRoot } from './app-root.js';
 
 bootstrap({
@@ -68,7 +68,7 @@ bootstrap({
     ],
 });`;
 
-const OUTLET_SOURCE = `import { Component, RxElement } from 'yaw';
+const OUTLET_SOURCE = `import { Component, RxElement } from '@yaw-rx/core';
 
 @Component({
     selector: 'app-root',
@@ -79,8 +79,8 @@ const OUTLET_SOURCE = `import { Component, RxElement } from 'yaw';
 })
 export class AppRoot extends RxElement {}`;
 
-const NAVIGATE_SOURCE = `import { Component, Inject, RxElement, state } from 'yaw';
-import { Router } from 'yaw/router';
+const NAVIGATE_SOURCE = `import { Component, Inject, RxElement, state } from '@yaw-rx/core';
+import { Router } from '@yaw-rx/core/router';
 
 @Component({ selector: 'route-display', ... })
 export class RouteDisplay extends RxElement {

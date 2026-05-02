@@ -5,6 +5,9 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
 
     const create = (info: ts.server.PluginCreateInfo): ts.LanguageService => {
         const log = (msg: string) => info.project.projectService.logger.info(`[yaw-ts-plugin] ${msg}`);
+        const fs = require('fs') as typeof import('fs');
+        const D = (msg: string) => fs.appendFileSync('/tmp/yaw-ts-plugin.log', `[${new Date().toISOString()}] ${msg}\n`);
+        D(`=== plugin loaded === project: ${info.project.getProjectName()}`);
         log('loaded');
 
         const proxy = Object.create(null) as ts.LanguageService;
@@ -121,10 +124,10 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
 
         const getCheckerTypes = (fileName: string): Map<string, string> | undefined => {
             const program = info.languageService.getProgram();
-            if (!program) return undefined;
+            if (!program) { D(`getCheckerTypes(${fileName}): no program`); return undefined; }
             const checker = program.getTypeChecker();
             const programSf = program.getSourceFile(fileName);
-            if (!programSf) return undefined;
+            if (!programSf) { D(`getCheckerTypes(${fileName}): no source file in program`); return undefined; }
 
             const result = new Map<string, string>();
 
@@ -147,6 +150,7 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
                 }
             });
 
+            D(`getCheckerTypes(${fileName}): ${result.size} entries`);
             return result.size > 0 ? result : undefined;
         };
 
@@ -157,19 +161,38 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
         };
 
         const analyseAndPatch = (sourceText: string, fileName: string): PatchResult | undefined => {
+            D(`analyseAndPatch: ${fileName}`);
             const sf = tsModule.createSourceFile(fileName, sourceText, tsModule.ScriptTarget.Latest, true);
             const injections: Injection[] = [];
 
-            const needsImport = !sourceText.includes('BehaviorSubject');
+            let hasBehaviorSubjectImport = false;
+            tsModule.forEachChild(sf, (node) => {
+                if (!tsModule.isImportDeclaration(node)) return;
+                const spec = node.moduleSpecifier;
+                if (!tsModule.isStringLiteral(spec) || spec.text !== 'rxjs') return;
+                const clause = node.importClause;
+                if (!clause?.namedBindings || !tsModule.isNamedImports(clause.namedBindings)) return;
+                for (const el of clause.namedBindings.elements) {
+                    if (el.name.text === 'BehaviorSubject') { hasBehaviorSubjectImport = true; return; }
+                }
+            });
+            const needsImport = !hasBehaviorSubjectImport;
+            D(`  needsImport=${needsImport} (AST check)`);
             if (needsImport) {
                 injections.push({ originalPos: 0, text: "import type { BehaviorSubject } from 'rxjs';\n" });
             }
 
             const checkerTypes = checkerTypeCache.get(fileName);
+            D(`  checkerTypes=${checkerTypes ? `${checkerTypes.size} entries: ${JSON.stringify([...checkerTypes.entries()])}` : 'none'}`);
 
+            let classCount = 0;
+            let totalFields = 0;
             tsModule.forEachChild(sf, (node) => {
                 if (!tsModule.isClassDeclaration(node)) return;
-                if (!hasDecoratorNamed(node, 'Component')) return;
+                const isComponent = hasDecoratorNamed(node, 'Component');
+                D(`  class ${node.name?.text ?? '<anon>'} @Component=${isComponent}`);
+                if (!isComponent) return;
+                classCount++;
                 const className = node.name?.text;
                 if (className === undefined) return;
 
@@ -177,30 +200,38 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
                 for (const member of node.members) {
                     if (!tsModule.isPropertyDeclaration(member)) continue;
                     if (!tsModule.isIdentifier(member.name)) continue;
-                    if (!hasDecoratorNamed(member, 'state')) continue;
+                    const isState = hasDecoratorNamed(member, 'state');
+                    if (!isState) continue;
+                    totalFields++;
 
                     const hasAccessor = member.modifiers?.some(
                         (m) => m.kind === tsModule.SyntaxKind.AccessorKeyword,
                     ) ?? false;
+                    D(`    @state ${member.name.text} hasAccessor=${hasAccessor}`);
                     if (!hasAccessor) {
                         injections.push({ originalPos: member.name.getStart(sf), text: 'accessor ' });
                     }
 
                     const fieldName = member.name.text;
                     let typeText: string | undefined;
+                    let typeSource = 'fallback(any)';
 
                     if (member.type !== undefined) {
                         typeText = sourceText.slice(member.type.pos, member.type.end).trim();
+                        typeSource = 'annotation';
                     }
 
                     if (typeText === undefined) {
                         typeText = checkerTypes?.get(`${className}.${fieldName}`);
+                        if (typeText !== undefined) typeSource = 'checker';
                     }
 
                     if (typeText === undefined && member.initializer !== undefined) {
                         typeText = inferFromNode(member.initializer, sourceText);
+                        if (typeText !== undefined) typeSource = 'inferred';
                     }
 
+                    D(`    → type=${typeText ?? 'any'} source=${typeSource}`);
                     fields.push({ name: fieldName, typeText: typeText ?? 'any' });
                 }
 
@@ -208,11 +239,16 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
                     const declarations = fields.map((f) =>
                         `    declare ${f.name}$: BehaviorSubject<${f.typeText}>;`
                     ).join('\n');
+                    D(`    injecting ${fields.length} declarations at pos ${node.members.end}`);
                     injections.push({ originalPos: node.members.end, text: '\n' + declarations + '\n' });
                 }
             });
 
-            if (injections.length === 0 || (injections.length === 1 && needsImport)) return undefined;
+            D(`  summary: classes=${classCount} fields=${totalFields} injections=${injections.length}`);
+            if (injections.length === 0 || (injections.length === 1 && needsImport)) {
+                D(`  → no patches needed, returning undefined`);
+                return undefined;
+            }
 
             injections.sort((a, b) => a.originalPos - b.originalPos);
 
@@ -224,6 +260,7 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
             }
             patched += sourceText.slice(cursor);
 
+            D(`  → patched, ${patched.length} chars`);
             return { patched, injections };
         };
 
@@ -268,13 +305,15 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
 
         originalHost.getScriptSnapshot = (fileName: string): ts.IScriptSnapshot | undefined => {
             const original = originalGetScriptSnapshot(fileName);
-            if (original === undefined) return undefined;
+            if (original === undefined) { D(`getScriptSnapshot(${fileName}): original undefined`); return undefined; }
             if (!fileName.endsWith('.ts') || fileName.endsWith('.d.ts')) return original;
 
+            D(`getScriptSnapshot: ${fileName}`);
             const fresh = getCheckerTypes(fileName);
             if (fresh !== undefined) {
                 const prev = checkerTypeCache.get(fileName);
                 if (prev === undefined || !mapsEqual(prev, fresh)) {
+                    D(`  checker types changed, invalidating cache`);
                     checkerTypeCache.set(fileName, fresh);
                     patchedFiles.delete(fileName);
                 }
@@ -282,15 +321,20 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
 
             const version = originalHost.getScriptVersion(fileName);
             const cached = patchedFiles.get(fileName);
-            if (cached !== undefined && cached.version === version) return cached.snapshot;
+            if (cached !== undefined && cached.version === version) {
+                D(`  returning cached patch (version=${version})`);
+                return cached.snapshot;
+            }
 
             const sourceText = original.getText(0, original.getLength());
             const result = analyseAndPatch(sourceText, fileName);
             if (result === undefined) {
+                D(`  no patch needed`);
                 patchedFiles.delete(fileName);
                 return original;
             }
 
+            D(`  storing patched snapshot (version=${version})`);
             const snapshot = tsModule.ScriptSnapshot.fromString(result.patched);
             patchedFiles.set(fileName, { version, snapshot, injections: result.injections });
             return snapshot;
@@ -306,6 +350,7 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
             if (fresh === undefined) return;
             const prev = checkerTypeCache.get(fileName);
             if (prev !== undefined && mapsEqual(prev, fresh)) return;
+            D(`refreshCheckerTypes(${fileName}): types changed, re-patching`);
             checkerTypeCache.set(fileName, fresh);
 
             const original = originalGetScriptSnapshot(fileName);
@@ -334,6 +379,7 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
             refreshCheckerTypes(fileName);
 
             const diagnostics = info.languageService.getSemanticDiagnostics(fileName);
+            D(`getSemanticDiagnostics(${fileName}): ${diagnostics.length} diagnostics`);
             const injections = getInjections(fileName);
             if (injections === undefined) return diagnostics;
 
@@ -410,32 +456,60 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
             });
         };
 
+        const patchedSpanLength = (origStart: number, origLength: number, injs: Injection[]): number => {
+            let extra = 0;
+            const end = origStart + origLength;
+            for (const inj of injs) {
+                if (inj.originalPos >= origStart && inj.originalPos < end) extra += inj.text.length;
+            }
+            return origLength + extra;
+        };
+
+        const isInsideInjection = (patchedPos: number, injs: Injection[]): boolean => {
+            let offset = 0;
+            for (const inj of injs) {
+                const injPatchedPos = inj.originalPos + offset;
+                if (patchedPos >= injPatchedPos && patchedPos < injPatchedPos + inj.text.length) return true;
+                if (injPatchedPos > patchedPos) break;
+                offset += inj.text.length;
+            }
+            return false;
+        };
+
+        const remapClassificationSpans = (rawSpans: number[], injs: Injection[]): number[] => {
+            const out: number[] = [];
+            for (let i = 0; i < rawSpans.length; i += 3) {
+                const pos = rawSpans[i]!;
+                if (isInsideInjection(pos, injs)) continue;
+                out.push(patchedToOriginal(pos, injs), rawSpans[i + 1]!, rawSpans[i + 2]!);
+            }
+            return out;
+        };
+
         proxy.getEncodedSemanticClassifications = (fileName, span, format) => {
             const injections = getInjections(fileName);
             const mappedSpan = injections !== undefined
-                ? { start: originalToPatched(span.start, injections), length: span.length }
+                ? { start: originalToPatched(span.start, injections), length: patchedSpanLength(span.start, span.length, injections) }
                 : span;
             const result = info.languageService.getEncodedSemanticClassifications(fileName, mappedSpan, format);
             if (injections === undefined) return result;
-            const spans = result.spans.slice();
-            for (let i = 0; i < spans.length; i += 3) {
-                spans[i] = patchedToOriginal(spans[i]!, injections);
+            if (fileName.includes('navigation')) {
+                D(`semClass ${fileName} origSpan={${span.start},${span.length}} mappedSpan={${mappedSpan.start},${mappedSpan.length}} injections=${JSON.stringify(injections.map(i => ({pos:i.originalPos,len:i.text.length})))}`);
+                for (let i = 0; i < Math.min(result.spans.length, 30); i += 3) {
+                    D(`  raw[${i/3}] pos=${result.spans[i]} len=${result.spans[i+1]} cls=${result.spans[i+2]} → orig=${patchedToOriginal(result.spans[i]!, injections)} inside=${isInsideInjection(result.spans[i]!, injections)}`);
+                }
             }
-            return { spans, endOfLineState: result.endOfLineState };
+            return { spans: remapClassificationSpans(result.spans.slice(), injections), endOfLineState: result.endOfLineState };
         };
 
         proxy.getEncodedSyntacticClassifications = (fileName, span) => {
             const injections = getInjections(fileName);
             const mappedSpan = injections !== undefined
-                ? { start: originalToPatched(span.start, injections), length: span.length }
+                ? { start: originalToPatched(span.start, injections), length: patchedSpanLength(span.start, span.length, injections) }
                 : span;
             const result = info.languageService.getEncodedSyntacticClassifications(fileName, mappedSpan);
             if (injections === undefined) return result;
-            const spans = result.spans.slice();
-            for (let i = 0; i < spans.length; i += 3) {
-                spans[i] = patchedToOriginal(spans[i]!, injections);
-            }
-            return { spans, endOfLineState: result.endOfLineState };
+            return { spans: remapClassificationSpans(result.spans.slice(), injections), endOfLineState: result.endOfLineState };
         };
 
         const lsRecord = info.languageService as unknown as Record<string, Function>;

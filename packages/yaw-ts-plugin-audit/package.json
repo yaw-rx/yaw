@@ -1,5 +1,5 @@
 {
-  "name": "yaw-ts-plugin-audit",
+  "name": "@yaw-rx/ts-plugin-audit",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "rxjs": "8.0.0-alpha.14",
-    "yaw": "*"
+    "@yaw-rx/core": "*"
   },
   "devDependencies": {
-    "yaw-ts-plugin": "*"
+    "@yaw-rx/ts-plugin": "*"
   }
 }

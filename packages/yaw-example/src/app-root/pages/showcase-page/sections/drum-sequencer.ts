@@ -1,4 +1,4 @@
-import { Component, RxElement } from 'yaw';
+import { Component, RxElement } from '@yaw-rx/core';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 import './drum-sequencer/drum-machine.js';
 

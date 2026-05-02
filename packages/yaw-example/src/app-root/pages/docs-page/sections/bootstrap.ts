@@ -1,4 +1,4 @@
-import { Component, RxElement } from 'yaw';
+import { Component, RxElement } from '@yaw-rx/core';
 import { TocSection } from '../directives/toc-section.js';
 import { TocAnchor } from '../directives/toc-anchor.js';
 import { escape } from '../../../components/code-block/code-highlight.js';
@@ -13,10 +13,10 @@ const HTML_SOURCE = `<!doctype html>
     </body>
 </html>`;
 
-const MAIN_SOURCE = `import { bootstrap } from 'yaw';
-import { Router, ROUTES } from 'yaw/router';
-import { RxIf } from 'yaw/directives/rx-if';
-import { RxFor } from 'yaw/directives/rx-for';
+const MAIN_SOURCE = `import { bootstrap } from '@yaw-rx/core';
+import { Router, ROUTES } from '@yaw-rx/core/router';
+import { RxIf } from '@yaw-rx/core/directives/rx-if';
+import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import Decimal from 'decimal.js';
 import { AppRoot } from './components/app-root.js';
 import globalStyles from './main.css';
@@ -48,7 +48,7 @@ await bootstrap({
     },
 });`;
 
-const APP_ROOT_SOURCE = `import { Component, RxElement } from 'yaw';
+const APP_ROOT_SOURCE = `import { Component, RxElement } from '@yaw-rx/core';
 
 @Component({
     selector: 'app-root',

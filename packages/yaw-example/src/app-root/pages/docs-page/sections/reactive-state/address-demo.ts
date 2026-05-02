@@ -1,5 +1,5 @@
 import { getAddress, type Address } from 'viem';
-import { type AttributeCodec, Component, RxElement, state } from 'yaw';
+import { type AttributeCodec, Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
     selector: 'address-demo',

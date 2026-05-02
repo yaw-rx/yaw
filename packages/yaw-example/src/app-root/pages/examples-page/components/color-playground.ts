@@ -1,5 +1,5 @@
 import { combineLatest, map, type Observable } from 'rxjs';
-import { Component, RxElement, state } from 'yaw';
+import { Component, RxElement, state } from '@yaw-rx/core';
 
 export const COLOR_PLAYGROUND_TEMPLATE = `
     <label>H <em>{{hue}}°</em></label>

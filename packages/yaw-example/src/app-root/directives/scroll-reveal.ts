@@ -1,5 +1,5 @@
-import { Directive } from 'yaw';
-import type { ParsedExpr, RxElementLike } from 'yaw';
+import { Directive } from '@yaw-rx/core';
+import type { ParsedExpr, RxElementLike } from '@yaw-rx/core';
 
 @Directive({ selector: '[scroll-reveal]' })
 export class ScrollReveal {

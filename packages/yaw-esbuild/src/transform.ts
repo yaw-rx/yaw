@@ -1,4 +1,4 @@
-import { createTransformedProgram, type TransformedProgram } from 'yaw-transformer';
+import { createTransformedProgram, type TransformedProgram } from '@yaw-rx/transformer';
 
 interface EsbuildOnLoadArgs { path: string }
 interface EsbuildOnLoadResult { contents: string; loader: string }

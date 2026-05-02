@@ -1,6 +1,6 @@
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { Directive, Injectable } from 'yaw';
-import type { RxElementLike } from 'yaw';
+import { Directive, Injectable } from '@yaw-rx/core';
+import type { RxElementLike } from '@yaw-rx/core';
 import { SidebarService } from '../services/sidebar-service.js';
 
 const MQ = '(max-width: 768px)';

@@ -8,7 +8,7 @@ const KEYWORDS = new Set([
     'undefined', 'null', 'true', 'false', 'typeof', 'instanceof', 'in', 'of',
 ]);
 
-import { escape, escapeHtml } from 'yaw-common';
+import { escape, escapeHtml } from '@yaw-rx/common';
 export { escape, escapeHtml };
 
 export const dedent = (s: string): string => {
