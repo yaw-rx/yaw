@@ -525,7 +525,7 @@ AttributeMarshalError
                    returns the underlying
                    <code class="inline">StateSubject&lt;T&gt;</code>. Subscribe to
                    it, pipe it, pass it to a template binding. The template compiler
-                   resolves method-call expressions to observables — so
+                   resolves binding paths to observables — so
                    <code class="inline">${escape`{{doubled}}`}</code> subscribes automatically.</p>
                 <code-block syntax="ts">${escape`${STATE_DOLLAR_SOURCE}`}</code-block>
             </section>
@@ -719,22 +719,22 @@ get latency(): Observable<{ p99: number }> { ... }
 
         <section class="host" toc-section="components/attributes">
             <h2 toc-anchor="components/attributes">Attributes</h2>
-            <p class="note">Data flows into a child component via HTML attributes.
+            <p class="note">Data flows into an element via HTML attributes.
                A static literal like <code class="inline">lat="52.52"</code> is
                read on connect — a codec decodes the string into the
                typed value of the matching <code class="inline">@state</code> field.
                A reactive binding like <code class="inline">[lat]="lat"</code>
-               subscribes to the parent host's <code class="inline">lat</code>
-               observable and pushes each emission into the child.</p>
+               subscribes to the host's <code class="inline">lat</code>
+               observable and pushes each emission into the element.</p>
             <table class="binding-table">
                 <thead>
                     <tr><th>Form</th><th>Syntax</th><th>Description</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td>static</td><td><code>attr="value"</code></td><td>Read once on connect, decoded via the field's codec into its typed value</td></tr>
-                    <tr><td>reactive</td><td><code>[attr]="expr"</code></td><td>Subscribes to the host's observable and pushes each emission into the child's <code>@state</code> field</td></tr>
-                    <tr><td>reactive (parent)</td><td><code>[attr]="^expr"</code></td><td>Same, but reads from the parent host</td></tr>
-                    <tr><td>reactive (grandparent)</td><td><code>[attr]="^^expr"</code></td><td>Same, but reads from the grandparent host</td></tr>
+                    <tr><td>static</td><td><code>attr="value"</code></td><td>Read once when the element connects, decoded via the element's <code>@state</code> field codec into its typed value</td></tr>
+                    <tr><td>reactive</td><td><code>[attr]="path"</code></td><td>Subscribes to the host's observable and pushes each emission into the respective <code>@state</code> field on the element</td></tr>
+                    <tr><td>reactive (parent)</td><td><code>[attr]="^path"</code></td><td>Same, but reads from the parent host</td></tr>
+                    <tr><td>reactive (grandparent)</td><td><code>[attr]="^^path"</code></td><td>Same, but reads from the grandparent host</td></tr>
                 </tbody>
             </table>
             <code-block syntax="html">${escape`${ATTRIBUTE_SNIPPET}`}</code-block>
@@ -747,7 +747,7 @@ get latency(): Observable<{ p99: number }> { ... }
                and stay in sync, and imperative bindings that fire
                once.</p>
             <h3>Reactive</h3>
-            <p class="note">Expressions resolve against the component
+            <p class="note">Paths resolve against the component
                whose template you are writing in — an
                <code class="inline">@state</code> field, an observable
                getter, or a plain property like
@@ -758,7 +758,7 @@ get latency(): Observable<{ p99: number }> { ... }
                <code class="inline">^^</code> the grandparent
                (see the
                <a href="/examples/nesting-example">Nesting example</a>).
-               Mustaches (<code class="inline">${escape`{{expr}}`}</code>)
+               Mustaches (<code class="inline">${escape`{{path}}`}</code>)
                write text content; bracket bindings target a specific
                property, attribute, class, or style on the element.</p>
             <p class="note">The tap binding writes in the opposite
@@ -779,12 +779,12 @@ get latency(): Observable<{ p99: number }> { ... }
                     <tr><th>Binding</th><th>Syntax</th><th>Description</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td>text (mustache)</td><td><code>${escape`{{expr}}`}</code></td><td>Subscribes to an observable and updates the element's <code>textContent</code> whenever it emits</td></tr>
-                    <tr><td>property</td><td><code>[prop]="expr"</code></td><td>Subscribes and sets a JavaScript property on the element</td></tr>
-                    <tr><td>attribute</td><td><code>[attr]="expr"</code></td><td>Subscribes and calls <code>setAttribute</code> on the element whenever it emits</td></tr>
-                    <tr><td>class</td><td><code>[class.name]="expr"</code></td><td>Subscribes and toggles a CSS class on the element's <code>classList</code> based on truthiness</td></tr>
-                    <tr><td>style</td><td><code>[style.prop]="expr"</code></td><td>Subscribes and sets an inline style property on the element via <code>element.style</code></td></tr>
-                    <tr><td>tap</td><td><code>[(prop)]="expr"</code></td><td>Subscribes to the element's own <code>@state</code> field and writes each new value to a property on the host (<code>hostProp</code>) or an ancestor host (<code>^parentHostProp</code>)</td></tr>
+                    <tr><td>text (mustache)</td><td><code>${escape`{{path}}`}</code></td><td>Subscribes to an observable and updates the element's <code>textContent</code> whenever it emits</td></tr>
+                    <tr><td>property</td><td><code>[prop]="path"</code></td><td>Subscribes and sets a JavaScript property on the element</td></tr>
+                    <tr><td>attribute</td><td><code>[attr]="path"</code></td><td>Subscribes and calls <code>setAttribute</code> on the element whenever it emits</td></tr>
+                    <tr><td>class</td><td><code>[class.name]="path"</code></td><td>Subscribes and toggles a CSS class on the element's <code>classList</code> based on truthiness</td></tr>
+                    <tr><td>style</td><td><code>[style.prop]="path"</code></td><td>Subscribes and sets an inline style property on the element via <code>element.style</code></td></tr>
+                    <tr><td>tap</td><td><code>[(prop)]="path"</code></td><td>Subscribes to the element's own <code>@state</code> field and writes each new value to a property on the host (<code>hostProp</code>) or an ancestor host (<code>^parentHostProp</code>)</td></tr>
                 </tbody>
             </table>
             <code-block syntax="html">${escape`${REACTIVE_SNIPPET}`}</code-block>
@@ -982,7 +982,7 @@ export class TickCounter extends RxElement {
 
         <section class="host" toc-section="components/escape">
             <h2 toc-anchor="components/escape">Escaping mustaches and HTML</h2>
-            <p class="note">A template compiles its mustache expressions into
+            <p class="note">A template compiles its mustache paths into
                observable bindings, and rewrites built-in HTML tags into their
                reactive mirrors. To show those characters as literal text --
                documenting the binding syntax, naming a tag without rendering
