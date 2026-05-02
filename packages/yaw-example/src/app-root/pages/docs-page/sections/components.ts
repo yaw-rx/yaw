@@ -491,7 +491,7 @@ AttributeMarshalError
                (TC39) <code class="inline">ClassAccessorDecorator</code> — turns a class field into a reactive primitive.
                Under the hood it replaces the field with an
                <code class="inline">accessor</code> backed by a
-               <code class="inline">StateSubject</code> (a <code class="inline">BehaviourSubject</code>),
+               <code class="inline">StateSubject</code> (a <code class="inline">BehaviorSubject</code>),
                exposed as <code class="inline">fieldName$</code> on the class. Reading the field
                returns the subject's current value. When you write to it
                using a plain property set it does a whole entity replacement
@@ -607,7 +607,7 @@ AttributeMarshalError
             <section class="host" toc-section="components/paths/static">
                 <h3 toc-anchor="components/paths/static">Static values</h3>
                 <p class="note">The simplest form. A plain HTML attribute with a
-                   string value. Read once when the child connects — a codec
+                   string value. Read once when the element connects — a codec
                    decodes the string into the typed value of the matching
                    <code class="inline">@state</code> field.</p>
                 <code-block syntax="html">${escape`<!-- lat and lon are @state fields on weather-card -->
@@ -795,7 +795,7 @@ get latency(): Observable<{ p99: number }> { ... }
                     <tr><th>Binding</th><th>Syntax</th><th>Description</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td>event</td><td><code>onclick="method"</code></td><td>Listens for a DOM event and calls a method on the component or an ancestor</td></tr>
+                    <tr><td>event</td><td><code>onclick="method"</code></td><td>Listens for a DOM event and calls a method on the host or an ancestor host</td></tr>
                     <tr><td>ref</td><td><code>#name</code></td><td>Captures the DOM element as a property so you can use it in <code>onInit</code> or methods</td></tr>
                 </tbody>
             </table>
@@ -855,7 +855,7 @@ export class TickCounter extends RxElement {
             <p class="note">HTML attributes are strings. The attribute codec
                registry turns them into typed values on connect. A parent
                component passes <code class="inline">count="42"</code> as a
-               string attribute; the child's
+               string attribute; the element's
                <code class="inline">@state count = 0</code> field receives
                <code class="inline">42</code> as a number. Dates, URLs,
                maps — same story.</p>
@@ -983,8 +983,7 @@ export class TickCounter extends RxElement {
         <section class="host" toc-section="components/escape">
             <h2 toc-anchor="components/escape">Escaping mustaches and HTML</h2>
             <p class="note">A template compiles its mustache paths into
-               observable bindings, and rewrites built-in HTML tags into their
-               reactive mirrors. To show those characters as literal text --
+               observable bindings. To show those characters as literal text --
                documenting the binding syntax, naming a tag without rendering
                it, or dumping source verbatim into a
                <code class="inline">code-block</code> -- wrap the content with
