@@ -595,6 +595,128 @@ AttributeMarshalError
             </div>
         </section>
 
+        <section class="host" toc-section="components/paths">
+            <h2 toc-anchor="components/paths">Binding paths</h2>
+            <p class="note">Every binding — attributes, template interpolations,
+               event handlers — takes a <strong>path</strong> that points at a
+               member on a component instance. There are no operators, no
+               ternaries, no pipes. Logic lives in getters and observables on
+               the class (where it always belonged), never in the template.
+               The goal of a path is to resolve a value.</p>
+
+            <section class="host" toc-section="components/paths/static">
+                <h3 toc-anchor="components/paths/static">Static values</h3>
+                <p class="note">The simplest form. A plain HTML attribute with a
+                   string value. Read once when the child connects — a codec
+                   decodes the string into the typed value of the matching
+                   <code class="inline">@state</code> field.</p>
+                <code-block syntax="html">${escape`<!-- lat and lon are @state fields on weather-card -->
+<!-- the string "52.52" is decoded to the number 52.52 on connect -->
+<weather-card lat="52.52" lon="13.41"></weather-card>`}</code-block>
+            </section>
+
+            <section class="host" toc-section="components/paths/fields">
+                <h3 toc-anchor="components/paths/fields">Fields</h3>
+                <p class="note">A single identifier that names a member on the
+                   host component. The system checks three things in order:
+                   is the member itself an Observable — subscribe. Does a
+                   <code class="inline">$</code> sibling exist (e.g.
+                   <code class="inline">count$</code> from
+                   <code class="inline">@state</code>) — subscribe to that.
+                   Neither — read the plain value once.</p>
+                <code-block syntax="html">${escape`<!-- count is @state — system finds count$ (StateSubject), subscribes -->
+<span>{{count}}</span>
+
+<!-- doubled is a getter returning Observable<number> — subscribes -->
+<span>{{doubled}}</span>
+
+<!-- label is a plain string property — read once -->
+<span>{{label}}</span>`}</code-block>
+            </section>
+
+            <section class="host" toc-section="components/paths/dotted">
+                <h3 toc-anchor="components/paths/dotted">Dotted paths</h3>
+                <p class="note">Dot-separated segments walk into an object.
+                   Each segment is resolved independently — if a segment is
+                   observable, the binding subscribes to it and reads the
+                   next segment off each emission. If a segment is plain, it
+                   is read once and the chain continues. Any mix of observable
+                   and plain segments works. When an observable segment emits
+                   a new value, everything downstream re-evaluates.</p>
+                <code-block syntax="ts">${escape`// given these members on the host:
+@state config: { theme: string };
+@state user: { profile: { name: string; avatar: string } };
+@state dashboard: { stats: Observable<{ total: number }> };
+@state app: { session: Observable<{ prefs: { lang: string } }> };
+get latency(): Observable<{ p99: number }> { ... }
+`}</code-block>
+                <code-block syntax="html">${escape`<!-- config is an @state field, as it's an observable subscribes to
+     config$, reads .theme off each emission -->
+<span>{{config.theme}}</span>
+
+<!-- user is an @state field, as it's an observable subscribes to
+     user$, reads .profile, as profile is a plain object reads
+     .name off that -->
+<span>{{user.profile.name}}</span>
+
+<!-- dashboard is an @state field, as it's an observable subscribes
+     to dashboard$, reads .stats, as stats is itself an observable
+     subscribes again, reads .total off each emission -->
+<span>{{dashboard.stats.total}}</span>
+
+<!-- app is an @state field, as it's an observable subscribes to
+     app$, reads .session, as session is itself an observable
+     subscribes again, reads .prefs, as prefs is a plain object
+     reads .lang off that -->
+<span>{{app.session.prefs.lang}}</span>
+
+<!-- latency is a getter, as it returns an observable subscribes
+     to it, reads .p99 off each emission -->
+<span>{{latency.p99}}</span>`}</code-block>
+            </section>
+
+            <section class="host" toc-section="components/paths/carets">
+                <h3 toc-anchor="components/paths/carets">Carets — scope hopping</h3>
+                <p class="note">By default a path resolves against the component
+                   whose template it appears in. Prefix with
+                   <code class="inline">^</code> to resolve against the parent
+                   host instead, <code class="inline">^^</code> for the
+                   grandparent, and so on. Each caret hops one host boundary
+                   in the DOM tree. The rest of the path — fields, dotted
+                   segments, observable resolution — works identically.</p>
+                <code-block syntax="html">${escape`<!-- read count from the parent host -->
+<span>{{^count}}</span>
+
+<!-- read count from the grandparent host -->
+<span>{{^^count}}</span>
+
+<!-- dotted path on the parent host -->
+<span>{{^weather.temp}}</span>`}</code-block>
+            </section>
+
+            <section class="host" toc-section="components/paths/methods">
+                <h3 toc-anchor="components/paths/methods">Methods</h3>
+                <p class="note">Event bindings resolve the path to a method
+                   and call it. Without parentheses the method receives the
+                   DOM event as its sole argument. With parentheses you pass
+                   literal values — strings, numbers, booleans, null — or
+                   <code class="inline">$event</code> to forward the event
+                   explicitly. Arguments must be static — no reactive
+                   values, no paths. Carets work here too.</p>
+                <code-block syntax="html">${escape`<!-- called with the DOM event -->
+<button onclick="submit">send</button>
+
+<!-- called with a literal argument -->
+<button onclick="increment(5)">+5</button>
+
+<!-- explicit $event forwarding -->
+<div onpointerdown="grab($event)"></div>
+
+<!-- method on the parent host -->
+<button onclick="^submit">send</button>`}</code-block>
+            </section>
+        </section>
+
         <section class="host" toc-section="components/attributes">
             <h2 toc-anchor="components/attributes">Attributes</h2>
             <p class="note">Data flows into a child component via HTML attributes.
