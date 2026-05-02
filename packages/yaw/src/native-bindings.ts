@@ -36,6 +36,7 @@ const processAdded = (el: Element): void => {
     if (!el.isConnected) return;
     if (el instanceof RxElementBase) {
         el._initBindings();
+        queueMicrotask(() => el.onRender());
         return;
     }
     initNative(el);

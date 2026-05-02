@@ -832,7 +832,12 @@ get latency(): Observable<{ p99: number }> { ... }
             <p class="note"><code class="inline">onInit</code> fires after
                the element is fully wired — dependencies are injected,
                attributes are hydrated, bindings are live, and the template
-               is in the DOM. <code class="inline">onDestroy</code> fires on
+               is in the DOM. <code class="inline">onRender</code> fires
+               one microtask later, after the template's children have
+               had their own bindings established — so
+               <code class="inline">#ref</code> elements are available.
+               Use it when you need to work with child elements captured
+               via refs. <code class="inline">onDestroy</code> fires on
                removal after the framework has torn down its own bindings
                and directives — you only clean up what you own.</p>
             <code-block syntax="ts">${escape`import { Component, RxElement, state } from '@yaw-rx/core';
@@ -840,14 +845,20 @@ import { interval, type Subscription } from 'rxjs';
 
 @Component({
     selector: 'tick-counter',
-    template: \`<span>{{elapsed}}s</span>\`,
+    template: \`<span>{{elapsed}}s</span><canvas #graph></canvas>\`,
 })
 export class TickCounter extends RxElement {
     @state elapsed = 0;
+    graph!: HTMLCanvasElement;
     private sub!: Subscription;
 
     override onInit(): void {
         this.sub = interval(1000).subscribe(() => this.elapsed++);
+    }
+
+    override onRender(): void {
+        // refs are available here — graph is the <canvas> element
+        const ctx = this.graph.getContext('2d');
     }
 
     override onDestroy(): void {

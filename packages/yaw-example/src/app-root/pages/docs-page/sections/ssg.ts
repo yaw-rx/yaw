@@ -5,20 +5,21 @@ import { escape } from '../../../components/code-block/code-highlight.js';
 import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 import '../../examples-page/components/signal-meter.js';
+import type { SignalMeter } from '../../examples-page/components/signal-meter.js';
 
 @Component({
     selector: 'lighthouse-meters',
     template: `
         <div class="col">
-            <signal-meter hueStart="0" hueEnd="120" lightness="22" glow="1"></signal-meter>
+            <signal-meter #perf hueStart="0" hueEnd="120" lightness="22" glow="1"></signal-meter>
             <span class="label">Performance</span>
         </div>
         <div class="col">
-            <signal-meter hueStart="0" hueEnd="120" lightness="22" glow="1"></signal-meter>
+            <signal-meter #a11y hueStart="0" hueEnd="120" lightness="22" glow="1"></signal-meter>
             <span class="label">Accessibility</span>
         </div>
         <div class="col">
-            <signal-meter hueStart="0" hueEnd="120" lightness="22" glow="1"></signal-meter>
+            <signal-meter #bp hueStart="0" hueEnd="120" lightness="22" glow="1"></signal-meter>
             <span class="label">Best Practices</span>
         </div>
     `,
@@ -35,14 +36,18 @@ import '../../examples-page/components/signal-meter.js';
     `,
 })
 export class LighthouseMeters extends RxElement {
+    perf!: SignalMeter;
+    a11y!: SignalMeter;
+    bp!: SignalMeter;
+
     private observer: IntersectionObserver | undefined;
     private rafs = new Map<Element, number>();
 
-    override onInit(): void {
+    override onRender(): void {
+        const meters = [this.perf, this.a11y, this.bp];
         this.observer = new IntersectionObserver((entries) => {
             for (const entry of entries) {
-                const meter = entry.target.querySelector('signal-meter') as RxElement & { strength: number } | null;
-                if (!meter) continue;
+                const meter = entry.target as SignalMeter;
                 if (entry.isIntersecting) {
                     this.animateMeter(meter);
                 } else {
@@ -52,8 +57,8 @@ export class LighthouseMeters extends RxElement {
                 }
             }
         }, { threshold: 0.3 });
-        for (const col of Array.from(this.querySelectorAll('.col'))) {
-            this.observer.observe(col);
+        for (const meter of meters) {
+            this.observer.observe(meter);
         }
     }
 
@@ -62,7 +67,7 @@ export class LighthouseMeters extends RxElement {
         for (const raf of this.rafs.values()) cancelAnimationFrame(raf);
     }
 
-    private animateMeter(meter: RxElement & { strength: number }): void {
+    private animateMeter(meter: SignalMeter): void {
         const duration = 1200;
         const start = performance.now();
         const tick = (now: number): void => {

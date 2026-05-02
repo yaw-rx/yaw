@@ -70,6 +70,7 @@ export class RxElementBase extends HTMLElement {
     }
 
     onInit(): void {}
+    onRender(): void {}
     onDestroy(): void {}
 }
 
