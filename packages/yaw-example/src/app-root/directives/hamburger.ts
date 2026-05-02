@@ -1,4 +1,4 @@
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, type Subscription } from 'rxjs';
 import { Directive, Injectable } from '@yaw-rx/core';
 import type { RxElementLike } from '@yaw-rx/core';
 import { SidebarService } from '../services/sidebar-service.js';
@@ -11,6 +11,7 @@ export class Hamburger {
     node!: RxElementLike;
     private readonly sidebar: SidebarService;
     private active = false;
+    private subs: Subscription[] = [];
 
     constructor(sidebar: SidebarService) {
         this.sidebar = sidebar;
@@ -28,16 +29,31 @@ export class Hamburger {
             this.sidebar.toggle();
         });
 
-        combineLatest([this.sidebar.available$, narrow$]).subscribe(
-            ([available, narrow]) => {
-                this.active = !!(available && narrow);
-                this.node.classList.toggle('has-menu', this.active);
-            }
+        this.subs.push(
+            combineLatest([this.sidebar.available$, narrow$]).subscribe(
+                ([available, narrow]) => {
+                    this.active = !!(available && narrow);
+                    const hadFunnel = this.node.classList.contains('has-funnel');
+                    this.node.classList.toggle('has-funnel', !!available);
+                    this.node.classList.toggle('has-menu', this.active);
+                    if (available && !hadFunnel) {
+                        requestAnimationFrame(() => {
+                            this.node.classList.add('funnel-visible');
+                        });
+                    } else if (!available) {
+                        this.node.classList.remove('funnel-visible');
+                    }
+                }
+            ),
+            this.sidebar.open$.subscribe((open: boolean) => {
+                this.node.classList.toggle('menu-open', open);
+            }),
         );
     }
 
     onDestroy(): void {
-        this.node.classList.remove('has-menu');
+        for (const sub of this.subs) sub.unsubscribe();
+        this.node.classList.remove('has-funnel', 'funnel-visible', 'has-menu', 'menu-open');
         this.sidebar.close();
     }
 }

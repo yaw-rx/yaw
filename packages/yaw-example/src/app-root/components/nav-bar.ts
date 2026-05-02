@@ -28,12 +28,20 @@ import { Hamburger } from '../directives/hamburger.js';
                 text-decoration: none; letter-spacing: -1px;
                 margin-right: 2rem; position: relative; cursor: default; }
         .logo.has-menu { cursor: pointer; }
-        .logo.has-menu::after { content: ''; position: absolute;
+        .logo.has-funnel::after { content: ''; position: absolute;
                    bottom: -7px; left: 0; width: 100%; height: 8px;
                    background:
-                       linear-gradient(#8af, #8af) center 0    / 70% 1.5px no-repeat,
-                       linear-gradient(#8af, #8af) center 50%  / 50% 1.5px no-repeat,
-                       linear-gradient(#8af, #8af) center 100% / 30% 1.5px no-repeat; }
+                       linear-gradient(#ccc, #ccc) center 0    / 70% 1px no-repeat,
+                       linear-gradient(#ccc, #ccc) center 50%  / 50% 1px no-repeat,
+                       linear-gradient(#ccc, #ccc) center 100% / 30% 1px no-repeat;
+                   opacity: 0; transition: opacity 0.8s ease, background 0.3s ease; }
+        .logo.has-funnel.funnel-visible::after { opacity: 0.7; }
+        .logo.menu-open::after {
+                   opacity: 1;
+                   background:
+                       linear-gradient(#8af, #8af) center 0    / 70% 1px no-repeat,
+                       linear-gradient(#8af, #8af) center 50%  / 50% 1px no-repeat,
+                       linear-gradient(#8af, #8af) center 100% / 30% 1px no-repeat; }
         .links { display: flex; gap: 2rem; overflow-x: auto; scrollbar-width: none; }
         .links::-webkit-scrollbar { display: none; }
         .links a { color: #888; text-decoration: none; font-size: 0.9rem;
