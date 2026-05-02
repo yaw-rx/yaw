@@ -75,6 +75,7 @@ export const flushExistingBindings = (): void => {
     const walk = (el: Element): void => {
         if (el instanceof RxElementBase) {
             el._initBindings();
+            queueMicrotask(() => el.onRender());
         } else {
             initNative(el);
         }
