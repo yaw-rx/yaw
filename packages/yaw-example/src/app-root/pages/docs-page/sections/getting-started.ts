@@ -66,7 +66,7 @@ export default tseslint.config(
         languageOptions: {
             parser: tseslint.parser,
             parserOptions: {
-                projectService: true,
+and
                 tsconfigRootDir: import.meta.dirname,
             },
         },
@@ -290,15 +290,13 @@ export default {
 
         <section class="host" toc-section="getting-started/linting">
             <h2 toc-anchor="getting-started/linting">Linting</h2>
-            <p class="note">Use <code class="inline">projectService</code>
-               instead of <code class="inline">project</code>.
-               <code class="inline">project</code> creates its own
-               TypeScript program without the
-               <code class="inline">@yaw-rx/transformer</code> plugin, so
-               types the transformer generates are missing and linting
-               fails. <code class="inline">projectService</code>
-               delegates to the patched compiler that has the
-               transformer loaded.</p>
+            <p class="note">The compiler plugins in your tsconfig
+               generate types that eslint needs to see.
+               <code class="inline">projectService</code> delegates to
+               the patched compiler instead of creating a bare program,
+               and <code class="inline">loadTypeScriptPlugins</code>
+               tells it to load the tsconfig plugins. Without both,
+               eslint will report false positives.</p>
             <code-block syntax="js">${escape`${ESLINT_CONFIG_SOURCE}`}</code-block>
         </section>
 

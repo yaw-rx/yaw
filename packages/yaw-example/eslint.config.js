@@ -13,7 +13,9 @@ export default tseslint.config(
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        projectService: true,
+        projectService: {
+          loadTypeScriptPlugins: true,
+        },
         tsconfigRootDir: import.meta.dirname,
         ecmaVersion: 'latest',
         sourceType: 'module',

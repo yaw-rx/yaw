@@ -179,7 +179,7 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
             const needsImport = !hasBehaviorSubjectImport;
             D(`  needsImport=${needsImport} (AST check)`);
             if (needsImport) {
-                injections.push({ originalPos: 0, text: "import type { BehaviorSubject } from 'rxjs';\n" });
+                injections.push({ originalPos: sourceText.length, text: "\nimport type { BehaviorSubject } from 'rxjs';" });
             }
 
             const checkerTypes = checkerTypeCache.get(fileName);

@@ -60,7 +60,7 @@ const transformer =
                     ),
                     factory.createStringLiteral('rxjs'),
                 );
-                return factory.updateSourceFile(visited, [importDecl, ...visited.statements]);
+                return factory.updateSourceFile(visited, [...visited.statements, importDecl]);
             }
             return visited;
         };

@@ -32,6 +32,9 @@ export const programTransformer = (
         const shortName = k.replace(/.*packages\//, '');
         diag.push(`--- ${shortName} (${v.length} chars) ---`);
         diag.push(v.slice(0, 500));
+        const safeName = shortName.replace(/\//g, '__');
+        if (!ts.sys.directoryExists('/tmp/yaw-transformed')) ts.sys.createDirectory('/tmp/yaw-transformed');
+        ts.sys.writeFile(`/tmp/yaw-transformed/${safeName}`, v);
     }
 
     diag.push(`host provided: ${host !== undefined}`);
