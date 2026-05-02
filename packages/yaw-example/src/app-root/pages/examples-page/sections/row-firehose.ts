@@ -16,9 +16,9 @@ const WRAPPER_STYLES = `
     directives: [TocSection, TocAnchor],
     template: `
         <h1 toc-anchor="v8-firehose">V8 firehose</h1>
-        <p class="lede">Click flood. A proportional controller measures frame rate and adjusts
-           batch size to try to maintain 60 fps. Watch the graphs as elements pile up. Eventually
-           fps sags and batch size shrinks to compensate — this is a game it will lose. The writes
+        <p class="lede">Click flood to start inserting rows into a table. A proportional controller
+           measures frame rate and adjusts batch size per frame to try to maintain 60 fps. Watch the
+           graphs as elements pile up. FPS will sag and the batch size shrink to compensate — this is a game it will quickly lose. The writes
            haven't slowed down — <code class="inline">insertAdjacentHTML</code> is still
            microseconds. Layout and paint got expensive. That cost lives in the browser's C++
            layout engine, on the other side of a boundary no abstraction can cross.

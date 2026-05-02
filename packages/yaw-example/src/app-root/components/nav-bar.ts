@@ -25,8 +25,9 @@ import { Hamburger } from '../directives/hamburger.js';
               padding: 1rem 2rem; background: rgba(0,0,0,0.85);
               backdrop-filter: blur(8px); border-bottom: 1px solid #222; }
         .logo { font-weight: 900; font-size: 1.4rem; color: #fff;
-                text-decoration: none; letter-spacing: -1px; cursor: pointer;
-                margin-right: 2rem; position: relative; }
+                text-decoration: none; letter-spacing: -1px;
+                margin-right: 2rem; position: relative; cursor: default; }
+        .logo.has-menu { cursor: pointer; }
         .logo.has-menu::after { content: ''; position: absolute;
                    bottom: -7px; left: 0; width: 100%; height: 8px;
                    background:
