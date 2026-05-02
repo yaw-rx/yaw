@@ -9,9 +9,24 @@ interface Settings {
 @Component({
     selector: 'touch-demo',
     template: `
-        <code class="value">{{summary}}</code>
-        <button onclick="toggleTheme">toggle theme</button>
-        <button onclick="bumpFont">+ font size</button>
+        <div class="preview" [style.background]="bg" [style.color]="fg" [style.font-size]="fs">
+            {{summary}}
+        </div>
+        <div class="controls">
+            <button onclick="toggleTheme">toggle theme</button>
+            <button onclick="bumpFont">+ font size</button>
+        </div>
+    `,
+    styles: `
+        :host { display: block; width: 100%; }
+        .preview { padding: 1rem; border-radius: 4px; font-family: monospace;
+                   transition: background 0.2s, color 0.2s, font-size 0.2s; }
+        .controls { display: flex; align-items: center; justify-content: center;
+                    gap: 0.5rem; margin-top: 0.75rem; }
+        button { background: #111; border: 1px solid #333; color: #fff;
+                 padding: 0.4rem 0.8rem; font: inherit; font-family: monospace;
+                 font-size: 0.8rem; cursor: pointer; border-radius: 4px; }
+        button:hover { border-color: #8af; color: #8af; }
     `,
 })
 export class TouchDemo extends RxElement {
@@ -21,6 +36,18 @@ export class TouchDemo extends RxElement {
         return this.settings$.pipe(
             map((s) => `${s.theme} / ${s.fontSize}px`),
         );
+    }
+
+    get bg(): Observable<string> {
+        return this.settings$.pipe(map((s) => s.theme === 'dark' ? '#111' : '#eee'));
+    }
+
+    get fg(): Observable<string> {
+        return this.settings$.pipe(map((s) => s.theme === 'dark' ? '#ccc' : '#111'));
+    }
+
+    get fs(): Observable<string> {
+        return this.settings$.pipe(map((s) => `${s.fontSize}px`));
     }
 
     toggleTheme(): void {

@@ -8,7 +8,6 @@ import './docs-page/sections/core-concepts.js';
 import './docs-page/sections/getting-started.js';
 import './docs-page/sections/bootstrap.js';
 import './docs-page/sections/components.js';
-import './docs-page/sections/reactive-state.js';
 import './docs-page/sections/directives.js';
 import './docs-page/sections/services.js';
 import './docs-page/sections/navigation.js';
@@ -32,7 +31,6 @@ import './docs-page/sections/ssg.js';
             <docs-core-concepts toc-section="core-concepts"></docs-core-concepts>
             <docs-getting-started toc-section="getting-started"></docs-getting-started>
             <docs-bootstrap toc-section="bootstrap"></docs-bootstrap>
-            <docs-reactive-state toc-section="reactive-state"></docs-reactive-state>
             <docs-components toc-section="components"></docs-components>
             <docs-directives toc-section="directives"></docs-directives>
             <docs-services toc-section="services"></docs-services>
