@@ -133,7 +133,7 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
 
             tsModule.forEachChild(programSf, (node) => {
                 if (!tsModule.isClassDeclaration(node)) return;
-                if (!hasDecoratorNamed(node, 'Component')) return;
+                if (!hasDecoratorNamed(node, 'Component') && !hasDecoratorNamed(node, 'Injectable')) return;
                 const className = node.name?.text;
                 if (className === undefined) return;
 
@@ -190,8 +190,9 @@ const init = (modules: { typescript: typeof ts }): ts.server.PluginModule => {
             tsModule.forEachChild(sf, (node) => {
                 if (!tsModule.isClassDeclaration(node)) return;
                 const isComponent = hasDecoratorNamed(node, 'Component');
-                D(`  class ${node.name?.text ?? '<anon>'} @Component=${isComponent}`);
-                if (!isComponent) return;
+                const isInjectable = hasDecoratorNamed(node, 'Injectable');
+                D(`  class ${node.name?.text ?? '<anon>'} @Component=${isComponent} @Injectable=${isInjectable}`);
+                if (!isComponent && !isInjectable) return;
                 classCount++;
                 const className = node.name?.text;
                 if (className === undefined) return;
