@@ -42,7 +42,7 @@ import { TocNode } from './sidebar/toc-node.js';
         nav { display: flex; flex-direction: column; gap: 0.15rem;
               font-family: monospace; }
         @media (max-width: 768px) {
-            :host { position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            :host { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
                     height: 100vh; border-right: none; }
         }
     `,
