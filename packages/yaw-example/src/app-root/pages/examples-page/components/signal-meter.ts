@@ -23,16 +23,13 @@ export const SIGNAL_METER_STYLES = `
             stroke-dasharray: 264;
             stroke: hsl(var(--hue), 85%, var(--lit));
             stroke-dashoffset: calc(264 - 264 * var(--pct, 0));
-            filter: drop-shadow(0 0 var(--glow) hsl(var(--hue), 90%, var(--lit)));
-            transition: stroke-dashoffset 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-                        stroke 0.35s ease, filter 0.35s ease; }
+            filter: drop-shadow(0 0 var(--glow) hsl(var(--hue), 90%, var(--lit))); }
     .readout { position: absolute; inset: 0; display: flex;
                align-items: center; justify-content: center;
                gap: 0.2rem; pointer-events: none; }
     .value { font-size: 2.8rem; font-weight: 800; font-family: monospace;
              color: hsl(var(--hue), 90%, var(--lit));
-             text-shadow: 0 0 var(--glow) hsl(var(--hue), 90%, var(--lit));
-             transition: color 0.35s ease, text-shadow 0.35s ease; }
+             text-shadow: 0 0 var(--glow) hsl(var(--hue), 90%, var(--lit)); }
     .unit { font-size: 1rem; color: #555; font-family: monospace; margin-top: 1rem; }
 `;
 
