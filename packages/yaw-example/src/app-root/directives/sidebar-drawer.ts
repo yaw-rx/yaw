@@ -1,3 +1,4 @@
+import { type Subscription } from 'rxjs';
 import { Directive, Injectable } from '@yaw-rx/core';
 import type { RxElementLike } from '@yaw-rx/core';
 import { SidebarService } from '../services/sidebar-service.js';
@@ -12,6 +13,9 @@ export class SidebarDrawer {
     private readonly sidebar: SidebarService;
     private readonly toc: TocService;
     private mobile = false;
+    private sub: Subscription | undefined;
+    private mqHandler: (() => void) | undefined;
+    private mq: MediaQueryList | undefined;
 
     constructor(sidebar: SidebarService, toc: TocService) {
         this.sidebar = sidebar;
@@ -21,9 +25,9 @@ export class SidebarDrawer {
     onInit(): void {
         this.sidebar.available = true;
 
-        const mq = window.matchMedia(MQ);
+        this.mq = window.matchMedia(MQ);
         const update = (): void => {
-            this.mobile = mq.matches;
+            this.mobile = this.mq!.matches;
             if (this.mobile) {
                 this.node.style.cssText =
                     'display:none;position:fixed;inset:0;' +
@@ -34,10 +38,11 @@ export class SidebarDrawer {
                 this.sidebar.close();
             }
         };
-        mq.addEventListener('change', update);
+        this.mqHandler = update;
+        this.mq.addEventListener('change', update);
         update();
 
-        this.sidebar.open$.subscribe((open: boolean) => {
+        this.sub = this.sidebar.open$.subscribe((open: boolean) => {
             if (!this.mobile) return;
             if (open) {
                 this.node.style.display = 'block';
@@ -52,6 +57,8 @@ export class SidebarDrawer {
     }
 
     onDestroy(): void {
+        this.sub?.unsubscribe();
+        if (this.mq && this.mqHandler) this.mq.removeEventListener('change', this.mqHandler);
         this.sidebar.available = false;
         this.sidebar.close();
     }

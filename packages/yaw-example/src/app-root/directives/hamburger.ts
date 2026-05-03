@@ -33,15 +33,16 @@ export class Hamburger {
             combineLatest([this.sidebar.available$, narrow$]).subscribe(
                 ([available, narrow]) => {
                     this.active = !!(available && narrow);
-                    const hadFunnel = this.node.classList.contains('has-funnel');
-                    this.node.classList.toggle('has-funnel', !!available);
                     this.node.classList.toggle('has-menu', this.active);
-                    if (available && !hadFunnel) {
+                    const showFunnel = !!(available && narrow);
+                    this.node.classList.remove('has-funnel', 'funnel-visible');
+                    if (showFunnel) {
                         requestAnimationFrame(() => {
-                            this.node.classList.add('funnel-visible');
+                            this.node.classList.add('has-funnel');
+                            requestAnimationFrame(() => {
+                                this.node.classList.add('funnel-visible');
+                            });
                         });
-                    } else if (!available) {
-                        this.node.classList.remove('funnel-visible');
                     }
                 }
             ),
