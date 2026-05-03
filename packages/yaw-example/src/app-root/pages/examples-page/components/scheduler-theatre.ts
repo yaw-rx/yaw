@@ -127,13 +127,11 @@ export class SchedulerTheatre extends RxElement {
         this.fpsLast = performance.now();
         this.fpsRaf = requestAnimationFrame((t) => this.fpsTick(t));
         this.graphInterval = window.setInterval(() => {
-            this.fpsPoints$.value.push(this.fps);
-            if (this.fpsPoints$.value.length > GRAPH_POINTS)
-                this.fpsPoints$.value.shift();
+            this.fpsPoints.push(this.fps);
+            if (this.fpsPoints.length > GRAPH_POINTS) this.fpsPoints.shift();
             this.fpsPoints$.touch();
-            this.ipsPoints$.value.push(this.ips);
-            if (this.ipsPoints$.value.length > GRAPH_POINTS)
-                this.ipsPoints$.value.shift();
+            this.ipsPoints.push(this.ips);
+            if (this.ipsPoints.length > GRAPH_POINTS) this.ipsPoints.shift();
             this.ipsPoints$.touch();
         }, GRAPH_SAMPLE_MS);
     }
@@ -257,11 +255,11 @@ export class SchedulerTheatre extends RxElement {
         this.fpsLast = performance.now();
         this.fpsRaf = requestAnimationFrame((time) => { this.fpsTick(time) });
         this.graphInterval = window.setInterval(() => {
-            this.fpsPoints$.value.push(this.fps);
-            if (this.fpsPoints$.value.length > GRAPH_POINTS) this.fpsPoints$.value.shift();
+            this.fpsPoints.push(this.fps);
+            if (this.fpsPoints.length > GRAPH_POINTS) this.fpsPoints.shift();
             this.fpsPoints$.touch();
-            this.ipsPoints$.value.push(this.ips);
-            if (this.ipsPoints$.value.length > GRAPH_POINTS) this.ipsPoints$.value.shift();
+            this.ipsPoints.push(this.ips);
+            if (this.ipsPoints.length > GRAPH_POINTS) this.ipsPoints.shift();
             this.ipsPoints$.touch();
         }, GRAPH_SAMPLE_MS);
     }
