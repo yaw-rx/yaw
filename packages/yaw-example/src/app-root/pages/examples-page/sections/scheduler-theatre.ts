@@ -4,7 +4,7 @@ import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 import { TocSection } from '../../docs-page/directives/toc-section.js';
 import { TocAnchor } from '../../docs-page/directives/toc-anchor.js';
-import { ROW_FIREHOSE_SOURCE } from '../components/row-firehose.js';
+import { SCHEDULER_THEATRE_SOURCE } from '../components/scheduler-theatre.js';
 
 const WRAPPER_STYLES = `
     .live { padding: 1.25rem; background: #050505;
@@ -12,7 +12,7 @@ const WRAPPER_STYLES = `
 `;
 
 @Component({
-    selector: 'row-firehose-example',
+    selector: 'scheduler-theatre-example',
     directives: [TocSection, TocAnchor],
     template: `
         <h1 toc-anchor="scheduler-theatre">Scheduler theatre</h1>
@@ -31,18 +31,18 @@ const WRAPPER_STYLES = `
            a frame. This demo throttles on purpose with heavy instrumentation to prove a point.</em></p>
 
         <section class="host">
-            <code-block syntax="ts">${escape`${ROW_FIREHOSE_SOURCE}`}</code-block>
+            <code-block syntax="ts">${escape`${SCHEDULER_THEATRE_SOURCE}`}</code-block>
         </section>
 
         <section class="ex">
             <h2>Flood</h2>
             <p class="note">Press flood, watch the graphs.</p>
             <div class="split">
-                <code-block syntax="html">${escape`<row-firehose></row-firehose>`}</code-block>
-                <div class="live"><row-firehose></row-firehose></div>
+                <code-block syntax="html">${escape`<scheduler-theatre></scheduler-theatre>`}</code-block>
+                <div class="live"><scheduler-theatre></scheduler-theatre></div>
             </div>
         </section>
     `,
     styles: `${WRAPPER_STYLES}\n${DOC_STYLES}`,
 })
-export class RowFirehoseExample extends RxElement {}
+export class SchedulerTheatreExample extends RxElement {}

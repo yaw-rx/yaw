@@ -1,7 +1,7 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
 import './graph.js';
 
-export const ROW_FIREHOSE_TEMPLATE = `
+export const SCHEDULER_THEATRE_TEMPLATE = `
     <div class="controls">
         <div class="actions">
             <button onclick="toggle">{{label}}</button>
@@ -28,7 +28,7 @@ export const ROW_FIREHOSE_TEMPLATE = `
     </div>
 `;
 
-export const ROW_FIREHOSE_STYLES = `
+export const SCHEDULER_THEATRE_STYLES = `
     :host { display: block; }
     .controls { display: flex; gap: 1rem; align-items: center;
                 flex-wrap: wrap; margin-bottom: 1rem; }
@@ -76,12 +76,12 @@ export const ROW_FIREHOSE_STYLES = `
     .body > .row > :nth-child(3) { color: #666; }
 `;
 
-export const ROW_FIREHOSE_SOURCE = `@Component({
-    selector: 'row-firehose',
-    template: \`${ROW_FIREHOSE_TEMPLATE}\`,
-    styles: \`${ROW_FIREHOSE_STYLES}\`,
+export const SCHEDULER_THEATRE_SOURCE = `@Component({
+    selector: 'scheduler-theatre',
+    template: \`${SCHEDULER_THEATRE_TEMPLATE}\`,
+    styles: \`${SCHEDULER_THEATRE_STYLES}\`,
 })
-export class RowFirehose extends RxElement {
+export class SchedulerTheatre extends RxElement {
     @state count = 0;
     @state batch = 0;
     @state ips = 0;
@@ -210,11 +210,11 @@ const GRAPH_POINTS = 120;
 const GRAPH_SAMPLE_MS = 80;
 
 @Component({
-    selector: 'row-firehose',
-    template: ROW_FIREHOSE_TEMPLATE,
-    styles: ROW_FIREHOSE_STYLES,
+    selector: 'scheduler-theatre',
+    template: SCHEDULER_THEATRE_TEMPLATE,
+    styles: SCHEDULER_THEATRE_STYLES,
 })
-export class RowFirehose extends RxElement {
+export class SchedulerTheatre extends RxElement {
     @state count = 0;
     @state batch = 0;
     @state ips = 0;
