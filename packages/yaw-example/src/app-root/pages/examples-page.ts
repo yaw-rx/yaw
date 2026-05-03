@@ -32,7 +32,7 @@ import './examples-page/sections/calendar-example.js';
             <slider-example toc-section="custom-slider"></slider-example>
             <color-playground-example toc-section="reactive-palette"></color-playground-example>
             <signal-meter-example toc-section="signal-meter"></signal-meter-example>
-            <row-firehose-example toc-section="v8-firehose"></row-firehose-example>
+            <row-firehose-example toc-section="scheduler-theatre"></row-firehose-example>
             <!-- <calendar-example></calendar-example> -->
             <nesting-example toc-section="nesting-example"></nesting-example>
         </main>
