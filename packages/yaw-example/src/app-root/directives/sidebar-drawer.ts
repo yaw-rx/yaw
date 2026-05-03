@@ -41,7 +41,6 @@ export class SidebarDrawer {
             if (!this.mobile) return;
             if (open) {
                 this.node.style.display = 'block';
-                this.node.style.opacity = '1';
                 this.toc.pause();
                 this.toc.expandAll = true;
             } else {

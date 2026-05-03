@@ -42,7 +42,7 @@ import { TocNode } from './sidebar/toc-node.js';
         nav { display: flex; flex-direction: column; gap: 0.15rem;
               font-family: monospace; }
         @media (max-width: 768px) {
-            :host { opacity: 0; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            :host { position: fixed; top: 0; left: 0; right: 0; bottom: 0;
                     height: 100vh; border-right: none; }
         }
     `,
@@ -55,15 +55,12 @@ export class DocsSidebar extends RxElement {
     }
 
     override onInit(): void {
-        if (this.style.flexBasis) return;
-        this.style.opacity = '0';
         let timer: number | undefined;
         const mo = new MutationObserver(() => {
             clearTimeout(timer);
             timer = window.setTimeout(() => {
                 mo.disconnect();
                 this.#measureWidth();
-                this.style.opacity = '';
             }, 300);
         });
         mo.observe(this, { childList: true, subtree: true });
