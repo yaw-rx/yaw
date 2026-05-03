@@ -17,12 +17,15 @@ const WRAPPER_STYLES = `
     template: `
         <h1 toc-anchor="v8-firehose">V8 firehose</h1>
         <p class="lede">Click flood to start inserting rows into a table. A proportional controller
-           measures frame rate and adjusts batch size per frame to try to maintain 60 fps. Watch the
-           graphs as elements pile up. FPS will sag and the batch size shrink to compensate — this is a game it will quickly lose. The writes
+           measures frame rate and adjusts batch size per frame to try to maintain 60 fps — exactly
+           what every framework's scheduler does. Watch the graphs as elements pile up. FPS will sag
+           and the batch size shrink to compensate — this is a game it will quickly lose. The writes
            haven't slowed down — <code class="inline">insertAdjacentHTML</code> is still
            microseconds. Layout and paint got expensive. That cost lives in the browser's C++
            layout engine, on the other side of a boundary no abstraction can cross.
-           No amount of diffing, batching, or dirty-checking will ever move that line.</p>
+           No amount of diffing, batching, or dirty-checking will ever move that line.
+           The P controller in this demo is like any other popular framework. It reacts to the symptom,
+           backs off proportionally, and loses anyway.</p>
 
         <p class="lede"><em>The framework could insert 10,000 rows in a blink without dropping
            a frame. This demo throttles on purpose with heavy instrumentation to prove a point.</em></p>
