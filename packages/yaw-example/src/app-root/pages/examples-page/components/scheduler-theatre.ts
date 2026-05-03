@@ -76,7 +76,16 @@ export const SCHEDULER_THEATRE_STYLES = `
     .body > .row > :nth-child(3) { color: #666; }
 `;
 
-export const SCHEDULER_THEATRE_SOURCE = `@Component({
+export const SCHEDULER_THEATRE_SOURCE = `const TARGET_FPS = 60;
+const KP = 0.2;
+const FPS_WINDOW = 60;
+const IPS_WINDOW = 10;
+const MIN_BATCH = 1;
+const INITIAL_BATCH = 4;
+const GRAPH_POINTS = 120;
+const GRAPH_SAMPLE_MS = 80;
+
+@Component({
     selector: 'scheduler-theatre',
     template: \`${SCHEDULER_THEATRE_TEMPLATE}\`,
     styles: \`${SCHEDULER_THEATRE_STYLES}\`,
