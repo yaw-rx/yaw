@@ -10,8 +10,9 @@ import { PerlinBg } from './hero/perlin-bg.js';
             <h1 class="title">YAW</h1>
             <p class="sub">The DOM is not your enemy.</p>
             <div class="stats">
-                <stat-counter label="KB bundle" target="4"></stat-counter>
-                <stat-counter label="dependencies" target="3"></stat-counter>
+                <stat-counter label="bundle" unit="KB" target="18"></stat-counter>
+                <stat-counter label="node_modules" unit="MB" target="9"></stat-counter>
+                <stat-counter label="dependency" target="1"></stat-counter>
                 <stat-counter label="virtual DOM" target="0"></stat-counter>
             </div>
         </div>
@@ -25,7 +26,7 @@ import { PerlinBg } from './hero/perlin-bg.js';
         .title { font-size: clamp(3rem, 10vw, 7rem); font-weight: 900; color: #fff;
                  letter-spacing: -4px; line-height: 1; margin: 0 0 0.5rem; }
         .sub { font-size: 1.25rem; color: #838383; line-height: 1.6; margin: 0 0 4rem; }
-        .stats { display: flex; gap: 4rem; justify-content: center; }
+        .stats { display: flex; gap: 1.5rem; justify-content: center; }
         @media (max-width: 480px) {
             .stats { gap: 1.5rem; }
         }

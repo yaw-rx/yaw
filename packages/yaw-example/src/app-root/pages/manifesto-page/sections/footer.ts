@@ -4,9 +4,9 @@ import { Component, RxElement } from '@yaw-rx/core';
     selector: 'page-footer',
     template: `
         <footer>
-            <p class="size">This page: <strong>~4KB</strong> gzipped.</p>
-            <p class="compare">React: ~140KB. Angular: ~220KB. You do the math.</p>
-            <p class="copy">YAW — You're All Wrong &copy; 2024</p>
+            <p class="size">This page: <strong>18KB</strong> gzipped.</p>
+            <p class="compare">React 19: 59KB. Angular 21: 131KB. You do the math.</p>
+            <p class="copy">You're All Wrong</p>
         </footer>
     `,
     styles: `
@@ -16,7 +16,7 @@ import { Component, RxElement } from '@yaw-rx/core';
         .size { font-size: 1.5rem; color: #fff; margin: 0 0 0.5rem; }
         .size strong { color: #4ade80; }
         .compare { color: #555; margin: 0 0 2rem; }
-        .copy { color: #333; font-size: 0.8rem; }
+        .copy { color: #242424; font-size: 0.8rem; }
     `
 })
 export class PageFooter extends RxElement {}

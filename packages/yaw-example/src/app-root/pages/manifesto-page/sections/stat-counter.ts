@@ -2,14 +2,16 @@ import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
     selector: 'stat-counter',
-    template: `<div class="stat"><span class="value">{{count}}</span><span class="label">{{label}}</span></div>`,
+    template: `<div class="stat"><span class="value">{{count}}<span class="unit">{{unit}}</span></span><span class="label">{{label}}</span></div>`,
     styles: `
         :host { display: block; }
         .stat { text-align: center; }
         .value { display: block; font-size: 3.5rem; font-weight: 900; color: #fff;
                  letter-spacing: -2px; line-height: 1; font-variant-numeric: tabular-nums; }
-        .label { display: block; font-size: 0.75rem; color: #555; letter-spacing: 0.1em;
-                 text-transform: uppercase; margin-top: 0.5rem; }
+        .unit { font-size: 0.75rem; font-weight: 600; color: #676767; letter-spacing: 0.02em; margin-left: 0.4em; }
+        .label { display: block; font-size: 0.75rem; color: #676767; letter-spacing: 0.1em;
+                 font-family: monospace; margin-top: 0.5rem; font-weight: 600;
+                 letter-spacing: 0.04em; word-spacing: -0.35em; }
         @media (max-width: 480px) {
             .value { font-size: 2.5rem; }
             .label { font-size: 0.65rem; }
@@ -19,6 +21,7 @@ import { Component, RxElement, state } from '@yaw-rx/core';
 export class StatCounter extends RxElement {
     @state count = 0;
     @state label = '';
+    @state unit = '';
     @state target = 0;
 
     override onInit(): void {
