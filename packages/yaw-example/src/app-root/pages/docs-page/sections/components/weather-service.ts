@@ -56,10 +56,13 @@ export class WeatherService {
         this.temp = data.current.temperature_2m;
         this.wind = data.current.wind_speed_10m;
         this.icon = weatherIcon(data.current.weather_code);
-        this.hours = data.hourly.temperature_2m.slice(0, 6).map((t: number, i: number) => ({
-            time: (data.hourly.time[i] as string).slice(11),
+        const nowHour = new Date().toISOString().slice(0, 13);
+        const times = data.hourly.time as string[];
+        const start = Math.max(0, times.findIndex(t => t.startsWith(nowHour)));
+        this.hours = data.hourly.temperature_2m.slice(start, start + 6).map((t: number, i: number) => ({
+            time: (data.hourly.time[start + i] as string).slice(11),
             temp: t,
-            icon: weatherIcon(data.hourly.weather_code[i] as number),
+            icon: weatherIcon(data.hourly.weather_code[start + i] as number),
         }));
     }
 }

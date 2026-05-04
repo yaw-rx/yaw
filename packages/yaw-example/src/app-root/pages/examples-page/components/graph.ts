@@ -1,38 +1,64 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
     selector: 'rx-graph',
     template: `
-        <span class="label">{{label}}</span>
+        <div class="legend" #legend></div>
         <canvas #canvas></canvas>
     `,
     styles: `
         :host { display: block; position: relative; }
-        .label { position: absolute; top: 0.3rem; left: 0.5rem;
-                 font-family: monospace; font-size: 0.65rem; color: #444;
-                 text-transform: uppercase; letter-spacing: 0.08em; pointer-events: none; }
+        .legend { position: absolute; top: 0.25rem; left: 0.4rem;
+                  display: flex; flex-direction: column; gap: 0.1rem;
+                  font-family: monospace; font-size: 0.55rem; color: #444;
+                  text-transform: uppercase; letter-spacing: 0.06em; pointer-events: none; }
+        .legend span { display: flex; align-items: center; gap: 0.2rem; }
+        .legend .dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; }
         canvas { display: block; width: 100%; height: 6rem; background: #030303;
                  border: 1px solid #1a1a1a; border-radius: 8px; }
     `,
 })
 export class Graph extends RxElement {
-    @state label = '';
-    @state points: number[] = [];
-    @state color = '#8af';
-    @state maxPoints = 120;
+    @state config: Record<string, { label: string; color: string }> = {};
+    @state series: Record<string, Observable<number[]>> = {};
 
     canvas!: HTMLCanvasElement;
+    legend!: HTMLElement;
     private ro: ResizeObserver | undefined;
+    private data = new Map<string, number[]>();
+    private subs: Subscription[] = [];
 
     override onRender(): void {
         this.ro = new ResizeObserver(() => this.resize());
         this.ro.observe(this.canvas);
         this.resize();
-        this.points$.subscribe(() => this.draw());
+        this.series$.subscribe((seriesMap) => this.subscribeSeries(seriesMap));
+        this.config$.subscribe(() => this.buildLegend());
     }
 
     override onDestroy(): void {
         this.ro?.disconnect();
+        this.subs.forEach(s => s.unsubscribe());
+    }
+
+    private subscribeSeries(seriesMap: Record<string, Observable<number[]>>): void {
+        this.subs.forEach(s => s.unsubscribe());
+        this.subs = [];
+        this.data.clear();
+        for (const [name, obs$] of Object.entries(seriesMap)) {
+            this.subs.push(obs$.subscribe((points) => {
+                this.data.set(name, points);
+                this.draw();
+            }));
+        }
+    }
+
+    private buildLegend(): void {
+        this.legend.innerHTML = Object.entries(this.config)
+            .map(([_, { label, color }]) =>
+                `<span><span class="dot" style="background:${color}"></span>${label}</span>`)
+            .join('');
     }
 
     private resize(): void {
@@ -48,22 +74,31 @@ export class Graph extends RxElement {
         const h = this.canvas.height;
         ctx.clearRect(0, 0, w, h);
 
-        const pts = this.points;
-        if (pts.length < 2) return;
+        const names = Object.keys(this.config);
+        const maxLen = Math.max(0, ...names.map(n => this.data.get(n)?.length ?? 0));
+        if (maxLen < 2) return;
 
-        const step = w / (this.maxPoints - 1);
-        const offset = this.maxPoints - pts.length;
-        const ceil = Math.max(1, ...pts);
+        const step = w / (maxLen - 1);
 
-        ctx.beginPath();
-        for (let i = 0; i < pts.length; i++) {
-            const x = (offset + i) * step;
-            const y = h - (pts[i]! / ceil) * h;
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
+        for (const name of names) {
+            const cfg = this.config[name];
+            if (!cfg) continue;
+            const pts = this.data.get(name) ?? [];
+            if (pts.length < 2) continue;
+
+            const pad = maxLen - pts.length;
+            const ceil = Math.max(1, ...pts);
+
+            ctx.beginPath();
+            for (let i = 0; i < pts.length; i++) {
+                const x = (pad + i) * step;
+                const y = h - (pts[i]! / ceil) * h;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = cfg.color;
+            ctx.lineWidth = devicePixelRatio;
+            ctx.stroke();
         }
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = devicePixelRatio;
-        ctx.stroke();
     }
 }

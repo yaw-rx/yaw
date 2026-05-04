@@ -1,4 +1,5 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
+import type { Observable } from 'rxjs';
 import './graph.js';
 
 export const SCHEDULER_THEATRE_TEMPLATE = `
@@ -14,8 +15,8 @@ export const SCHEDULER_THEATRE_TEMPLATE = `
         </table>
     </div>
     <div class="graphs">
-        <rx-graph label="fps" color="#4f4" [points]="fpsPoints"></rx-graph>
-        <rx-graph label="inserts/s" color="#8af" [points]="ipsPoints"></rx-graph>
+        <rx-graph [config]="fpsConfig" [series]="fpsSeries"></rx-graph>
+        <rx-graph [config]="insertsConfig" [series]="insertsSeries"></rx-graph>
     </div>
     <div class="head">
         <div>#</div>
@@ -77,13 +78,13 @@ export const SCHEDULER_THEATRE_STYLES = `
 `;
 
 export const SCHEDULER_THEATRE_SOURCE = `const TARGET_FPS = 60;
-const KP = 0.2;
-const FPS_WINDOW = 60;
+const KP = 0.4;
+const FPS_WINDOW = 30;
 const IPS_WINDOW = 10;
 const MIN_BATCH = 1;
-const INITIAL_BATCH = 4;
+const INITIAL_BATCH = 16;
 const GRAPH_POINTS = 120;
-const GRAPH_SAMPLE_MS = 80;
+const GRAPH_SAMPLE_MS = 90;
 
 @Component({
     selector: 'scheduler-theatre',
@@ -98,7 +99,15 @@ export class SchedulerTheatre extends RxElement {
     @state fps = 0;
     @state dotColor = '#555';
     @state fpsPoints: number[] = [];
+    @state batchPoints: number[] = [];
     @state ipsPoints: number[] = [];
+    @state fpsConfig = { fps: { label: 'fps', color: '#4f4' } };
+    @state insertsConfig = {
+        batch: { label: 'inserts/frame', color: '#fa4' },
+        ips: { label: 'inserts/s', color: '#8af' },
+    };
+    @state fpsSeries: Record<string, Observable<number[]>> = {};
+    @state insertsSeries: Record<string, Observable<number[]>> = {};
 
     body!: HTMLElement;
     private fpsRaf = 0;
@@ -106,10 +115,13 @@ export class SchedulerTheatre extends RxElement {
     private insertRaf = 0;
     private graphInterval = 0;
     private running = false;
+    private visible = false;
+    private seeded = false;
     private current = INITIAL_BATCH;
     private fpsSamples: number[] = [];
     private ipsSamples: number[] = [];
     private lastInsertTick = 0;
+    private io: IntersectionObserver | undefined;
 
     // P controller: measures fps via rAF timing, adjusts batch size
     fpsTick(now: number): void {
@@ -121,6 +133,11 @@ export class SchedulerTheatre extends RxElement {
             const avgDt = this.fpsSamples.reduce((a, b) => a + b, 0)
                         / this.fpsSamples.length;
             this.fps = Math.round(1000 / avgDt);
+            if (!this.seeded) {
+                this.fpsPoints = new Array(GRAPH_POINTS).fill(this.fps);
+                this.fpsPoints$.touch();
+                this.seeded = true;
+            }
             if (this.running) {
                 const error = (this.fps - TARGET_FPS) / TARGET_FPS;
                 this.dotColor = error < 0 ? '#f44' : '#4f4';
@@ -133,22 +150,49 @@ export class SchedulerTheatre extends RxElement {
     }
 
     override onInit(): void {
+        this.fpsSeries = { fps: this.fpsPoints$ };
+        this.insertsSeries = { batch: this.batchPoints$, ips: this.ipsPoints$ };
+        this.io = new IntersectionObserver(([entry]) => {
+            if (entry!.isIntersecting) this.onVisible();
+            else this.onHidden();
+        });
+        this.io.observe(this);
+    }
+
+    override onDestroy(): void {
+        this.io?.disconnect();
+        this.onHidden();
+    }
+
+    private onVisible(): void {
+        if (this.visible) return;
+        this.visible = true;
         this.fpsLast = performance.now();
+        this.fpsSamples = [];
         this.fpsRaf = requestAnimationFrame((t) => this.fpsTick(t));
         this.graphInterval = window.setInterval(() => {
             this.fpsPoints.push(this.fps);
             if (this.fpsPoints.length > GRAPH_POINTS) this.fpsPoints.shift();
             this.fpsPoints$.touch();
+            this.batchPoints.push(this.batch);
+            if (this.batchPoints.length > GRAPH_POINTS) this.batchPoints.shift();
+            this.batchPoints$.touch();
             this.ipsPoints.push(this.ips);
             if (this.ipsPoints.length > GRAPH_POINTS) this.ipsPoints.shift();
             this.ipsPoints$.touch();
         }, GRAPH_SAMPLE_MS);
+        if (this.running) {
+            this.lastInsertTick = performance.now();
+            this.insertRaf = requestAnimationFrame(() => this.insertTick());
+        }
     }
 
-    override onDestroy(): void {
+    private onHidden(): void {
+        if (!this.visible) return;
+        this.visible = false;
         cancelAnimationFrame(this.fpsRaf);
         clearInterval(this.graphInterval);
-        this.stop();
+        if (this.running) cancelAnimationFrame(this.insertRaf);
     }
 
     toggle(): void {
@@ -168,8 +212,10 @@ export class SchedulerTheatre extends RxElement {
         this.label = 'stop';
         this.current = INITIAL_BATCH;
         this.ipsSamples = [];
-        this.lastInsertTick = performance.now();
-        this.insertRaf = requestAnimationFrame(() => this.insertTick());
+        if (this.visible) {
+            this.lastInsertTick = performance.now();
+            this.insertRaf = requestAnimationFrame(() => this.insertTick());
+        }
     }
 
     private stop(): void {
@@ -208,13 +254,13 @@ export class SchedulerTheatre extends RxElement {
 }`;
 
 const TARGET_FPS = 60;
-const KP = 0.2;
-const FPS_WINDOW = 60;
+const KP = 0.4;
+const FPS_WINDOW = 30;
 const IPS_WINDOW = 10;
 const MIN_BATCH = 1;
-const INITIAL_BATCH = 4;
+const INITIAL_BATCH = 16;
 const GRAPH_POINTS = 120;
-const GRAPH_SAMPLE_MS = 80;
+const GRAPH_SAMPLE_MS = 90;
 
 @Component({
     selector: 'scheduler-theatre',
@@ -229,7 +275,15 @@ export class SchedulerTheatre extends RxElement {
     @state fps = 0;
     @state dotColor = '#555';
     @state fpsPoints: number[] = [];
+    @state batchPoints: number[] = [];
     @state ipsPoints: number[] = [];
+    @state fpsConfig = { fps: { label: 'fps', color: '#4f4' } };
+    @state insertsConfig = {
+        batch: { label: 'inserts/frame', color: '#fa4' },
+        ips: { label: 'inserts/s', color: '#8af' },
+    };
+    @state fpsSeries: Record<string, Observable<number[]>> = {};
+    @state insertsSeries: Record<string, Observable<number[]>> = {};
 
     body!: HTMLElement;
     private fpsRaf = 0;
@@ -237,10 +291,13 @@ export class SchedulerTheatre extends RxElement {
     private insertRaf = 0;
     private graphInterval = 0;
     private running = false;
+    private visible = false;
+    private seeded = false;
     private current = INITIAL_BATCH;
     private fpsSamples: number[] = [];
     private ipsSamples: number[] = [];
     private lastInsertTick = 0;
+    private io: IntersectionObserver | undefined;
 
     fpsTick(now: number): void {
         const dt = now - this.fpsLast;
@@ -250,6 +307,11 @@ export class SchedulerTheatre extends RxElement {
             if (this.fpsSamples.length > FPS_WINDOW) this.fpsSamples.shift();
             const avgDt = this.fpsSamples.reduce((a, b) => a + b, 0) / this.fpsSamples.length;
             this.fps = Math.round(1000 / avgDt);
+            if (!this.seeded) {
+                this.fpsPoints = new Array(GRAPH_POINTS).fill(this.fps);
+                this.fpsPoints$.touch();
+                this.seeded = true;
+            }
             if (this.running) {
                 const error = (this.fps - TARGET_FPS) / TARGET_FPS;
                 this.dotColor = error < 0 ? '#f44' : '#4f4';
@@ -261,22 +323,51 @@ export class SchedulerTheatre extends RxElement {
     }
 
     override onInit(): void {
+        this.fpsSeries = { fps: this.fpsPoints$ };
+        this.insertsSeries = { batch: this.batchPoints$, ips: this.ipsPoints$ };
+        this.io = new IntersectionObserver(([entry]) => {
+            if (entry!.isIntersecting) this.onVisible();
+            else this.onHidden();
+        });
+        this.io.observe(this);
+    }
+
+    override onDestroy(): void {
+        this.io?.disconnect();
+        this.onHidden();
+    }
+
+    private onVisible(): void {
+        if (this.visible) return;
+        this.visible = true;
+        console.log('RESUME', this.fpsPoints); // eslint-disable-line no-console
         this.fpsLast = performance.now();
+        this.fpsSamples = [];
         this.fpsRaf = requestAnimationFrame((time) => { this.fpsTick(time) });
         this.graphInterval = window.setInterval(() => {
             this.fpsPoints.push(this.fps);
             if (this.fpsPoints.length > GRAPH_POINTS) this.fpsPoints.shift();
             this.fpsPoints$.touch();
+            this.batchPoints.push(this.batch);
+            if (this.batchPoints.length > GRAPH_POINTS) this.batchPoints.shift();
+            this.batchPoints$.touch();
             this.ipsPoints.push(this.ips);
             if (this.ipsPoints.length > GRAPH_POINTS) this.ipsPoints.shift();
             this.ipsPoints$.touch();
         }, GRAPH_SAMPLE_MS);
+        if (this.running) {
+            this.lastInsertTick = performance.now();
+            this.insertRaf = requestAnimationFrame(() => this.insertTick());
+        }
     }
 
-    override onDestroy(): void {
+    private onHidden(): void {
+        if (!this.visible) return;
+        this.visible = false;
+        console.log('PAUSE'); // eslint-disable-line no-console
         cancelAnimationFrame(this.fpsRaf);
         clearInterval(this.graphInterval);
-        this.stop();
+        if (this.running) cancelAnimationFrame(this.insertRaf);
     }
 
     toggle(): void {
@@ -300,8 +391,10 @@ export class SchedulerTheatre extends RxElement {
         this.label = 'stop';
         this.current = INITIAL_BATCH;
         this.ipsSamples = [];
-        this.lastInsertTick = performance.now();
-        this.insertRaf = requestAnimationFrame(() => this.insertTick());
+        if (this.visible) {
+            this.lastInsertTick = performance.now();
+            this.insertRaf = requestAnimationFrame(() => this.insertTick());
+        }
     }
 
     private stop(): void {
