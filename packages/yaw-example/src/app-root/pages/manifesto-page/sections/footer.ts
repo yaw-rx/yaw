@@ -4,8 +4,8 @@ import { Component, RxElement } from '@yaw-rx/core';
     selector: 'page-footer',
     template: `
         <footer>
-            <p class="size">This page: <strong>18KB</strong> gzipped.</p>
-            <p class="compare">React 19: 59KB. Angular 21: 131KB. You do the math.</p>
+            <p class="size">This page: <strong>32KB</strong> gzipped.</p>
+            <p class="compare">React 19: 60KB. Angular 21: 171KB. You do the math.</p>
             <p class="copy">You're All Wrong</p>
         </footer>
     `,
