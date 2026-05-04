@@ -278,7 +278,7 @@ const YAW_SNIPPET = `
                 Again.</p>
                 <p>Our DI is a function that walks up a parent chain. Our components are classes that
                 extend <code>HTMLElement</code>. Our templates are HTML. You already know this pattern.
-                We just removed the 311,000 lines of abstraction between you and it.</p>
+                We just removed the 305,000 lines of abstraction between you and it.</p>
             </manifesto-section>
 
             <manifesto-section heading="To the React Dev">
