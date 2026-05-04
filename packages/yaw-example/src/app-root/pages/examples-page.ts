@@ -11,6 +11,9 @@ import './examples-page/components/scheduler-theatre.js';
 import './examples-page/sections/slider-example.js';
 import './examples-page/sections/color-playground.js';
 import './examples-page/sections/signal-meter.js';
+import './examples-page/sections/graph-example.js';
+import './examples-page/components/wave-mixer.js';
+import './examples-page/sections/wave-mixer.js';
 import './examples-page/sections/scheduler-theatre.js';
 import './examples-page/sections/nesting-example.js';
 import './examples-page/sections/calendar-example.js';
@@ -32,9 +35,11 @@ import './examples-page/sections/calendar-example.js';
             <slider-example toc-section="custom-slider"></slider-example>
             <color-playground-example toc-section="reactive-palette"></color-playground-example>
             <signal-meter-example toc-section="signal-meter"></signal-meter-example>
-            <scheduler-theatre-example toc-section="scheduler-theatre"></scheduler-theatre-example>
             <!-- <calendar-example></calendar-example> -->
             <nesting-example toc-section="nesting-example"></nesting-example>
+            <graph-example toc-section="rx-graph"></graph-example>
+            <wave-mixer-example toc-section="wave-mixer"></wave-mixer-example>
+            <scheduler-theatre-example toc-section="scheduler-theatre"></scheduler-theatre-example>
         </main>
     `,
     styles: `

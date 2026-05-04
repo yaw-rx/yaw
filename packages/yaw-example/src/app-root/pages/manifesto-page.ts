@@ -96,11 +96,105 @@ const YAW_SNIPPET = `
             <manifesto-section heading="What Falls Out">
                 <p>Every feature below fell out of using the platform correctly.
                 Not dedicated infrastructure. Consequences.</p>
-                <p><a href="/showcase">A leaf component</a> three layers deep calls a method on the root, passing data from
-                the middle: <code>^^.toggleStep(^.trackKey, idx)</code>. No props drilled, no events
-                emitted, no context provider.</p>
-                <p>DI is a Map with a parent pointer. 94 lines. SSG is Puppeteer visiting every route
-                in parallel. 292 lines.</p>
+
+                <ul class="consequences">
+                    <li>The Elements panel just works — no shadow DOM to pierce, no virtual
+                    tree to decode. <code>querySelector</code> returns the actual component.
+                    You can call methods on it from the console.</li>
+
+                    <li>The CSS cascade just works — no shadow DOM encapsulation to
+                    fight. Styles scoped by selector prefix, not encapsulation. Theming
+                    just works. No <code>::part()</code> escape hatches. The accessibility
+                    tree is the component tree — screen readers see what's rendered.</li>
+
+                    <li>Third-party DOM libraries just work — D3, GSAP, Leaflet expect
+                    elements. Yaw gives them elements. No refs, no effects, no portal
+                    hacks.</li>
+
+                    <li>Standard events, <code>MutationObserver</code>, back/forward cache,
+                    browser profiling — all work because the components are real DOM nodes
+                    that the browser already knows how to handle.</li>
+
+                    <li>No <a href="/docs/ssg/hydration">hydration mismatch</a> —
+                    server-rendered HTML with custom elements upgrades in place. No virtual
+                    tree to reconcile against.</li>
+
+                    <li><a href="/docs/components/lifecycle">Lifecycle</a> is
+                    <code>connectedCallback</code> and <code>disconnectedCallback</code>.
+                    Not a framework-specific lifecycle to learn. The browser's lifecycle
+                    is yours.</li>
+
+                    <li><a href="/docs/services">Dependency injection</a> as a DOM subtree,
+                    not a module graph. Provide at a component, every descendant resolves
+                    it. The element tree is the injector tree. 94 lines.</li>
+
+                    <li><a href="/docs/ssg">SSG</a> as Puppeteer visiting routes in parallel
+                    browser tabs — the browser's own engine renders, not a JS-side
+                    reimplementation. 292 lines.</li>
+
+                    <li><a href="/docs/navigation">Routing</a> as a
+                    <code>BehaviorSubject</code> — one service, one element, one
+                    observable. Active links, lazy loading, transitions — just
+                    subscriptions to the same stream.</li>
+
+                    <li><a href="/docs/getting-started/bundler-config">Bundler agnostic</a>
+                    — Vite, Rollup, esbuild, Webpack. The framework is a TypeScript
+                    transformer and a runtime. Not coupled to a build tool.</li>
+
+                    <li>Reactivity as <a href="/examples/nesting-example">path walking</a>,
+                    not explicit annotation. <code>${escape`{{count}}`}</code> resolves
+                    against the host. <code>${escape`{{^^count}}`}</code> walks up two
+                    host ancestors via <code>${escape`element.closest('[rx-host]')`}</code>.
+                    The hierarchy is already there — the binding just reads it.</li>
+
+                    <li><a href="/examples/rx-graph">Stream composition as property
+                    assignment</a>, not a framework input system.
+                    <code>${escape`Observable<number[]>`}</code> flows through a binding
+                    the same way a number does.</li>
+
+                    <li><a href="/examples/reactive-palette">Child state flows up</a> —
+                    <code>${escape`[(value)]="hue"`}</code>. No <code>@Output()</code>
+                    decorator. No event emitter. No callback prop.</li>
+
+                    <li>Refs are the raw DOM node —
+                    <code>${escape`<canvas #graph>`}</code> gives you an
+                    <code>HTMLCanvasElement</code>. Not a wrapper. Not a ref object.
+                    The element itself.</li>
+
+                    <li><a href="/docs/reactive-state/dollar">Derived values</a> by
+                    transforming existing observables, not a dedicated primitive. No
+                    <code>computed()</code>. No <code>useMemo()</code>. Your state is
+                    already observable — just transform it.</li>
+
+                    <li>Template binding as <a href="/docs/components/paths">path
+                    resolution</a>, not a template language.
+                    <a href="/docs/reactive-state">State</a> lives on the DOM nodes
+                    themselves — <code>${escape`{{count}}`}</code> resolves against the
+                    element that owns it. Logic stays in TypeScript where it belongs, not
+                    in a proxy language between your code and the DOM. No DSL, no pipes,
+                    no structural directive syntax.
+                    <a href="/docs/components/bindings">One grammar</a> for text,
+                    properties, attributes, classes, styles, taps, events, and refs.</li>
+
+                    <li><a href="/docs/reactive-state/attribute-marshalling/custom-codecs">Typed
+                    attributes</a>, not manual casting. Declare
+                    <code>${escape`@state total: Decimal`}</code> and the string attribute
+                    becomes a <code>Decimal</code> on connect. No
+                    <code>${escape`Number(params['id'])`}</code> scattered through your
+                    code. <code>Temporal.PlainDate</code>, <code>Address</code> — same
+                    story, through HTML, through SSG, through hydration.</li>
+
+                    <li>Iterative rendering as an optional, tree-shakable
+                    <a href="/docs/directives/builtin/rx-for">directive</a>, not a framework
+                    primitive. Don't use it, don't ship it. Splat, scope, destructure,
+                    keyed — one expression.</li>
+
+                    <li><a href="/examples/nesting-example">A leaf component</a> three
+                    layers deep calls a method on the root, passing data from the middle:
+                    <code>^^.toggleStep(^.trackKey, idx)</code>. No props drilled, no
+                    events emitted, no context provider.</li>
+                </ul>
+
                 <p>Side effects of correct foundational decisions, delivered in hundreds of lines
                 instead of hundreds of thousands.</p>
             </manifesto-section>
