@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "@yaw-rx/ssg": "./dist/cli.js"
+    "yaw-ssg": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc",

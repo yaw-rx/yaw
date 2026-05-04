@@ -50,7 +50,7 @@ RUN npm install @sparticuz/chromium -w packages/yaw-ssg \
  && npm ls @yaw-rx/ssg 2>/dev/null; ls -la node_modules/.bin/ | grep ssg || true
 
 WORKDIR /repo/packages/yaw-example
-RUN node ../yaw-ssg/dist/cli.js dist public
+RUN npm run build:ssg
 
 FROM nginx:alpine
 COPY --from=ssg /repo/packages/yaw-example/public /usr/share/nginx/html

@@ -86,7 +86,7 @@ export class LighthouseMeters extends RxElement {
     template: `
         <h1 toc-anchor="ssg">Static Site Generation</h1>
         <p class="lede">Build your app with Vite (or any bundler), then
-           run <code class="inline">@yaw-rx/ssg</code> on the output. It
+           run <code class="inline">yaw-ssg</code> on the output. It
            launches a headless browser, visits every route, captures the
            fully rendered DOM, and writes static HTML files. On load,
            the framework hydrates from the captured state — no flash,
@@ -101,7 +101,7 @@ export class LighthouseMeters extends RxElement {
             <p class="note">It takes two arguments: the directory your
                bundler wrote to, and the directory to write the static
                output to.</p>
-            <code-block syntax="bash">${escape`@yaw-rx/ssg <dist-dir> <out-dir>`}</code-block>
+            <code-block syntax="bash">${escape`yaw-ssg <dist-dir> <out-dir>`}</code-block>
             <p class="note">A typical workflow: build, then capture.</p>
             <code-block syntax="bash">${escape`npm run build
 npm run build:ssg`}</code-block>
@@ -110,7 +110,7 @@ npm run build:ssg`}</code-block>
             <code-block syntax="json">${escape`{
     "scripts": {
         "build": "vite build",
-        "build:ssg": "@yaw-rx/ssg dist public"
+        "build:ssg": "yaw-ssg dist public"
     }
 }`}</code-block>
         </section>
@@ -118,14 +118,14 @@ npm run build:ssg`}</code-block>
         <section class="host" toc-section="ssg/browser">
             <h2 toc-anchor="ssg/browser">Browser resolution</h2>
             <p class="note">On your local machine,
-               <code class="inline">@yaw-rx/ssg</code> finds and uses
+               <code class="inline">yaw-ssg</code> finds and uses
                whatever Chromium-based browser you already have
                installed — Chrome, Brave, Edge, Chromium, Vivaldi,
                Arc. Nothing to install, nothing to configure.</p>
             <p class="note">In server environments — Docker, CI,
                Lambda — there is no browser. Install
                <code class="inline">@sparticuz/chromium</code> and
-               <code class="inline">@yaw-rx/ssg</code> picks it up
+               <code class="inline">yaw-ssg</code> picks it up
                automatically. It ships a stripped-down Chromium
                binary built for headless environments.</p>
             <code-block syntax="bash">${escape`npm install @sparticuz/chromium --save-dev`}</code-block>
