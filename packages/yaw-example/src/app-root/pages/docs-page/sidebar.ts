@@ -10,6 +10,7 @@
  */
 import { type Observable } from 'rxjs';
 import { Component, Inject, RxElement } from '@yaw-rx/core';
+import { isPrerendered } from '@yaw-rx/core/ssg/hydrate/hydration-state';
 import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import { TocService, type TocEntry } from './services/toc-service.js';
 import { TocNode } from './sidebar/toc-node.js';
@@ -55,6 +56,7 @@ export class DocsSidebar extends RxElement {
     }
 
     override onInit(): void {
+        if (isPrerendered()) return;
         let timer: number | undefined;
         const mo = new MutationObserver(() => {
             clearTimeout(timer);

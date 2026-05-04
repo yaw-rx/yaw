@@ -1,6 +1,8 @@
 import { ReplaySubject } from 'rxjs';
 
-let hydrating = (globalThis as Record<string, unknown>)['__yaw_hydrate'] === true;
+const prerendered = (globalThis as Record<string, unknown>)['__yaw_hydrate'] === true;
+let hydrating = prerendered;
+export const isPrerendered = (): boolean => prerendered;
 export const isHydrating = (): boolean => hydrating;
 
 export const hydrationComplete$ = new ReplaySubject<void>(1);

@@ -40,6 +40,10 @@
     "./ssg/hydrate/strip-ssg-attributes": {
       "import": "./dist/ssg/hydrate/strip-ssg-attributes.js",
       "types": "./dist/ssg/hydrate/strip-ssg-attributes.d.ts"
+    },
+    "./ssg/hydrate/hydration-state": {
+      "import": "./dist/ssg/hydrate/hydration-state.js",
+      "types": "./dist/ssg/hydrate/hydration-state.d.ts"
     }
   },
   "scripts": {
