@@ -113,7 +113,7 @@ const YAW_SNIPPET = `
                     each binding subscribes to its node directly. No virtual DOM, no
                     reconciler, no diff pass, no "should this component update?"</li>
 
-                    <li><a href="/docs/reactive-state">One primitive for reactive state</a> —
+                    <li><a href="/docs/components/state/decorator">One primitive for reactive state</a> —
                     <code>${escape`@state`}</code> wraps a field in a
                     <code>BehaviorSubject</code>. It lives on the DOM nodes
                     themselves — <code>${escape`{{count}}`}</code> resolves against the
@@ -125,7 +125,7 @@ const YAW_SNIPPET = `
                     Logic stays in TypeScript where it belongs, not
                     in a proxy language between your code and the DOM. No DSL, no pipes,
                     no structural directive syntax.
-                    <a href="/docs/components/bindings">One grammar</a> for text,
+                    <a href="/docs/components/bindings/data">One grammar</a> for text,
                     properties, attributes, classes, styles, taps, events, and refs.
                         <ul>
                             <li><a href="/docs/components/paths/dotted">Dotted paths</a>
@@ -135,7 +135,7 @@ const YAW_SNIPPET = `
                         </ul>
                     </li>
 
-                    <li><a href="/docs/components/paths">Scope resolution as DOM
+                    <li><a href="/docs/components/paths/carets">Scope resolution as DOM
                     traversal</a>, not explicit annotation. The DOM is already a tree —
                     bindings just walk it.
                         <ul>
@@ -153,7 +153,7 @@ const YAW_SNIPPET = `
                     <code>${escape`[(value)]="hue"`}</code>. No <code>@Output()</code>
                     decorator. No event emitter. No callback prop.</li>
 
-                    <li><a href="/docs/reactive-state/dollar">Derived values</a> by
+                    <li><a href="/docs/components/state/dollar">Derived values</a> by
                     transforming existing observables, not a dedicated primitive. Your
                     state is already observable — just transform it.
                         <ul>
@@ -165,7 +165,7 @@ const YAW_SNIPPET = `
                         </ul>
                     </li>
 
-                    <li><a href="/docs/reactive-state/attribute-marshalling/custom-codecs">Typed
+                    <li><a href="/docs/components/marshalling/custom-codecs">Typed
                     attributes</a>, not manual casting. Declare
                     <code>${escape`@state total: Decimal`}</code> and the string attribute
                     becomes a <code>Decimal</code> on connect. No
@@ -178,12 +178,12 @@ const YAW_SNIPPET = `
                     primitive. Don't use it, don't ship it. Splat, scope, destructure,
                     keyed — one expression.</li>
 
-                    <li><a href="/docs/components/bindings">Refs</a> are the raw DOM node —
+                    <li><a href="/docs/components/bindings/imperative">Refs</a> are the raw DOM node —
                     <code>${escape`<canvas #graph>`}</code> gives you an
                     <code>HTMLCanvasElement</code>. Not a wrapper. Not a ref object.
                     The element itself.</li>
 
-                    <li><a href="/docs/services">Dependency injection</a> as a DOM subtree,
+                    <li><a href="/docs/services/resolve">Dependency injection</a> as a DOM subtree,
                     not a module graph. Provide at a component, every descendant resolves
                     it. The element tree is the injector tree. 94 lines.</li>
 
@@ -196,7 +196,7 @@ const YAW_SNIPPET = `
                     <code>useEffect</code> cleanup functions. You only clean up what
                     you own.</li>
 
-                    <li><a href="/docs/navigation">Routing</a> as a
+                    <li><a href="/docs/navigation/api">Routing</a> as a
                     <code>BehaviorSubject</code> — one service, one element, one
                     observable. Active links, lazy loading, transitions — just
                     subscriptions to the same stream.</li>

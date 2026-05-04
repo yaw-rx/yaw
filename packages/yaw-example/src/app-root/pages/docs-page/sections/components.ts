@@ -635,8 +635,8 @@ AttributeMarshalError
 <!-- doubled is a getter returning Observable<number> — subscribes -->
 <span>{{doubled}}</span>
 
-<!-- label is a plain string property — read once -->
-<span>{{label}}</span>`}</code-block>
+<!-- title is a plain string property — read once -->
+<span>{{title}}</span>`}</code-block>
             </section>
 
             <section class="host" toc-section="components/paths/dotted">
@@ -749,16 +749,16 @@ get latency(): Observable<{ p99: number }> { ... }
         <section class="host" toc-section="components/bindings">
             <h2 toc-anchor="components/bindings">Template bindings</h2>
             <p class="note">Templates support several kinds of bindings.
-               There are two groups: reactive bindings that subscribe
-               and stay in sync, and imperative bindings that fire
-               once.</p>
-            <h3>Reactive</h3>
+               There are two groups: data bindings that resolve a path
+               on the host and push values to the DOM, and imperative
+               bindings that respond to events or capture refs.</p>
+            <section toc-section="components/bindings/data">
+            <h3 toc-anchor="components/bindings/data">Data</h3>
             <p class="note">Paths resolve against the component
                whose template you are writing in — an
-               <code class="inline">@state</code> field, an observable
-               getter, or a plain property like
-               <code class="inline">count</code> or
-               <code class="inline">svc.icon</code>.
+               <code class="inline">@state</code> field like
+               <code class="inline">count</code>, an observable
+               getter, or a plain property.
                Prefix with <code class="inline">^</code> to read
                from the parent host, or
                <code class="inline">^^</code> the grandparent
@@ -785,16 +785,18 @@ get latency(): Observable<{ p99: number }> { ... }
                     <tr><th>Binding</th><th>Syntax</th><th>Description</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td>text (mustache)</td><td><code>${escape`{{path}}`}</code></td><td>Subscribes to an observable and updates the element's <code>textContent</code> whenever it emits</td></tr>
-                    <tr><td>property</td><td><code>[prop]="path"</code></td><td>Subscribes and sets a JavaScript property on the element</td></tr>
-                    <tr><td>attribute</td><td><code>[attr]="path"</code></td><td>Subscribes and calls <code>setAttribute</code> on the element whenever it emits</td></tr>
-                    <tr><td>class</td><td><code>[class.name]="path"</code></td><td>Subscribes and toggles a CSS class on the element's <code>classList</code> based on truthiness</td></tr>
-                    <tr><td>style</td><td><code>[style.prop]="path"</code></td><td>Subscribes and sets an inline style property on the element via <code>element.style</code></td></tr>
+                    <tr><td>text (mustache)</td><td><code>${escape`{{path}}`}</code></td><td>Subscribes to an observable and updates the element's <code>textContent</code> whenever it emits, or reads a plain value once</td></tr>
+                    <tr><td>property</td><td><code>[prop]="path"</code></td><td>Subscribes and sets a JavaScript property on the element, or reads a plain value once</td></tr>
+                    <tr><td>attribute</td><td><code>[attr]="path"</code></td><td>Subscribes and calls <code>setAttribute</code> on the element whenever it emits, or reads a plain value once</td></tr>
+                    <tr><td>class</td><td><code>[class.name]="path"</code></td><td>Subscribes and toggles a CSS class on the element's <code>classList</code> based on truthiness, or reads a plain value once</td></tr>
+                    <tr><td>style</td><td><code>[style.prop]="path"</code></td><td>Subscribes and sets an inline style property on the element via <code>element.style</code>, or reads a plain value once</td></tr>
                     <tr><td>tap</td><td><code>[(prop)]="path"</code></td><td>Subscribes to the element's own <code>@state</code> field and writes each new value to a property on the host (<code>hostProp</code>) or an ancestor host (<code>^parentHostProp</code>)</td></tr>
                 </tbody>
             </table>
             <code-block syntax="html">${escape`${REACTIVE_SNIPPET}`}</code-block>
-            <h3>Imperative</h3>
+            </section>
+            <section toc-section="components/bindings/imperative">
+            <h3 toc-anchor="components/bindings/imperative">Imperative</h3>
             <p class="note">Respond to user actions or wire up element references.</p>
             <table class="binding-table">
                 <thead>
@@ -806,6 +808,7 @@ get latency(): Observable<{ p99: number }> { ... }
                 </tbody>
             </table>
             <code-block syntax="html">${escape`${IMPERATIVE_SNIPPET}`}</code-block>
+            </section>
         </section>
 
         <section class="host" toc-section="components/projection">

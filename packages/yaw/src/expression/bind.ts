@@ -18,11 +18,11 @@
  *   value and complete — but inside switchMap that's fine, because the outer
  *   subscription stays alive and re-triggers the inner on the next emission.
  *
- *   A chain of ONLY of() segments is dead — emits once, completes, never
- *   updates. That's why at least one segment must be observable: it's the
- *   live source that keeps the pipeline alive. Everything downstream of it
- *   re-evaluates when it emits. Everything upstream is a stable reference
- *   (the host object, resolved once via walkScope).
+ *   A chain of all plain values emits once via of() and completes — a
+ *   valid one-shot binding. When at least one segment is observable, it
+ *   keeps the pipeline alive and downstream segments re-evaluate on each
+ *   emission. Upstream segments are stable references resolved once via
+ *   walkScope.
  *
  * Resolution functions:
  *
@@ -263,21 +263,15 @@ export const observeBind = (
     if (!hooked && !parsed.call) {
         const { root } = resolveScope(host, parsed, parsed.raw);
         let cur: unknown = root;
-        let found = false;
         for (let i = startIndex; i < segments.length; i++) {
             if (cur === null || cur === undefined) break;
             const obj = cur as Record<string, unknown>;
-            if (isObservable(obj[segments[i]!]) || isObservable(obj[`${segments[i]!}$`])) {
-                found = true;
-                break;
+            const seg = segments[i]!;
+            if (isObservable(obj[seg]) || isObservable(obj[`${seg}$`])) break;
+            if (!(seg in obj)) {
+                throw new BindPathError(host.tagName, parsed.raw, seg);
             }
-            cur = obj[segments[i]!];
-        }
-        if (!found) {
-            throw new BindNotSubscribableError(
-                host.tagName, parsed.raw,
-                `no observable segment in chain — add @state or use a reactive source`,
-            );
+            cur = obj[seg];
         }
     }
 

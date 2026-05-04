@@ -28,7 +28,8 @@ export const WAVE_MIXER_TEMPLATE = `
 export const WAVE_MIXER_STYLES = `
     :host { display: block; }
     .controls { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; }
-    .row { display: grid; grid-template-columns: 4rem 1fr 4rem; gap: 0.75rem; align-items: center; }
+    .row { display: flex; gap: 0.3rem; align-items: center; }
+    .row yaw-slider { flex: 1; }
     .label { font-family: monospace; font-size: 0.75rem; color: #666;
              text-transform: uppercase; letter-spacing: 0.06em; }
     .readout { font-family: monospace; font-size: 0.8rem; color: #8af; text-align: right; }
