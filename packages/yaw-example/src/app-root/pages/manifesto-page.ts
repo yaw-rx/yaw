@@ -7,13 +7,13 @@ import './manifesto-page/sections/manifesto.js';
 import './manifesto-page/sections/footer.js';
 
 const REACT_SNIPPET = `
-    // React 19: 59KB gzipped to call appendChild
+    // React 19: 60KB gzipped to call appendChild
     const [count, setCount] = useState(0);
     useEffect(() => { document.title = count; }, [count]);
 `;
 
 const YAW_SNIPPET = `
-    // YAW: 18KB gzipped. Direct. Honest.
+    // YAW: 16KB gzipped. Direct. Honest.
     @state count = 0;
     // That's it. The DOM updates. No diff. No reconciliation.
 `;
@@ -141,7 +141,7 @@ const YAW_SNIPPET = `
                         <ul>
                             <li><code>${escape`{{count}}`}</code> resolves against the host.
                             <code>${escape`{{^^count}}`}</code> walks up two host ancestors
-                            via <code>${escape`element.closest('[rx-host]')`}</code>.</li>
+                            via <code>${escape`element.closest('[data-rx-host]')`}</code>.</li>
                             <li>A leaf component three layers deep calls a method on
                             the root, passing data from the middle:
                             <code>${escape`^^.toggleStep(^.trackKey, idx)`}</code>. No props
@@ -253,7 +253,7 @@ const YAW_SNIPPET = `
                 <p>The core runtime — <code>state.ts</code>, <code>rx-element.ts</code>,
                 <code>setupBindings.ts</code>, <code>bind.ts</code> — is 681 lines.
                 The whole framework including compile-time transforms and SSG is about 3,500.</p>
-                <p>React's runtime alone is 248,000 lines. Angular's is 311,000+.</p>
+                <p>React's runtime alone is 245,000 lines. Angular's is 305,000+.</p>
             </manifesto-section>
 
             <manifesto-section heading="The Platform Is Enough">

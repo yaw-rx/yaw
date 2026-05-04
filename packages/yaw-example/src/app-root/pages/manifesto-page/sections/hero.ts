@@ -10,7 +10,7 @@ import { PerlinBg } from './hero/perlin-bg.js';
             <h1 class="title">YAW</h1>
             <p class="sub">The DOM is not your enemy.</p>
             <div class="stats">
-                <stat-counter label="bundle" unit="KB" target="18"></stat-counter>
+                <stat-counter label="bundle" unit="KB" target="16"></stat-counter>
                 <stat-counter label="node_modules" unit="MB" target="9"></stat-counter>
                 <stat-counter label="dependency" target="1"></stat-counter>
                 <stat-counter label="virtual DOM" target="0"></stat-counter>
