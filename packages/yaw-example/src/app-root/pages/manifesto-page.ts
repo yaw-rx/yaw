@@ -1,4 +1,5 @@
 import { Component, RxElement } from '@yaw-rx/core';
+import { escape } from '@yaw-rx/common';
 import '../components/code-block.js';
 import './manifesto-page/sections/hero.js';
 import './manifesto-page/sections/stat-counter.js';
@@ -27,33 +28,38 @@ const YAW_SNIPPET = `
                 <p>We were handed a runtime that renders trees in C++, and we responded by building
                 JavaScript replicas of it. Twice. Once in Google's cathedral, once in Facebook's garage.</p>
                 <p>React asks you to pretend the DOM doesn't exist, then builds a virtual one, diffs it,
-                and finally touches the real thing. The virtual DOM is a read receipt for state mutations
-                you initiated yourself. The virtual part is pure tax.</p>
-                <p>Angular monkey-patched every async API in the browser so it could detect when something
-                might have changed, then walked the entire component tree checking. They've now admitted
-                this was wrong and are migrating to signals — which sit on top of change detection,
-                not instead of it.</p>
+                and finally touches the real thing. The virtual part is pure tax.
+                You pay for the allocation, you pay for the diff, you pay for the reconciliation,
+                and at the end of the day you still call <code>appendChild</code> like it's 1998.
+                All to solve a problem they invented: "What if direct DOM manipulation was unpredictable?"
+                It wasn't.</p>
+                <p>Angular shipped a framework that downloads half the internet to render a button.
+                Zone.js monkey-patches every async API in the browser just to know when to check
+                if anything changed. They built a change detection system so complex it needs its own
+                debugging tools. And for what? So you can write <code>${escape`{{user.name}}`}</code> instead of
+                <code>${escape`user.name$.subscribe(name => this.textContent = name)`}</code>.
+                They've since conceded by shipping signals — a second reactivity primitive bolted
+                onto a framework that wasn't designed for them. Two abstractions deep and Zone.js
+                still isn't gone.</p>
                 <p>Both replaced <code>HTMLElement</code> with their own component model. The browser's
                 built-in tools — Elements panel, <code>querySelector</code>,
                 <code>connectedCallback</code>, <code>closest()</code> — stopped working.
                 So they rebuilt those too.</p>
-                <code-block syntax="ts"><script type="text/plain">${REACT_SNIPPET}</script></code-block>
+                <code-block syntax="ts">${escape`${REACT_SNIPPET}`}</code-block>
             </manifesto-section>
 
-            <manifesto-section heading="The Compound Tax">
-                <p>Once you replace the DOM, you lose everything it gave you for free.
-                And you rebuild each piece from scratch.</p>
-                <p>Components don't produce HTML? Now you need a server renderer. Then a hydration
-                system to reconcile it with the client. Angular shipped theirs at Google I/O as a
-                headline feature. The crowd applauded a fix for a problem the framework created.</p>
-                <p>State lives in closures, not on elements? You can't walk the tree to find data.
-                Redux. Zustand. Jotai. Pinia. MobX. Recoil (deprecated). Each one a cottage industry
-                built around the inability to read a value from an ancestor.</p>
-                <p>Lifecycle is framework-managed? <code>useEffect</code> cleanup,
-                <code>ngOnDestroy</code>, <code>onUnmounted</code>.
-                Miss one and you leak. The browser's <code>disconnectedCallback</code> does this
-                automatically — but the frameworks can't use it because their components aren't elements.</p>
-                <p>Not features. Debt service.</p>
+            <manifesto-section heading="&quot;Sophistication&quot;">
+                <p>They told us this was necessary. That the web was "too complex" for simple solutions.
+                That we needed "predictable state management" and "unidirectional data flow"
+                and "fine-grained reactivity."</p>
+                <p>These are not insights. These are apologies for overhead.</p>
+                <p>Angular's "change detection" is "we have no idea when your state changes so we check
+                everything, constantly, or patch the browser to tell us." React's "unidirectional data flow"
+                is just "we diff two trees because we don't trust you to update what changed."</p>
+                <p>The actual solution was always there: push updates directly to the DOM when you know
+                they happened. That's what Observables do. That's what the browser's been doing
+                since <code>MutationObserver</code>.</p>
+                <p>The "sophistication" was never in the runtime. It was in convincing you that you needed it.</p>
             </manifesto-section>
 
             <manifesto-section heading="Premature Deoptimization">
@@ -70,15 +76,21 @@ const YAW_SNIPPET = `
             </manifesto-section>
 
             <manifesto-section heading="Our Heresy">
-                <p>We reject Zone.js. Not because we hate debugging, but because we can unsubscribe.
-                We reject the virtual DOM. Not because we're Luddites, but because we can read.
-                We reject 3GB of <code>node_modules</code>. Not because we enjoy suffering, but because
+                <p>We reject Zone.js. Not because we hate debugging, but because we can unsubscribe.</p>
+                <p>We reject the virtual DOM. Not because we're Luddites, but because we can read.</p>
+                <p>We reject 3GB of <code>node_modules</code>. Not because we enjoy suffering, but because
                 the platform already ships with a DOM.</p>
-                <p>One property change, one subscription fires, one DOM node updates. The granularity
-                is per-binding, not per-component. There's nothing to opt out of because there's no
-                over-rendering to begin with.</p>
-                <code-block syntax="ts"><script type="text/plain">${YAW_SNIPPET}</script></code-block>
+                <p>We write <code>${escape`{{count}}`}</code> and <code>${escape`[label]="status"`}</code>
+                because no one wants to write <code>${escape`count$.subscribe(v => el.textContent = v)`}</code> inline.
+                That's not a principle — that's jQuery with extra steps. The template is the abstraction
+                that earns its keep: it compiles to exactly those subscriptions and nothing else. No virtual
+                copy. No diff. No reconciliation queue. Just <code>${escape`data-rx-bind-prop-label="status"`}</code>
+                stamped into real DOM, read by the element that owns it.</p>
+                <p><code>rx-for</code> stamps DOM nodes. The browser instantiates them. They bind themselves.
+                The tree walks itself. We don't manage components — we register custom elements
+                and get out of the way.</p>
                 <p>This is not minimalism for aesthetics. This is removing solutions to problems we didn't have.</p>
+                <code-block syntax="ts">${escape`${YAW_SNIPPET}`}</code-block>
             </manifesto-section>
 
             <manifesto-section heading="What Falls Out">
@@ -86,12 +98,9 @@ const YAW_SNIPPET = `
                 Not dedicated infrastructure. Consequences.</p>
                 <p><a href="/showcase">A leaf component</a> three layers deep calls a method on the root, passing data from
                 the middle: <code>^^.toggleStep(^.trackKey, idx)</code>. No props drilled, no events
-                emitted, no context provider.
-                This is architecturally impossible in React and Angular —
-                their components aren't DOM elements, there's no tree to walk.</p>
+                emitted, no context provider.</p>
                 <p>DI is a Map with a parent pointer. 94 lines. SSG is Puppeteer visiting every route
-                in parallel. 292 lines. Attribute typing is a codec registry that decodes raw strings
-                into real typed objects at connect time. No other framework has this.</p>
+                in parallel. 292 lines.</p>
                 <p>Side effects of correct foundational decisions, delivered in hundreds of lines
                 instead of hundreds of thousands.</p>
             </manifesto-section>
@@ -101,15 +110,6 @@ const YAW_SNIPPET = `
                 <code>setupBindings.ts</code>, <code>bind.ts</code> — is 681 lines.
                 The whole framework including compile-time transforms and SSG is about 3,500.</p>
                 <p>React's runtime alone is 248,000 lines. Angular's is 311,000+.</p>
-                <p>Our <code>node_modules</code> fits in an email attachment.
-                Our mental model fits in a sentence:</p>
-                <strong class="model">Observables push, DOM reflects, elements clean up.</strong>
-                <p>We ship in kilobytes, not megabytes. We start instantly, not after hydration.
-                We update precisely, not after diffing. We garbage collect automatically, not after
-                manual effect cleanup.</p>
-                <p>The web was never broken. We just convinced ourselves it was,
-                then sold each other expensive repairs.</p>
-                <p class="closer">We're done buying.</p>
             </manifesto-section>
 
             <manifesto-section heading="The Platform Is Enough">
@@ -119,6 +119,44 @@ const YAW_SNIPPET = `
                 <code>appendChild</code> adds nodes.
                 RxJS handles asynchrony. The DI container is a Map with a parent pointer.
                 Everything else is ceremony.</p>
+                <p>You want server-side rendering? The browser parses HTML. You want hydration?
+                Custom elements upgrade when definitions load. You want lazy loading? Dynamic
+                <code>import()</code> and <code>customElements.define</code>. You want dev tools?
+                They're called the <strong>Elements panel</strong>. Ours works because we didn't break it.</p>
+                <p>Yes, we built yet another framework 🙄. But the convention it's built on will
+                hopefully outlast them all: extend <code>HTMLElement</code>, scan your attributes,
+                subscribe to Observables, clean up when removed. And that's the API. That's the whole API.</p>
+            </manifesto-section>
+
+            <manifesto-section heading="To the Angular Dev">
+                <p>We know the churn is exhausting. NgModule to standalone, decorators to signals,
+                Zone.js to zoneless — each one an admission that they got the last abstraction wrong.
+                Again.</p>
+                <p>Our DI is a function that walks up a parent chain. Our components are classes that
+                extend <code>HTMLElement</code>. Our templates are HTML. You already know this pattern.
+                We just removed the 311,000 lines of abstraction between you and it.</p>
+            </manifesto-section>
+
+            <manifesto-section heading="To the React Dev">
+                <p>The <code>useEffect</code> dependency array is a manual memory management exercise
+                disguised as declarative code. The "rules of Hooks" are a runtime linter because the
+                abstraction leaks. The concurrent features are fixing scheduling problems created by
+                the scheduler.</p>
+                <p>We don't have rules. We have <code>subscribe</code> and <code>unsubscribe</code>.
+                We don't have a scheduler. We have the browser's event loop. We don't have "server
+                components" because our components <strong>are</strong> HTML — they render the same everywhere.</p>
+            </manifesto-section>
+
+            <manifesto-section heading="The Measure of Success">
+                <p>We ship in kilobytes, not megabytes. We start instantly, not after hydration.
+                We update precisely, not after diffing. We garbage collect automatically, not after
+                manual effect cleanup.</p>
+                <p>Our <code>node_modules</code> fits in an email attachment.
+                Our mental model fits in a sentence:</p>
+                <strong class="model">Observables push, DOM reflects, elements clean up.</strong>
+                <p>The web was never broken. We just convinced ourselves it was,
+                then sold each other expensive repairs.</p>
+                <p class="closer">We're done. The DOM is fine. Use it.</p>
             </manifesto-section>
         </div>
 
