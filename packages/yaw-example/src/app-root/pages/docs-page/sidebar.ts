@@ -68,6 +68,8 @@ export class DocsSidebar extends RxElement {
         mo.observe(this, { childList: true, subtree: true });
     }
 
+    // Baked intrinsics - self-measures flex-basis from content width.
+    // SSG captures the result; isPrerendered() skips re-measurement on the static site.
     #measureWidth(): void {
         const nodes = this.querySelectorAll<TocNode>('toc-node');
         const wasExpanded: boolean[] = [];
