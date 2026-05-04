@@ -135,14 +135,14 @@ const YAW_SNIPPET = `
                         </ul>
                     </li>
 
-                    <li><a href="/examples/nesting-example">Scope resolution as DOM
+                    <li><a href="/docs/components/paths">Scope resolution as DOM
                     traversal</a>, not explicit annotation. The DOM is already a tree —
                     bindings just walk it.
                         <ul>
-                            <li><code>${escape`{{count}}`}</code> resolves against the host.
+                            <li><a href="/examples/nesting-example">A nested component</a> — <code>${escape`{{count}}`}</code> resolves against the host.
                             <code>${escape`{{^^count}}`}</code> walks up two host ancestors
                             via <code>${escape`element.closest('[data-rx-host]')`}</code>.</li>
-                            <li>A leaf component three layers deep calls a method on
+                            <li><a href="/showcase">A leaf component three layers deep</a> calls a method on
                             the root, passing data from the middle:
                             <code>${escape`^^.toggleStep(^.trackKey, idx)`}</code>. No props
                             drilled, no events emitted, no context provider.</li>
@@ -178,7 +178,7 @@ const YAW_SNIPPET = `
                     primitive. Don't use it, don't ship it. Splat, scope, destructure,
                     keyed — one expression.</li>
 
-                    <li>Refs are the raw DOM node —
+                    <li><a href="/docs/components/bindings">Refs</a> are the raw DOM node —
                     <code>${escape`<canvas #graph>`}</code> gives you an
                     <code>HTMLCanvasElement</code>. Not a wrapper. Not a ref object.
                     The element itself.</li>
@@ -203,7 +203,7 @@ const YAW_SNIPPET = `
 
                     <li><a href="/docs/ssg">SSG</a> — 292 lines.
                         <ul>
-                            <li>Puppeteer visiting routes in parallel browser tabs — the
+                            <li><a href="/docs/ssg/browser">Puppeteer visiting routes in parallel browser tabs</a> — the
                             browser's own engine renders, not a JS-side reimplementation.</li>
                             <li>Templates compiled at build time —
                             <code>${escape`{{count}}`}</code> becomes
