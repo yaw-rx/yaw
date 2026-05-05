@@ -1,6 +1,6 @@
-import { Component, RxElement } from '@yaw-rx/core';
+import { Component } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 
 @Component({
     selector: 'core-concepts-section',
@@ -80,6 +80,6 @@ import { DOC_STYLES } from '../../utils/doc-styles.util.js';
         <p class="note">Pre-render your app to static HTML so
            pages load instantly without waiting for JavaScript.</p>
     `,
-    styles: `:host { display: block; }\n${DOC_STYLES}\nh2 { margin-top: 1.5rem; }`,
+    styles: `:host { display: block; }\nh2 { margin-top: 1.5rem; }`,
 })
-export class DocsConcepts extends RxElement {}
+export class DocsConcepts extends DocSection {}

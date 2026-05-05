@@ -1,10 +1,10 @@
 import { BehaviorSubject } from 'rxjs';
 import { Component, Inject, Injectable, RxElement, state } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { escape } from '../../components/code-block/code-block-highlight.component.js';
 import '../../components/code-block.component.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 
 @Injectable()
 export class Clock {
@@ -147,8 +147,7 @@ const LIVE_USAGE = `<clock-readout></clock-readout>`;
     `,
     styles: `
         :host { display: block; }
-        ${DOC_STYLES}
         .live { display: flex; align-items: center; justify-content: center; }
     `,
 })
-export class DocsServices extends RxElement {}
+export class DocsServices extends DocSection {}

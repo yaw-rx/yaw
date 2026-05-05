@@ -1,9 +1,9 @@
-import { Component, RxElement } from '@yaw-rx/core';
+import { Component } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { escape } from '../../components/code-block/code-block-highlight.component.js';
 import '../../components/code-block.component.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 
 const INSTALL_SOURCE = `npm install yaw rxjs
 npm install @yaw-rx/transformer @yaw-rx/ts-plugin @yaw-rx/ssg ts-patch --save-dev
@@ -314,7 +314,6 @@ export default {
     `,
     styles: `
         :host { display: block; }
-        ${DOC_STYLES}
         details { margin-bottom: 0.75rem; border: var(--border-width) solid var(--bg-5);
                   border-radius: var(--radius); overflow: hidden; }
         summary { cursor: pointer; padding: 0.75rem 1rem;
@@ -331,4 +330,4 @@ export default {
         details > .note { margin: 0.75rem 1rem; }
     `,
 })
-export class DocsGettingStarted extends RxElement {}
+export class DocsGettingStarted extends DocSection {}

@@ -1,9 +1,9 @@
-import { Component, RxElement } from '@yaw-rx/core';
+import { Component } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { escape } from '../../components/code-block/code-block-highlight.component.js';
 import '../../components/code-block.component.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 
 const HTML_SOURCE = `<!doctype html>
 <html>
@@ -104,6 +104,6 @@ export class AppRoot extends RxElement {}`;
             <code-block syntax="ts">${escape`${APP_ROOT_SOURCE}`}</code-block>
         </section>
     `,
-    styles: `:host { display: block; }\n${DOC_STYLES}`,
+    styles: `:host { display: block; }`,
 })
-export class DocsBootstrap extends RxElement {}
+export class DocsBootstrap extends DocSection {}

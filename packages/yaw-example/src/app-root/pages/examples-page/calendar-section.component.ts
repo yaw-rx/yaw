@@ -1,7 +1,7 @@
-import { Component, RxElement } from '@yaw-rx/core';
+import { Component } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import { escape } from '../../components/code-block/code-block-highlight.component.js';
 import '../../components/code-block.component.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 import './calendar-section/calendar-grid.component.js';
 
 const GRID_SOURCE = `@Component({
@@ -186,7 +186,6 @@ const walkScope = (host, carets) => {
     `,
     styles: `
         :host { display: block; }
-        ${DOC_STYLES}
         .depths { list-style: none; padding: 0; margin: 0;
                   display: flex; flex-direction: column; gap: 0.5rem;
                   color: var(--secondary); font-size: 0.9rem; line-height: 1.6; }
@@ -194,4 +193,4 @@ const walkScope = (host, carets) => {
                      border-left: 2px solid var(--navy); border-radius: 3px; }
     `,
 })
-export class CalendarExample extends RxElement {}
+export class CalendarExample extends DocSection {}

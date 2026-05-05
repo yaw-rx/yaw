@@ -1,7 +1,7 @@
-import { Component, RxElement, state } from '@yaw-rx/core';
+import { Component, state } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import { escape } from '@yaw-rx/common';
 import '../../components/code-block.component.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { SIGNAL_METER_SOURCE } from './signal-meter-section/signal-meter.component.js';
@@ -64,8 +64,8 @@ const WRAPPER_STYLES = `
             </div>
         </section>
     `,
-    styles: `${WRAPPER_STYLES}\n${DOC_STYLES}`,
+    styles: WRAPPER_STYLES,
 })
-export class SignalMeterExample extends RxElement {
+export class SignalMeterExample extends DocSection {
     @state strength = 65;
 }

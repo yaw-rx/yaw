@@ -1,10 +1,10 @@
 import { Component, Inject, RxElement, state } from '@yaw-rx/core';
 import { Router } from '@yaw-rx/core/router';
+import { DocSection } from '../../components/doc-section.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { escape } from '../../components/code-block/code-block-highlight.component.js';
 import '../../components/code-block.component.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 
 @Component({
     selector: 'route-display',
@@ -164,9 +164,8 @@ const LIVE_USAGE = `<route-display></route-display>`;
     `,
     styles: `
         :host { display: block; }
-        ${DOC_STYLES}
         .live { display: flex; align-items: center; justify-content: center; }
         .live > * { width: 100%; }
     `,
 })
-export class DocsNavigation extends RxElement {}
+export class DocsNavigation extends DocSection {}

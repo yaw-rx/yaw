@@ -1,8 +1,8 @@
-import { Component, RxElement, state } from '@yaw-rx/core';
+import { Component, state } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import { escape } from '@yaw-rx/common';
 import '../../components/code-block.component.js';
 import { GRAPH_SOURCE } from './graph-section/rx-graph.component.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { interval, scan, type Observable } from 'rxjs';
@@ -64,11 +64,10 @@ const SAMPLE_MS = 80;
     `,
     styles: `
         :host { display: block; }
-        ${DOC_STYLES}
         ${WRAPPER_STYLES}
     `,
 })
-export class GraphExample extends RxElement {
+export class GraphExample extends DocSection {
     @state graphConfig = { walk: { label: 'random walk', color: '#8af' } };
     @state graphSeries: Record<string, Observable<number[]>> = {};
 

@@ -116,8 +116,20 @@ export const Component = (options: ComponentOptions) =>
             registerAttributeCodecs(options.attributeCodecs);
         }
         if (options.styles !== undefined) {
+            (ctor as unknown as Record<string, unknown>)['styles'] = options.styles;
+        }
+        const inherited: string[] = [];
+        let parent = Object.getPrototypeOf(ctor);
+        while (parent !== null) {
+            if ('styles' in parent && typeof parent.styles === 'string') inherited.push(parent.styles);
+            parent = Object.getPrototypeOf(parent);
+        }
+        const combined = inherited.length > 0
+            ? inherited.reverse().join('\n') + (options.styles ? '\n' + options.styles : '')
+            : options.styles;
+        if (combined) {
             const sheet = new CSSStyleSheet();
-            sheet.replaceSync(transformStyles(options.styles, options.selector));
+            sheet.replaceSync(transformStyles(combined, options.selector));
             stylesCache.set(ctor, sheet);
             document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
         }

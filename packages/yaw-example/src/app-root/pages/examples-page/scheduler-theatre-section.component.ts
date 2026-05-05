@@ -1,7 +1,7 @@
-import { Component, RxElement } from '@yaw-rx/core';
+import { Component } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import { escape } from '../../components/code-block/code-block-highlight.component.js';
 import '../../components/code-block.component.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { SCHEDULER_THEATRE_SOURCE } from './scheduler-theatre-section/scheduler-theatre.component.js';
@@ -43,6 +43,6 @@ const WRAPPER_STYLES = `
             </div>
         </section>
     `,
-    styles: `${WRAPPER_STYLES}\n${DOC_STYLES}`,
+    styles: WRAPPER_STYLES,
 })
-export class SchedulerTheatreExample extends RxElement {}
+export class SchedulerTheatreExample extends DocSection {}

@@ -1,8 +1,8 @@
 import { map, type Observable } from 'rxjs';
 import { Component, RxElement, state } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import { escape } from '@yaw-rx/common';
 import '../../components/code-block.component.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import './nesting-section/nested-level.component.js';
@@ -298,9 +298,9 @@ export class PageEcho extends RxElement {
             </section>
         </div>
     `,
-    styles: `${NESTING_STYLES}\n${WRAPPER_STYLES}\n${DOC_STYLES}`,
+    styles: `${NESTING_STYLES}\n${WRAPPER_STYLES}`,
 })
-export class NestingExample extends RxElement {
+export class NestingExample extends DocSection {
     @state count = 0;
     @state accent = '#050505';
 

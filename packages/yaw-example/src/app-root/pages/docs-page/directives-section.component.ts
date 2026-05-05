@@ -1,12 +1,12 @@
 import { Component, Directive, RxElement } from '@yaw-rx/core';
 import type { RxElementLike } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import { RxIf } from '@yaw-rx/core/directives/rx-if';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { escape } from '../../components/code-block/code-block-highlight.component.js';
 import '../../components/code-block.component.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 import './directives-section/for-demo.component.js';
 import './directives-section/scope-demo.component.js';
 import './directives-section/blink-demo.component.js';
@@ -343,8 +343,7 @@ Scope:  item of source
                display: flex; align-items: center; justify-content: center;
                color: var(--accent); font-family: var(--font-mono); font-size: 0.85rem;
                flex-shrink: 0; }
-        ${DOC_STYLES}
         .live { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; }
     `,
 })
-export class DocsDirectives extends RxElement {}
+export class DocsDirectives extends DocSection {}

@@ -1,9 +1,9 @@
 import { Component, RxElement } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { escape } from '../../components/code-block/code-block-highlight.component.js';
 import '../../components/code-block.component.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 import '../examples-page/signal-meter-section/signal-meter.component.js';
 import type { SignalMeter } from '../examples-page/signal-meter-section/signal-meter.component.js';
 
@@ -205,7 +205,6 @@ EXPOSE 80`}</code-block>
     `,
     styles: `
         :host { display: block; }
-        ${DOC_STYLES}
     `,
 })
-export class DocsSsg extends RxElement {}
+export class DocsSsg extends DocSection {}

@@ -1,9 +1,9 @@
 import { Component, RxElement } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { escape } from '../../components/code-block/code-block-highlight.component.js';
 import '../../components/code-block.component.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 import './reactive-state-section/date-ticker.component.js';
 import './reactive-state-section/decimal-demo.component.js';
 import './reactive-state-section/address-demo.component.js';
@@ -421,10 +421,9 @@ AttributeMarshalError
     `,
     styles: `
         :host { display: block; }
-        ${DOC_STYLES}
         .install { margin-bottom: 2rem; }
         .live { display: flex; align-items: center; justify-content: center; }
         .live > * { width: 100%; }
     `,
 })
-export class DocsReactiveState extends RxElement {}
+export class DocsReactiveState extends DocSection {}

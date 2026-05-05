@@ -1,4 +1,5 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { escape } from '../../components/code-block/code-block-highlight.component.js';
@@ -10,7 +11,6 @@ import './reactive-state-section/decimal-demo.component.js';
 import './reactive-state-section/address-demo.component.js';
 import './reactive-state-section/plaindate-demo.component.js';
 import './reactive-state-section/dayjs-demo.component.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 
 const COUNTER_TEMPLATE = `
     <button onclick="dec">−</button>
@@ -1012,7 +1012,6 @@ export class TickCounter extends RxElement {
     `,
     styles: `
         :host { display: block; }
-        ${DOC_STYLES}
         .install { margin-bottom: 2rem; }
         .live { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; }
         .live > * { width: 100%; }
@@ -1036,4 +1035,4 @@ export class TickCounter extends RxElement {
         }
     `,
 })
-export class DocsComponents extends RxElement {}
+export class DocsComponents extends DocSection {}

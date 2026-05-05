@@ -1,8 +1,8 @@
-import { Component, RxElement, state } from '@yaw-rx/core';
+import { Component, state } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import { escape } from '@yaw-rx/common';
 import '../../components/code-block.component.js';
 import { SLIDER_SOURCE } from './slider-section/yaw-slider.component.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 
@@ -60,12 +60,11 @@ const USAGE = `<yaw-slider [(value)]="value" min="0" max="100"></yaw-slider>
     `,
     styles: `
         :host { display: block; }
-        ${DOC_STYLES}
         .live { display: flex; flex-direction: column; gap: 1rem; }
         .state { margin: 0; font-family: var(--font-mono); color: var(--secondary); font-size: 0.85rem; }
         .state .status { color: var(--accent); }
     `,
 })
-export class SliderExample extends RxElement {
+export class SliderExample extends DocSection {
     @state value = 50;
 }

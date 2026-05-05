@@ -1,5 +1,5 @@
-import { Component, RxElement } from '@yaw-rx/core';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
+import { Component } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import './drum-sequencer-section/drum-machine.component.js';
 
 @Component({
@@ -26,9 +26,8 @@ import './drum-sequencer-section/drum-machine.component.js';
     `,
     styles: `
         :host { display: block; }
-        ${DOC_STYLES}
         .ex { margin-top: 2rem; }
         .live { padding: 0; background: transparent; border: none; zoom: 65%; }
     `,
 })
-export class DrumSequencer extends RxElement {}
+export class DrumSequencer extends DocSection {}

@@ -1,7 +1,7 @@
-import { Component, RxElement } from '@yaw-rx/core';
+import { Component } from '@yaw-rx/core';
+import { DocSection } from '../../components/doc-section.component.js';
 import { escape } from '@yaw-rx/common';
 import '../../components/code-block.component.js';
-import { DOC_STYLES } from '../../utils/doc-styles.util.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { COLOR_PLAYGROUND_SOURCE } from './color-playground-section/color-playground.component.js';
@@ -57,6 +57,6 @@ const WRAPPER_STYLES = `
             </div>
         </section>
     `,
-    styles: `${WRAPPER_STYLES}\n${DOC_STYLES}`,
+    styles: WRAPPER_STYLES,
 })
-export class ColorPlaygroundExample extends RxElement {}
+export class ColorPlaygroundExample extends DocSection {}
