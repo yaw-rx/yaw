@@ -1,13 +1,17 @@
 import { type Subscription } from 'rxjs';
 import { marshaller } from '@yaw-rx/common';
-import { parseBind, subscribeBind, resolveEventHandler, resolveRefTarget, resolveValue, resolveWriteTarget, resolveEncoder } from './expression/bind.js';
+import { parseBind, subscribeBind, deferredBind, resolveEventHandler, resolveRefTarget, resolveValue, resolveWriteTarget, resolveEncoder } from './expression/bind.js';
 import { BindPathError } from './errors.js';
 import { getSubject } from './state.js';
+import { isHydrating } from './ssg/hydrate/hydration-state.js';
 
 export const setupBindings = (element: HTMLElement): () => void => {
     const subs: Subscription[] = [];
     const listeners: Array<{ event: string; fn: EventListener }> = [];
     let refTeardown: (() => void) | undefined;
+    const hydrating = isHydrating();
+    const bind = (parsed: ReturnType<typeof parseBind>, onValue: (v: unknown) => void): Subscription =>
+        hydrating ? deferredBind(element, parsed).subscribe(onValue) : subscribeBind(element, parsed, onValue);
 
     for (const attr of Array.from(element.attributes)) {
         const decoded = marshaller.decode(attr.name);
@@ -18,7 +22,7 @@ export const setupBindings = (element: HTMLElement): () => void => {
 
         switch (kind) {
             case 'prop': {
-                subs.push(subscribeBind(element, parsed, (v) => {
+                subs.push(bind(parsed, (v) => {
                     let target: unknown = element;
                     for (let i = 0; i < memberPath.length - 1; i++) {
                         target = (target as Record<string, unknown>)[memberPath[i]!];
@@ -34,7 +38,7 @@ export const setupBindings = (element: HTMLElement): () => void => {
                 break;
             }
             case 'class': {
-                subs.push(subscribeBind(element, parsed, (v) => {
+                subs.push(bind(parsed, (v) => {
                     element.classList.toggle(memberPath[0]!, Boolean(v));
                 }));
                 break;
@@ -56,20 +60,20 @@ export const setupBindings = (element: HTMLElement): () => void => {
             }
             case 'attr': {
                 const encode = resolveEncoder(element, parsed);
-                subs.push(subscribeBind(element, parsed, (v) => {
+                subs.push(bind(parsed, (v) => {
                     element.setAttribute(memberPath[0]!, encode(v));
                 }));
                 break;
             }
             case 'text': {
                 const encode = resolveEncoder(element, parsed);
-                subs.push(subscribeBind(element, parsed, (v) => {
+                subs.push(bind(parsed, (v) => {
                     element.textContent = encode(v);
                 }));
                 break;
             }
             case 'style': {
-                subs.push(subscribeBind(element, parsed, (v) => {
+                subs.push(bind(parsed, (v) => {
                     (element.style as unknown as Record<string, unknown>)[memberPath[0]!] = v;
                 }));
                 break;

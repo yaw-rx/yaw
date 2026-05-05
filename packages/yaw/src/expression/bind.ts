@@ -327,6 +327,12 @@ export const hydratedBind = (
 ): Observable<unknown> =>
     hydrationComplete$.pipe(first(), switchMap(() => observeBind(host, parsed).pipe(skip(1))));
 
+export const deferredBind = (
+    host: Element,
+    parsed: ParsedBind,
+): Observable<unknown> =>
+    hydrationComplete$.pipe(first(), switchMap(() => observeBind(host, parsed)));
+
 export interface EventInvocation {
     invoke(event: Event): void;
 }

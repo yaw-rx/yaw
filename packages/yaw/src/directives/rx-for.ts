@@ -52,7 +52,7 @@ import { BehaviorSubject, type Subscription } from 'rxjs';
 import { isObservable } from '../is-observable.js';
 import { Directive } from '../directive.js';
 import { BindParseError } from '../errors.js';
-import { parseBind, subscribeBind, hydratedBind, resolveValue, registerScopeHook, type ParsedBind, type ScopeHookResult } from '../expression/bind.js';
+import { parseBind, subscribeBind, deferredBind, resolveValue, registerScopeHook, type ParsedBind, type ScopeHookResult } from '../expression/bind.js';
 import type { RxElementLike } from '../directive.js';
 import { isHydrating } from '../ssg/hydrate/hydration-state.js';
 import { getTemplate } from '../component.js';
@@ -257,7 +257,7 @@ export class RxFor {
     private initSplat(): void {
         if (isHydrating()) {
             this.hydrateSplat();
-            this.sub = hydratedBind(this.node, this.source).subscribe((v) => {
+            this.sub = deferredBind(this.node, this.source).subscribe((v) => {
                 this.assertArray(v);
                 this.updateSplat(v);
             });
@@ -318,7 +318,7 @@ export class RxFor {
 
         if (isHydrating()) {
             this.hydrateScope();
-            this.sub = hydratedBind(this.node, this.source).subscribe((v) => {
+            this.sub = deferredBind(this.node, this.source).subscribe((v) => {
                 this.assertArray(v);
                 this.updateScope(v);
             });
