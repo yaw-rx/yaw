@@ -498,9 +498,8 @@ AttributeMarshalError
                <code class="inline">accessor</code> backed by a
                <code class="inline">StateSubject</code> (a <code class="inline">BehaviorSubject</code>),
                exposed as <code class="inline">fieldName$</code> on the class. Reading the field
-               returns the subject's current value. When you write to it
-               using a plain property set it does a whole entity replacement
-               and calls <code class="inline">fieldName$.next(newValue)</code>.
+               returns the subject's current value. When you write to it, it simply nexts the subject
+               <code class="inline">fieldName$.next(newValue)</code>.
                That's all it does. There is nothing else up our sleeves.
             </p>
             <p class="note">
@@ -512,25 +511,18 @@ AttributeMarshalError
 
             <section class="host" toc-section="components/state/decorator">
                 <h2 toc-anchor="components/state/decorator">@state</h2>
-                <p class="note">Decorate a field with
-                   <code class="inline">@state</code> and it becomes observable.
-                   The decorator replaces the field with a getter/setter pair
-                   backed by a <code class="inline">StateSubject</code>. Writes
-                   go through <code class="inline">.next()</code>; reads return the
-                   current <code class="inline">.value</code>. No manual subject
-                   creation, no <code class="inline">.getValue()</code>, no
-                   boilerplate.</p>
+                <p class="note">No manual subject creation, no
+                   <code class="inline">.getValue()</code>, no boilerplate.
+                   Declare the field, use it like a property — the decorator
+                   handles the rest.</p>
                 <code-block syntax="ts">${escape`${STATE_DECORATOR_SOURCE}`}</code-block>
             </section>
 
             <section class="host" toc-section="components/state/dollar">
                 <h2 toc-anchor="components/state/dollar">The reactive stream ($)</h2>
-                <p class="note">Every <code class="inline">@state</code> field gets
-                   a sibling getter ending in <code class="inline">$</code> that
-                   returns the underlying
-                   <code class="inline">StateSubject&lt;T&gt;</code>. Subscribe to
-                   it, pipe it, pass it to a template binding. The template compiler
-                   resolves binding paths to observables — so
+                <p class="note">Subscribe to it, pipe it, pass it to a
+                   template binding. The template compiler resolves binding
+                   paths to observables — so
                    <code class="inline">${escape`{{doubled}}`}</code> subscribes automatically.</p>
                 <code-block syntax="ts">${escape`${STATE_DOLLAR_SOURCE}`}</code-block>
             </section>
@@ -548,6 +540,8 @@ AttributeMarshalError
                     <code class="inline">this.field$.touch()</code> to force a re-emit after an in-place mutation:
                 </p>
                 <code-block syntax="ts">${escape`this.field.nested.a = 'foo';\nthis.field$.touch();`}</code-block>
+                <p class="note">When performing multiple batch updates — touch at the end so subscribers see only one emission:</p>
+                <code-block syntax="ts">${escape`this.items.push(a, b, c);\nthis.items.sort(compareFn);\nthis.items$.touch();`}</code-block>
                 <p class="note">Here's a full component that mutates a nested
                    <code class="inline">Settings</code> object and calls
                    <code class="inline">touch()</code> to push the change:</p>
