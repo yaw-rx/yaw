@@ -261,7 +261,7 @@ const YAW_SNIPPET = `
                 <p>HTML parses. Custom elements instantiate. Attributes are strings we can scan.
                 <code>connectedCallback</code> is <code>onInit</code>.
                 <code>disconnectedCallback</code> is <code>onDestroy</code>.
-                <code>appendChild</code> adds nodes.
+                <code>innerHTML</code> renders trees.
                 RxJS handles asynchrony. The DI container is a Map with a parent pointer.
                 Everything else is ceremony.</p>
                 <p>You want server-side rendering? The browser parses HTML. You want hydration?
