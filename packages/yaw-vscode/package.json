@@ -26,7 +26,7 @@
         "scopeName": "yaw.template.ts",
         "path": "./syntaxes/yaw-template-ts.tmLanguage.json",
         "injectTo": ["source.ts", "source.tsx"],
-        "embeddedLanguages": { "meta.embedded.block.ts": "typescript" }
+        "embeddedLanguages": { "meta.embedded.block.typescript": "typescript" }
       },
       {
         "scopeName": "yaw.template.wgsl",

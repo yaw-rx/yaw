@@ -12,7 +12,7 @@
       "endCaptures": {
         "1": { "name": "punctuation.definition.string.template.end.ts" }
       },
-      "contentName": "meta.embedded.block.ts",
+      "contentName": "meta.embedded.block.typescript",
       "patterns": [
         {
           "begin": "\\$\\{",
@@ -22,7 +22,7 @@
           "name": "meta.template.expression.ts",
           "patterns": [{ "include": "source.ts" }]
         },
-        { "include": "source.ts" }
+        { "include": "source.tsx" }
       ]
     }
   ]
