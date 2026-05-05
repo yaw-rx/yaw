@@ -1,6 +1,6 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
-import { readInert } from '@yaw-rx/common/escape';
-import { dedent, escapeHtml, highlightBash, highlightDockerfile, highlightHtml, highlightJs, highlightJson, highlightTs } from './code-block/code-block-highlight.component.js';
+import { readInert, escapeHtml } from '@yaw-rx/common/escape';
+import { dedent, highlightBash, highlightDockerfile, highlightHtml, highlightJs, highlightJson, highlightTs } from './code-block/code-block-highlight.component.js';
 
 @Component({
     selector: 'code-block',

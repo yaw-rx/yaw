@@ -13,9 +13,12 @@
     "packages/yaw-vite",
     "packages/yaw-rollup",
     "packages/yaw-esbuild",
-    "packages/yaw-webpack"
+    "packages/yaw-webpack",
+    "packages/yaw-vscode"
   ],
   "scripts": {
+    "clean": "find packages -name '*.tsbuildinfo' -not -path '*/node_modules/*' -delete && find packages -maxdepth 2 -name dist -not -path '*/node_modules/*' -exec rm -rf {} +",
+    "rebuild": "npm run clean && npm run build",
     "build": "npm run build --workspaces --if-present",
     "build:watch": "tsc --build --watch --preserveWatchOutput",
     "dev": "trap 'kill 0' EXIT; npm run build:watch & npm run dev --prefix packages/yaw-example & wait",

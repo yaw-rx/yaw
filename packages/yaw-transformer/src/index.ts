@@ -1,4 +1,4 @@
-export { transformTemplate } from '@yaw-rx/common/transform';
+export { transformTemplate } from '@yaw-rx/common';
 export { isComponentClass } from './isComponentClass.js';
 export { getPrivateParams } from './getPrivateParams.js';
 export { getStateTypes } from './getStateTypes.js';

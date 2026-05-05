@@ -196,7 +196,7 @@ export class WeatherCard extends RxElement {
 
 const ESCAPE_SNIPPET = [
     "import { Component, RxElement } from '@yaw-rx/core';",
-    "import { escape } from '@yaw-rx/common';",
+    "import { escape } from '@yaw-rx/common/escape';",
     '',
     '@Component({',
     '    template: `',

@@ -24,7 +24,7 @@
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --check src/",
     "format:fix": "prettier --write src/",
-    "vscode:install": "cd node_modules/@yaw-rx/vscode && npm run build && ln -sfn \"$(pwd)\" \"$HOME/.vscode/extensions/yaw-rx.yaw-vscode\""
+    "vscode:install": "cd ../../packages/yaw-vscode && npm run build && ln -sfn \"$(pwd)\" \"$HOME/.vscode/extensions/yaw-rx.yaw-vscode\" && code --install-extension PolyMeilex.wgsl"
   },
   "dependencies": {
     "dayjs": "^1.11.20",

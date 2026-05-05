@@ -50,6 +50,7 @@ const resolveTypeName = (prop: ts.PropertyDeclaration, checker: ts.TypeChecker):
 export interface StateFieldInfo {
     typeName: string;
     typeNode: ts.TypeNode | undefined;
+    fullTypeText: string;
 }
 
 export const getStateTypes = (
@@ -86,7 +87,11 @@ export const getStateFieldInfos = (
         if (!hasState) continue;
         const typeName = resolveTypeName(member, checker);
         if (typeName !== undefined) {
-            result.set(member.name.text, { typeName, typeNode: member.type });
+            const type = checker.getTypeAtLocation(member);
+            const fullTypeText = member.type !== undefined
+                ? member.getSourceFile().getFullText().slice(member.type.pos, member.type.end).trim()
+                : checker.typeToString(type);
+            result.set(member.name.text, { typeName, typeNode: member.type, fullTypeText });
         }
     }
     return result;

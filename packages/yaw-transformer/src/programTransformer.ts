@@ -39,10 +39,7 @@ const buildTextPatches = (sf: ts.SourceFile, checker: ts.TypeChecker): string | 
 
         const stateTypesObj = [...stateTypes].map(([k, v]) => `${k}: "${v}"`).join(', ');
         const dollarDecls = [...stateFieldInfos].map(([k, info]) => {
-            const typeText = info.typeNode !== undefined
-                ? sourceText.slice(info.typeNode.pos, info.typeNode.end).trim()
-                : info.typeName;
-            return `    declare ${k}$: StateSubject<${typeText}>;`;
+            return `    declare ${k}$: StateSubject<${info.fullTypeText}>;`;
         }).join('\n');
 
         injections.push({
@@ -150,21 +147,14 @@ export const programTransformer = (
 
     const savedPlugins = compilerOptions['plugins'];
     compilerOptions['plugins'] = [];
-    const newProgram = ts.createProgram(
-        program.getRootFileNames(),
-        compilerOptions,
-        newHost,
-        program,
-    );
+    const newProgram = ts.createProgram({
+        rootNames: program.getRootFileNames() as string[],
+        options: compilerOptions,
+        projectReferences: program.getProjectReferences() ?? [],
+        host: newHost,
+        oldProgram: program,
+    });
     compilerOptions['plugins'] = savedPlugins;
-
-    const newDiags = ts.getPreEmitDiagnostics(newProgram);
-    diag.push(`\n--- NEW PROGRAM DIAGNOSTICS: ${newDiags.length} ---`);
-    for (const d of newDiags.slice(0, 30)) {
-        const file = d.file ? d.file.fileName.replace(/.*packages\//, '') : '??';
-        const msg = ts.flattenDiagnosticMessageText(d.messageText, '\n');
-        diag.push(`  ${file}:${d.start}: ${msg.slice(0, 200)}`);
-    }
 
     diag.push(`\nnewProgram sourceFiles: ${newProgram.getSourceFiles().length}`);
     diag.push(`newProgram rootFileNames: ${newProgram.getRootFileNames().length}`);
