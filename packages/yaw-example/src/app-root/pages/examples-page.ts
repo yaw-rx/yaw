@@ -4,19 +4,14 @@ import { TocAnchor } from '../directives/toc-anchor.directive.js';
 import { TocMenuCollapse } from '../directives/toc-menu-collapse.directive.js';
 import { TocMenuItemsService } from '../services/toc-menu-items.service.js';
 import '../components/toc-menu.component.js';
-import './examples-page/components/yaw-slider.js';
-import './examples-page/components/signal-meter.js';
-import './examples-page/components/color-playground.js';
-import './examples-page/components/scheduler-theatre.js';
-import './examples-page/sections/slider-example.js';
-import './examples-page/sections/color-playground.js';
-import './examples-page/sections/signal-meter.js';
-import './examples-page/sections/graph-example.js';
-import './examples-page/components/wave-mixer.js';
-import './examples-page/sections/wave-mixer.js';
-import './examples-page/sections/scheduler-theatre.js';
-import './examples-page/sections/nesting-example.js';
-import './examples-page/sections/calendar-example.js';
+import './examples-page/slider-section.component.js';
+import './examples-page/color-playground-section.component.js';
+import './examples-page/signal-meter-section.component.js';
+import './examples-page/graph-section.component.js';
+import './examples-page/wave-mixer-section.component.js';
+import './examples-page/nesting-section.component.js';
+import './examples-page/scheduler-theatre-section.component.js';
+import './examples-page/calendar-section.component.js';
 
 @Component({
     selector: 'examples-page',
@@ -34,14 +29,14 @@ import './examples-page/sections/calendar-example.js';
                    involved.</p>
             </header>
 
-            <slider-example toc-section="custom-slider"></slider-example>
-            <color-playground-example toc-section="reactive-palette"></color-playground-example>
-            <signal-meter-example toc-section="signal-meter"></signal-meter-example>
-            <!-- <calendar-example></calendar-example> -->
-            <graph-example toc-section="rx-graph"></graph-example>
-            <wave-mixer-example toc-section="wave-mixer"></wave-mixer-example>
-            <nesting-example toc-section="nesting-example"></nesting-example>
-            <scheduler-theatre-example toc-section="scheduler-theatre"></scheduler-theatre-example>
+            <slider-section toc-section="custom-slider"></slider-section>
+            <color-playground-section toc-section="reactive-palette"></color-playground-section>
+            <signal-meter-section toc-section="signal-meter"></signal-meter-section>
+            <!-- <calendar-section></calendar-section> -->
+            <graph-section toc-section="rx-graph"></graph-section>
+            <wave-mixer-section toc-section="wave-mixer"></wave-mixer-section>
+            <nesting-section toc-section="nesting-example"></nesting-section>
+            <scheduler-theatre-section toc-section="scheduler-theatre"></scheduler-theatre-section>
         </main>
     `,
     styles: `

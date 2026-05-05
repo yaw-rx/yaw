@@ -1,10 +1,10 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
 import { escape } from '@yaw-rx/common';
-import '../../../components/code-block.component.js';
-import { GRAPH_SOURCE } from '../components/graph.js';
-import { DOC_STYLES } from '../../../utils/doc-styles.util.js';
-import { TocSection } from '../../../directives/toc-section.directive.js';
-import { TocAnchor } from '../../../directives/toc-anchor.directive.js';
+import '../../components/code-block.component.js';
+import { GRAPH_SOURCE } from './graph-section/rx-graph.component.js';
+import { DOC_STYLES } from '../../utils/doc-styles.util.js';
+import { TocSection } from '../../directives/toc-section.directive.js';
+import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { interval, scan, type Observable } from 'rxjs';
 
 const USAGE = `<rx-graph [config]="config" [series]="series"></rx-graph>`;
@@ -18,7 +18,7 @@ const POINTS = 120;
 const SAMPLE_MS = 80;
 
 @Component({
-    selector: 'graph-example',
+    selector: 'graph-section',
     directives: [TocSection, TocAnchor],
     template: `
         <h1 toc-anchor="rx-graph">Reactive graph</h1>

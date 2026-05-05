@@ -1,8 +1,8 @@
 import { Component, RxElement } from '@yaw-rx/core';
-import { escape } from '../../../components/code-block/code-block-highlight.component.js';
-import '../../../components/code-block.component.js';
-import { DOC_STYLES } from '../../../utils/doc-styles.util.js';
-import './calendar-example/calendar-grid.js';
+import { escape } from '../../components/code-block/code-block-highlight.component.js';
+import '../../components/code-block.component.js';
+import { DOC_STYLES } from '../../utils/doc-styles.util.js';
+import './calendar-section/calendar-grid.component.js';
 
 const GRID_SOURCE = `@Component({
     selector: 'calendar-grid',
@@ -83,7 +83,7 @@ const walkScope = (host, carets) => {
 };`;
 
 @Component({
-    selector: 'calendar-example',
+    selector: 'calendar-section',
     template: `
         <h1>Calendar</h1>
         <p class="lede">Three components stacked —

@@ -1,10 +1,10 @@
 import { Component, RxElement } from '@yaw-rx/core';
 import { escape } from '@yaw-rx/common';
-import '../../../components/code-block.component.js';
-import { DOC_STYLES } from '../../../utils/doc-styles.util.js';
-import { TocSection } from '../../../directives/toc-section.directive.js';
-import { TocAnchor } from '../../../directives/toc-anchor.directive.js';
-import { COLOR_PLAYGROUND_SOURCE } from '../components/color-playground.js';
+import '../../components/code-block.component.js';
+import { DOC_STYLES } from '../../utils/doc-styles.util.js';
+import { TocSection } from '../../directives/toc-section.directive.js';
+import { TocAnchor } from '../../directives/toc-anchor.directive.js';
+import { COLOR_PLAYGROUND_SOURCE } from './color-playground-section/color-playground.component.js';
 
 const WRAPPER_STYLES = `
     .live { padding: 1.5rem; background: var(--bg-1);
@@ -16,7 +16,7 @@ const WRAPPER_STYLES = `
 `;
 
 @Component({
-    selector: 'color-playground-example',
+    selector: 'color-playground-section',
     directives: [TocSection, TocAnchor],
     template: `
         <h1 toc-anchor="reactive-palette">Reactive palette</h1>

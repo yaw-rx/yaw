@@ -1,6 +1,6 @@
 import { combineLatest, map, type Observable } from 'rxjs';
 import { Component, RxElement, state } from '@yaw-rx/core';
-import './graph.js';
+import '../graph-section/rx-graph.component.js';
 
 const POINTS = 200;
 

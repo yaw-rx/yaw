@@ -5,7 +5,7 @@ import { MONTH_NAMES } from './calendar-grid/consts.js';
 import { buildWeeks } from './calendar-grid/utils/build-weeks.js';
 import { isoDate } from './calendar-grid/utils/iso-date.js';
 import type { WeekSeed } from './calendar-grid/types.js';
-import './calendar-grid/calendar-week.js';
+import './calendar-grid/calendar-week.component.js';
 
 @Component({
     selector: 'calendar-grid',

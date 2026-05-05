@@ -1,12 +1,12 @@
 import { map, type Observable } from 'rxjs';
 import { Component, RxElement, state } from '@yaw-rx/core';
 import { escape } from '@yaw-rx/common';
-import '../../../components/code-block.component.js';
-import { DOC_STYLES } from '../../../utils/doc-styles.util.js';
-import { TocSection } from '../../../directives/toc-section.directive.js';
-import { TocAnchor } from '../../../directives/toc-anchor.directive.js';
-import './nesting-example/components/nested-level.js';
-import './nesting-example/components/page-echo.js';
+import '../../components/code-block.component.js';
+import { DOC_STYLES } from '../../utils/doc-styles.util.js';
+import { TocSection } from '../../directives/toc-section.directive.js';
+import { TocAnchor } from '../../directives/toc-anchor.directive.js';
+import './nesting-section/nested-level.component.js';
+import './nesting-section/page-echo.component.js';
 
 const NESTING_STYLES = `
     :host { display: block; }
@@ -75,7 +75,7 @@ const NESTED_LEVEL_SOURCE = `@Component({
 export class NestedLevel extends RxElement {}`;
 
 const HOST_SOURCE = `@Component({
-    selector: 'nesting-example',
+    selector: 'nesting-section',
     template: NESTING_TEMPLATE,
 })
 export class NestingExample extends RxElement {
@@ -192,7 +192,7 @@ export class PageEcho extends RxElement {
 }`;
 
 @Component({
-    selector: 'nesting-example',
+    selector: 'nesting-section',
     directives: [TocSection, TocAnchor],
     template: `
         <div class="page">
@@ -242,7 +242,7 @@ export class PageEcho extends RxElement {
             </section>
 
             <section class="host">
-                <h2><code class="inline">${escape`<nesting-example>`}</code> — the host template (<code class="inline">NESTING_TEMPLATE</code>)</h2>
+                <h2><code class="inline">${escape`<nesting-section>`}</code> — the host template (<code class="inline">NESTING_TEMPLATE</code>)</h2>
                 <p class="note">The host template places buttons at three
                    nesting depths. Some sit directly in the template, some are
                    wrapped in one
@@ -260,7 +260,7 @@ export class PageEcho extends RxElement {
             </section>
 
             <section class="host">
-                <h2><code class="inline">${escape`<nesting-example>`}</code> — the host class</h2>
+                <h2><code class="inline">${escape`<nesting-section>`}</code> — the host class</h2>
                 <p class="note">The class owns all the state that the template and
                    its children read. <code class="inline">count</code> and
                    <code class="inline">accent</code> are
@@ -279,7 +279,7 @@ export class PageEcho extends RxElement {
                 <h2>Live</h2>
                 <p class="note">All three components rendered together. The
                    buttons at depth 0 sit directly in the
-                   <code class="inline">${escape`<nesting-example>`}</code> template.
+                   <code class="inline">${escape`<nesting-section>`}</code> template.
                    The buttons inside the dashed boxes are wrapped in one or two
                    <code class="inline">${escape`<nested-level>`}</code> elements —
                    but they still resolve against the host, so they read and write

@@ -1,7 +1,7 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
 import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import type { DayCell } from './types.js';
-import './calendar-week/calendar-day.js';
+import './calendar-week/calendar-day.component.js';
 
 @Component({
     selector: 'calendar-week',

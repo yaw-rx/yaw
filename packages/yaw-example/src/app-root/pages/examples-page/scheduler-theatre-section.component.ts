@@ -1,10 +1,10 @@
 import { Component, RxElement } from '@yaw-rx/core';
-import { escape } from '../../../components/code-block/code-block-highlight.component.js';
-import '../../../components/code-block.component.js';
-import { DOC_STYLES } from '../../../utils/doc-styles.util.js';
-import { TocSection } from '../../../directives/toc-section.directive.js';
-import { TocAnchor } from '../../../directives/toc-anchor.directive.js';
-import { SCHEDULER_THEATRE_SOURCE } from '../components/scheduler-theatre.js';
+import { escape } from '../../components/code-block/code-block-highlight.component.js';
+import '../../components/code-block.component.js';
+import { DOC_STYLES } from '../../utils/doc-styles.util.js';
+import { TocSection } from '../../directives/toc-section.directive.js';
+import { TocAnchor } from '../../directives/toc-anchor.directive.js';
+import { SCHEDULER_THEATRE_SOURCE } from './scheduler-theatre-section/scheduler-theatre.component.js';
 
 const WRAPPER_STYLES = `
     .live { padding: 1.25rem; background: var(--bg-1);
@@ -12,7 +12,7 @@ const WRAPPER_STYLES = `
 `;
 
 @Component({
-    selector: 'scheduler-theatre-example',
+    selector: 'scheduler-theatre-section',
     directives: [TocSection, TocAnchor],
     template: `
         <h1 toc-anchor="scheduler-theatre">Scheduler theatre</h1>

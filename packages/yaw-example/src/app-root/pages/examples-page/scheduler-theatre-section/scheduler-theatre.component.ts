@@ -1,6 +1,6 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
 import type { Observable } from 'rxjs';
-import './graph.js';
+import '../graph-section/rx-graph.component.js';
 
 export const SCHEDULER_THEATRE_TEMPLATE = `
     <div class="controls">

@@ -1,10 +1,10 @@
 import { Component, RxElement } from '@yaw-rx/core';
 import { escape } from '@yaw-rx/common';
-import '../../../components/code-block.component.js';
-import { DOC_STYLES } from '../../../utils/doc-styles.util.js';
-import { TocSection } from '../../../directives/toc-section.directive.js';
-import { TocAnchor } from '../../../directives/toc-anchor.directive.js';
-import { WAVE_MIXER_SOURCE } from '../components/wave-mixer.js';
+import '../../components/code-block.component.js';
+import { DOC_STYLES } from '../../utils/doc-styles.util.js';
+import { TocSection } from '../../directives/toc-section.directive.js';
+import { TocAnchor } from '../../directives/toc-anchor.directive.js';
+import { WAVE_MIXER_SOURCE } from './wave-mixer-section/wave-mixer.component.js';
 
 const WRAPPER_STYLES = `
     .live { padding: 1.25rem; background: var(--bg-1);
@@ -12,7 +12,7 @@ const WRAPPER_STYLES = `
 `;
 
 @Component({
-    selector: 'wave-mixer-example',
+    selector: 'wave-mixer-section',
     directives: [TocSection, TocAnchor],
     template: `
         <h1 toc-anchor="wave-mixer">Wave mixer</h1>

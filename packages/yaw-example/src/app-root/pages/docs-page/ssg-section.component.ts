@@ -4,8 +4,8 @@ import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { escape } from '../../components/code-block/code-block-highlight.component.js';
 import '../../components/code-block.component.js';
 import { DOC_STYLES } from '../../utils/doc-styles.util.js';
-import '../examples-page/components/signal-meter.js';
-import type { SignalMeter } from '../examples-page/components/signal-meter.js';
+import '../examples-page/signal-meter-section/signal-meter.component.js';
+import type { SignalMeter } from '../examples-page/signal-meter-section/signal-meter.component.js';
 
 @Component({
     selector: 'lighthouse-meters',

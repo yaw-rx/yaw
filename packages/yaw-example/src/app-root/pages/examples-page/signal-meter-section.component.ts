@@ -1,10 +1,10 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
 import { escape } from '@yaw-rx/common';
-import '../../../components/code-block.component.js';
-import { DOC_STYLES } from '../../../utils/doc-styles.util.js';
-import { TocSection } from '../../../directives/toc-section.directive.js';
-import { TocAnchor } from '../../../directives/toc-anchor.directive.js';
-import { SIGNAL_METER_SOURCE } from '../components/signal-meter.js';
+import '../../components/code-block.component.js';
+import { DOC_STYLES } from '../../utils/doc-styles.util.js';
+import { TocSection } from '../../directives/toc-section.directive.js';
+import { TocAnchor } from '../../directives/toc-anchor.directive.js';
+import { SIGNAL_METER_SOURCE } from './signal-meter-section/signal-meter.component.js';
 
 const WRAPPER_STYLES = `
     .live { display: flex; flex-direction: column; align-items: center;
@@ -14,7 +14,7 @@ const WRAPPER_STYLES = `
 `;
 
 @Component({
-    selector: 'signal-meter-example',
+    selector: 'signal-meter-section',
     directives: [TocSection, TocAnchor],
     template: `
         <h1 toc-anchor="signal-meter">SVG signal meter</h1>
