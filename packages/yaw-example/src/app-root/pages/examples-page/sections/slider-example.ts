@@ -1,5 +1,5 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
-import { escape } from '../../../components/code-block/code-highlight.js';
+import { escape } from '@yaw-rx/common';
 import '../../../components/code-block.js';
 import { SLIDER_SOURCE } from '../components/yaw-slider.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
@@ -14,29 +14,41 @@ const USAGE = `<yaw-slider [(value)]="value" min="0" max="100"></yaw-slider>
     directives: [TocSection, TocAnchor],
     template: `
         <h1 toc-anchor="custom-slider">Custom slider</h1>
-        <p class="lede">Native form controls can't survive the mirror walk, so we build our
-           own. One component, <code class="inline">pointerdown</code> /
-           <code class="inline">move</code> / <code class="inline">up</code>, plus two
-           <code class="inline">[style]</code> bindings for the fill and the thumb. A
-           tap binding — <code class="inline">[(value)]="propName"</code> — is the
-           whole of the public API.</p>
+        <p class="lede">A custom slider built from DOM pointer events —
+           <code class="inline">pointerdown</code>,
+           <code class="inline">pointermove</code>, and
+           <code class="inline">pointerup</code> track the user's drag gesture.
+           Two CSS <code class="inline">[style]</code> bindings position the fill
+           and the thumb. The parent communicates with the slider through
+           a single <a href="/docs/components/bindings/data">tap binding</a>,
+           <code class="inline">${escape`[(value)]="propName"`}</code>, which pushes
+           the slider's value into the parent's field whenever it changes.</p>
 
         <section class="host">
             <h2>The slider component</h2>
-            <p class="note">The primitive itself. The template lives in
-               <code class="inline">SLIDER_TEMPLATE</code> and is reused verbatim by this
-               code block — the string rendered below is the same string the browser
-               parses at runtime.</p>
+            <p class="note">Three <a href="/docs/components/state"><code class="inline">@state</code></a> fields —
+               <code class="inline">value</code>,
+               <code class="inline">min</code>, and
+               <code class="inline">max</code>.
+               <code class="inline">grab</code> captures the pointer,
+               <code class="inline">drag</code> normalises the cursor position into
+               a value between min and max, and
+               <code class="inline">release</code> lets go. Two derived getters
+               (<code class="inline">fillStyle$</code> and
+               <code class="inline">thumbStyle$</code>) map the current value to
+               CSS <code class="inline">width</code> and
+               <code class="inline">left</code> percentages that the template's
+               <a href="/docs/components/bindings">[style] bindings</a> apply
+               directly to the track elements.</p>
             <code-block syntax="ts">${escape`${SLIDER_SOURCE}`}</code-block>
         </section>
 
         <section class="ex">
             <h2>In use</h2>
-            <p class="note">Declare an <code class="inline">@state</code> on the parent,
-               bind it with <code class="inline">[(value)]="prop"</code>, and read the
-               value back through the usual <code class="inline">${escape`{{ }}`}</code> binding —
-               pointer gestures push into the parent's subject, so everything reading it
-               updates for free.</p>
+            <p class="note">Declare an <code class="inline">@state</code> field on the
+               parent and bind it with
+               <code class="inline">${escape`[(value)]="prop"`}</code>. Drag the
+               thumb and the text binding below updates in real time.</p>
             <div class="split">
                 <code-block syntax="html">${escape`${USAGE}`}</code-block>
                 <div class="live">

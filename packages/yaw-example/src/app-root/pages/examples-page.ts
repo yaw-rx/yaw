@@ -27,9 +27,11 @@ import './examples-page/sections/calendar-example.js';
         <main class="content">
             <header class="intro" toc-section="intro">
                 <h1 toc-anchor="intro">Examples</h1>
-                <p class="lede">Small, real components — each exercising one piece of the
-                   framework. Source strings are the same strings the browser renders, so
-                   every code block you see is the truth of what's running beside it.</p>
+                <p class="lede">Small, real components — each exercising one piece of
+                   the framework. Every example includes the full source, a live
+                   instance running beside it, and links back to the
+                   <a href="/docs">documentation</a> that explains the mechanisms
+                   involved.</p>
             </header>
 
             <slider-example toc-section="custom-slider"></slider-example>

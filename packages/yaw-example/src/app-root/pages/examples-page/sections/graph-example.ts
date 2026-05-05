@@ -1,5 +1,5 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
-import { escape } from '../../../components/code-block/code-highlight.js';
+import { escape } from '@yaw-rx/common';
 import '../../../components/code-block.js';
 import { GRAPH_SOURCE } from '../components/graph.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
@@ -22,28 +22,38 @@ const SAMPLE_MS = 80;
     directives: [TocSection, TocAnchor],
     template: `
         <h1 toc-anchor="rx-graph">Reactive graph</h1>
-        <p class="lede">A canvas-based graph that takes
-           <code class="inline">Observable&lt;number[]&gt;</code> streams as input.
-           Pass named observables via the <code class="inline">[series]</code> binding
-           and the graph subscribes, redraws on every emission, and cleans up
-           when the map changes. The parent owns the data. The graph owns the pixels.</p>
+        <p class="lede">A canvas-based graph component driven by
+           <code class="inline">${escape`Observable<number[]>`}</code> streams. The
+           parent passes named observables into the
+           <code class="inline">[series]</code>
+           <a href="/docs/components/bindings">property binding</a> and a
+           configuration record into <code class="inline">[config]</code> — the
+           graph draws itself as data arrives and redraws whenever a stream
+           emits.</p>
 
         <section class="host">
             <h2>The graph component</h2>
-            <p class="note">Two <code class="inline">@state</code> fields:
-               <code class="inline">config</code> defines labels and colours,
-               <code class="inline">series</code> is a map of named observable streams.
-               When <code class="inline">series</code> changes the graph unsubscribes
-               from the old streams and subscribes to the new ones.</p>
+            <p class="note">Two
+               <a href="/docs/components/state"><code class="inline">@state</code></a>
+               fields.
+               <code class="inline">config</code> is a record that maps series
+               names to labels and colours.
+               <code class="inline">series</code> is a record that maps series
+               names to <code class="inline">${escape`Observable<number[]>`}</code>
+               streams. When the parent writes a new
+               <code class="inline">series</code> map, the component unsubscribes
+               from every stream in the old map and subscribes to every stream in
+               the new one.</p>
             <code-block syntax="ts">${escape`${GRAPH_SOURCE}`}</code-block>
         </section>
 
         <section class="ex">
             <h2>Live — random walk</h2>
-            <p class="note">A single series built from <code class="inline">interval</code>
-               and <code class="inline">scan</code>. An IntersectionObserver swaps the
-               series map in and out — the graph subscribes when visible,
-               unsubscribes when not.</p>
+            <p class="note">The graph below is fed a single series built from
+               <code class="inline">interval</code> and
+               <code class="inline">scan</code> — a random walk that emits a new
+               point array every 80ms. The line draws itself as the data
+               arrives.</p>
             <div class="split">
                 <code-block syntax="html">${escape`${USAGE}`}</code-block>
                 <div class="live">

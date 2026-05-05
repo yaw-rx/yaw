@@ -221,7 +221,7 @@ export class PageEcho extends RxElement {
                 <p class="note">This <em>is</em> a
                    <a href="/docs/components/bindings">component boundary</a>.
                    Its bindings resolve against itself by default —
-                   its <code class="inline">@state</code> fields
+                   its <a href="/docs/components/state"><code class="inline">@state</code></a> fields
                    <code class="inline">blend</code> and
                    <code class="inline">accent</code> are local. It assumes its host
                    has a <code class="inline">count</code> field and an
