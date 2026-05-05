@@ -63,15 +63,15 @@ const YAW_SNIPPET = `
             </manifesto-section>
 
             <manifesto-section heading="Premature Deoptimization">
-                <p>DOM writes were never slow. The browser's layout engine handles mutations in
-                microseconds. At 3,000 elements, the browser lags regardless — layout and paint
+                <p>DOM writes were never slow. Inserting elements takes
+                microseconds. At a few thousand elements, the browser lags regardless — layout and paint
                 are the bottleneck, not JavaScript. They built their entire architecture around
                 optimising something that doesn't matter at small scale and can't be helped at large scale.
                 <a href="/examples/scheduler-theatre">See it for yourself.</a></p>
                 <p>Add a layer that makes simple things slow, then spend a career making the layer fast.</p>
                 <p>We optimise for latency — the thinnest possible path between intent and effect.
-                The user doesn't care how cleverly your framework writes to the DOM. Neither does the
-                browser — it batches layout itself. The cleverness is overhead nobody asked for.</p>
+                The user doesn't care how cleverly your framework writes to the DOM. Layout is already lazy precisely because it's expensive —
+                it's not something you need a framework to optimise for you.</p>
                 <p>The performance pitch isn't ours. It's the browser's. We get out of its way.</p>
             </manifesto-section>
 
@@ -102,10 +102,11 @@ const YAW_SNIPPET = `
                     One abstraction — the Observable, a monad. It's the right one
                     and it's being
                     <a href="https://github.com/WICG/observable">standardised</a>
+                    (even RxJS is on borrowed time)
                     and you've been using it all along —
                     <code>addEventListener</code>, <code>MutationObserver</code>,
                     <code>IntersectionObserver</code>, <code>ResizeObserver</code>,
-                    <code>PerformanceObserver</code>, etc, etc …</li>
+                    <code>PerformanceObserver</code>, …</li>
 
                     <li>Template rendering as <code>innerHTML</code> — the browser's
                     C++ HTML parser does the work. The template renders once — the fastest
