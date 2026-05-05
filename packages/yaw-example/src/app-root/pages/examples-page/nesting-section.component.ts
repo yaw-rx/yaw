@@ -174,10 +174,16 @@ export class PageEcho extends RxElement {
         return \`rgb(\${c(1)},\${c(3)},\${c(5)})\`;
     }
 
+    private contrastColor(hex: string, amount: number): string {
+        const ch = (o: number) => Math.min(255, parseInt(hex.slice(o, o + 2), 16) + amount);
+        const lum = (0.299 * ch(1) + 0.587 * ch(3) + 0.114 * ch(5)) / 255;
+        return lum > 0.5 ? '#050505' : '#f5f5f5';
+    }
+
     get accentBtnStyle$() {
         return this.accent$.pipe(
-            map((a) => ({ accent: a, bg: this.lighten(a, 70) })),
-            map(({ accent, bg }) => \`border-color: \${accent}; color: \${accent}; background: \${bg}\`),
+            map((a) => ({ accent: a, bg: this.lighten(a, 70), fg: this.contrastColor(a, 70) })),
+            map(({ accent, bg, fg }) => \`border-color: \${accent}; color: \${fg}; background: \${bg}\`),
         );
     }
 

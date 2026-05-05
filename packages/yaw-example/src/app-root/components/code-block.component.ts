@@ -14,7 +14,7 @@ import { dedent, escapeHtml, highlightBash, highlightDockerfile, highlightHtml, 
         .tk-keyword { color: #c792ea; }
         .tk-string { color: #c3e88d; }
         .tk-number { color: var(--salmon); }
-        .tk-comment { color: #546e7a; font-style: italic; }
+        .tk-comment { color: #6a8a99; font-style: italic; }
         .tk-regex { color: #ff5370; }
         .tk-decorator { color: var(--gold); }
         .tk-type { color: var(--gold); }
