@@ -24,7 +24,8 @@ import { Hamburger } from '../directives/hamburger.js';
               backdrop-filter: blur(8px); border-bottom: 1px solid #222; }
         .logo { font-weight: 900; font-size: 1.4rem; color: #fff;
                 text-decoration: none; letter-spacing: -1px;
-                margin-right: 2rem; position: relative; cursor: default; }
+                margin-right: 2rem; position: relative; cursor: default;
+                -webkit-tap-highlight-color: transparent; }
         .logo.has-menu { cursor: pointer; }
         .logo.has-funnel::after { content: ''; position: absolute;
                    bottom: -7px; left: 0; width: 100%; height: 8px;
@@ -44,7 +45,8 @@ import { Hamburger } from '../directives/hamburger.js';
         .links::-webkit-scrollbar { display: none; }
         .links a { color: #888; text-decoration: none; font-size: 0.9rem;
                    letter-spacing: 0.05em; cursor: pointer; transition: color 0.2s;
-                   white-space: nowrap; position: relative; }
+                   white-space: nowrap; position: relative;
+                   -webkit-tap-highlight-color: transparent; }
         .links a:hover { color: #fff; }
         .links a.active { color: #fff; }
         .links a.active::after { content: ''; position: absolute;
