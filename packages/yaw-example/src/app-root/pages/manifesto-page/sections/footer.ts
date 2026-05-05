@@ -10,7 +10,7 @@ import { Component, RxElement } from '@yaw-rx/core';
         </footer>
     `,
     styles: `
-        :host { display: block; border-top: 1px solid var(--bg-3); padding: 4rem 2rem;
+        :host { display: block; border-top: var(--border-width) solid var(--bg-3); padding: 4rem 2rem;
                 text-align: center; background: var(--black); }
         footer { max-width: 720px; margin: 0 auto; }
         .size { font-size: 1.5rem; color: var(--white); margin: 0 0 0.5rem; }

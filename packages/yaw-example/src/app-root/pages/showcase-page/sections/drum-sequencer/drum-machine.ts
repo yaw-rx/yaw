@@ -37,29 +37,29 @@ import type { TrackSeed } from './drum-machine/types.js';
     `,
     styles: `
         :host { display: block; background: linear-gradient(180deg, var(--bg-1) 0%, #090909 100%);
-                border: 1px solid var(--bg-5); border-radius: 10px;
+                border: var(--border-width) solid var(--bg-5); border-radius: 10px;
                 padding: 1.25rem 1.5rem 1.5rem;
-                box-shadow: inset 0 0 60px rgba(136, 170, 255, 0.04); }
+                box-shadow: inset 0 0 60px color-mix(in srgb, var(--accent) 4%, transparent); }
 
         .transport { display: grid;
                      grid-template-columns: auto 1fr auto;
                      gap: 1.25rem; align-items: center;
                      margin-bottom: 1.25rem;
                      padding-bottom: 1rem;
-                     border-bottom: 1px solid #141414; }
+                     border-bottom: var(--border-width) solid #141414; }
 
         .play { width: 3.25rem; height: 3.25rem;
-                background: var(--bg-2); border: 1px solid var(--bg-6);
+                background: var(--bg-2); border: var(--border-width) solid var(--bg-6);
                 border-radius: 50%; cursor: pointer; color: var(--accent);
                 display: flex; align-items: center; justify-content: center;
-                font-size: 1.25rem; font-family: monospace;
+                font-size: 1.25rem; font-family: var(--font-mono);
                 transition: all 0.1s ease; }
         .play:hover { border-color: var(--accent); color: var(--white); }
         .play.on { background: var(--accent); color: var(--black); border-color: var(--accent);
-                   box-shadow: 0 0 20px rgba(136, 170, 255, 0.6); }
+                   box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 60%, transparent); }
 
         .meter { grid-column: 2; grid-row: 1; min-width: 0; }
-        .label { color: var(--muted); font-family: monospace; font-size: 0.7rem;
+        .label { color: var(--muted); font-family: var(--font-mono); font-size: 0.7rem;
                  letter-spacing: 0.15em; margin-bottom: 0.35rem; }
         .tempo-row { display: flex; align-items: center; gap: 0.75rem;
                      min-width: 0; }
@@ -67,22 +67,22 @@ import type { TrackSeed } from './drum-machine/types.js';
             flex: 1; min-width: 0; accent-color: var(--accent);
             background: transparent;
         }
-        .bpm { color: var(--accent); font-family: monospace; font-size: 0.95rem;
+        .bpm { color: var(--accent); font-family: var(--font-mono); font-size: 0.95rem;
                font-weight: 700; min-width: 4.5rem; text-align: right;
                letter-spacing: 0.04em;
-               text-shadow: 0 0 10px rgba(136, 170, 255, 0.4); }
+               text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 40%, transparent); }
         .bpm em { color: var(--dim); font-size: 0.7rem; font-style: normal;
                   letter-spacing: 0.1em; margin-left: 0.2rem; }
 
         .actions { grid-column: 3; grid-row: 1;
                    display: flex; gap: 0.4rem; }
-        .actions button { background: transparent; border: 1px solid var(--bg-6);
-                          color: var(--secondary); font: inherit; font-family: monospace;
+        .actions button { background: transparent; border: var(--border-width) solid var(--bg-6);
+                          color: var(--secondary); font: inherit; font-family: var(--font-mono);
                           font-size: 0.7rem; font-weight: 700;
                           padding: 0.45rem 0.7rem; cursor: pointer;
-                          border-radius: 4px; letter-spacing: 0.12em; }
+                          border-radius: var(--radius-sm); letter-spacing: 0.12em; }
         .actions button:hover { border-color: var(--accent); color: var(--accent);
-                                box-shadow: 0 0 12px rgba(136, 170, 255, 0.3); }
+                                box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 30%, transparent); }
 
         .rows { display: flex; flex-direction: column; }
     `,

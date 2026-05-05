@@ -9,7 +9,7 @@ import { SIGNAL_METER_SOURCE } from '../components/signal-meter.js';
 const WRAPPER_STYLES = `
     .live { display: flex; flex-direction: column; align-items: center;
             gap: 1.25rem; padding: 1.75rem; background: var(--bg-1);
-            border: 1px solid var(--bg-5); border-radius: 8px; }
+            border: var(--border-width) solid var(--bg-5); border-radius: var(--radius-lg); }
     .live yaw-slider { width: 100%; max-width: 22rem; }
 `;
 

@@ -339,9 +339,9 @@ Scope:  item of source
     styles: `
         :host { display: block; }
         .box { width: 6rem; height: 6rem; background: var(--bg-3);
-               border: 1px solid var(--border); border-radius: 8px;
+               border: var(--border-width) solid var(--border); border-radius: var(--radius-lg);
                display: flex; align-items: center; justify-content: center;
-               color: var(--accent); font-family: monospace; font-size: 0.85rem;
+               color: var(--accent); font-family: var(--font-mono); font-size: 0.85rem;
                flex-shrink: 0; }
         ${DOC_STYLES}
         .live { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; }

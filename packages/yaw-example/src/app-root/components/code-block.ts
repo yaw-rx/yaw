@@ -6,8 +6,8 @@ import { dedent, escapeHtml, highlightBash, highlightDockerfile, highlightHtml, 
     selector: 'code-block',
     styles: `
         :host { display: flex; min-height: 0; }
-        .cb { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
-              border-radius: 8px; padding: 1.25rem; overflow-x: auto; margin: 0;
+        .cb { background: rgba(255, 255, 255, 0.04); border: var(--border-width) solid rgba(255, 255, 255, 0.08);
+              border-radius: var(--radius-lg); padding: 1.25rem; overflow-x: auto; margin: 0;
               backdrop-filter: blur(4px); flex: 1; box-sizing: border-box; min-width: 0; }
         code { font-family: 'Fira Code', 'Cascadia Code', monospace;
                font-size: 0.8rem; color: #ddd; line-height: 1.55; white-space: pre; background: none; }

@@ -12,11 +12,11 @@ import { Component, RxElement, state } from '@yaw-rx/core';
         :host { display: block; width: 100%; }
         .row { display: flex; align-items: center; gap: 0.75rem;
                justify-content: space-between; }
-        .label { color: var(--secondary); font-family: monospace; font-size: 0.75rem;
-                 text-transform: uppercase; letter-spacing: 0.08em; }
-        .value { color: var(--accent); font-family: monospace; font-size: 0.85rem;
+        .label { color: var(--secondary); font-family: var(--font-mono); font-size: 0.75rem;
+                 text-transform: uppercase; letter-spacing: var(--tracking); }
+        .value { color: var(--accent); font-family: var(--font-mono); font-size: 0.85rem;
                  background: var(--bg-2); padding: 0.35rem 0.7rem;
-                 border: 1px solid var(--bg-5); border-radius: 4px;
+                 border: var(--border-width) solid var(--bg-5); border-radius: var(--radius-sm);
                  overflow: hidden; text-overflow: ellipsis; }
     `,
 })

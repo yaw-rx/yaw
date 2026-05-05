@@ -45,22 +45,22 @@ import { Component, RxElement, state } from '@yaw-rx/core';
     `,
     styles: `
         :host { display: block; }
-        .echo { background: #0a1128; border: 1px solid var(--navy); border-radius: 6px;
-                padding: 1rem; color: var(--accent); font-family: monospace; font-size: 0.85rem; }
+        .echo { background: #0a1128; border: var(--border-width) solid var(--navy); border-radius: var(--radius);
+                padding: 1rem; color: var(--accent); font-family: var(--font-mono); font-size: 0.85rem; }
         .section + .section { margin-top: 1rem; }
-        .label { color: var(--slate); font-size: 0.7rem; letter-spacing: 0.08em;
+        .label { color: var(--slate); font-size: 0.7rem; letter-spacing: var(--tracking);
                  text-transform: uppercase; margin-bottom: 0.5rem; }
         .label code { color: var(--accent); font-size: inherit; }
         .body { display: flex; flex-direction: column; gap: 0.4rem;
                 padding: 0.5rem 0.6rem; background: var(--bg-1);
-                border-radius: 4px; }
+                border-radius: var(--radius-sm); }
         .row { display: flex; gap: 0.5rem; align-items: center; }
         .row code { color: var(--accent); background: transparent; padding: 0.35rem 0.4rem; }
         .pre { color: var(--slate); }
         .sep { color: #334; }
-        .row button { background: #0f1a3a; border: 1px solid var(--navy); color: var(--accent);
+        .row button { background: #0f1a3a; border: var(--border-width) solid var(--navy); color: var(--accent);
                       padding: 0.35rem 0.7rem; font: inherit; font-size: 0.8rem;
-                      cursor: pointer; border-radius: 4px; }
+                      cursor: pointer; border-radius: var(--radius-sm); }
         .row button:hover { background: #182555; color: var(--white); }
         .row button.active { background: var(--navy); border-color: var(--accent); color: var(--white); }
         .echo.blended { mix-blend-mode: difference; }

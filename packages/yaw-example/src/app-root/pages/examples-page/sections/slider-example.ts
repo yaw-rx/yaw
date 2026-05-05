@@ -62,7 +62,7 @@ const USAGE = `<yaw-slider [(value)]="value" min="0" max="100"></yaw-slider>
         :host { display: block; }
         ${DOC_STYLES}
         .live { display: flex; flex-direction: column; gap: 1rem; }
-        .state { margin: 0; font-family: monospace; color: var(--secondary); font-size: 0.85rem; }
+        .state { margin: 0; font-family: var(--font-mono); color: var(--secondary); font-size: 0.85rem; }
         .state .status { color: var(--accent); }
     `,
 })

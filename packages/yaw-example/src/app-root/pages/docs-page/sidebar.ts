@@ -32,16 +32,16 @@ import { TocNode } from './sidebar/toc-node.js';
                 align-self: flex-start;
                 height: calc(100vh - 4rem);
                 padding: 0.5rem 1.5rem 0.5rem 2rem;
-                border-right: 1px solid var(--bg-4);
+                border-right: var(--border-width) solid var(--bg-4);
                 overflow-y: auto; }
 
         aside { display: flex; flex-direction: column; gap: 0.6rem; }
 
-        .label { color: var(--dim); font-family: monospace; font-size: 0.7rem;
+        .label { color: var(--dim); font-family: var(--font-mono); font-size: 0.7rem;
                  text-transform: uppercase; letter-spacing: 0.12em; }
 
         nav { display: flex; flex-direction: column; gap: 0.15rem;
-              font-family: monospace; }
+              font-family: var(--font-mono); }
         @media (max-width: 768px) {
             :host { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
                     height: 100vh; border-right: none; }

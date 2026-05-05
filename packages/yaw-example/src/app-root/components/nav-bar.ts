@@ -21,7 +21,7 @@ import { Hamburger } from '../directives/hamburger.js';
         nav { position: fixed; top: 0; left: 0; right: 0; z-index: 300;
               display: flex; justify-content: space-between; align-items: center;
               padding: 1rem 2rem; background: rgba(0,0,0,0.85);
-              backdrop-filter: blur(8px); border-bottom: 1px solid var(--bg-6); }
+              backdrop-filter: blur(8px); border-bottom: var(--border-width) solid var(--bg-6); }
         .logo { font-weight: 900; font-size: 1.4rem; color: var(--white);
                 text-decoration: none; letter-spacing: -1px;
                 margin-right: 2rem; position: relative; cursor: default;

@@ -11,7 +11,7 @@ const USAGE = `<rx-graph [config]="config" [series]="series"></rx-graph>`;
 
 const WRAPPER_STYLES = `
     .live { padding: 1.25rem; background: var(--bg-1);
-            border: 1px solid var(--bg-5); border-radius: 8px; }
+            border: var(--border-width) solid var(--bg-5); border-radius: var(--radius-lg); }
 `;
 
 const POINTS = 120;

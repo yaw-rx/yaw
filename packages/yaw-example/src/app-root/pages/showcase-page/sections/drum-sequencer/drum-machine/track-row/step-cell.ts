@@ -10,7 +10,7 @@ import { StepTicker } from '../utils/step-ticker.js';
     styles: `
         :host { display: block; }
         button { width: 100%; height: 2rem; background: #090909;
-                 border: 1px solid var(--bg-5); border-radius: 3px;
+                 border: var(--border-width) solid var(--bg-5); border-radius: 3px;
                  cursor: pointer; padding: 0;
                  transition: background 0.06s ease, border-color 0.06s ease,
                              box-shadow 0.08s ease, transform 0.05s ease; }

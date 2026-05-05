@@ -26,7 +26,7 @@ import { WeatherService } from './weather-service.js';
     `,
     styles: `
         :host { display: block; padding: 1.25rem; background: var(--bg-2);
-                border: 1px solid var(--bg-5); border-radius: 8px;
+                border: var(--border-width) solid var(--bg-5); border-radius: var(--radius-lg);
                 font-family: system-ui, sans-serif; color: var(--text); }
         .hero { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
         .big-icon { font-size: 3.5rem; line-height: 1; }
@@ -35,7 +35,7 @@ import { WeatherService } from './weather-service.js';
         .temp { color: var(--accent); font-size: 1.4rem; font-weight: 600; margin: 0; }
         .wind { color: var(--muted); font-size: 0.85rem; margin: 0; }
         .forecast { list-style: none; padding: 0; margin: 0;
-                    border-top: 1px solid var(--bg-5); padding-top: 0.75rem; }
+                    border-top: var(--border-width) solid var(--bg-5); padding-top: 0.75rem; }
         li { display: flex; align-items: center; gap: 0.75rem;
              padding: 0.3rem 0; font-size: 0.85rem; }
         .hour-icon { width: 1.5rem; text-align: center; }

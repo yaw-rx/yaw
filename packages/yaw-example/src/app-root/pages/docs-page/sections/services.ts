@@ -19,8 +19,8 @@ export class Clock {
     template: `<span class="tick">{{now}}</span>`,
     styles: `
         :host { display: inline-block; padding: 0.6rem 1rem;
-                background: var(--bg-1); border: 1px solid var(--bg-5); border-radius: 6px; }
-        .tick { color: var(--accent); font-family: monospace; font-size: 1.25rem;
+                background: var(--bg-1); border: var(--border-width) solid var(--bg-5); border-radius: var(--radius); }
+        .tick { color: var(--accent); font-family: var(--font-mono); font-size: 1.25rem;
                 letter-spacing: 0.06em; }
     `,
 })

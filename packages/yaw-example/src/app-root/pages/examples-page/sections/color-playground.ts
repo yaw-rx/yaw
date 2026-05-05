@@ -8,7 +8,7 @@ import { COLOR_PLAYGROUND_SOURCE } from '../components/color-playground.js';
 
 const WRAPPER_STYLES = `
     .live { padding: 1.5rem; background: var(--bg-1);
-            border: 1px solid var(--bg-5); border-radius: 8px; }
+            border: var(--border-width) solid var(--bg-5); border-radius: var(--radius-lg); }
     .live color-playground { display: grid; grid-template-columns: auto 1fr;
             gap: 0.75rem 1rem; align-items: center; }
     .live color-playground .out,

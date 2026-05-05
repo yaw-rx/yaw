@@ -35,27 +35,27 @@ export const SCHEDULER_THEATRE_STYLES = `
                 flex-wrap: wrap; margin-bottom: 1rem; }
     .actions { display: flex; gap: 0.5rem; align-items: center; }
     .fps { display: grid; grid-template-columns: 8px auto auto; gap: 0.4rem;
-           align-items: center; font-family: monospace; font-size: 0.85rem; color: var(--secondary); }
+           align-items: center; font-family: var(--font-mono); font-size: 0.85rem; color: var(--secondary); }
     .dot { width: 8px; height: 8px; border-radius: 50%; }
     .fps em { color: var(--accent); font-style: normal; min-width: 3ch; text-align: right; }
-    button { background: var(--bg-3); border: 1px solid var(--border); color: var(--white);
+    button { background: var(--bg-3); border: var(--border-width) solid var(--border); color: var(--white);
              padding: 0.5rem 1rem; font: inherit; font-size: 0.85rem;
-             font-family: monospace; cursor: pointer; border-radius: 6px; }
+             font-family: var(--font-mono); cursor: pointer; border-radius: var(--radius); }
     button:hover { background: var(--bg-5); border-color: var(--accent); color: var(--accent); }
-    .stats { border-collapse: collapse; font-family: monospace; font-size: 0.8rem; }
+    .stats { border-collapse: collapse; font-family: var(--font-mono); font-size: 0.8rem; }
     .stats th { color: var(--muted); font-weight: normal; padding: 0.2rem 0.5rem;
                 text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; }
     .stats td { color: var(--accent); padding: 0.2rem 0.5rem;
-                border-top: 1px solid var(--bg-5); }
+                border-top: var(--border-width) solid var(--bg-5); }
     em { color: var(--accent); font-style: normal; }
 
     .graphs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
     .scroll { height: 12rem; overflow-y: auto; overflow-anchor: auto;
               display: flex; flex-direction: column-reverse;
-              background: #030303; border: 1px solid var(--bg-5); border-radius: 0 0 8px 8px;
+              background: #030303; border: var(--border-width) solid var(--bg-5); border-radius: 0 0 8px 8px;
               scrollbar-width: thin; scrollbar-color: var(--border) var(--bg-2); }
     .scroll::-webkit-scrollbar { width: 10px; }
-    .scroll::-webkit-scrollbar-track { background: var(--bg-2); border-radius: 8px; }
+    .scroll::-webkit-scrollbar-track { background: var(--bg-2); border-radius: var(--radius-lg); }
     .scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px;
                                        border: 2px solid var(--bg-2); }
     .scroll::-webkit-scrollbar-thumb:hover { background: var(--accent); }
@@ -63,15 +63,15 @@ export const SCHEDULER_THEATRE_STYLES = `
 
     .head { display: grid; grid-template-columns: 5ch 12ch 1fr; gap: 0 1.5rem;
             padding: 0.65rem 1rem; background: var(--bg-2); color: var(--muted);
-            font-family: monospace; font-size: 0.7rem;
+            font-family: var(--font-mono); font-size: 0.7rem;
             text-transform: uppercase; letter-spacing: 0.1em;
-            border: 1px solid var(--bg-5); border-bottom: none;
+            border: var(--border-width) solid var(--bg-5); border-bottom: none;
             border-radius: 8px 8px 0 0; }
     .body { overflow-anchor: none; width: 100%; }
     .body > .row { display: grid; grid-template-columns: 5ch 12ch 1fr; gap: 0 1.5rem;
-                   padding: 0.3rem 1rem; font-family: monospace;
+                   padding: 0.3rem 1rem; font-family: var(--font-mono);
                    font-size: 0.8rem; color: var(--text);
-                   border-bottom: 1px solid var(--bg-2); }
+                   border-bottom: var(--border-width) solid var(--bg-2); }
     .body > .row:nth-child(odd) { background: #080808; }
     .body > .row > :first-child { color: var(--accent); }
     .body > .row > :nth-child(3) { color: var(--muted); }

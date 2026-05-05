@@ -27,10 +27,10 @@ export const SIGNAL_METER_STYLES = `
     .readout { position: absolute; inset: 0; display: flex;
                align-items: center; justify-content: center;
                gap: 0.2rem; pointer-events: none; }
-    .value { font-size: 2.8rem; font-weight: 800; font-family: monospace;
+    .value { font-size: 2.8rem; font-weight: 800; font-family: var(--font-mono);
              color: hsl(var(--hue), 90%, var(--lit));
              text-shadow: 0 0 var(--glow) hsl(var(--hue), 90%, var(--lit)); }
-    .unit { font-size: 1rem; color: var(--dim); font-family: monospace; margin-top: 1rem; }
+    .unit { font-size: 1rem; color: var(--dim); font-family: var(--font-mono); margin-top: 1rem; }
 `;
 
 export const SIGNAL_METER_SOURCE = `@Component({

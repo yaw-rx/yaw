@@ -13,8 +13,8 @@ export const DOC_STYLES = `
     .host > code-block { margin-bottom: 1rem; }
     .host .ex { margin-top: 1rem; }
     .ex { margin-bottom: 1.5rem; padding: 1.25rem;
-          background: var(--bg-2); border: 1px solid var(--bg-5);
-          border-radius: 8px; }
+          background: var(--bg-2); border: var(--border-width) solid var(--bg-5);
+          border-radius: var(--radius-lg); }
     .note { color: var(--secondary); font-size: 0.9rem; line-height: 1.6;
             margin: 0 0 1rem; max-width: 72ch; }
     .split { display: grid;
@@ -30,7 +30,7 @@ export const DOC_STYLES = `
         }
     }
     .live { padding: 1.5rem; background: var(--bg-1);
-            border: 1px solid var(--bg-5); border-radius: 8px;
+            border: var(--border-width) solid var(--bg-5); border-radius: var(--radius-lg);
             min-width: 0; max-width: 100%; box-sizing: border-box; }
     .live > * { max-width: 100%; }
 `;

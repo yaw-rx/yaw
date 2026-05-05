@@ -27,8 +27,8 @@ import type { SignalMeter } from '../../examples-page/components/signal-meter.js
         :host { display: flex; gap: 1.5rem; max-width: 72ch; margin-top: 0.625rem; }
         .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
         signal-meter .meter { width: 100%; height: auto; aspect-ratio: 1; }
-        .label { font-size: 0.7rem; color: var(--muted); font-family: monospace;
-                 text-transform: uppercase; letter-spacing: 0.08em; }
+        .label { font-size: 0.7rem; color: var(--muted); font-family: var(--font-mono);
+                 text-transform: uppercase; letter-spacing: var(--tracking); }
         @media (max-width: 530px) {
             :host { flex-direction: column; align-items: center; }
             signal-meter .meter { width: 10rem; }

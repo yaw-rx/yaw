@@ -12,7 +12,7 @@ import { Component, RxElement, state } from '@yaw-rx/core';
         .digits { display: inline-block; text-align: right; min-width: var(--dw); }
         .unit { font-size: 0.75rem; font-weight: 600; color: var(--muted-alt); letter-spacing: 0.02em; margin-left: 0.4em; }
         .label { display: block; font-size: 0.75rem; color: var(--muted-alt); letter-spacing: 0.1em;
-                 font-family: monospace; margin-top: 0.5rem; font-weight: 600;
+                 font-family: var(--font-mono); margin-top: 0.5rem; font-weight: 600;
                  letter-spacing: 0.04em; word-spacing: -0.35em; }
         @media (max-width: 480px) {
             .value { font-size: 2.5rem; }

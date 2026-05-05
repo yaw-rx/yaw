@@ -20,12 +20,12 @@ const COUNTER_TEMPLATE = `
 
 const COUNTER_STYLES = `
     :host { display: inline-flex; align-items: center; gap: 0.6rem; }
-    button { background: var(--bg-3); border: 1px solid var(--border); color: var(--white);
+    button { background: var(--bg-3); border: var(--border-width) solid var(--border); color: var(--white);
              width: 2rem; height: 2rem; font-size: 1rem; cursor: pointer;
-             border-radius: 4px; padding: 0; line-height: 1;
+             border-radius: var(--radius-sm); padding: 0; line-height: 1;
              display: inline-flex; align-items: center; justify-content: center; }
     button:hover { border-color: var(--accent); color: var(--accent); }
-    .count { color: var(--accent); font-family: monospace; font-size: 1.1rem; min-width: 2ch; text-align: center; }
+    .count { color: var(--accent); font-family: var(--font-mono); font-size: 1.1rem; min-width: 2ch; text-align: center; }
 `;
 
 
@@ -1018,7 +1018,7 @@ export class TickCounter extends RxElement {
         .live > * { width: 100%; }
         .binding-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 0.5rem 0 1.5rem; }
         .binding-table th { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid var(--border); color: var(--subtle); font-weight: 600; }
-        .binding-table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--bg-5); vertical-align: top; }
+        .binding-table td { padding: 0.4rem 0.5rem; border-bottom: var(--border-width) solid var(--bg-5); vertical-align: top; }
         .binding-table td:first-child { white-space: nowrap; font-weight: 600; color: var(--white); }
         .binding-table td:nth-child(2) { white-space: nowrap; font-size: 0.8rem; }
         .binding-table code { color: var(--accent); }

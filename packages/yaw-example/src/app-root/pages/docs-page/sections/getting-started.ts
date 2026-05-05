@@ -315,8 +315,8 @@ export default {
     styles: `
         :host { display: block; }
         ${DOC_STYLES}
-        details { margin-bottom: 0.75rem; border: 1px solid var(--bg-5);
-                  border-radius: 6px; overflow: hidden; }
+        details { margin-bottom: 0.75rem; border: var(--border-width) solid var(--bg-5);
+                  border-radius: var(--radius); overflow: hidden; }
         summary { cursor: pointer; padding: 0.75rem 1rem;
                   background: var(--bg-2); list-style: none;
                   transition: background 0.15s; }
@@ -326,7 +326,7 @@ export default {
         summary h3 { color: var(--white); font-size: 0.95rem; font-weight: 600;
                      margin: 0 0 0.25rem; }
         summary .note { margin: 0; }
-        details[open] > summary { border-bottom: 1px solid var(--bg-5); }
+        details[open] > summary { border-bottom: var(--border-width) solid var(--bg-5); }
         details > code-block { margin: 0.75rem 1rem; }
         details > .note { margin: 0.75rem 1rem; }
     `,

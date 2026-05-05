@@ -30,9 +30,9 @@ export const WAVE_MIXER_STYLES = `
     .controls { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; }
     .row { display: flex; gap: 0.3rem; align-items: center; }
     .row yaw-slider { flex: 1; }
-    .label { font-family: monospace; font-size: 0.75rem; color: var(--muted);
+    .label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted);
              text-transform: uppercase; letter-spacing: 0.06em; }
-    .readout { font-family: monospace; font-size: 0.8rem; color: var(--accent); text-align: right; }
+    .readout { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); text-align: right; }
     rx-graph { --canvas-height: 10rem; }
     rx-graph canvas { height: 10rem; }
 `;

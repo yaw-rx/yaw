@@ -26,15 +26,15 @@ import { type AttributeCodec, Component, RxElement, state } from '@yaw-rx/core';
         .panel { display: flex; flex-direction: column; gap: 0.75rem; }
         .row { display: flex; align-items: center; gap: 0.75rem;
                justify-content: space-between; flex-wrap: wrap; }
-        .label { color: var(--secondary); font-family: monospace; font-size: 0.75rem;
-                 text-transform: uppercase; letter-spacing: 0.08em; }
-        .value { color: var(--accent); font-family: monospace; font-size: 1rem;
+        .label { color: var(--secondary); font-family: var(--font-mono); font-size: 0.75rem;
+                 text-transform: uppercase; letter-spacing: var(--tracking); }
+        .value { color: var(--accent); font-family: var(--font-mono); font-size: 1rem;
                  background: var(--bg-2); padding: 0.35rem 0.7rem;
-                 border: 1px solid var(--bg-5); border-radius: 4px; }
+                 border: var(--border-width) solid var(--bg-5); border-radius: var(--radius-sm); }
         .buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        button { background: var(--bg-3); border: 1px solid var(--border); color: var(--white);
-                 padding: 0.4rem 0.8rem; font: inherit; font-family: monospace;
-                 font-size: 0.8rem; cursor: pointer; border-radius: 4px; }
+        button { background: var(--bg-3); border: var(--border-width) solid var(--border); color: var(--white);
+                 padding: 0.4rem 0.8rem; font: inherit; font-family: var(--font-mono);
+                 font-size: 0.8rem; cursor: pointer; border-radius: var(--radius-sm); }
         button:hover { border-color: var(--accent); color: var(--accent); }
     `,
 })
