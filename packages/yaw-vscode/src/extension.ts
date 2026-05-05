@@ -19,6 +19,12 @@ function findTemplateLiteralEnd(text: string, openIndex: number): number {
         const ch = text[i];
         if (ch === '\\') { i++; continue; }
         if (ch === '$' && text[i + 1] === '{') { depth++; i++; continue; }
+        if (ch === '`' && depth > 0) {
+            const nested = findTemplateLiteralEnd(text, i + 1);
+            if (nested === -1) return -1;
+            i = nested;
+            continue;
+        }
         if (ch === '}' && depth > 0) { depth--; continue; }
         if (ch === '`' && depth === 0) return i;
     }
@@ -38,6 +44,11 @@ function extractContent(text: string, start: number, end: number): string {
             let depth = 1;
             let j = i + 2;
             while (j < end && depth > 0) {
+                if (text[j] === '\\') { j += 2; continue; }
+                if (text[j] === '`') {
+                    const nested = findTemplateLiteralEnd(text, j + 1);
+                    if (nested !== -1) { j = nested + 1; continue; }
+                }
                 if (text[j] === '{') depth++;
                 else if (text[j] === '}') depth--;
                 j++;
