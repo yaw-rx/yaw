@@ -1,6 +1,6 @@
 import { map, type Observable } from 'rxjs';
 import { Component, RxElement, state } from '@yaw-rx/core';
-import { escape } from '../../../components/code-block/code-highlight.js';
+import { escape } from '@yaw-rx/common';
 import '../../../components/code-block.js';
 import { DOC_STYLES } from '../../../utils/doc-styles.js';
 import { TocSection } from '../../docs-page/directives/toc-section.js';
@@ -198,73 +198,102 @@ export class PageEcho extends RxElement {
         <div class="page">
             <h1 toc-anchor="nesting-example">Nesting example</h1>
 
-            <p class="lede">Bindings resolve against the component whose template
-               they are written in — the <em>host</em>. Nesting a binding inside
-               another element, including a custom element that projects its children
-               through a slot, does not change where it resolves. This example uses
-               three components to demonstrate the rule and the one mechanism that
-               crosses a component boundary.</p>
+            <p class="lede"><a href="/docs/components/bindings">Bindings</a> resolve
+               against the component whose template they're written in. Nesting depth
+               is irrelevant. A <code class="inline">${escape`<div>`}</code> wrapper,
+               a custom element wrapper, two custom element wrappers — doesn't matter.
+               If the binding is in your template, it resolves against you.</p>
 
             <section class="host">
-                <h2><code class="inline">&lt;nested-level&gt;</code> — a stateless wrapper</h2>
-                <p class="note">A custom element that draws a dashed box around its
-                   <code class="inline">&lt;slot&gt;</code>. No state, no methods.
-                   Every dashed box in the live demo below is one of these. Wrapping
-                   buttons inside it does not change where their bindings resolve —
-                   the buttons are still written in the host's template, so they
-                   still resolve against the host.</p>
+                <h2><code class="inline">${escape`<nested-level>`}</code> — a stateless wrapper</h2>
+                <p class="note">A stateless wrapper that
+                   <a href="/docs/components/projection">projects</a> its children
+                   through a <code class="inline">${escape`<slot>`}</code> inside a
+                   dashed border and a label. It has no state and no behaviour — it
+                   exists to prove that wrapping bindings in a custom element doesn't
+                   redirect where they resolve. This component adds visual framing
+                   but introduces no scope boundary.</p>
                 <code-block syntax="ts">${escape`${NESTED_LEVEL_SOURCE}`}</code-block>
             </section>
 
             <section class="host">
-                <h2><code class="inline">&lt;nesting-example&gt;</code> — the host</h2>
-                <p class="note">The component that owns the state. Two
-                   <code class="inline">@state</code> fields —
-                   <code class="inline">count</code> and
-                   <code class="inline">accent</code> — and a derived getter
-                   <code class="inline">status$</code> that maps count to
-                   "zero", "positive", or "negative". The template places buttons
-                   at three depths: directly, inside one
-                   <code class="inline">&lt;nested-level&gt;</code>, and inside two.
-                   All three groups call <code class="inline">increment</code> and
-                   read <code class="inline">count</code> on this component, because
-                   all three are written in this component's template. At the bottom,
-                   a <code class="inline">&lt;page-echo&gt;</code> tag drops in the
-                   separate component shown next — its tap binding
-                   <code class="inline">[(accent)]="accent"</code> keeps the child's
-                   accent synced with the host's.</p>
-                <p class="note">The template:</p>
-                <code-block syntax="html">${escape`${NESTING_TEMPLATE}`}</code-block>
-                <p class="note">The class:</p>
-                <code-block syntax="ts">${escape`${HOST_SOURCE}`}</code-block>
+                <h2><code class="inline">${escape`<page-echo>`}</code> — a component boundary</h2>
+                <p class="note">This <em>is</em> a
+                   <a href="/docs/components/bindings">component boundary</a>.
+                   Its bindings resolve against itself by default —
+                   its <code class="inline">@state</code> fields
+                   <code class="inline">blend</code> and
+                   <code class="inline">accent</code> are local. It assumes its host
+                   has a <code class="inline">count</code> field and an
+                   <code class="inline">increment</code> method, and uses
+                   <a href="/docs/components/paths/carets">caret bindings</a>
+                   to reach them
+                   (<code class="inline">${escape`^count`}</code>,
+                   <code class="inline">${escape`^increment(2)`}</code>). The tap binding
+                   <code class="inline">${escape`[(accent)]="accent"`}</code> writes
+                   in the opposite direction — when
+                   <code class="inline">${escape`[(accent)]`}</code> changes, the new
+                   value pushes into the host's
+                   <code class="inline">accent</code>.
+                   Wrapping in a stateless element doesn't change scope, but a component
+                   with its own template does — and carets are how you cross that
+                   boundary.</p>
+                <code-block syntax="ts">${escape`${PAGE_ECHO_SOURCE}`}</code-block>
             </section>
 
             <section class="host">
-                <h2><code class="inline">&lt;page-echo&gt;</code> — crossing a component boundary</h2>
-                <p class="note">Unlike <code class="inline">&lt;nested-level&gt;</code>,
-                   this component has its own template and its own state. Its bindings
-                   resolve against itself by default —
-                   <code class="inline">blend</code> and
-                   <code class="inline">accent</code> are local. To reach the host's
-                   <code class="inline">count</code> and methods, it uses caret
-                   bindings: <code class="inline">^count</code>,
-                   <code class="inline">^increment(2)</code>. The caret prefix walks
-                   one host boundary outward.</p>
-                <code-block syntax="ts">${escape`${PAGE_ECHO_SOURCE}`}</code-block>
+                <h2><code class="inline">${escape`<nesting-example>`}</code> — the host template (<code class="inline">NESTING_TEMPLATE</code>)</h2>
+                <p class="note">The host template places buttons at three
+                   nesting depths. Some sit directly in the template, some are
+                   wrapped in one
+                   <code class="inline">${escape`<nested-level>`}</code>, and some
+                   are wrapped in two.
+                   All three groups
+                   <a href="/docs/components/paths">resolve against</a> this component
+                   because all three are written in its template. At the bottom,
+                   <code class="inline">${escape`<page-echo [(accent)]="accent">`}</code>
+                   — when <code class="inline">${escape`<page-echo>`}</code>'s
+                   <code class="inline">${escape`[(accent)]`}</code> changes, the
+                   <a href="/docs/components/bindings/data">tap binding</a> pushes
+                   it into the host's <code class="inline">accent</code>.</p>
+                <code-block syntax="html">${escape`${NESTING_TEMPLATE}`}</code-block>
+            </section>
+
+            <section class="host">
+                <h2><code class="inline">${escape`<nesting-example>`}</code> — the host class</h2>
+                <p class="note">The class owns all the state that the template and
+                   its children read. <code class="inline">count</code> and
+                   <code class="inline">accent</code> are
+                   <code class="inline">@state</code> fields — each one backs an
+                   observable stream that bindings subscribe to.
+                   <code class="inline">status$</code> is a derived getter that maps
+                   <code class="inline">count</code> to the strings
+                   "zero", "positive", or "negative".
+                   <code class="inline">increment</code> and
+                   <code class="inline">reset</code> are the methods that the
+                   template's <code class="inline">onclick</code> bindings call.</p>
+                <code-block syntax="ts">${escape`${HOST_SOURCE}`}</code-block>
             </section>
 
             <section class="ex">
                 <h2>Live</h2>
-                <p class="note">All three components rendered together. Every button
-                   at every depth reads and writes the same
-                   <code class="inline">count</code>.
-                   <code class="inline">&lt;page-echo&gt;</code> reaches it via
-                   carets. Click <em>accent</em> to cycle the background — that is the
-                   tap binding pushing a local value up to the host. Click
-                   <em>blend</em> to toggle
-                   <code class="inline">mix-blend-mode: difference</code> — that
-                   state stays entirely inside
-                   <code class="inline">&lt;page-echo&gt;</code>.</p>
+                <p class="note">All three components rendered together. The
+                   buttons at depth 0 sit directly in the
+                   <code class="inline">${escape`<nesting-example>`}</code> template.
+                   The buttons inside the dashed boxes are wrapped in one or two
+                   <code class="inline">${escape`<nested-level>`}</code> elements —
+                   but they still resolve against the host, so they read and write
+                   the same <code class="inline">count</code>. At the bottom,
+                   <code class="inline">${escape`<page-echo>`}</code> reaches
+                   <code class="inline">count</code> via carets, and its tap binding
+                   <code class="inline">${escape`[(accent)]="accent"`}</code> pushes
+                   <code class="inline">${escape`<page-echo>`}</code>'s
+                   <code class="inline">accent</code> into the host's
+                   <code class="inline">accent</code> — click the accent button to
+                   cycle the background.
+                   <code class="inline">blend</code> stays entirely inside
+                   <code class="inline">${escape`<page-echo>`}</code> and nothing
+                   outside sees it.</p>
                 <div class="live" [style.background]="accent">${NESTING_TEMPLATE}</div>
             </section>
         </div>
