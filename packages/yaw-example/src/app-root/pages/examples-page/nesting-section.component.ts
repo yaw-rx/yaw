@@ -1,14 +1,15 @@
 import { map, type Observable } from 'rxjs';
 import { Component, RxElement, state } from '@yaw-rx/core';
 import { DocSection } from '../../components/doc-section.component.js';
-import { escape } from '@yaw-rx/common';
+import { escape } from '@yaw-rx/common/escape';
+import { css, html, ts } from '@yaw-rx/common/tags';
 import '../../components/code-block.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import './nesting-section/nested-level.component.js';
 import './nesting-section/page-echo.component.js';
 
-const NESTING_STYLES = `
+const NESTING_STYLES = css`
     :host { display: block; }
     .buttons { display: flex; flex-wrap: wrap; gap: 0.3rem; }
     .state { margin: 0.75rem 0 0; font-family: var(--font-mono);
@@ -20,13 +21,13 @@ const NESTING_STYLES = `
     button:hover { background: var(--bg-5); border-color: var(--dim); }
 `;
 
-const WRAPPER_STYLES = `
+const WRAPPER_STYLES = css`
     .live { display: flex; flex-direction: column; gap: 0.5rem;
             padding: 1.25rem; background: var(--bg-1);
             border: var(--border-width) solid var(--bg-5); border-radius: var(--radius-lg); }
 `;
 
-const NESTING_TEMPLATE = `
+const NESTING_TEMPLATE = html`
 <!-- depth 0: buttons sit directly in the host's template -->
 <div class="buttons">
     <button onclick="increment(1)">+1</button>
@@ -55,7 +56,7 @@ const NESTING_TEMPLATE = `
 <page-echo [(accent)]="accent"></page-echo>
 `;
 
-const NESTED_LEVEL_SOURCE = `@Component({
+const NESTED_LEVEL_SOURCE = ts`@Component({
     selector: 'nested-level',
     template: \`
         <div class="nested">
@@ -74,7 +75,7 @@ const NESTED_LEVEL_SOURCE = `@Component({
 })
 export class NestedLevel extends RxElement {}`;
 
-const HOST_SOURCE = `@Component({
+const HOST_SOURCE = ts`@Component({
     selector: 'nesting-section',
     template: NESTING_TEMPLATE,
 })
@@ -98,7 +99,7 @@ export class NestingExample extends RxElement {
     }
 }`;
 
-const PAGE_ECHO_SOURCE = `@Component({
+const PAGE_ECHO_SOURCE = ts`@Component({
     selector: 'page-echo',
     template: \`
         <div class="echo" [class.blended]="blend">

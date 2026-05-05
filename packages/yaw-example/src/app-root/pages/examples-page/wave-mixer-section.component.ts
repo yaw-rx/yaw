@@ -1,12 +1,13 @@
 import { Component } from '@yaw-rx/core';
 import { DocSection } from '../../components/doc-section.component.js';
-import { escape } from '@yaw-rx/common';
+import { escape } from '@yaw-rx/common/escape';
+import { css } from '@yaw-rx/common/tags';
 import '../../components/code-block.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { WAVE_MIXER_SOURCE } from './wave-mixer-section/wave-mixer.component.js';
 
-const WRAPPER_STYLES = `
+const WRAPPER_STYLES = css`
     .live { padding: 1.25rem; background: var(--bg-1);
             border: var(--border-width) solid var(--bg-5); border-radius: var(--radius-lg); }
 `;

@@ -24,7 +24,7 @@
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --check src/",
     "format:fix": "prettier --write src/",
-    "vscode:install": "ln -sfn \"$(cd ../yaw-vscode && pwd)\" \"$HOME/.vscode/extensions/yaw-rx.yaw-vscode\""
+    "vscode:install": "cd node_modules/@yaw-rx/vscode && npm run build && ln -sfn \"$(pwd)\" \"$HOME/.vscode/extensions/yaw-rx.yaw-vscode\""
   },
   "dependencies": {
     "dayjs": "^1.11.20",
@@ -55,6 +55,7 @@
     "@eslint/js": "^9.39.0",
     "eslint": "^9.39.0",
     "typescript-eslint": "^8.59.0",
-    "prettier": "^3.8.0"
+    "prettier": "^3.8.0",
+    "@yaw-rx/vscode": "file:../yaw-vscode"
   }
 }

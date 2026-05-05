@@ -1,18 +1,19 @@
 import { Component, RxElement } from '@yaw-rx/core';
-import { escape } from '@yaw-rx/common';
+import { escape } from '@yaw-rx/common/escape';
+import { ts } from '@yaw-rx/common/tags';
 import '../components/code-block.component.js';
 import './manifesto-page/hero-section.component.js';
 import './manifesto-page/stat-counter.component.js';
 import './manifesto-page/manifesto-section.component.js';
 import './manifesto-page/footer-section.component.js';
 
-const REACT_SNIPPET = `
+const REACT_SNIPPET = ts`
     // React 19: 60KB gzipped to call appendChild
     const [count, setCount] = useState(0);
     useEffect(() => { document.title = count; }, [count]);
 `;
 
-const YAW_SNIPPET = `
+const YAW_SNIPPET = ts`
     // YAW: 16KB gzipped. Direct. Honest.
     @state count = 0;
     // That's it. The DOM updates. No diff. No reconciliation.

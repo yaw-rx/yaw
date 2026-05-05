@@ -1,7 +1,8 @@
 import { combineLatest, map, type Observable } from 'rxjs';
 import { Component, RxElement, state } from '@yaw-rx/core';
+import { html, css, ts } from '@yaw-rx/common/tags';
 
-export const COLOR_PLAYGROUND_TEMPLATE = `
+export const COLOR_PLAYGROUND_TEMPLATE = html`
     <label>H <em>{{hue}}°</em></label>
     <yaw-slider [(value)]="hue" min="0" max="360"></yaw-slider>
 
@@ -15,7 +16,7 @@ export const COLOR_PLAYGROUND_TEMPLATE = `
     <div class="swatch" [style]="swatchStyle"></div>
 `;
 
-export const COLOR_PLAYGROUND_STYLES = `
+export const COLOR_PLAYGROUND_STYLES = css`
     :host { display: grid; grid-template-columns: auto 1fr;
             gap: 0.75rem 1rem; align-items: center; }
     label { color: var(--secondary); font-size: 0.8rem;
@@ -31,7 +32,7 @@ export const COLOR_PLAYGROUND_STYLES = `
               transition: background 0.1s linear; }
 `;
 
-export const COLOR_PLAYGROUND_SOURCE = `@Component({
+export const COLOR_PLAYGROUND_SOURCE = ts`@Component({
     selector: 'color-playground',
     template: \`${COLOR_PLAYGROUND_TEMPLATE}\`,
     styles: \`${COLOR_PLAYGROUND_STYLES}\`,

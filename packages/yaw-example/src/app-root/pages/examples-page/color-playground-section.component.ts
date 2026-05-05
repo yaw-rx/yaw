@@ -1,12 +1,13 @@
 import { Component } from '@yaw-rx/core';
 import { DocSection } from '../../components/doc-section.component.js';
-import { escape } from '@yaw-rx/common';
+import { escape } from '@yaw-rx/common/escape';
+import { css } from '@yaw-rx/common/tags';
 import '../../components/code-block.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { COLOR_PLAYGROUND_SOURCE } from './color-playground-section/color-playground.component.js';
 
-const WRAPPER_STYLES = `
+const WRAPPER_STYLES = css`
     .live { padding: 1.5rem; background: var(--bg-1);
             border: var(--border-width) solid var(--bg-5); border-radius: var(--radius-lg); }
     .live color-playground { display: grid; grid-template-columns: auto 1fr;

@@ -2,7 +2,8 @@ import { Component, RxElement } from '@yaw-rx/core';
 import { DocSection } from '../../components/doc-section.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
-import { escape } from '../../components/code-block/code-block-highlight.component.js';
+import { escape } from '@yaw-rx/common/escape';
+import { ts } from '@yaw-rx/common/tags';
 import '../../components/code-block.component.js';
 import './reactive-state-section/date-ticker.component.js';
 import './reactive-state-section/decimal-demo.component.js';
@@ -11,7 +12,7 @@ import './reactive-state-section/plaindate-demo.component.js';
 import './reactive-state-section/dayjs-demo.component.js';
 import './reactive-state-section/touch-demo.component.js';
 
-const STATE_DECORATOR_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
+const STATE_DECORATOR_SOURCE = ts`import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({ selector: 'my-thing', template: '...', styles: '...' })
 export class MyThing extends RxElement {
@@ -27,7 +28,7 @@ export class MyThing extends RxElement {
 // 2. Creates a count$ getter returning BehaviorSubject<number>
 // 3. Registers the field for attribute marshalling`;
 
-const STATE_DOLLAR_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
+const STATE_DOLLAR_SOURCE = ts`import { Component, RxElement, state } from '@yaw-rx/core';
 import { map, type Observable } from 'rxjs';
 
 @Component({
@@ -47,7 +48,7 @@ export class MyThing extends RxElement {
 }`;
 
 
-const BUILTIN_CODECS_SOURCE = `// every native JS type has a built-in codec:
+const BUILTIN_CODECS_SOURCE = ts`// every native JS type has a built-in codec:
 string    // passthrough
 number    // Number(s), String(v)
 boolean   // s !== 'false', String(v)
@@ -62,7 +63,7 @@ Object    // JSON.parse / JSON.stringify
 Uint8Array, Int8Array, Float32Array, ...  // JSON array`;
 
 
-const DATE_TICKER_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
+const DATE_TICKER_SOURCE = ts`import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
     selector: 'date-ticker',
@@ -75,7 +76,7 @@ export class DateTicker extends RxElement {
     @state now!: Date;
 }`;
 
-const DECIMAL_SOURCE = `import Decimal from 'decimal.js';
+const DECIMAL_SOURCE = ts`import Decimal from 'decimal.js';
 import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
@@ -100,7 +101,7 @@ export class DecimalDemo extends RxElement {
     reset(): void { this.total = new Decimal('0.00'); }
 }`;
 
-const ADDRESS_SOURCE = `import { getAddress, type Address } from 'viem';
+const ADDRESS_SOURCE = ts`import { getAddress, type Address } from 'viem';
 import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
@@ -128,7 +129,7 @@ export class AddressDemo extends RxElement {
     }
 }`;
 
-const PLAINDATE_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
+const PLAINDATE_SOURCE = ts`import { Component, RxElement, state } from '@yaw-rx/core';
 
 // Temporal is native — no import, no polyfill
 @Component({
@@ -152,7 +153,7 @@ export class PlainDateDemo extends RxElement {
     nextMonth(): void { this.birthday = this.birthday.add({ months: 1 }); }
 }`;
 
-const DAYJS_SOURCE = `import dayjs, { type Dayjs } from 'dayjs';
+const DAYJS_SOURCE = ts`import dayjs, { type Dayjs } from 'dayjs';
 import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
@@ -183,7 +184,7 @@ const PLUGIN_SOURCE = `// tsconfig.json — one line
     }
 }`;
 
-const PLUGIN_WHAT_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
+const PLUGIN_WHAT_SOURCE = ts`import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({ selector: 'my-thing', template: '...', styles: '...' })
 export class MyThing extends RxElement {

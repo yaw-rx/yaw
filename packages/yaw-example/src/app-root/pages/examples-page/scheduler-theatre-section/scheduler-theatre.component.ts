@@ -1,8 +1,9 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
 import type { Observable } from 'rxjs';
+import { html, css, ts } from '@yaw-rx/common/tags';
 import '../graph-section/rx-graph.component.js';
 
-export const SCHEDULER_THEATRE_TEMPLATE = `
+export const SCHEDULER_THEATRE_TEMPLATE = html`
     <div class="controls">
         <div class="actions">
             <button onclick="toggle">{{label}}</button>
@@ -29,7 +30,7 @@ export const SCHEDULER_THEATRE_TEMPLATE = `
     </div>
 `;
 
-export const SCHEDULER_THEATRE_STYLES = `
+export const SCHEDULER_THEATRE_STYLES = css`
     :host { display: block; }
     .controls { display: flex; gap: 1rem; align-items: center;
                 flex-wrap: wrap; margin-bottom: 1rem; }
@@ -77,7 +78,7 @@ export const SCHEDULER_THEATRE_STYLES = `
     .body > .row > :nth-child(3) { color: var(--muted); }
 `;
 
-export const SCHEDULER_THEATRE_SOURCE = `const TARGET_FPS = 60;
+export const SCHEDULER_THEATRE_SOURCE = ts`const TARGET_FPS = 60;
 const KP = 0.4;
 const FPS_WINDOW = 30;
 const IPS_WINDOW = 10;

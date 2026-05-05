@@ -3,7 +3,8 @@ import { Component, Inject, Injectable, RxElement, state } from '@yaw-rx/core';
 import { DocSection } from '../../components/doc-section.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
-import { escape } from '../../components/code-block/code-block-highlight.component.js';
+import { escape } from '@yaw-rx/common/escape';
+import { html, ts } from '@yaw-rx/common/tags';
 import '../../components/code-block.component.js';
 
 @Injectable()
@@ -33,7 +34,7 @@ export class ClockReadout extends RxElement {
     }
 }
 
-const SERVICE_SOURCE = `import { BehaviorSubject } from 'rxjs';
+const SERVICE_SOURCE = ts`import { BehaviorSubject } from 'rxjs';
 import { Injectable } from '@yaw-rx/core';
 
 @Injectable()
@@ -44,7 +45,7 @@ export class Clock {
     }
 }`;
 
-const PROVIDE_SOURCE = `import { bootstrap, Component, RxElement } from '@yaw-rx/core';
+const PROVIDE_SOURCE = ts`import { bootstrap, Component, RxElement } from '@yaw-rx/core';
 import { Router } from '@yaw-rx/core/router';
 import { Clock } from './clock.js';
 import { AppRoot } from './app-root.js';
@@ -63,7 +64,7 @@ bootstrap({
     providers: [Clock, Router, ...],
 });`;
 
-const RESOLVE_SOURCE = `import { Component, Inject, Injectable, RxElement, state } from '@yaw-rx/core';
+const RESOLVE_SOURCE = ts`import { Component, Inject, Injectable, RxElement, state } from '@yaw-rx/core';
 import { Clock } from './clock.js';
 
 // components: @Inject(Token) on a field
@@ -86,7 +87,7 @@ export class Analytics {
     constructor(private readonly clock: Clock) {}
 }`;
 
-const LIVE_USAGE = `<clock-readout></clock-readout>`;
+const LIVE_USAGE = html`<clock-readout></clock-readout>`;
 
 @Component({
     selector: 'services-section',

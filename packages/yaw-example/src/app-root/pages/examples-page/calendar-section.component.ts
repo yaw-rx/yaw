@@ -1,10 +1,11 @@
 import { Component } from '@yaw-rx/core';
 import { DocSection } from '../../components/doc-section.component.js';
-import { escape } from '../../components/code-block/code-block-highlight.component.js';
+import { escape } from '@yaw-rx/common/escape';
+import { html, ts } from '@yaw-rx/common/tags';
 import '../../components/code-block.component.js';
 import './calendar-section/calendar-grid.component.js';
 
-const GRID_SOURCE = `@Component({
+const GRID_SOURCE = ts`@Component({
     selector: 'calendar-grid',
     template: \`
         <header class="toolbar">
@@ -43,7 +44,7 @@ export class CalendarGrid extends RxElement {
     selectDate(date: string): void { this.selectedDate = date; }
 }`;
 
-const WEEK_SOURCE = `@Component({
+const WEEK_SOURCE = ts`@Component({
     selector: 'calendar-week',
     template: \`
         <div class="days" rx-for="days by key">
@@ -56,7 +57,7 @@ export class CalendarWeek extends RxElement {
     @state days: readonly DayCell[] = [];
 }`;
 
-const DAY_SOURCE = `@Component({
+const DAY_SOURCE = ts`@Component({
     selector: 'calendar-day',
     template: \`<button onclick="^^selectDate(date)"
                        [class.selected]="selected"
@@ -69,11 +70,11 @@ export class CalendarDay extends RxElement {
     @state selected = false;
 }`;
 
-const USAGE = `<calendar-grid>
+const USAGE = html`<calendar-grid>
     <button slot="actions" onclick="today">Today</button>
 </calendar-grid>`;
 
-const LOOKUP_SOURCE = `const nextHost = (el) =>
+const LOOKUP_SOURCE = ts`const nextHost = (el) =>
     el.parentElement?.closest('[data-rx-host]');
 
 const walkScope = (host, carets) => {

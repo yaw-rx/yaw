@@ -10,8 +10,8 @@ interface EmbeddedRegion {
     content: string;
 }
 
-const TEMPLATE_RE = /template\s*:\s*`/g;
-const STYLES_RE = /styles\s*:\s*`/g;
+const TEMPLATE_RE = /(?:template\s*:\s*|(?<=\b)html\s*)`/g;
+const STYLES_RE = /(?:styles\s*:\s*|(?<=\b)css\s*)`/g;
 
 function findTemplateLiteralEnd(text: string, openIndex: number): number {
     let depth = 0;

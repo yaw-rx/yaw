@@ -1,32 +1,9 @@
 {
-  "scopeName": "yaw.template.html",
+  "scopeName": "yaw.template.wgsl",
   "injectionSelector": "L:source.ts -comment, L:source.tsx -comment",
   "patterns": [
     {
-      "begin": "(template)\\s*:\\s*(`)",
-      "beginCaptures": {
-        "1": { "name": "meta.object-literal.key.ts" },
-        "2": { "name": "punctuation.definition.string.template.begin.ts" }
-      },
-      "end": "(`)",
-      "endCaptures": {
-        "1": { "name": "punctuation.definition.string.template.end.ts" }
-      },
-      "contentName": "meta.embedded.block.html",
-      "patterns": [
-        {
-          "begin": "\\$\\{",
-          "beginCaptures": { "0": { "name": "punctuation.definition.template-expression.begin.ts" } },
-          "end": "\\}",
-          "endCaptures": { "0": { "name": "punctuation.definition.template-expression.end.ts" } },
-          "name": "meta.template.expression.ts",
-          "patterns": [{ "include": "source.ts" }]
-        },
-        { "include": "text.html.basic" }
-      ]
-    },
-    {
-      "begin": "(?:\\b)(html)\\s*(`)",
+      "begin": "(?:\\b)(wgsl)\\s*(`)",
       "beginCaptures": {
         "1": { "name": "entity.name.function.tagged-template.ts" },
         "2": { "name": "punctuation.definition.string.template.begin.ts" }
@@ -35,7 +12,7 @@
       "endCaptures": {
         "1": { "name": "punctuation.definition.string.template.end.ts" }
       },
-      "contentName": "meta.embedded.block.html",
+      "contentName": "meta.embedded.block.wgsl",
       "patterns": [
         {
           "begin": "\\$\\{",
@@ -45,7 +22,29 @@
           "name": "meta.template.expression.ts",
           "patterns": [{ "include": "source.ts" }]
         },
-        { "include": "text.html.basic" }
+        { "include": "source.wgsl" }
+      ]
+    },
+    {
+      "begin": "/\\*\\s*wgsl\\s*\\*/\\s*(`)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.string.template.begin.ts" }
+      },
+      "end": "(`)",
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.string.template.end.ts" }
+      },
+      "contentName": "meta.embedded.block.wgsl",
+      "patterns": [
+        {
+          "begin": "\\$\\{",
+          "beginCaptures": { "0": { "name": "punctuation.definition.template-expression.begin.ts" } },
+          "end": "\\}",
+          "endCaptures": { "0": { "name": "punctuation.definition.template-expression.end.ts" } },
+          "name": "meta.template.expression.ts",
+          "patterns": [{ "include": "source.ts" }]
+        },
+        { "include": "source.wgsl" }
       ]
     }
   ]

@@ -2,10 +2,11 @@ import { Component } from '@yaw-rx/core';
 import { DocSection } from '../../components/doc-section.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
-import { escape } from '../../components/code-block/code-block-highlight.component.js';
+import { escape } from '@yaw-rx/common/escape';
+import { html, ts } from '@yaw-rx/common/tags';
 import '../../components/code-block.component.js';
 
-const HTML_SOURCE = `<!doctype html>
+const HTML_SOURCE = html`<!doctype html>
 <html>
     <head><meta charset="utf-8"><title>YAW</title></head>
     <body>
@@ -13,7 +14,7 @@ const HTML_SOURCE = `<!doctype html>
     </body>
 </html>`;
 
-const MAIN_SOURCE = `import { bootstrap } from '@yaw-rx/core';
+const MAIN_SOURCE = ts`import { bootstrap } from '@yaw-rx/core';
 import { Router, ROUTES } from '@yaw-rx/core/router';
 import { RxIf } from '@yaw-rx/core/directives/rx-if';
 import { RxFor } from '@yaw-rx/core/directives/rx-for';
@@ -48,7 +49,7 @@ await bootstrap({
     },
 });`;
 
-const APP_ROOT_SOURCE = `import { Component, RxElement } from '@yaw-rx/core';
+const APP_ROOT_SOURCE = ts`import { Component, RxElement } from '@yaw-rx/core';
 
 @Component({
     selector: 'app-root',

@@ -1,12 +1,13 @@
 import { Component, state } from '@yaw-rx/core';
 import { DocSection } from '../../components/doc-section.component.js';
-import { escape } from '@yaw-rx/common';
+import { escape } from '@yaw-rx/common/escape';
+import { html } from '@yaw-rx/common/tags';
 import '../../components/code-block.component.js';
 import { SLIDER_SOURCE } from './slider-section/yaw-slider.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 
-const USAGE = `<yaw-slider [(value)]="value" min="0" max="100"></yaw-slider>
+const USAGE = html`<yaw-slider [(value)]="value" min="0" max="100"></yaw-slider>
 <p>value = {{value}}</p>`;
 
 @Component({

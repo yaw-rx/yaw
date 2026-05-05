@@ -1,7 +1,8 @@
 import { combineLatest, map, type Observable } from 'rxjs';
 import { Component, RxElement, state } from '@yaw-rx/core';
+import { html, css, ts } from '@yaw-rx/common/tags';
 
-export const SIGNAL_METER_TEMPLATE = `
+export const SIGNAL_METER_TEMPLATE = html`
     <div class="meter" [style]="meterStyle">
         <svg viewBox="0 0 100 100" class="ring">
             <circle cx="50" cy="50" r="42" class="track"></circle>
@@ -14,7 +15,7 @@ export const SIGNAL_METER_TEMPLATE = `
     </div>
 `;
 
-export const SIGNAL_METER_STYLES = `
+export const SIGNAL_METER_STYLES = css`
     :host { display: block; }
     .meter { position: relative; width: 14rem; height: 14rem; }
     .ring { width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
@@ -33,7 +34,7 @@ export const SIGNAL_METER_STYLES = `
     .unit { font-size: 1rem; color: var(--dim); font-family: var(--font-mono); margin-top: 1rem; }
 `;
 
-export const SIGNAL_METER_SOURCE = `@Component({
+export const SIGNAL_METER_SOURCE = ts`@Component({
     selector: 'signal-meter',
     template: \`${SIGNAL_METER_TEMPLATE}\`,
     styles: \`${SIGNAL_METER_STYLES}\`,

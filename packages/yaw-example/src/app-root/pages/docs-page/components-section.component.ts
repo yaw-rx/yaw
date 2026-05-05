@@ -2,7 +2,8 @@ import { Component, RxElement, state } from '@yaw-rx/core';
 import { DocSection } from '../../components/doc-section.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
-import { escape } from '../../components/code-block/code-block-highlight.component.js';
+import { escape } from '@yaw-rx/common/escape';
+import { html, css, ts } from '@yaw-rx/common/tags';
 import '../../components/code-block.component.js';
 import './components-section/weather-card.component.js';
 import './reactive-state-section/touch-demo.component.js';
@@ -12,13 +13,13 @@ import './reactive-state-section/address-demo.component.js';
 import './reactive-state-section/plaindate-demo.component.js';
 import './reactive-state-section/dayjs-demo.component.js';
 
-const COUNTER_TEMPLATE = `
+const COUNTER_TEMPLATE = html`
     <button onclick="dec">−</button>
     <span class="count">{{count}}</span>
     <button onclick="inc">+</button>
 `;
 
-const COUNTER_STYLES = `
+const COUNTER_STYLES = css`
     :host { display: inline-flex; align-items: center; gap: 0.6rem; }
     button { background: var(--bg-3); border: var(--border-width) solid var(--border); color: var(--white);
              width: 2rem; height: 2rem; font-size: 1rem; cursor: pointer;
@@ -40,7 +41,7 @@ export class HelloCounter extends RxElement {
     dec(): void { this.count -= 1; }
 }
 
-const STATE_DECORATOR_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
+const STATE_DECORATOR_SOURCE = ts`import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({ selector: 'my-thing', template: '...', styles: '...' })
 export class MyThing extends RxElement {
@@ -56,7 +57,7 @@ export class MyThing extends RxElement {
 // 2. Creates a count$ getter returning StateSubject<number>
 // 3. Registers the field for attribute marshalling`;
 
-const STATE_DOLLAR_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
+const STATE_DOLLAR_SOURCE = ts`import { Component, RxElement, state } from '@yaw-rx/core';
 import { map, type Observable } from 'rxjs';
 
 @Component({
@@ -82,7 +83,7 @@ const PLUGIN_SOURCE = `// tsconfig.json — one line
     }
 }`;
 
-const PLUGIN_WHAT_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
+const PLUGIN_WHAT_SOURCE = ts`import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({ selector: 'my-thing', template: '...', styles: '...' })
 export class MyThing extends RxElement {
@@ -98,7 +99,7 @@ export class MyThing extends RxElement {
     // full types, autocomplete, go-to-definition — no generics needed
 }`;
 
-const TOUCH_DEMO_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
+const TOUCH_DEMO_SOURCE = ts`import { Component, RxElement, state } from '@yaw-rx/core';
 import { map, type Observable } from 'rxjs';
 
 interface Settings {
@@ -150,7 +151,7 @@ export class TouchDemo extends RxElement {
     }
 }`;
 
-const WEATHER_SOURCE = `import { Component, Inject, RxElement, state } from '@yaw-rx/core';
+const WEATHER_SOURCE = ts`import { Component, Inject, RxElement, state } from '@yaw-rx/core';
 import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import { type Subscription } from 'rxjs';
 import { WeatherService } from './weather-service.js';
@@ -212,7 +213,7 @@ const ESCAPE_SNIPPET = [
     'export class EscapeDemo extends RxElement {}',
 ].join('\n');
 
-const REACTIVE_SNIPPET = `<!-- text (mustache) -->
+const REACTIVE_SNIPPET = html`<!-- text (mustache) -->
 <!-- interpolate name from this host -->
 <p>hello, {{name}}</p>
 <!-- interpolate greeting from the parent host -->
@@ -270,7 +271,7 @@ const REACTIVE_SNIPPET = `<!-- text (mustache) -->
 <!-- write this element's value to the grandparent host's volume -->
 <my-slider [(value)]="^^volume"></my-slider>`;
 
-const IMPERATIVE_SNIPPET = `<!-- event -->
+const IMPERATIVE_SNIPPET = html`<!-- event -->
 <!-- call a method on this host -->
 <button onclick="submit">send</button>
 <!-- call a method on the parent host -->
@@ -303,7 +304,7 @@ const IMPERATIVE_SNIPPET = `<!-- event -->
 <!-- ref -->
 <canvas #surface></canvas>`;
 
-const ATTRIBUTE_SNIPPET = `<!-- static — read once on connect, decoded by the field's codec -->
+const ATTRIBUTE_SNIPPET = html`<!-- static — read once on connect, decoded by the field's codec -->
 <weather-card lat="52.52" lon="13.41"></weather-card>
 
 <!-- ---------------------------------------- -->
@@ -320,7 +321,7 @@ const ATTRIBUTE_SNIPPET = `<!-- static — read once on connect, decoded by the 
 <!-- reactive — subscribe to the grandparent host's observable -->
 <weather-card [lat]="^^lat" [lon]="^^lon"></weather-card>`;
 
-const BUILTIN_CODECS_SOURCE = `// every native JS type has a built-in codec:
+const BUILTIN_CODECS_SOURCE = ts`// every native JS type has a built-in codec:
 string    // passthrough
 number    // Number(s), String(v)
 boolean   // s !== 'false', String(v)
@@ -334,7 +335,7 @@ Array     // JSON.parse / JSON.stringify
 Object    // JSON.parse / JSON.stringify
 Uint8Array, Int8Array, Float32Array, ...  // JSON array`;
 
-const DATE_TICKER_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
+const DATE_TICKER_SOURCE = ts`import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
     selector: 'date-ticker',
@@ -347,7 +348,7 @@ export class DateTicker extends RxElement {
     @state now!: Date;
 }`;
 
-const DECIMAL_SOURCE = `import Decimal from 'decimal.js';
+const DECIMAL_SOURCE = ts`import Decimal from 'decimal.js';
 import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
@@ -372,7 +373,7 @@ export class DecimalDemo extends RxElement {
     reset(): void { this.total = new Decimal('0.00'); }
 }`;
 
-const ADDRESS_SOURCE = `import { getAddress, type Address } from 'viem';
+const ADDRESS_SOURCE = ts`import { getAddress, type Address } from 'viem';
 import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
@@ -400,7 +401,7 @@ export class AddressDemo extends RxElement {
     }
 }`;
 
-const PLAINDATE_SOURCE = `import { Component, RxElement, state } from '@yaw-rx/core';
+const PLAINDATE_SOURCE = ts`import { Component, RxElement, state } from '@yaw-rx/core';
 
 // Temporal is native — no import, no polyfill
 @Component({
@@ -424,7 +425,7 @@ export class PlainDateDemo extends RxElement {
     nextMonth(): void { this.birthday = this.birthday.add({ months: 1 }); }
 }`;
 
-const DAYJS_SOURCE = `import dayjs, { type Dayjs } from 'dayjs';
+const DAYJS_SOURCE = ts`import dayjs, { type Dayjs } from 'dayjs';
 import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({

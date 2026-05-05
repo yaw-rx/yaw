@@ -2,7 +2,8 @@ import { Component } from '@yaw-rx/core';
 import { DocSection } from '../../components/doc-section.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
-import { escape } from '../../components/code-block/code-block-highlight.component.js';
+import { escape } from '@yaw-rx/common/escape';
+import { ts } from '@yaw-rx/common/tags';
 import '../../components/code-block.component.js';
 
 const INSTALL_SOURCE = `npm install yaw rxjs
@@ -53,7 +54,7 @@ const TSCONFIG_SOURCE = `{
     }
 }`;
 
-const ESLINT_CONFIG_SOURCE = `import tseslint from 'typescript-eslint';
+const ESLINT_CONFIG_SOURCE = ts`import tseslint from 'typescript-eslint';
 import eslint from '@eslint/js';
 
 export default tseslint.config(
@@ -100,7 +101,7 @@ const PRETTIER_CONFIG_SOURCE = `{
 
 const VITE_INSTALL = `npm install vite @yaw-rx/vite --save-dev`;
 
-const VITE_CONFIG_SOURCE = `import { defineConfig } from 'vite';
+const VITE_CONFIG_SOURCE = ts`import { defineConfig } from 'vite';
 import { viteTransform, viteAssets } from '@yaw-rx/vite';
 
 export default defineConfig({
@@ -113,7 +114,7 @@ export default defineConfig({
 
 const ROLLUP_INSTALL = `npm install rollup @yaw-rx/rollup rollup-plugin-esbuild @rollup/plugin-node-resolve @rollup/plugin-commonjs --save-dev`;
 
-const ROLLUP_CONFIG_SOURCE = `import { rollupTransform, rollupAssets } from '@yaw-rx/rollup';
+const ROLLUP_CONFIG_SOURCE = ts`import { rollupTransform, rollupAssets } from '@yaw-rx/rollup';
 import esbuild from 'rollup-plugin-esbuild';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
@@ -132,7 +133,7 @@ export default {
 
 const ESBUILD_INSTALL = `npm install esbuild @yaw-rx/esbuild --save-dev`;
 
-const ESBUILD_CONFIG_SOURCE = `import { esbuildTransform, esbuildAssets } from '@yaw-rx/esbuild';
+const ESBUILD_CONFIG_SOURCE = ts`import { esbuildTransform, esbuildAssets } from '@yaw-rx/esbuild';
 import { build } from 'esbuild';
 
 await build({
@@ -148,7 +149,7 @@ await build({
 
 const WEBPACK_INSTALL = `npm install webpack webpack-cli @yaw-rx/webpack esbuild-loader html-webpack-plugin --save-dev`;
 
-const WEBPACK_CONFIG_SOURCE = `import path from 'node:path';
+const WEBPACK_CONFIG_SOURCE = ts`import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 

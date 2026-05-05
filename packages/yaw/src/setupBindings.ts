@@ -1,5 +1,5 @@
 import { type Subscription } from 'rxjs';
-import { marshaller } from '@yaw-rx/common';
+import { marshaller } from '@yaw-rx/common/marshaller';
 import { parseBind, subscribeBind, deferredBind, resolveEventHandler, resolveRefTarget, resolveValue, resolveWriteTarget, resolveEncoder } from './expression/bind.js';
 import { BindPathError } from './errors.js';
 import { getSubject } from './state.js';

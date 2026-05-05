@@ -1,15 +1,16 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
 import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import { map, Observable, Subscription } from 'rxjs';
+import { html, css, ts } from '@yaw-rx/common/tags';
 
-export const GRAPH_TEMPLATE = `
+export const GRAPH_TEMPLATE = html`
     <div class="legend" rx-for="{ label, color } of legendItems by label">
         <span><span class="dot" [style.background]="color"></span>{{label}}</span>
     </div>
     <canvas #canvas></canvas>
 `;
 
-export const GRAPH_STYLES = `
+export const GRAPH_STYLES = css`
     :host { display: block; position: relative; }
     .legend { position: absolute; top: 0.25rem; left: 0.4rem;
               display: flex; flex-direction: column; gap: 0.1rem;
@@ -22,7 +23,7 @@ export const GRAPH_STYLES = `
              border: var(--border-width) solid var(--bg-5); border-radius: var(--radius-lg); }
 `;
 
-export const GRAPH_SOURCE = `@Component({
+export const GRAPH_SOURCE = ts`@Component({
     selector: 'rx-graph',
     directives: [RxFor],
     template: \`${GRAPH_TEMPLATE}\`,

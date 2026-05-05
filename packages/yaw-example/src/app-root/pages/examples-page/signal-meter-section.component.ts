@@ -1,12 +1,13 @@
 import { Component, state } from '@yaw-rx/core';
 import { DocSection } from '../../components/doc-section.component.js';
-import { escape } from '@yaw-rx/common';
+import { escape } from '@yaw-rx/common/escape';
+import { css } from '@yaw-rx/common/tags';
 import '../../components/code-block.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
 import { SIGNAL_METER_SOURCE } from './signal-meter-section/signal-meter.component.js';
 
-const WRAPPER_STYLES = `
+const WRAPPER_STYLES = css`
     .live { display: flex; flex-direction: column; align-items: center;
             gap: 1.25rem; padding: 1.75rem; background: var(--bg-1);
             border: var(--border-width) solid var(--bg-5); border-radius: var(--radius-lg); }

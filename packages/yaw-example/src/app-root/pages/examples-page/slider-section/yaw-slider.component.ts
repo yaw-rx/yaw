@@ -1,7 +1,8 @@
 import { map, type Observable } from 'rxjs';
 import { Component, RxElement, state } from '@yaw-rx/core';
+import { html, css, ts } from '@yaw-rx/common/tags';
 
-export const SLIDER_TEMPLATE = `
+export const SLIDER_TEMPLATE = html`
     <div class="track"
          onpointerdown="grab($event)"
          onpointermove="drag($event)"
@@ -11,7 +12,7 @@ export const SLIDER_TEMPLATE = `
     </div>
 `;
 
-const styles = `
+const styles = css`
     :host { display: block; padding: 0.5rem 0.6rem; }
     .track { position: relative; height: 0.5rem; background: var(--bg-5);
              border: var(--border-width) solid var(--bg-6); border-radius: 1rem;
@@ -29,7 +30,7 @@ const styles = `
     .track:active .thumb { box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 90%, transparent); }
 `;
 
-export const SLIDER_SOURCE = `@Component({
+export const SLIDER_SOURCE = ts`@Component({
     selector: 'yaw-slider',
     template: \`${SLIDER_TEMPLATE}\`,
     styles: \`${styles}\`,

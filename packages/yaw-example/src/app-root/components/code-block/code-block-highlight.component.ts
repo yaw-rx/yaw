@@ -8,8 +8,7 @@ const KEYWORDS = new Set([
     'undefined', 'null', 'true', 'false', 'typeof', 'instanceof', 'in', 'of',
 ]);
 
-import { escape, escapeHtml } from '@yaw-rx/common';
-export { escape, escapeHtml };
+import { escapeHtml } from '@yaw-rx/common/escape';
 
 export const dedent = (s: string): string => {
     const body = s.replace(/^\n+/, '').replace(/\s+$/, '');

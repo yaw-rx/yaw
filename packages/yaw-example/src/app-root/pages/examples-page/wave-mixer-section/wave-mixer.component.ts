@@ -1,10 +1,11 @@
 import { combineLatest, map, type Observable } from 'rxjs';
 import { Component, RxElement, state } from '@yaw-rx/core';
+import { html, css, ts } from '@yaw-rx/common/tags';
 import '../graph-section/rx-graph.component.js';
 
 const POINTS = 200;
 
-export const WAVE_MIXER_TEMPLATE = `
+export const WAVE_MIXER_TEMPLATE = html`
     <div class="controls">
         <div class="row">
             <span class="label">wave 1</span>
@@ -25,7 +26,7 @@ export const WAVE_MIXER_TEMPLATE = `
     <rx-graph [config]="graphConfig" [series]="graphSeries"></rx-graph>
 `;
 
-export const WAVE_MIXER_STYLES = `
+export const WAVE_MIXER_STYLES = css`
     :host { display: block; }
     .controls { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; }
     .row { display: flex; gap: 0.3rem; align-items: center; }
@@ -37,7 +38,7 @@ export const WAVE_MIXER_STYLES = `
     rx-graph canvas { height: 10rem; }
 `;
 
-export const WAVE_MIXER_SOURCE = `const POINTS = 200;
+export const WAVE_MIXER_SOURCE = ts`const POINTS = 200;
 
 @Component({
     selector: 'wave-mixer',

@@ -9,6 +9,26 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./escape": {
+      "types": "./dist/escape.d.ts",
+      "import": "./dist/escape.js",
+      "default": "./dist/escape.js"
+    },
+    "./tags": {
+      "types": "./dist/tags.d.ts",
+      "import": "./dist/tags.js",
+      "default": "./dist/tags.js"
+    },
+    "./marshaller": {
+      "types": "./dist/marshaller.d.ts",
+      "import": "./dist/marshaller.js",
+      "default": "./dist/marshaller.js"
+    },
+    "./transform": {
+      "types": "./dist/transform.d.ts",
+      "import": "./dist/transform.js",
+      "default": "./dist/transform.js"
     }
   },
   "scripts": {

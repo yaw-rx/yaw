@@ -1,7 +1,8 @@
 import { Directive } from '@yaw-rx/core';
 import type { RxElementLike } from '@yaw-rx/core';
+import { wgsl } from '@yaw-rx/common/tags';
 
-const SHADER = /* wgsl */ `
+const SHADER = wgsl`
 
 struct Uniforms {
     resolution: vec2f,

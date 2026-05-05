@@ -3,7 +3,8 @@ import { Router } from '@yaw-rx/core/router';
 import { DocSection } from '../../components/doc-section.component.js';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
-import { escape } from '../../components/code-block/code-block-highlight.component.js';
+import { escape } from '@yaw-rx/common/escape';
+import { html, ts } from '@yaw-rx/common/tags';
 import '../../components/code-block.component.js';
 
 @Component({
@@ -51,7 +52,7 @@ export class RouteDisplay extends RxElement {
     }
 }
 
-const ROUTE_CONFIG_SOURCE = `import { bootstrap } from '@yaw-rx/core';
+const ROUTE_CONFIG_SOURCE = ts`import { bootstrap } from '@yaw-rx/core';
 import { Router, ROUTES } from '@yaw-rx/core/router';
 import { AppRoot } from './app-root.js';
 
@@ -68,7 +69,7 @@ bootstrap({
     ],
 });`;
 
-const OUTLET_SOURCE = `import { Component, RxElement } from '@yaw-rx/core';
+const OUTLET_SOURCE = ts`import { Component, RxElement } from '@yaw-rx/core';
 
 @Component({
     selector: 'app-root',
@@ -79,7 +80,7 @@ const OUTLET_SOURCE = `import { Component, RxElement } from '@yaw-rx/core';
 })
 export class AppRoot extends RxElement {}`;
 
-const NAVIGATE_SOURCE = `import { Component, Inject, RxElement, state } from '@yaw-rx/core';
+const NAVIGATE_SOURCE = ts`import { Component, Inject, RxElement, state } from '@yaw-rx/core';
 import { Router } from '@yaw-rx/core/router';
 
 @Component({ selector: 'route-display', ... })
@@ -94,7 +95,7 @@ export class RouteDisplay extends RxElement {
     go(path: string): void { this.router.navigate(path); }
 }`;
 
-const API_SOURCE = `import { BehaviorSubject } from 'rxjs';
+const API_SOURCE = ts`import { BehaviorSubject } from 'rxjs';
 
 class Router {
     readonly route$: BehaviorSubject<string>;
@@ -102,7 +103,7 @@ class Router {
     async resolve(path: string): Promise<CustomElementConstructor | undefined>;  // DOM global
 }`;
 
-const LIVE_USAGE = `<route-display></route-display>`;
+const LIVE_USAGE = html`<route-display></route-display>`;
 
 @Component({
     selector: 'navigation-section',

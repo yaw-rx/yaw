@@ -1,5 +1,5 @@
 {
-  "name": "yaw-vscode",
+  "name": "@yaw-rx/vscode",
   "displayName": "YAW",
   "description": "HTML and CSS highlighting and intellisense inside @Component template and styles",
   "version": "0.1.0",
@@ -21,6 +21,18 @@
         "path": "./syntaxes/yaw-template-css.tmLanguage.json",
         "injectTo": ["source.ts", "source.tsx"],
         "embeddedLanguages": { "meta.embedded.block.css": "css" }
+      },
+      {
+        "scopeName": "yaw.template.ts",
+        "path": "./syntaxes/yaw-template-ts.tmLanguage.json",
+        "injectTo": ["source.ts", "source.tsx"],
+        "embeddedLanguages": { "meta.embedded.block.ts": "typescript" }
+      },
+      {
+        "scopeName": "yaw.template.wgsl",
+        "path": "./syntaxes/yaw-template-wgsl.tmLanguage.json",
+        "injectTo": ["source.ts", "source.tsx"],
+        "embeddedLanguages": { "meta.embedded.block.wgsl": "wgsl" }
       }
     ]
   },

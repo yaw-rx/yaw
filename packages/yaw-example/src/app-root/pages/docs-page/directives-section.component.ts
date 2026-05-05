@@ -5,7 +5,8 @@ import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import { RxIf } from '@yaw-rx/core/directives/rx-if';
 import { TocSection } from '../../directives/toc-section.directive.js';
 import { TocAnchor } from '../../directives/toc-anchor.directive.js';
-import { escape } from '../../components/code-block/code-block-highlight.component.js';
+import { escape } from '@yaw-rx/common/escape';
+import { html, ts } from '@yaw-rx/common/tags';
 import '../../components/code-block.component.js';
 import './directives-section/for-demo.component.js';
 import './directives-section/scope-demo.component.js';
@@ -33,7 +34,7 @@ export class Bounce {
     }
 }
 
-const BOUNCE_SOURCE = `import { Directive } from '@yaw-rx/core';
+const BOUNCE_SOURCE = ts`import { Directive } from '@yaw-rx/core';
 import type { RxElementLike } from '@yaw-rx/core';
 
 @Directive({ selector: '[bounce]' })
@@ -55,7 +56,7 @@ export class Bounce {
 }`;
 
 
-const IF_DEMO_SOURCE = `import { map, type Observable } from 'rxjs';
+const IF_DEMO_SOURCE = ts`import { map, type Observable } from 'rxjs';
 import { Component, RxElement, state } from '@yaw-rx/core';
 import { RxIf } from '@yaw-rx/core/directives/rx-if';
 
@@ -81,7 +82,7 @@ export class IfDemo extends RxElement {
     }
 }`;
 
-const USAGE_SOURCE = `import { Component, RxElement } from '@yaw-rx/core';
+const USAGE_SOURCE = ts`import { Component, RxElement } from '@yaw-rx/core';
 import { Bounce } from './bounce.js';
 
 @Component({
@@ -94,10 +95,10 @@ import { Bounce } from './bounce.js';
 })
 export class Shelf extends RxElement {}`;
 
-const BEFORE_AFTER_SNIPPET = `<div class="box">still</div>
+const BEFORE_AFTER_SNIPPET = html`<div class="box">still</div>
 <div class="box" bounce>bouncing</div>`;
 
-const SCOPE_DEMO_SOURCE = `// item + index + destructure + nesting — one example covers all forms
+const SCOPE_DEMO_SOURCE = html`// item + index + destructure + nesting — one example covers all forms
 
 <div rx-for="team, teamIdx of teams by id">
     <h3>{{teamIdx}}: {{team.name}}</h3>
@@ -107,7 +108,7 @@ const SCOPE_DEMO_SOURCE = `// item + index + destructure + nesting — one examp
     </ul>
 </div>`;
 
-const FOR_DEMO_SOURCE = `import { Component, RxElement } from '@yaw-rx/core';
+const FOR_DEMO_SOURCE = ts`import { Component, RxElement } from '@yaw-rx/core';
 import { of, type Observable } from 'rxjs';
 
 interface Cell { key: string; textContent: string; }

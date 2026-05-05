@@ -40,7 +40,7 @@ import type { Provider } from './di/types.js';
 import type { DirectiveCtor, RxElementLike } from './directive.js';
 import { BootstrapError, HydrationError } from './errors.js';
 import { setHydrating, isHydrating } from './ssg/hydrate/hydration-state.js';
-import { transformTemplate, transformStyles } from '@yaw-rx/common';
+import { transformTemplate, transformStyles } from '@yaw-rx/common/transform';
 import type { AttributeCodec } from './attribute-codec/types.js';
 import { registerAttributeCodecs } from './attribute-codec/registry.js';
 import { startObserver, flushExistingBindings } from './native-bindings.js';
