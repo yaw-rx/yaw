@@ -1,9 +1,9 @@
 import { Component, RxElement } from '@yaw-rx/core';
-import { escape } from '../../../components/code-block/code-highlight.js';
-import '../../../components/code-block.js';
-import { DOC_STYLES } from '../../../utils/doc-styles.js';
-import { TocSection } from '../../docs-page/directives/toc-section.js';
-import { TocAnchor } from '../../docs-page/directives/toc-anchor.js';
+import { escape } from '../../../components/code-block/code-block-highlight.component.js';
+import '../../../components/code-block.component.js';
+import { DOC_STYLES } from '../../../utils/doc-styles.util.js';
+import { TocSection } from '../../../directives/toc-section.directive.js';
+import { TocAnchor } from '../../../directives/toc-anchor.directive.js';
 import { SCHEDULER_THEATRE_SOURCE } from '../components/scheduler-theatre.js';
 
 const WRAPPER_STYLES = `

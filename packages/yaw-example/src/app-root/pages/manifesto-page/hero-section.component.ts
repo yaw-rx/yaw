@@ -1,0 +1,35 @@
+import { Component, RxElement } from '@yaw-rx/core';
+import { PerlinBg } from './hero-section/perlin-bg.directive.js';
+
+@Component({
+    selector: 'hero-section',
+    directives: [PerlinBg],
+    template: `
+        <div class="noise" perlin-bg></div>
+        <div class="hero">
+            <h1 class="title">YAW</h1>
+            <p class="sub">The DOM is not your enemy.</p>
+            <div class="stats">
+                <stat-counter-section label="bundle" unit="KB" target="16"></stat-counter-section>
+                <stat-counter-section label="node_modules" unit="MB" target="9"></stat-counter-section>
+                <stat-counter-section label="dependency" target="1"></stat-counter-section>
+                <stat-counter-section label="virtual DOM" target="0"></stat-counter-section>
+            </div>
+        </div>
+    `,
+    styles: `
+        :host { display: block; min-height: calc(100vh / 1.75); display: flex; align-items: center;
+                justify-content: center; background: var(--black); padding: 6rem 2rem 4rem;
+                position: relative; overflow: hidden; }
+        .noise { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+        .hero { position: relative; z-index: 1; max-width: 800px; text-align: center; }
+        .title { font-size: clamp(3rem, 10vw, 7rem); font-weight: 900; color: var(--white);
+                 letter-spacing: -4px; line-height: 1; margin: 0 0 0.5rem; }
+        .sub { font-size: 1.25rem; color: #838383; line-height: 1.6; margin: 0 0 4rem; }
+        .stats { display: flex; gap: 1.5rem; justify-content: center; }
+        @media (max-width: 480px) {
+            .stats { gap: 1.5rem; }
+        }
+    `
+})
+export class HeroSection extends RxElement {}

@@ -1,5 +1,5 @@
 import { Component, RxElement } from '@yaw-rx/core';
-import './showcase-page/sections/drum-sequencer.js';
+import './showcase-page/drum-sequencer-section.component.js';
 
 @Component({
     selector: 'showcase-page',
@@ -10,7 +10,7 @@ import './showcase-page/sections/drum-sequencer.js';
                 <p class="lede">Real applications built with YAW.</p>
             </header>
 
-            <drum-sequencer></drum-sequencer>
+            <drum-sequencer-section></drum-sequencer-section>
         </div>
     `,
     styles: `

@@ -1,24 +1,24 @@
 import { Component, RxElement } from '@yaw-rx/core';
-import { TocSection } from './docs-page/directives/toc-section.js';
-import { TocAnchor } from './docs-page/directives/toc-anchor.js';
-import { SidebarDrawer } from '../directives/sidebar-drawer.js';
-import { TocService } from './docs-page/services/toc-service.js';
-import './docs-page/sidebar.js';
-import './docs-page/sections/core-concepts.js';
-import './docs-page/sections/getting-started.js';
-import './docs-page/sections/bootstrap.js';
-import './docs-page/sections/components.js';
-import './docs-page/sections/directives.js';
-import './docs-page/sections/services.js';
-import './docs-page/sections/navigation.js';
-import './docs-page/sections/ssg.js';
+import { TocSection } from '../directives/toc-section.directive.js';
+import { TocAnchor } from '../directives/toc-anchor.directive.js';
+import { TocMenuCollapse } from '../directives/toc-menu-collapse.directive.js';
+import { TocMenuItemsService } from '../services/toc-menu-items.service.js';
+import '../components/toc-menu.component.js';
+import './docs-page/core-concepts-section.component.js';
+import './docs-page/getting-started-section.component.js';
+import './docs-page/bootstrap-section.component.js';
+import './docs-page/components-section.component.js';
+import './docs-page/directives-section.component.js';
+import './docs-page/services-section.component.js';
+import './docs-page/navigation-section.component.js';
+import './docs-page/ssg-section.component.js';
 
 @Component({
     selector: 'docs-page',
-    providers: [TocService],
-    directives: [TocSection, TocAnchor, SidebarDrawer],
+    providers: [TocMenuItemsService],
+    directives: [TocSection, TocAnchor, TocMenuCollapse],
     template: `
-        <docs-sidebar sidebar-drawer></docs-sidebar>
+        <toc-menu toc-menu-collapse></toc-menu>
         <main class="content">
             <header class="intro" toc-section="docs">
                 <h1 toc-anchor="docs">Docs</h1>
@@ -28,14 +28,14 @@ import './docs-page/sections/ssg.js';
                    where it makes sense.</p>
             </header>
 
-            <docs-core-concepts toc-section="core-concepts"></docs-core-concepts>
-            <docs-getting-started toc-section="getting-started"></docs-getting-started>
-            <docs-bootstrap toc-section="bootstrap"></docs-bootstrap>
-            <docs-components toc-section="components"></docs-components>
-            <docs-directives toc-section="directives"></docs-directives>
-            <docs-services toc-section="services"></docs-services>
-            <docs-navigation toc-section="navigation"></docs-navigation>
-            <docs-ssg toc-section="ssg"></docs-ssg>
+            <core-concepts-section toc-section="core-concepts"></core-concepts-section>
+            <getting-started-section toc-section="getting-started"></getting-started-section>
+            <bootstrap-section toc-section="bootstrap"></bootstrap-section>
+            <components-section toc-section="components"></components-section>
+            <directives-section toc-section="directives"></directives-section>
+            <services-section toc-section="services"></services-section>
+            <navigation-section toc-section="navigation"></navigation-section>
+            <ssg-section toc-section="ssg"></ssg-section>
 
         </main>
     `,

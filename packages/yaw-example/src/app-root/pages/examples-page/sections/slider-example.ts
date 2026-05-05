@@ -1,10 +1,10 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
 import { escape } from '@yaw-rx/common';
-import '../../../components/code-block.js';
+import '../../../components/code-block.component.js';
 import { SLIDER_SOURCE } from '../components/yaw-slider.js';
-import { DOC_STYLES } from '../../../utils/doc-styles.js';
-import { TocSection } from '../../docs-page/directives/toc-section.js';
-import { TocAnchor } from '../../docs-page/directives/toc-anchor.js';
+import { DOC_STYLES } from '../../../utils/doc-styles.util.js';
+import { TocSection } from '../../../directives/toc-section.directive.js';
+import { TocAnchor } from '../../../directives/toc-anchor.directive.js';
 
 const USAGE = `<yaw-slider [(value)]="value" min="0" max="100"></yaw-slider>
 <p>value = {{value}}</p>`;

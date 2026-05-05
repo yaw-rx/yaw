@@ -1,10 +1,10 @@
 import { Component, RxElement } from '@yaw-rx/core';
 import { escape } from '@yaw-rx/common';
-import '../components/code-block.js';
-import './manifesto-page/sections/hero.js';
-import './manifesto-page/sections/stat-counter.js';
-import './manifesto-page/sections/manifesto.js';
-import './manifesto-page/sections/footer.js';
+import '../components/code-block.component.js';
+import './manifesto-page/hero-section.component.js';
+import './manifesto-page/stat-counter-section.component.js';
+import './manifesto-page/manifesto-section.component.js';
+import './manifesto-page/footer-section.component.js';
 
 const REACT_SNIPPET = `
     // React 19: 60KB gzipped to call appendChild
@@ -269,7 +269,7 @@ const YAW_SNIPPET = `
                 Custom elements upgrade when definitions load. You want lazy loading? Dynamic
                 <code>import()</code> and <code>customElements.define</code>. You want dev tools?
                 They're called the <strong>Elements panel</strong>. Ours works because we didn't break it.</p>
-                <p>Yes, we built yet another framework 🙄 (it's one you can read in an afternoon!).
+                <p>Yes, we built yet another framework 🙄 (although it's one you can read in an afternoon!).
                 But the convention it's built on will
                 hopefully outlast them all: extend <code>HTMLElement</code>, scan your attributes,
                 subscribe to Observables, clean up when removed. And that's the API. That's the whole API.</p>
@@ -307,7 +307,7 @@ const YAW_SNIPPET = `
             </manifesto-section>
         </div>
 
-        <page-footer></page-footer>
+        <footer-section></footer-section>
     `,
     styles: `
         :host { display: block; background: var(--black); min-height: 100vh; }

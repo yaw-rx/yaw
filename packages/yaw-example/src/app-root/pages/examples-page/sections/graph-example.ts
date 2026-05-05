@@ -1,10 +1,10 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
 import { escape } from '@yaw-rx/common';
-import '../../../components/code-block.js';
+import '../../../components/code-block.component.js';
 import { GRAPH_SOURCE } from '../components/graph.js';
-import { DOC_STYLES } from '../../../utils/doc-styles.js';
-import { TocSection } from '../../docs-page/directives/toc-section.js';
-import { TocAnchor } from '../../docs-page/directives/toc-anchor.js';
+import { DOC_STYLES } from '../../../utils/doc-styles.util.js';
+import { TocSection } from '../../../directives/toc-section.directive.js';
+import { TocAnchor } from '../../../directives/toc-anchor.directive.js';
 import { interval, scan, type Observable } from 'rxjs';
 
 const USAGE = `<rx-graph [config]="config" [series]="series"></rx-graph>`;

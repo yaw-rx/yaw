@@ -1,9 +1,9 @@
 import { Component, RxElement } from '@yaw-rx/core';
-import { TocSection } from './docs-page/directives/toc-section.js';
-import { TocAnchor } from './docs-page/directives/toc-anchor.js';
-import { SidebarDrawer } from '../directives/sidebar-drawer.js';
-import { TocService } from './docs-page/services/toc-service.js';
-import './docs-page/sidebar.js';
+import { TocSection } from '../directives/toc-section.directive.js';
+import { TocAnchor } from '../directives/toc-anchor.directive.js';
+import { TocMenuCollapse } from '../directives/toc-menu-collapse.directive.js';
+import { TocMenuItemsService } from '../services/toc-menu-items.service.js';
+import '../components/toc-menu.component.js';
 import './examples-page/components/yaw-slider.js';
 import './examples-page/components/signal-meter.js';
 import './examples-page/components/color-playground.js';
@@ -20,10 +20,10 @@ import './examples-page/sections/calendar-example.js';
 
 @Component({
     selector: 'examples-page',
-    providers: [TocService],
-    directives: [TocSection, TocAnchor, SidebarDrawer],
+    providers: [TocMenuItemsService],
+    directives: [TocSection, TocAnchor, TocMenuCollapse],
     template: `
-        <docs-sidebar sidebar-drawer></docs-sidebar>
+        <toc-menu toc-menu-collapse></toc-menu>
         <main class="content">
             <header class="intro" toc-section="intro">
                 <h1 toc-anchor="intro">Examples</h1>
