@@ -10,10 +10,10 @@ import { PerlinBg } from './hero-section/perlin-bg.directive.js';
             <h1 class="title">YAW</h1>
             <p class="sub">The DOM is not your enemy.</p>
             <div class="stats">
-                <stat-counter-section label="bundle" unit="KB" target="16"></stat-counter-section>
-                <stat-counter-section label="node_modules" unit="MB" target="9"></stat-counter-section>
-                <stat-counter-section label="dependency" target="1"></stat-counter-section>
-                <stat-counter-section label="virtual DOM" target="0"></stat-counter-section>
+                <stat-counter label="bundle" unit="KB" target="16"></stat-counter>
+                <stat-counter label="node_modules" unit="MB" target="9"></stat-counter>
+                <stat-counter label="dependency" target="1"></stat-counter>
+                <stat-counter label="virtual DOM" target="0"></stat-counter>
             </div>
         </div>
     `,

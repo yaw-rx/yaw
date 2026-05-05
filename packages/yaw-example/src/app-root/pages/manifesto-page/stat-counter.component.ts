@@ -1,7 +1,7 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
 
 @Component({
-    selector: 'stat-counter-section',
+    selector: 'stat-counter',
     template: `<div class="stat"><span class="value"><span class="digits">{{count}}</span><span class="unit">{{unit}}</span></span><span class="label">{{label}}</span></div>`,
     styles: `
         :host { display: block; }

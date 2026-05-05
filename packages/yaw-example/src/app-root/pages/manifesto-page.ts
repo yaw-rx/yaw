@@ -2,7 +2,7 @@ import { Component, RxElement } from '@yaw-rx/core';
 import { escape } from '@yaw-rx/common';
 import '../components/code-block.component.js';
 import './manifesto-page/hero-section.component.js';
-import './manifesto-page/stat-counter-section.component.js';
+import './manifesto-page/stat-counter.component.js';
 import './manifesto-page/manifesto-section.component.js';
 import './manifesto-page/footer-section.component.js';
 
