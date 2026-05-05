@@ -14,8 +14,6 @@ import { Hamburger } from '../directives/hamburger.js';
                 <a [class.active]="isActive('/showcase')" onclick="navigateShowcase">Showcase</a>
                 <a [class.active]="isActive('/docs')" onclick="navigateDocs">Docs</a>
                 <a [class.active]="isActive('/examples')" onclick="navigateExamples">Examples</a>
-                <a [class.active]="isActive('/react')" onclick="navigateReact">vs&nbsp;React</a>
-                <a [class.active]="isActive('/angular')" onclick="navigateAngular">vs&nbsp;Angular</a>
             </div>
         </nav>
     `,
@@ -74,37 +72,11 @@ export class NavBar extends RxElement {
     }
 
     isActive(path: string): Observable<boolean> {
-        const z = this.route$; // const z: BehaviorSubject<string>
-        const x = this.route$.pipe;
-        /* {
-    (): Observable<string>;
-    <A>(op1: UnaryFunction<Observable<string>, A>): A;
-    <A, B>(op1: UnaryFunction<Observable<string>, A>, op2: UnaryFunction<A, B>): B;
-    <A, B, C>(op1: UnaryFunction<Observable<string>, A>, op2: UnaryFunction<A, B>, op3: UnaryFunction<B, C>): C;
-    <A, B, C, D>(op1: UnaryFunction<Observable<string>, A>, op2: UnaryFunction<A, B>, op3: UnaryFunction<...>, op4: UnaryFunction<...>): D;
-    <A, B, C, D, E>(op1: UnaryFunction<...>, op2: UnaryFunction<...>, op3: UnaryFunction<...>, op4: UnaryFunction<...>, op5: UnaryFunction<...>): E;
-    <A, B, C, D, E, F>(op1: UnaryFunction<...>, op2: UnaryFunction<...>, op3: UnaryFunction<...>, op4: UnaryFunction<...>, op5: UnaryFunction<...>, op6: UnaryFunction<...>): F;
-    <A, B, C, D, E, F, G>(op1: UnaryFunction<...>, op2: UnaryFunction<...>, op3: UnaryFunction<...>, op4: UnaryFunction<...>, op5: UnaryFunction<...>, op6: UnaryFunction<...>, op7: UnaryFunction<...>): G;
-    <A, B, C, D, E, F, G, H>(op1: UnaryFunction<...>, op2: UnaryFunction<...>, op3: UnaryFunction<...>, op4: UnaryFunction<...>, op5: UnaryFunction<...>, op6: UnaryFunction<...>, op7: UnaryFunction<...>, op8: UnaryFunction<...>): H;
-    <A, B, C, D, E, F, G, H, I>(op1: UnaryFunction<...>, op2: UnaryFunction<...>, op3: UnaryFunction<...>, op4: UnaryFunction<...>, op5: UnaryFunction<...>, op6: UnaryFunction<...>, op7: UnaryFunction<...>, op8: UnaryFunction<...>, op9: UnaryFunction<...>): I;
-    <A, B, C, D, E, F, G, H, I>(op1: UnaryFunction<...>, op2: UnaryFunction<...>, op3: UnaryFunction<...>, op4: UnaryFunction<...>, op5: UnaryFunction<...>, op6: UnaryFunction<...>, op7: UnaryFunction<...>, op8: UnaryFunction<...>, op9: UnaryFunction<...>, ...operations: OperatorFunction<any, any>[]): Observable<unknown>;
-    <A, B, C, D, E, F, G, H, I>(op1: UnaryFunction<...>, op2: UnaryFunction<...>, op3: UnaryFunction<...>, op4: UnaryFunction<...>, op5: UnaryFunction<...>, op6: UnaryFunction<...>, op7: UnaryFunction<...>, op8: UnaryFunction<...>, op9: UnaryFunction<...>, ...operations: UnaryFunction<any, any>[]): unknown;
-}
-        */
-        const a = this.route$.pipe(map((r => r))); // this.route$.pipe quiggle - Unsafe call of a type that could not be resolved.eslint@typescript-eslint/no-unsafe-call
-        return this.route$.pipe(map((r) => r === path)); // whole line squiggle - Unsafe return of a value of type error.eslint@typescript-eslint/no-unsafe-return
-
-        /*
-Unsafe return of a value of type error.eslint@typescript-eslint/no-unsafe-return
-Unsafe call of a type that could not be resolved.eslint@typescript-eslint/no-unsafe-call
-(method) Observable<string>.pipe<Observable<boolean>>(op1: UnaryFunction<Observable<string>, Observable<boolean>>): Observable<boolean> (+11 overloads)
-        */
+        return this.route$.pipe(map((r) => r === path));
     }
 
     navigateHome(): void { this.router.navigate('/'); }
     navigateExamples(): void { this.router.navigate('/examples'); }
     navigateShowcase(): void { this.router.navigate('/showcase'); }
     navigateDocs(): void { this.router.navigate('/docs'); }
-    navigateReact(): void { this.router.navigate('/react'); }
-    navigateAngular(): void { this.router.navigate('/angular'); }
 }

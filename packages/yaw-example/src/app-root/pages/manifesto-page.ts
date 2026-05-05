@@ -268,7 +268,8 @@ const YAW_SNIPPET = `
                 Custom elements upgrade when definitions load. You want lazy loading? Dynamic
                 <code>import()</code> and <code>customElements.define</code>. You want dev tools?
                 They're called the <strong>Elements panel</strong>. Ours works because we didn't break it.</p>
-                <p>Yes, we built yet another framework 🙄. But the convention it's built on will
+                <p>Yes, we built yet another framework 🙄 (it's one you can read in an afternoon!).
+                But the convention it's built on will
                 hopefully outlast them all: extend <code>HTMLElement</code>, scan your attributes,
                 subscribe to Observables, clean up when removed. And that's the API. That's the whole API.</p>
             </manifesto-section>
