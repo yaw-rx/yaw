@@ -15,10 +15,25 @@ const scopeSelector = (sel: string, host: string): string => {
     }).join(', ');
 };
 
-export const transformStyles = (css: string, host?: string): string =>
-    host !== undefined
-        ? css.replace(/([^{}]*)\{/g, (_m, sel: string) => `${scopeSelector(sel, host)}{`)
-        : css;
+export const transformStyles = (css: string, host?: string): string => {
+    if (host === undefined) return css;
+    let inKeyframes = 0;
+    return css.replace(/([^{}]*)([\{\}])/g, (_m, sel: string, brace: string) => {
+        if (brace === '}') {
+            if (inKeyframes > 0) inKeyframes--;
+            return `${sel}}`;
+        }
+        if (sel.trim().startsWith('@keyframes') || sel.trim().startsWith('@-webkit-keyframes')) {
+            inKeyframes = 1;
+            return `${sel}{`;
+        }
+        if (inKeyframes > 0) {
+            inKeyframes++;
+            return `${sel}{`;
+        }
+        return `${scopeSelector(sel, host)}{`;
+    });
+};
 
 const KEYWORDS = new Set(['true', 'false', 'null', '$event']);
 

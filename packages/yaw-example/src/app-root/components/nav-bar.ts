@@ -8,7 +8,7 @@ import { Hamburger } from '../directives/hamburger.js';
     directives: [Hamburger],
     template: `
         <nav>
-            <a class="logo" hamburger>YAW</a>
+            <a class="logo" hamburger><span class="logo-text">YAW</span></a>
             <div class="links">
                 <a [class.active]="isActive('/')" onclick="navigateHome">Manifesto</a>
                 <a [class.active]="isActive('/showcase')" onclick="navigateShowcase">Showcase</a>
@@ -35,6 +35,19 @@ import { Hamburger } from '../directives/hamburger.js';
                        linear-gradient(#ccc, #ccc) center 100% / 30% 1px no-repeat;
                    opacity: 0; transition: opacity 0.8s ease, background 0.3s ease; }
         .logo.has-funnel.funnel-visible::after { opacity: 0.7; }
+        .logo.funnel-visible .logo-text {
+          -webkit-mask-image: linear-gradient(-75deg, #000 30%, rgba(0,0,0,.6) 50%, #000 70%);
+          -webkit-mask-size: 200%;
+          animation: shine 2s forwards;
+        }
+        @-webkit-keyframes shine {
+          from {
+            -webkit-mask-position: 150%;
+          }
+          to {
+            -webkit-mask-position: -50%;
+          }
+        }
         .logo.menu-open::after {
                    opacity: 1;
                    background:
