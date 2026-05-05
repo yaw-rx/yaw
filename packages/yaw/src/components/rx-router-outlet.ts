@@ -23,6 +23,9 @@ export class RxRouterOutlet extends RxElementBase {
             if (this.current === undefined) {
                 this.current = this.appendChild(document.createElement(selector));
             }
+            // Two microtasks: first lets MutationObserver process the new subtree (firing onInit/register),
+            // second fires after all directives and components have initialized.
+            queueMicrotask(() => queueMicrotask(() => this.router.pageReady$.next(this.router.route$.getValue())));
         });
     }
 

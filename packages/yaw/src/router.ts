@@ -1,4 +1,4 @@
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import type { Route } from './component.js';
 import { isSSG } from './component.js';
 import { Injectable } from './di/injectable.js';
@@ -8,6 +8,7 @@ export const ROUTES = Symbol('ROUTES');
 @Injectable([ROUTES])
 export class Router {
     readonly route$: BehaviorSubject<string>;
+    readonly pageReady$ = new Subject<string>();
     private readonly routePattern: RegExp;
 
     constructor(private readonly routes: readonly Route[]) {

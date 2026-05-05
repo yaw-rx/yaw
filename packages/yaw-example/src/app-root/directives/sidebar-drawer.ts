@@ -1,29 +1,32 @@
 import { type Subscription } from 'rxjs';
 import { Directive, Injectable } from '@yaw-rx/core';
 import type { RxElementLike } from '@yaw-rx/core';
+import { Router } from '@yaw-rx/core/router';
 import { SidebarService } from '../services/sidebar-service.js';
 import { TocService } from '../pages/docs-page/services/toc-service.js';
 
 const MQ = '(max-width: 768px)';
 
 @Directive({ selector: '[sidebar-drawer]' })
-@Injectable([SidebarService, TocService])
+@Injectable([SidebarService, TocService, Router])
 export class SidebarDrawer {
     node!: RxElementLike;
     private readonly sidebar: SidebarService;
     private readonly toc: TocService;
+    private readonly router: Router;
     private mobile = false;
     private sub: Subscription | undefined;
     private mqHandler: (() => void) | undefined;
     private mq: MediaQueryList | undefined;
 
-    constructor(sidebar: SidebarService, toc: TocService) {
+    constructor(sidebar: SidebarService, toc: TocService, router: Router) {
         this.sidebar = sidebar;
         this.toc = toc;
+        this.router = router;
     }
 
     onInit(): void {
-        this.sidebar.available = true;
+        this.sidebar.register(this.router.route$.getValue());
 
         this.mq = window.matchMedia(MQ);
         const update = (): void => {
@@ -59,7 +62,6 @@ export class SidebarDrawer {
     onDestroy(): void {
         this.sub?.unsubscribe();
         if (this.mq && this.mqHandler) this.mq.removeEventListener('change', this.mqHandler);
-        this.sidebar.available = false;
         this.sidebar.close();
     }
 }
