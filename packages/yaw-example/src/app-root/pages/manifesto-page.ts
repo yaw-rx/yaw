@@ -64,7 +64,7 @@ const YAW_SNIPPET = `
 
             <manifesto-section heading="Premature Deoptimization">
                 <p>DOM writes were never slow. The browser's layout engine handles mutations in
-                microseconds. At 20,000 elements, the browser lags regardless — layout and paint
+                microseconds. At 3,000 elements, the browser lags regardless — layout and paint
                 are the bottleneck, not JavaScript. They built their entire architecture around
                 optimising something that doesn't matter at small scale and can't be helped at large scale.
                 <a href="/examples/scheduler-theatre">See it for yourself.</a></p>
