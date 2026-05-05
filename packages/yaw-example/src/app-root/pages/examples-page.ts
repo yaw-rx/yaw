@@ -36,9 +36,9 @@ import './examples-page/sections/calendar-example.js';
             <color-playground-example toc-section="reactive-palette"></color-playground-example>
             <signal-meter-example toc-section="signal-meter"></signal-meter-example>
             <!-- <calendar-example></calendar-example> -->
-            <nesting-example toc-section="nesting-example"></nesting-example>
             <graph-example toc-section="rx-graph"></graph-example>
             <wave-mixer-example toc-section="wave-mixer"></wave-mixer-example>
+            <nesting-example toc-section="nesting-example"></nesting-example>
             <scheduler-theatre-example toc-section="scheduler-theatre"></scheduler-theatre-example>
         </main>
     `,

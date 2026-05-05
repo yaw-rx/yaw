@@ -1,8 +1,11 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
-import { Observable, Subscription } from 'rxjs';
+import { RxFor } from '@yaw-rx/core/directives/rx-for';
+import { map, Observable, Subscription } from 'rxjs';
 
 export const GRAPH_TEMPLATE = `
-    <div class="legend" #legend></div>
+    <div class="legend" rx-for="{ label, color } of legendItems by label">
+        <span><span class="dot" [style.background]="color"></span>{{label}}</span>
+    </div>
     <canvas #canvas></canvas>
 `;
 
@@ -21,6 +24,7 @@ export const GRAPH_STYLES = `
 
 export const GRAPH_SOURCE = `@Component({
     selector: 'rx-graph',
+    directives: [RxFor],
     template: \`${GRAPH_TEMPLATE}\`,
     styles: \`${GRAPH_STYLES}\`,
 })
@@ -29,17 +33,19 @@ export class Graph extends RxElement {
     @state series: Record<string, Observable<number[]>> = {};
 
     canvas!: HTMLCanvasElement;
-    legend!: HTMLElement;
     private ro: ResizeObserver | undefined;
     private data = new Map<string, number[]>();
     private subs: Subscription[] = [];
+
+    get legendItems$(): Observable<{ label: string; color: string }[]> {
+        return this.config$.pipe(map(cfg => Object.values(cfg)));
+    }
 
     override onRender(): void {
         this.ro = new ResizeObserver(() => this.resize());
         this.ro.observe(this.canvas);
         this.resize();
         this.series$.subscribe((seriesMap) => this.subscribeSeries(seriesMap));
-        this.config$.subscribe(() => this.buildLegend());
     }
 
     override onDestroy(): void {
@@ -57,13 +63,6 @@ export class Graph extends RxElement {
                 this.draw();
             }));
         }
-    }
-
-    private buildLegend(): void {
-        this.legend.innerHTML = Object.entries(this.config)
-            .map(([_, { label, color }]) =>
-                \`<span><span class="dot" style="background:\${color}"></span>\${label}</span>\`)
-            .join('');
     }
 
     private resize(): void {
@@ -110,6 +109,7 @@ export class Graph extends RxElement {
 
 @Component({
     selector: 'rx-graph',
+    directives: [RxFor],
     template: GRAPH_TEMPLATE,
     styles: GRAPH_STYLES,
 })
@@ -118,17 +118,19 @@ export class Graph extends RxElement {
     @state series: Record<string, Observable<number[]>> = {};
 
     canvas!: HTMLCanvasElement;
-    legend!: HTMLElement;
     private ro: ResizeObserver | undefined;
     private data = new Map<string, number[]>();
     private subs: Subscription[] = [];
+
+    get legendItems$(): Observable<{ label: string; color: string }[]> {
+        return this.config$.pipe(map(cfg => Object.values(cfg)));
+    }
 
     override onRender(): void {
         this.ro = new ResizeObserver(() => this.resize());
         this.ro.observe(this.canvas);
         this.resize();
         this.series$.subscribe((seriesMap) => this.subscribeSeries(seriesMap));
-        this.config$.subscribe(() => this.buildLegend());
     }
 
     override onDestroy(): void {
@@ -146,13 +148,6 @@ export class Graph extends RxElement {
                 this.draw();
             }));
         }
-    }
-
-    private buildLegend(): void {
-        this.legend.innerHTML = Object.entries(this.config)
-            .map(([_, { label, color }]) =>
-                `<span><span class="dot" style="background:${color}"></span>${label}</span>`)
-            .join('');
     }
 
     private resize(): void {

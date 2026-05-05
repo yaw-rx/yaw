@@ -218,7 +218,8 @@ const YAW_SNIPPET = `
 
                     <li><a href="/docs/components/projection">Content projection</a> as
                     <code>${escape`<slot>`}</code> — children go in, the template says
-                    where they appear. <code>rx-if</code> stashes DOM in a
+                    where they appear. <code>rx-if</code> (tree-shakable like
+                    <code>rx-for</code>) stashes DOM in a
                     <code>${escape`<template>`}</code> element — the browser's own
                     inert container. No <code>ng-content</code>, no
                     <code>{children}</code> prop.</li>
