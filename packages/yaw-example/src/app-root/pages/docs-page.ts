@@ -40,8 +40,8 @@ import './docs-page/sections/ssg.js';
         </main>
     `,
     styles: `
-        :host { display: flex; background: #000; min-height: 100vh;
-                color: #ccc; box-sizing: border-box; }
+        :host { display: flex; background: var(--black); min-height: 100vh;
+                color: var(--text); box-sizing: border-box; }
         .content { flex: 1 1 0; min-width: 0; box-sizing: border-box;
                    padding: 6rem 1.25rem 4rem 1.25rem; }
         .content > [id] { scroll-margin-top: 5rem; display: block; }
@@ -50,7 +50,7 @@ import './docs-page/sections/ssg.js';
         [toc-section][style*="--toc-depth"]::before {
             content: '';
             display: block;
-            border-top: calc(min(var(--toc-depth, 0), 1) * 1px) solid #fff;
+            border-top: calc(min(var(--toc-depth, 0), 1) * 1px) solid var(--white);
             margin-bottom: calc(min(var(--toc-depth, 0), 1) * 1.5rem);
         }
         [toc-section] + [toc-section]::before {
@@ -58,9 +58,9 @@ import './docs-page/sections/ssg.js';
             margin-bottom: 0;
         }
         .intro { margin-bottom: 2.5rem; }
-        h1 { color: #fff; font-size: 2.5rem; font-weight: 900;
+        h1 { color: var(--white); font-size: 2.5rem; font-weight: 900;
              letter-spacing: -1px; margin: 0 0 1rem; }
-        .lede { color: #888; line-height: 1.7; max-width: 72ch; margin: 0; }
+        .lede { color: var(--secondary); line-height: 1.7; max-width: 72ch; margin: 0; }
         @media (max-width: 640px) {
             [toc-section] { margin-left: calc(var(--toc-depth, 0) * 0.5rem); }
         }

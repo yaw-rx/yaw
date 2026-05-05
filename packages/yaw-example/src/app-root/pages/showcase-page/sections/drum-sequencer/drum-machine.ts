@@ -36,8 +36,8 @@ import type { TrackSeed } from './drum-machine/types.js';
         </div>
     `,
     styles: `
-        :host { display: block; background: linear-gradient(180deg, #050505 0%, #090909 100%);
-                border: 1px solid #1a1a1a; border-radius: 10px;
+        :host { display: block; background: linear-gradient(180deg, var(--bg-1) 0%, #090909 100%);
+                border: 1px solid var(--bg-5); border-radius: 10px;
                 padding: 1.25rem 1.5rem 1.5rem;
                 box-shadow: inset 0 0 60px rgba(136, 170, 255, 0.04); }
 
@@ -49,39 +49,39 @@ import type { TrackSeed } from './drum-machine/types.js';
                      border-bottom: 1px solid #141414; }
 
         .play { width: 3.25rem; height: 3.25rem;
-                background: #0a0a0a; border: 1px solid #222;
-                border-radius: 50%; cursor: pointer; color: #8af;
+                background: var(--bg-2); border: 1px solid var(--bg-6);
+                border-radius: 50%; cursor: pointer; color: var(--accent);
                 display: flex; align-items: center; justify-content: center;
                 font-size: 1.25rem; font-family: monospace;
                 transition: all 0.1s ease; }
-        .play:hover { border-color: #8af; color: #fff; }
-        .play.on { background: #8af; color: #000; border-color: #8af;
+        .play:hover { border-color: var(--accent); color: var(--white); }
+        .play.on { background: var(--accent); color: var(--black); border-color: var(--accent);
                    box-shadow: 0 0 20px rgba(136, 170, 255, 0.6); }
 
         .meter { grid-column: 2; grid-row: 1; min-width: 0; }
-        .label { color: #666; font-family: monospace; font-size: 0.7rem;
+        .label { color: var(--muted); font-family: monospace; font-size: 0.7rem;
                  letter-spacing: 0.15em; margin-bottom: 0.35rem; }
         .tempo-row { display: flex; align-items: center; gap: 0.75rem;
                      min-width: 0; }
         .tempo-row input[type=range] {
-            flex: 1; min-width: 0; accent-color: #8af;
+            flex: 1; min-width: 0; accent-color: var(--accent);
             background: transparent;
         }
-        .bpm { color: #8af; font-family: monospace; font-size: 0.95rem;
+        .bpm { color: var(--accent); font-family: monospace; font-size: 0.95rem;
                font-weight: 700; min-width: 4.5rem; text-align: right;
                letter-spacing: 0.04em;
                text-shadow: 0 0 10px rgba(136, 170, 255, 0.4); }
-        .bpm em { color: #555; font-size: 0.7rem; font-style: normal;
+        .bpm em { color: var(--dim); font-size: 0.7rem; font-style: normal;
                   letter-spacing: 0.1em; margin-left: 0.2rem; }
 
         .actions { grid-column: 3; grid-row: 1;
                    display: flex; gap: 0.4rem; }
-        .actions button { background: transparent; border: 1px solid #222;
-                          color: #888; font: inherit; font-family: monospace;
+        .actions button { background: transparent; border: 1px solid var(--bg-6);
+                          color: var(--secondary); font: inherit; font-family: monospace;
                           font-size: 0.7rem; font-weight: 700;
                           padding: 0.45rem 0.7rem; cursor: pointer;
                           border-radius: 4px; letter-spacing: 0.12em; }
-        .actions button:hover { border-color: #8af; color: #8af;
+        .actions button:hover { border-color: var(--accent); color: var(--accent);
                                 box-shadow: 0 0 12px rgba(136, 170, 255, 0.3); }
 
         .rows { display: flex; flex-direction: column; }

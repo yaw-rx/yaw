@@ -14,13 +14,13 @@ import './showcase-page/sections/drum-sequencer.js';
         </div>
     `,
     styles: `
-        :host { display: block; background: #000; min-height: calc(100vh / 1.75);
-                padding: 6rem 1.25rem 4rem; color: #ccc; box-sizing: border-box; }
+        :host { display: block; background: var(--black); min-height: calc(100vh / 1.75);
+                padding: 6rem 1.25rem 4rem; color: var(--text); box-sizing: border-box; }
         .page { max-width: 1200px; margin: 0 auto; }
         .intro { margin-bottom: 2.5rem; }
-        h1 { color: #fff; font-size: 2.5rem; font-weight: 900;
+        h1 { color: var(--white); font-size: 2.5rem; font-weight: 900;
              letter-spacing: -1px; margin: 0 0 1rem; }
-        .lede { color: #888; line-height: 1.7; max-width: 72ch; margin: 0; }
+        .lede { color: var(--secondary); line-height: 1.7; max-width: 72ch; margin: 0; }
         .reveal { opacity: 0; transform: translateY(24px);
                   transition: opacity 0.6s ease, transform 0.6s ease; }
         .reveal.revealed { opacity: 1; transform: none; }

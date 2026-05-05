@@ -10,8 +10,8 @@ import { interval, scan, type Observable } from 'rxjs';
 const USAGE = `<rx-graph [config]="config" [series]="series"></rx-graph>`;
 
 const WRAPPER_STYLES = `
-    .live { padding: 1.25rem; background: #050505;
-            border: 1px solid #1a1a1a; border-radius: 8px; }
+    .live { padding: 1.25rem; background: var(--bg-1);
+            border: 1px solid var(--bg-5); border-radius: 8px; }
 `;
 
 const POINTS = 120;

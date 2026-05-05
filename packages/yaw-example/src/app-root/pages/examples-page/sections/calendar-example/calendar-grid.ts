@@ -26,23 +26,23 @@ import './calendar-grid/calendar-week.js';
         </div>
     `,
     styles: `
-        :host { display: block; background: #050505; border: 1px solid #1a1a1a;
+        :host { display: block; background: var(--bg-1); border: 1px solid var(--bg-5);
                 border-radius: 8px; padding: 1rem; }
         .toolbar { display: flex; align-items: center; gap: 0.5rem;
                    margin-bottom: 0.75rem; padding-bottom: 0.75rem;
-                   border-bottom: 1px solid #151515; }
-        .title { flex: 1; text-align: center; color: #fff;
+                   border-bottom: 1px solid var(--bg-4); }
+        .title { flex: 1; text-align: center; color: var(--white);
                  font-family: monospace; font-size: 0.95rem; font-weight: 700;
                  letter-spacing: 0.05em; }
-        .nav { background: transparent; border: 1px solid #222;
-               color: #8af; width: 2rem; height: 2rem; border-radius: 4px;
+        .nav { background: transparent; border: 1px solid var(--bg-6);
+               color: var(--accent); width: 2rem; height: 2rem; border-radius: 4px;
                font: inherit; cursor: pointer; }
-        .nav:hover { border-color: #8af; background: rgba(136, 170, 255, 0.08); }
+        .nav:hover { border-color: var(--accent); background: rgba(136, 170, 255, 0.08); }
         .slot-wrap { display: flex; gap: 0.4rem; }
         .dow { display: grid; grid-template-columns: repeat(7, 1fr);
                gap: 0.25rem; margin-bottom: 0.5rem; }
         .dow > div { text-align: center; font-family: monospace;
-                     color: #555; font-size: 0.7rem; letter-spacing: 0.1em;
+                     color: var(--dim); font-size: 0.7rem; letter-spacing: 0.1em;
                      padding: 0.3rem 0; }
         .weeks { display: flex; flex-direction: column; gap: 0.25rem; }
     `,

@@ -30,7 +30,7 @@ export const SIGNAL_METER_STYLES = `
     .value { font-size: 2.8rem; font-weight: 800; font-family: monospace;
              color: hsl(var(--hue), 90%, var(--lit));
              text-shadow: 0 0 var(--glow) hsl(var(--hue), 90%, var(--lit)); }
-    .unit { font-size: 1rem; color: #555; font-family: monospace; margin-top: 1rem; }
+    .unit { font-size: 1rem; color: var(--dim); font-family: monospace; margin-top: 1rem; }
 `;
 
 export const SIGNAL_METER_SOURCE = `@Component({

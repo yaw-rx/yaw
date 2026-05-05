@@ -8,8 +8,8 @@ import { SIGNAL_METER_SOURCE } from '../components/signal-meter.js';
 
 const WRAPPER_STYLES = `
     .live { display: flex; flex-direction: column; align-items: center;
-            gap: 1.25rem; padding: 1.75rem; background: #050505;
-            border: 1px solid #1a1a1a; border-radius: 8px; }
+            gap: 1.25rem; padding: 1.75rem; background: var(--bg-1);
+            border: 1px solid var(--bg-5); border-radius: 8px; }
     .live yaw-slider { width: 100%; max-width: 22rem; }
 `;
 

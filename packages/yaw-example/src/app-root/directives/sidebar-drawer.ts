@@ -34,7 +34,7 @@ export class SidebarDrawer {
             if (this.mobile) {
                 this.node.style.cssText =
                     'display:none;position:fixed;inset:0;' +
-                    'z-index:150;background:#000;padding-top:4rem;overflow-y:auto;' +
+                    'z-index:150;background:var(--black);padding-top:4rem;overflow-y:auto;' +
                     'width:100vw;height:100vh;';
             } else {
                 this.node.style.cssText = '';

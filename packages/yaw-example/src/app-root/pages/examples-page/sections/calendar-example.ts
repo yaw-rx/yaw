@@ -189,9 +189,9 @@ const walkScope = (host, carets) => {
         ${DOC_STYLES}
         .depths { list-style: none; padding: 0; margin: 0;
                   display: flex; flex-direction: column; gap: 0.5rem;
-                  color: #888; font-size: 0.9rem; line-height: 1.6; }
-        .depths li { padding: 0.6rem 0.8rem; background: #050505;
-                     border-left: 2px solid #1a2352; border-radius: 3px; }
+                  color: var(--secondary); font-size: 0.9rem; line-height: 1.6; }
+        .depths li { padding: 0.6rem 0.8rem; background: var(--bg-1);
+                     border-left: 2px solid var(--navy); border-radius: 3px; }
     `,
 })
 export class CalendarExample extends RxElement {}

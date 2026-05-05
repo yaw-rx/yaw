@@ -13,16 +13,16 @@ import { dedent, escapeHtml, highlightBash, highlightDockerfile, highlightHtml, 
                font-size: 0.8rem; color: #ddd; line-height: 1.55; white-space: pre; background: none; }
         .tk-keyword { color: #c792ea; }
         .tk-string { color: #c3e88d; }
-        .tk-number { color: #f78c6c; }
+        .tk-number { color: var(--salmon); }
         .tk-comment { color: #546e7a; font-style: italic; }
         .tk-regex { color: #ff5370; }
-        .tk-decorator { color: #ffcb6b; }
-        .tk-type { color: #ffcb6b; }
+        .tk-decorator { color: var(--gold); }
+        .tk-type { color: var(--gold); }
         .tk-fn { color: #82aaff; }
-        .tk-const { color: #f78c6c; }
+        .tk-const { color: var(--salmon); }
         .tk-ident { color: #eeffff; }
         .tk-tag { color: #f07178; }
-        .tk-attr { color: #ffcb6b; }
+        .tk-attr { color: var(--gold); }
         .tk-punct { color: #89ddff; }
     `
 })

@@ -18,9 +18,9 @@ interface Cell {
     styles: `
         :host { display: block; }
         .row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-        .cell { padding: 0.5rem 0.9rem; background: #050505;
-                border: 1px solid #1a1a1a; border-radius: 4px;
-                color: #8af; font-family: monospace; font-size: 0.9rem; }
+        .cell { padding: 0.5rem 0.9rem; background: var(--bg-1);
+                border: 1px solid var(--bg-5); border-radius: 4px;
+                color: var(--accent); font-family: monospace; font-size: 0.9rem; }
     `,
 })
 export class ForDemo extends RxElement {

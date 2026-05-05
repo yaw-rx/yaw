@@ -20,12 +20,12 @@ const COUNTER_TEMPLATE = `
 
 const COUNTER_STYLES = `
     :host { display: inline-flex; align-items: center; gap: 0.6rem; }
-    button { background: #111; border: 1px solid #333; color: #fff;
+    button { background: var(--bg-3); border: 1px solid var(--border); color: var(--white);
              width: 2rem; height: 2rem; font-size: 1rem; cursor: pointer;
              border-radius: 4px; padding: 0; line-height: 1;
              display: inline-flex; align-items: center; justify-content: center; }
-    button:hover { border-color: #8af; color: #8af; }
-    .count { color: #8af; font-family: monospace; font-size: 1.1rem; min-width: 2ch; text-align: center; }
+    button:hover { border-color: var(--accent); color: var(--accent); }
+    .count { color: var(--accent); font-family: monospace; font-size: 1.1rem; min-width: 2ch; text-align: center; }
 `;
 
 
@@ -1017,12 +1017,12 @@ export class TickCounter extends RxElement {
         .live { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; }
         .live > * { width: 100%; }
         .binding-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 0.5rem 0 1.5rem; }
-        .binding-table th { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid #333; color: #aaa; font-weight: 600; }
-        .binding-table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid #1a1a1a; vertical-align: top; }
-        .binding-table td:first-child { white-space: nowrap; font-weight: 600; color: #fff; }
+        .binding-table th { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid var(--border); color: var(--subtle); font-weight: 600; }
+        .binding-table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--bg-5); vertical-align: top; }
+        .binding-table td:first-child { white-space: nowrap; font-weight: 600; color: var(--white); }
         .binding-table td:nth-child(2) { white-space: nowrap; font-size: 0.8rem; }
-        .binding-table code { color: #8af; }
-        h3 { color: #ccc; font-size: 1rem; margin: 1.5rem 0 0.25rem; }
+        .binding-table code { color: var(--accent); }
+        h3 { color: var(--text); font-size: 1rem; margin: 1.5rem 0 0.25rem; }
         @media (max-width: 640px) {
             .binding-table { font-size: 0.8rem; }
             .binding-table td:nth-child(2) { font-size: 0.72rem; }

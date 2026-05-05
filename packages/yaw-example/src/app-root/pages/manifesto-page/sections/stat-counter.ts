@@ -6,12 +6,12 @@ import { Component, RxElement, state } from '@yaw-rx/core';
     styles: `
         :host { display: block; }
         .stat { text-align: center; }
-        .value { display: block; font-size: 3.5rem; font-weight: 900; color: #fff;
+        .value { display: block; font-size: 3.5rem; font-weight: 900; color: var(--white);
                  letter-spacing: -2px; line-height: 1; font-variant-numeric: tabular-nums;
                  white-space: nowrap; }
         .digits { display: inline-block; text-align: right; min-width: var(--dw); }
-        .unit { font-size: 0.75rem; font-weight: 600; color: #676767; letter-spacing: 0.02em; margin-left: 0.4em; }
-        .label { display: block; font-size: 0.75rem; color: #676767; letter-spacing: 0.1em;
+        .unit { font-size: 0.75rem; font-weight: 600; color: var(--muted-alt); letter-spacing: 0.02em; margin-left: 0.4em; }
+        .label { display: block; font-size: 0.75rem; color: var(--muted-alt); letter-spacing: 0.1em;
                  font-family: monospace; margin-top: 0.5rem; font-weight: 600;
                  letter-spacing: 0.04em; word-spacing: -0.35em; }
         @media (max-width: 480px) {

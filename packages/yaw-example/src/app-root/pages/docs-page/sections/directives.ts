@@ -338,10 +338,10 @@ Scope:  item of source
     `,
     styles: `
         :host { display: block; }
-        .box { width: 6rem; height: 6rem; background: #111;
-               border: 1px solid #333; border-radius: 8px;
+        .box { width: 6rem; height: 6rem; background: var(--bg-3);
+               border: 1px solid var(--border); border-radius: 8px;
                display: flex; align-items: center; justify-content: center;
-               color: #8af; font-family: monospace; font-size: 0.85rem;
+               color: var(--accent); font-family: monospace; font-size: 0.85rem;
                flex-shrink: 0; }
         ${DOC_STYLES}
         .live { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; }

@@ -18,15 +18,15 @@ export const COLOR_PLAYGROUND_TEMPLATE = `
 export const COLOR_PLAYGROUND_STYLES = `
     :host { display: grid; grid-template-columns: auto 1fr;
             gap: 0.75rem 1rem; align-items: center; }
-    label { color: #888; font-size: 0.8rem;
+    label { color: var(--secondary); font-size: 0.8rem;
             font-family: monospace; text-transform: uppercase;
             letter-spacing: 0.08em; }
-    em { color: #8af; font-style: normal;
+    em { color: var(--accent); font-style: normal;
          display: inline-block; width: 4ch; text-align: right; }
-    .out { grid-column: 1 / -1; background: #0a0a0a; padding: 0.6rem 0.75rem;
-           border-radius: 4px; color: #8af; font-family: monospace;
-           font-size: 0.8rem; border: 1px solid #1a1a1a; }
-    .swatch { grid-column: 1 / -1; border-radius: 8px; border: 1px solid #1a1a1a;
+    .out { grid-column: 1 / -1; background: var(--bg-2); padding: 0.6rem 0.75rem;
+           border-radius: 4px; color: var(--accent); font-family: monospace;
+           font-size: 0.8rem; border: 1px solid var(--bg-5); }
+    .swatch { grid-column: 1 / -1; border-radius: 8px; border: 1px solid var(--bg-5);
               min-height: 6rem; box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.35);
               transition: background 0.1s linear; }
 `;

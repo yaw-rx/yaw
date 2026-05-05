@@ -35,46 +35,46 @@ export const SCHEDULER_THEATRE_STYLES = `
                 flex-wrap: wrap; margin-bottom: 1rem; }
     .actions { display: flex; gap: 0.5rem; align-items: center; }
     .fps { display: grid; grid-template-columns: 8px auto auto; gap: 0.4rem;
-           align-items: center; font-family: monospace; font-size: 0.85rem; color: #888; }
+           align-items: center; font-family: monospace; font-size: 0.85rem; color: var(--secondary); }
     .dot { width: 8px; height: 8px; border-radius: 50%; }
-    .fps em { color: #8af; font-style: normal; min-width: 3ch; text-align: right; }
-    button { background: #111; border: 1px solid #333; color: #fff;
+    .fps em { color: var(--accent); font-style: normal; min-width: 3ch; text-align: right; }
+    button { background: var(--bg-3); border: 1px solid var(--border); color: var(--white);
              padding: 0.5rem 1rem; font: inherit; font-size: 0.85rem;
              font-family: monospace; cursor: pointer; border-radius: 6px; }
-    button:hover { background: #1a1a1a; border-color: #8af; color: #8af; }
+    button:hover { background: var(--bg-5); border-color: var(--accent); color: var(--accent); }
     .stats { border-collapse: collapse; font-family: monospace; font-size: 0.8rem; }
-    .stats th { color: #666; font-weight: normal; padding: 0.2rem 0.5rem;
+    .stats th { color: var(--muted); font-weight: normal; padding: 0.2rem 0.5rem;
                 text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; }
-    .stats td { color: #8af; padding: 0.2rem 0.5rem;
-                border-top: 1px solid #1a1a1a; }
-    em { color: #8af; font-style: normal; }
+    .stats td { color: var(--accent); padding: 0.2rem 0.5rem;
+                border-top: 1px solid var(--bg-5); }
+    em { color: var(--accent); font-style: normal; }
 
     .graphs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
     .scroll { height: 12rem; overflow-y: auto; overflow-anchor: auto;
               display: flex; flex-direction: column-reverse;
-              background: #030303; border: 1px solid #1a1a1a; border-radius: 0 0 8px 8px;
-              scrollbar-width: thin; scrollbar-color: #333 #0a0a0a; }
+              background: #030303; border: 1px solid var(--bg-5); border-radius: 0 0 8px 8px;
+              scrollbar-width: thin; scrollbar-color: var(--border) var(--bg-2); }
     .scroll::-webkit-scrollbar { width: 10px; }
-    .scroll::-webkit-scrollbar-track { background: #0a0a0a; border-radius: 8px; }
-    .scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 5px;
-                                       border: 2px solid #0a0a0a; }
-    .scroll::-webkit-scrollbar-thumb:hover { background: #8af; }
+    .scroll::-webkit-scrollbar-track { background: var(--bg-2); border-radius: 8px; }
+    .scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px;
+                                       border: 2px solid var(--bg-2); }
+    .scroll::-webkit-scrollbar-thumb:hover { background: var(--accent); }
     .anchor { overflow-anchor: auto; height: 1px; }
 
     .head { display: grid; grid-template-columns: 5ch 12ch 1fr; gap: 0 1.5rem;
-            padding: 0.65rem 1rem; background: #0a0a0a; color: #666;
+            padding: 0.65rem 1rem; background: var(--bg-2); color: var(--muted);
             font-family: monospace; font-size: 0.7rem;
             text-transform: uppercase; letter-spacing: 0.1em;
-            border: 1px solid #1a1a1a; border-bottom: none;
+            border: 1px solid var(--bg-5); border-bottom: none;
             border-radius: 8px 8px 0 0; }
     .body { overflow-anchor: none; width: 100%; }
     .body > .row { display: grid; grid-template-columns: 5ch 12ch 1fr; gap: 0 1.5rem;
                    padding: 0.3rem 1rem; font-family: monospace;
-                   font-size: 0.8rem; color: #ccc;
-                   border-bottom: 1px solid #0a0a0a; }
+                   font-size: 0.8rem; color: var(--text);
+                   border-bottom: 1px solid var(--bg-2); }
     .body > .row:nth-child(odd) { background: #080808; }
-    .body > .row > :first-child { color: #8af; }
-    .body > .row > :nth-child(3) { color: #666; }
+    .body > .row > :first-child { color: var(--accent); }
+    .body > .row > :nth-child(3) { color: var(--muted); }
 `;
 
 export const SCHEDULER_THEATRE_SOURCE = `const TARGET_FPS = 60;

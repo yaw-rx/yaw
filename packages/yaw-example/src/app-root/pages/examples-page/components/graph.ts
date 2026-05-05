@@ -13,13 +13,13 @@ export const GRAPH_STYLES = `
     :host { display: block; position: relative; }
     .legend { position: absolute; top: 0.25rem; left: 0.4rem;
               display: flex; flex-direction: column; gap: 0.1rem;
-              font-family: monospace; font-size: 0.55rem; color: #888;
+              font-family: monospace; font-size: 0.55rem; color: var(--secondary);
               text-transform: uppercase; letter-spacing: 0.06em; pointer-events: none;
               background: rgba(3, 3, 3, 0.75); padding: 0.2rem 0.4rem; border-radius: 4px; }
     .legend span { display: flex; align-items: center; gap: 0.2rem; }
     .legend .dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; }
     canvas { display: block; width: 100%; height: 6rem; background: #030303;
-             border: 1px solid #1a1a1a; border-radius: 8px; }
+             border: 1px solid var(--bg-5); border-radius: 8px; }
 `;
 
 export const GRAPH_SOURCE = `@Component({

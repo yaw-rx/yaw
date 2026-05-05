@@ -7,8 +7,8 @@ import { TocAnchor } from '../../docs-page/directives/toc-anchor.js';
 import { COLOR_PLAYGROUND_SOURCE } from '../components/color-playground.js';
 
 const WRAPPER_STYLES = `
-    .live { padding: 1.5rem; background: #050505;
-            border: 1px solid #1a1a1a; border-radius: 8px; }
+    .live { padding: 1.5rem; background: var(--bg-1);
+            border: 1px solid var(--bg-5); border-radius: 8px; }
     .live color-playground { display: grid; grid-template-columns: auto 1fr;
             gap: 0.75rem 1rem; align-items: center; }
     .live color-playground .out,

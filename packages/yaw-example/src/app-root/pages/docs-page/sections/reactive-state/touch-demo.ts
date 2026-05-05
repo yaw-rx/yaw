@@ -23,10 +23,10 @@ interface Settings {
                    transition: background 0.2s, color 0.2s, font-size 0.2s; }
         .controls { display: flex; align-items: center; justify-content: center;
                     gap: 0.5rem; margin-top: 0.75rem; }
-        button { background: #111; border: 1px solid #333; color: #fff;
+        button { background: var(--bg-3); border: 1px solid var(--border); color: var(--white);
                  padding: 0.4rem 0.8rem; font: inherit; font-family: monospace;
                  font-size: 0.8rem; cursor: pointer; border-radius: 4px; }
-        button:hover { border-color: #8af; color: #8af; }
+        button:hover { border-color: var(--accent); color: var(--accent); }
     `,
 })
 export class TouchDemo extends RxElement {

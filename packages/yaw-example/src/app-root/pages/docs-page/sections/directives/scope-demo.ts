@@ -18,11 +18,11 @@ import { RxFor } from '@yaw-rx/core/directives/rx-for';
     styles: `
         :host { display: block; }
         .teams { display: flex; flex-direction: column; gap: 1rem; }
-        .team { background: #050505; border: 1px solid #1a1a1a; border-radius: 6px;
+        .team { background: var(--bg-1); border: 1px solid var(--bg-5); border-radius: 6px;
                 padding: 0.75rem 1rem; }
-        h4 { color: #8af; margin: 0 0 0.5rem; font-family: monospace; font-size: 0.85rem; }
+        h4 { color: var(--accent); margin: 0 0 0.5rem; font-family: monospace; font-size: 0.85rem; }
         ul { margin: 0; padding-left: 1.2rem; }
-        li { color: #ccc; font-family: monospace; font-size: 0.8rem; padding: 0.15rem 0; }
+        li { color: var(--text); font-family: monospace; font-size: 0.8rem; padding: 0.15rem 0; }
     `,
 })
 export class ScopeDemo extends RxElement {

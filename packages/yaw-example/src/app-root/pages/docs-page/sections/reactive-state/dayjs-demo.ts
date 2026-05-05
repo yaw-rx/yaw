@@ -32,17 +32,17 @@ import { type AttributeCodec, Component, RxElement, state } from '@yaw-rx/core';
         .panel { display: flex; flex-direction: column; gap: 0.75rem; }
         .row { display: flex; align-items: center; gap: 0.75rem;
                justify-content: space-between; flex-wrap: wrap; }
-        .label { color: #888; font-family: monospace; font-size: 0.75rem;
+        .label { color: var(--secondary); font-family: monospace; font-size: 0.75rem;
                  text-transform: uppercase; letter-spacing: 0.08em; }
-        .value { color: #8af; font-family: monospace; font-size: 0.85rem;
-                 background: #0a0a0a; padding: 0.35rem 0.7rem;
-                 border: 1px solid #1a1a1a; border-radius: 4px; }
+        .value { color: var(--accent); font-family: monospace; font-size: 0.85rem;
+                 background: var(--bg-2); padding: 0.35rem 0.7rem;
+                 border: 1px solid var(--bg-5); border-radius: 4px; }
         .hint { color: #5a5; }
         .buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        button { background: #111; border: 1px solid #333; color: #fff;
+        button { background: var(--bg-3); border: 1px solid var(--border); color: var(--white);
                  padding: 0.4rem 0.8rem; font: inherit; font-family: monospace;
                  font-size: 0.8rem; cursor: pointer; border-radius: 4px; }
-        button:hover { border-color: #8af; color: #8af; }
+        button:hover { border-color: var(--accent); color: var(--accent); }
     `,
 })
 export class DayjsDemo extends RxElement {

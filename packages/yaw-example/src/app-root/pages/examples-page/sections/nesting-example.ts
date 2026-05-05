@@ -12,18 +12,18 @@ const NESTING_STYLES = `
     :host { display: block; }
     .buttons { display: flex; flex-wrap: wrap; gap: 0.3rem; }
     .state { margin: 0.75rem 0 0; font-family: monospace;
-             color: #888; font-size: 0.85rem; }
-    .state .status { color: #8af; }
-    button { background: #111; border: 1px solid #333; color: #fff;
+             color: var(--secondary); font-size: 0.85rem; }
+    .state .status { color: var(--accent); }
+    button { background: var(--bg-3); border: 1px solid var(--border); color: var(--white);
              padding: 0.5rem 1rem; font: inherit; font-size: 0.9rem;
              cursor: pointer; border-radius: 6px; margin: 0.15rem; }
-    button:hover { background: #1a1a1a; border-color: #555; }
+    button:hover { background: var(--bg-5); border-color: var(--dim); }
 `;
 
 const WRAPPER_STYLES = `
     .live { display: flex; flex-direction: column; gap: 0.5rem;
-            padding: 1.25rem; background: #050505;
-            border: 1px solid #1a1a1a; border-radius: 8px; }
+            padding: 1.25rem; background: var(--bg-1);
+            border: 1px solid var(--bg-5); border-radius: 8px; }
 `;
 
 const NESTING_TEMPLATE = `
@@ -65,9 +65,9 @@ const NESTED_LEVEL_SOURCE = `@Component({
     \`,
     styles: \`
         :host { display: block; }
-        .nested { border: 1px dashed #333; border-radius: 6px;
+        .nested { border: 1px dashed var(--border); border-radius: 6px;
                   padding: 0.5rem 0.75rem 0.6rem; margin: 0.3rem 0; background: #070707; }
-        .tag { color: #555; font-size: 0.65rem; letter-spacing: 0.08em;
+        .tag { color: var(--dim); font-size: 0.65rem; letter-spacing: 0.08em;
                text-transform: uppercase; margin-bottom: 0.4rem; }
         .content { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
     \`
@@ -142,24 +142,24 @@ const PAGE_ECHO_SOURCE = `@Component({
     \`,
     styles: \`
         :host { display: block; }
-        .echo { background: #0a1128; border: 1px solid #1a2352; border-radius: 6px;
-                padding: 1rem; color: #8af; font-family: monospace; font-size: 0.85rem; }
+        .echo { background: #0a1128; border: 1px solid var(--navy); border-radius: 6px;
+                padding: 1rem; color: var(--accent); font-family: monospace; font-size: 0.85rem; }
         .section + .section { margin-top: 1rem; }
-        .label { color: #556; font-size: 0.7rem; letter-spacing: 0.08em;
+        .label { color: var(--slate); font-size: 0.7rem; letter-spacing: 0.08em;
                  text-transform: uppercase; margin-bottom: 0.5rem; }
-        .label code { color: #8af; font-size: inherit; }
+        .label code { color: var(--accent); font-size: inherit; }
         .body { display: flex; flex-direction: column; gap: 0.4rem;
-                padding: 0.5rem 0.6rem; background: #050505;
+                padding: 0.5rem 0.6rem; background: var(--bg-1);
                 border-radius: 4px; }
         .row { display: flex; gap: 0.5rem; align-items: center; }
-        .row code { color: #8af; background: transparent; padding: 0.35rem 0.4rem; }
-        .pre { color: #556; }
+        .row code { color: var(--accent); background: transparent; padding: 0.35rem 0.4rem; }
+        .pre { color: var(--slate); }
         .sep { color: #334; }
-        .row button { background: #0f1a3a; border: 1px solid #1a2352; color: #8af;
+        .row button { background: #0f1a3a; border: 1px solid var(--navy); color: var(--accent);
                       padding: 0.35rem 0.7rem; font: inherit; font-size: 0.8rem;
                       cursor: pointer; border-radius: 4px; }
-        .row button:hover { background: #182555; color: #fff; }
-        .row button.active { background: #1a2352; border-color: #8af; color: #fff; }
+        .row button:hover { background: #182555; color: var(--white); }
+        .row button.active { background: var(--navy); border-color: var(--accent); color: var(--white); }
         .echo.blended { mix-blend-mode: difference; }
     \`
 })

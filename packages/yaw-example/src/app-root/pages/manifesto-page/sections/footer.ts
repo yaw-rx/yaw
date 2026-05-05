@@ -10,13 +10,13 @@ import { Component, RxElement } from '@yaw-rx/core';
         </footer>
     `,
     styles: `
-        :host { display: block; border-top: 1px solid #111; padding: 4rem 2rem;
-                text-align: center; background: #000; }
+        :host { display: block; border-top: 1px solid var(--bg-3); padding: 4rem 2rem;
+                text-align: center; background: var(--black); }
         footer { max-width: 720px; margin: 0 auto; }
-        .size { font-size: 1.5rem; color: #fff; margin: 0 0 0.5rem; }
+        .size { font-size: 1.5rem; color: var(--white); margin: 0 0 0.5rem; }
         .size strong { color: #4ade80; }
-        .compare { color: #555; margin: 0 0 2rem; }
-        .copy { color: #242424; font-size: 0.8rem; }
+        .compare { color: var(--dim); margin: 0 0 2rem; }
+        .copy { color: var(--bg-7); font-size: 0.8rem; }
     `
 })
 export class PageFooter extends RxElement {}

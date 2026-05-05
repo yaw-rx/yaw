@@ -22,21 +22,21 @@ import './track-row/step-cell.js';
         :host { display: grid; grid-template-columns: 6rem 1fr;
                 align-items: center; gap: 0.75rem; padding: 0.35rem 0; }
         .head { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
-        .name { background: transparent; border: 1px solid #1a1a1a;
-                color: var(--accent, #8af);
+        .name { background: transparent; border: 1px solid var(--bg-5);
+                color: var(--accent, var(--accent));
                 padding: 0.35rem 0.5rem; font: inherit; font-family: monospace;
                 font-size: 0.85rem; font-weight: 700; cursor: pointer;
                 border-radius: 4px; letter-spacing: 0.08em; text-align: center;
                 text-shadow: 0 0 8px var(--accent-shadow, rgba(136, 170, 255, 0.4));
                 transition: background 0.08s, border-color 0.08s, opacity 0.08s; }
         .name:hover { background: rgba(255,255,255,0.03); }
-        .name.muted { color: #444; border-color: #222; text-shadow: none;
+        .name.muted { color: var(--border-light); border-color: var(--bg-6); text-shadow: none;
                       text-decoration: line-through; }
-        .clear { background: transparent; border: none; color: #555;
+        .clear { background: transparent; border: none; color: var(--dim);
                  font: inherit; font-family: monospace; font-size: 0.65rem;
                  cursor: pointer; letter-spacing: 0.12em;
                  text-transform: uppercase; padding: 0.15rem; }
-        .clear:hover { color: #8af; }
+        .clear:hover { color: var(--accent); }
         .grid { display: grid; grid-template-columns: repeat(${String(STEPS)}, 1fr);
                 gap: 0.25rem; min-width: 0;
                 transition: opacity 0.12s ease; }

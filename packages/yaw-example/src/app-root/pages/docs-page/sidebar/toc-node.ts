@@ -29,19 +29,19 @@ import { SidebarService } from '../../../services/sidebar-service.js';
     styles: `
         :host { display: flex; flex-direction: column; }
 
-        a { color: #666; text-decoration: none; cursor: pointer;
+        a { color: var(--muted); text-decoration: none; cursor: pointer;
             padding: 0.20rem 0; font-size: 0.8rem; font-weight: 400;
             transition: color 0.15s;
             border-left: 2px solid transparent;
             padding-left: 0.6rem; margin-left: -0.6rem;
             white-space: nowrap; }
-        a:hover { color: #fff; }
-        a.active { color: #8af; border-left-color: #8af; }
+        a:hover { color: var(--white); }
+        a.active { color: var(--accent); border-left-color: var(--accent); }
 
         .children { display: flex; flex-direction: column;
                     max-height: 0; overflow: hidden; opacity: 0;
                     padding-left: 0.42rem; margin-left: 0.1rem;
-                    border-left: 1px solid #1a1a1a; }
+                    border-left: 1px solid var(--bg-5); }
         .children.expanded { max-height: 800px; opacity: 1;
                              padding-top: 0.15rem; padding-bottom: 0.35rem; }
     `,

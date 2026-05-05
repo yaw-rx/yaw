@@ -25,22 +25,22 @@ import { WeatherService } from './weather-service.js';
         </ul>
     `,
     styles: `
-        :host { display: block; padding: 1.25rem; background: #0a0a0a;
-                border: 1px solid #1a1a1a; border-radius: 8px;
-                font-family: system-ui, sans-serif; color: #ccc; }
+        :host { display: block; padding: 1.25rem; background: var(--bg-2);
+                border: 1px solid var(--bg-5); border-radius: 8px;
+                font-family: system-ui, sans-serif; color: var(--text); }
         .hero { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
         .big-icon { font-size: 3.5rem; line-height: 1; }
         .summary { display: flex; flex-direction: column; gap: 0.1rem; }
-        h2 { color: #fff; font-size: 1.1rem; font-weight: 700; margin: 0; }
-        .temp { color: #8af; font-size: 1.4rem; font-weight: 600; margin: 0; }
-        .wind { color: #666; font-size: 0.85rem; margin: 0; }
+        h2 { color: var(--white); font-size: 1.1rem; font-weight: 700; margin: 0; }
+        .temp { color: var(--accent); font-size: 1.4rem; font-weight: 600; margin: 0; }
+        .wind { color: var(--muted); font-size: 0.85rem; margin: 0; }
         .forecast { list-style: none; padding: 0; margin: 0;
-                    border-top: 1px solid #1a1a1a; padding-top: 0.75rem; }
+                    border-top: 1px solid var(--bg-5); padding-top: 0.75rem; }
         li { display: flex; align-items: center; gap: 0.75rem;
              padding: 0.3rem 0; font-size: 0.85rem; }
         .hour-icon { width: 1.5rem; text-align: center; }
-        .hour-time { color: #888; min-width: 3.5rem; }
-        .hour-temp { color: #8af; margin-left: auto; }
+        .hour-time { color: var(--secondary); min-width: 3.5rem; }
+        .hour-temp { color: var(--accent); margin-left: auto; }
     `,
 })
 export class WeatherCard extends RxElement {
