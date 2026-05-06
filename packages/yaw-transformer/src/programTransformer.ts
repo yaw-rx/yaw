@@ -80,6 +80,7 @@ export const programTransformer = (
     program: ts.Program,
     host: ts.CompilerHost | undefined,
 ): ts.Program => {
+    if ((globalThis as any).process?.argv?.some((a: string) => a.includes('eslint'))) return program;
     const diag: string[] = [`[${new Date().toISOString()}] programTransformer invoked`];
     try {
     const checker = program.getTypeChecker();

@@ -18,7 +18,9 @@
   ],
   "scripts": {
     "clean": "find packages -name '*.tsbuildinfo' -not -path '*/node_modules/*' -delete && find packages -maxdepth 2 -name dist -not -path '*/node_modules/*' -exec rm -rf {} +",
+    "nuke": "npm run clean && rm -rf node_modules packages/*/node_modules",
     "rebuild": "npm run clean && npm run build",
+    "rebuild:clean": "npm run nuke && npm install && npm run build && cd packages/yaw-example && npm install",
     "build": "npm run build --workspaces --if-present",
     "build:watch": "tsc --build --watch --preserveWatchOutput",
     "dev": "trap 'kill 0' EXIT; npm run build:watch & npm run dev --prefix packages/yaw-example & wait",
