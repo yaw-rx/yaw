@@ -47,6 +47,12 @@ const registry = new Map<string, AttributeCodec>([
     ['BigUint64Array',  typedArrayCodec(BigUint64Array)],
 ]);
 
+/**
+ * Registers custom attribute codecs, overriding any built-in codecs
+ * with the same type name.
+ * @param {Record<string, AttributeCodec>} attributeCodecs - Map of type name to codec.
+ * @returns {void}
+ */
 export const registerAttributeCodecs = (attributeCodecs: Record<string, AttributeCodec>): void => {
     for (const [name, codec] of Object.entries(attributeCodecs)) {
         registry.set(name, codec);

@@ -10,7 +10,7 @@
  */
 import { type Observable } from 'rxjs';
 import { Component, Inject, RxElement } from '@yaw-rx/core';
-import { isPrerendered } from '@yaw-rx/core/ssg/hydrate/hydration-state';
+import { isPrerendered } from '@yaw-rx/core/hydrate/state';
 import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import { TocMenuItemsService, type TocEntry } from '../services/toc-menu-items.service.js';
 import { TocMenuItem } from './toc-menu/toc-menu-item.component.js';

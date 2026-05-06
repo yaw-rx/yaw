@@ -1,7 +1,7 @@
 /**
- * bind.ts — binding resolution for reactive templates.
+ * path.ts - binding path resolution for reactive templates.
  *
- * Parses binding expressions (like "count", "row.name", "^increment(1)")
+ * Parses binding paths (like "count", "row.name", "^increment(1)")
  * and subscribes them to observable streams that push values to the DOM.
  *
  * How the binding chain works:
@@ -15,10 +15,10 @@
  *
  *   switchMap connects these: when an observable segment emits a new value,
  *   everything downstream is torn down and rebuilt. of() segments emit one
- *   value and complete — but inside switchMap that's fine, because the outer
+ *   value and complete - but inside switchMap that's fine, because the outer
  *   subscription stays alive and re-triggers the inner on the next emission.
  *
- *   A chain of all plain values emits once via of() and completes — a
+ *   A chain of all plain values emits once via of() and completes - a
  *   valid one-shot binding. When at least one segment is observable, it
  *   keeps the pipeline alive and downstream segments re-evaluate on each
  *   emission. Upstream segments are stable references resolved once via
@@ -26,22 +26,22 @@
  *
  * Resolution functions:
  *
- *   parseBind — turns a binding string into carets (host boundary hops),
+ *   parseBindingPath - turns a binding string into carets (host boundary hops),
  *   path segments (dotted property path), and optional call/args info.
  *
- *   subscribeBind — resolves a parsed binding to a live subscription.
+ *   subscribeToBinding - resolves a parsed binding to a live subscription.
  *   Before walking to the host, it calls a scope hook (if one is installed).
  *   The hook can claim the first path segment by returning a BehaviorSubject
  *   and a consumed count. If it does, that subject becomes the stream root
  *   and the remaining segments pipe through switchMap. If it doesn't, the
- *   normal host walk proceeds — closest('[data-rx-host]') with caret hops.
+ *   normal host walk proceeds - closest('[data-rx-host]') with caret hops.
  *
- *   resolveEventHandler — resolves methods on the host. Arguments go
+ *   resolveEventHandler - resolves methods on the host. Arguments go
  *   through the same hook for claimed names.
  *
- *   resolveRefTarget — resolves #ref assignments.
+ *   resolveRefTarget - resolves #ref assignments.
  *
- * Extension point — registerScopeHook:
+ * Extension point - registerScopeHook:
  *
  *   Any directive that introduces names into its subtree can install a
  *   hook via registerScopeHook. The hook is called before the host walk
@@ -52,8 +52,8 @@
  */
 import { BehaviorSubject, of, Subscription, switchMap, skip, first, type Observable } from 'rxjs';
 import { isObservable } from '../is-observable.js';
-import { hydrationComplete$ } from '../ssg/hydrate/hydration-state.js';
-import { BindNotSubscribableError, BindParseError, BindPathError, BindScopeError } from '../errors.js';
+import { hydrationComplete$ } from '../hydrate/state.js';
+import { BindingNotSubscribableError, BindingParseError, BindingPathError, BindingScopeError } from '../errors.js';
 import { encodeAttribute } from '../attribute-codec/encode.js';
 
 const walkPath = (root: unknown, path: readonly string[]): unknown => {
@@ -72,7 +72,7 @@ export type ParsedArg =
     | { readonly kind: 'event' }
     | { readonly kind: 'ref'; readonly ref: ParsedRef };
 
-export interface ParsedBind extends ParsedRef {
+export interface ParsedBinding extends ParsedRef {
     readonly raw: string;
     readonly call: boolean;
     readonly args: readonly ParsedArg[];
@@ -102,7 +102,7 @@ const IDENT_TAIL = /[\w$]/;
 const parseIdent = (cur: Cursor, raw: string): string => {
     const start = cur.pos;
     if (!IDENT_HEAD.test(cur.src[cur.pos] ?? '')) {
-        throw new BindParseError(raw, `expected identifier at position ${cur.pos}`);
+        throw new BindingParseError(raw, `expected identifier at position ${cur.pos}`);
     }
     cur.pos++;
     while (cur.pos < cur.src.length && IDENT_TAIL.test(cur.src[cur.pos]!)) cur.pos++;
@@ -130,7 +130,7 @@ const parseArg = (cur: Cursor, raw: string): ParsedArg => {
         cur.pos++;
         const start = cur.pos;
         while (cur.pos < cur.src.length && cur.src[cur.pos] !== quote) cur.pos++;
-        if (cur.pos >= cur.src.length) throw new BindParseError(raw, 'unterminated string literal');
+        if (cur.pos >= cur.src.length) throw new BindingParseError(raw, 'unterminated string literal');
         const value = cur.src.slice(start, cur.pos);
         cur.pos++;
         return { kind: 'literal', value };
@@ -142,7 +142,7 @@ const parseArg = (cur: Cursor, raw: string): ParsedArg => {
         return { kind: 'literal', value: Number(cur.src.slice(start, cur.pos)) };
     }
     if (c === '$') {
-        if (cur.src.slice(cur.pos, cur.pos + 6) !== '$event') throw new BindParseError(raw, 'expected "$event"');
+        if (cur.src.slice(cur.pos, cur.pos + 6) !== '$event') throw new BindingParseError(raw, 'expected "$event"');
         cur.pos += 6;
         return { kind: 'event' };
     }
@@ -162,9 +162,9 @@ let scopeHook: ScopeHook | null = null;
 
 export const registerScopeHook = (hook: ScopeHook): void => { scopeHook = hook; };
 
-const cache = new Map<string, ParsedBind>();
+const cache = new Map<string, ParsedBinding>();
 
-export const parseBind = (raw: string): ParsedBind => {
+export const parseBindingPath = (raw: string): ParsedBinding => {
     const hit = cache.get(raw);
     if (hit !== undefined) return hit;
 
@@ -179,14 +179,14 @@ export const parseBind = (raw: string): ParsedBind => {
         if (!cur.eat(')')) {
             args.push(parseArg(cur, raw));
             while (cur.eat(',')) args.push(parseArg(cur, raw));
-            if (!cur.eat(')')) throw new BindParseError(raw, 'expected ")"');
+            if (!cur.eat(')')) throw new BindingParseError(raw, 'expected ")"');
         }
     }
-    if (!cur.atEnd()) throw new BindParseError(raw, `unexpected input at position ${cur.pos}`);
+    if (!cur.atEnd()) throw new BindingParseError(raw, `unexpected input at position ${cur.pos}`);
 
-    const parsed: ParsedBind = { raw, carets: ref.carets, path: ref.path, call, args };
-    cache.set(raw, parsed);
-    return parsed;
+    const bindingPath: ParsedBinding = { raw, carets: ref.carets, path: ref.path, call, args };
+    cache.set(raw, bindingPath);
+    return bindingPath;
 };
 
 const nextHost = (el: Element): Element | undefined =>
@@ -195,10 +195,10 @@ const nextHost = (el: Element): Element | undefined =>
 const walkScope = (host: Element, carets: number, raw: string): Element => {
     let scope: Element | undefined = nextHost(host);
     for (let i = 0; i < carets; i++) {
-        if (scope === undefined) throw new BindScopeError(host.tagName, raw, carets);
+        if (scope === undefined) throw new BindingScopeError(host.tagName, raw, carets);
         scope = nextHost(scope);
     }
-    if (scope === undefined) throw new BindScopeError(host.tagName, raw, carets);
+    if (scope === undefined) throw new BindingScopeError(host.tagName, raw, carets);
     return scope;
 };
 
@@ -227,41 +227,41 @@ const resolveRef = (host: Element, ref: ParsedRef, raw: string): unknown => {
     const { root, startIndex } = resolveScope(host, ref, raw);
     let cur = root;
     for (let i = startIndex; i < ref.path.length; i++) {
-        if (cur === null || cur === undefined) throw new BindPathError(host.tagName, raw, ref.path[i]!);
+        if (cur === null || cur === undefined) throw new BindingPathError(host.tagName, raw, ref.path[i]!);
         cur = (cur as Record<string, unknown>)[ref.path[i]!];
     }
     return cur;
 };
 
-const resolveArgs = (host: Element, parsed: ParsedBind, event: unknown): unknown[] =>
-    parsed.args.map((arg) => {
+const resolveArgs = (host: Element, bindingPath: ParsedBinding, event: unknown): unknown[] =>
+    bindingPath.args.map((arg) => {
         if (arg.kind === 'literal') return arg.value;
         if (arg.kind === 'event') return event;
-        return resolveRef(host, arg.ref, parsed.raw);
+        return resolveRef(host, arg.ref, bindingPath.raw);
     });
 
-const segmentStream = (host: Element, parsed: ParsedBind, value: unknown, segment: string): Observable<unknown> => {
+const segmentStream = (host: Element, bindingPath: ParsedBinding, value: unknown, segment: string): Observable<unknown> => {
     if (value === null || value === undefined) {
-        throw new BindPathError(host.tagName, parsed.raw, segment);
+        throw new BindingPathError(host.tagName, bindingPath.raw, segment);
     }
     const obj = value as Record<string, unknown>;
     if (isObservable(obj[segment])) return obj[segment] as Observable<unknown>;
     const reactive = obj[`${segment}$`];
     if (isObservable(reactive)) return reactive as Observable<unknown>;
-    if (!(segment in obj)) throw new BindPathError(host.tagName, parsed.raw, segment);
+    if (!(segment in obj)) throw new BindingPathError(host.tagName, bindingPath.raw, segment);
     return of(obj[segment]);
 };
 
-export const observeBind = (
+export const observeBinding = (
     host: Element,
-    parsed: ParsedBind,
+    bindingPath: ParsedBinding,
 ): Observable<unknown> => {
-    const segments = parsed.path;
-    const { stream: initial, startIndex, hooked } = resolveScopeStream(host, parsed, parsed.raw);
+    const segments = bindingPath.path;
+    const { stream: initial, startIndex, hooked } = resolveScopeStream(host, bindingPath, bindingPath.raw);
     let stream: Observable<unknown> = initial;
 
-    if (!hooked && !parsed.call) {
-        const { root } = resolveScope(host, parsed, parsed.raw);
+    if (!hooked && !bindingPath.call) {
+        const { root } = resolveScope(host, bindingPath, bindingPath.raw);
         let cur: unknown = root;
         for (let i = startIndex; i < segments.length; i++) {
             if (cur === null || cur === undefined) break;
@@ -269,7 +269,7 @@ export const observeBind = (
             const seg = segments[i]!;
             if (isObservable(obj[seg]) || isObservable(obj[`${seg}$`])) break;
             if (!(seg in obj)) {
-                throw new BindPathError(host.tagName, parsed.raw, seg);
+                throw new BindingPathError(host.tagName, bindingPath.raw, seg);
             }
             cur = obj[seg];
         }
@@ -279,103 +279,103 @@ export const observeBind = (
         const segment = segments[i]!;
         const isLast = i === segments.length - 1;
         stream = stream.pipe(switchMap((v) => {
-            if (isLast && parsed.call) {
+            if (isLast && bindingPath.call) {
                 if (v === null || v === undefined) {
-                    throw new BindPathError(host.tagName, parsed.raw, segment);
+                    throw new BindingPathError(host.tagName, bindingPath.raw, segment);
                 }
                 const obj = v as Record<string, unknown>;
                 const fn = obj[segment];
                 if (typeof fn !== 'function') {
-                    throw new BindNotSubscribableError(host.tagName, parsed.raw, `"${segment}" is not a method`);
+                    throw new BindingNotSubscribableError(host.tagName, bindingPath.raw, `"${segment}" is not a method`);
                 }
-                const args = resolveArgs(host, parsed, undefined);
+                const args = resolveArgs(host, bindingPath, undefined);
                 const result: unknown = (fn as (...a: unknown[]) => unknown).apply(obj, args);
                 if (!isObservable(result)) {
-                    throw new BindNotSubscribableError(host.tagName, parsed.raw, `method "${segment}(...)" did not return an Observable`);
+                    throw new BindingNotSubscribableError(host.tagName, bindingPath.raw, `method "${segment}(...)" did not return an Observable`);
                 }
                 return result as Observable<unknown>;
             }
-            return segmentStream(host, parsed, v, segment);
+            return segmentStream(host, bindingPath, v, segment);
         }));
     }
 
     return stream;
 };
 
-export const subscribeBind = (
+export const subscribeToBinding = (
     host: Element,
-    parsed: ParsedBind,
+    bindingPath: ParsedBinding,
     onValue: (v: unknown) => void,
-): Subscription => observeBind(host, parsed).subscribe(onValue);
+): Subscription => observeBinding(host, bindingPath).subscribe(onValue);
 
 export const resolveEncoder = (
     host: Element,
-    parsed: ParsedBind,
+    bindingPath: ParsedBinding,
 ): ((v: unknown) => string) => {
-    if (parsed.path.length !== 1) return String;
-    const scope = walkScope(host, parsed.carets, parsed.raw);
+    if (bindingPath.path.length !== 1) return String;
+    const scope = walkScope(host, bindingPath.carets, bindingPath.raw);
     const typeMap = (scope.constructor as unknown as Record<string, unknown>)['__stateTypes'] as Record<string, string> | undefined;
-    const typeName = typeMap?.[parsed.path[0]!];
+    const typeName = typeMap?.[bindingPath.path[0]!];
     if (typeName === undefined) return String;
-    const key = parsed.path[0]!;
+    const key = bindingPath.path[0]!;
     return (v) => encodeAttribute(typeName, key, v);
 };
 
-export const hydratedBind = (
+export const hydratedBinding = (
     host: Element,
-    parsed: ParsedBind,
+    bindingPath: ParsedBinding,
 ): Observable<unknown> =>
-    hydrationComplete$.pipe(first(), switchMap(() => observeBind(host, parsed).pipe(skip(1))));
+    hydrationComplete$.pipe(first(), switchMap(() => observeBinding(host, bindingPath).pipe(skip(1))));
 
-export const deferredBind = (
+export const deferredBinding = (
     host: Element,
-    parsed: ParsedBind,
+    bindingPath: ParsedBinding,
 ): Observable<unknown> =>
-    hydrationComplete$.pipe(first(), switchMap(() => observeBind(host, parsed)));
+    hydrationComplete$.pipe(first(), switchMap(() => observeBinding(host, bindingPath)));
 
 export interface EventInvocation {
     invoke(event: Event): void;
 }
 
-export const resolveEventHandler = (host: Element, parsed: ParsedBind): EventInvocation => {
-    const segments = parsed.path;
-    const { root, startIndex } = resolveScope(host, parsed, parsed.raw);
+export const resolveEventHandler = (host: Element, bindingPath: ParsedBinding): EventInvocation => {
+    const segments = bindingPath.path;
+    const { root, startIndex } = resolveScope(host, bindingPath, bindingPath.raw);
     let cur: unknown = root;
 
     for (let i = startIndex; i < segments.length - 1; i++) {
-        if (cur === null || cur === undefined) throw new BindPathError(host.tagName, parsed.raw, segments[i]!);
+        if (cur === null || cur === undefined) throw new BindingPathError(host.tagName, bindingPath.raw, segments[i]!);
         cur = (cur as Record<string, unknown>)[segments[i]!];
     }
     const thisArg = cur;
     const key = segments[segments.length - 1]!;
     const fn = (thisArg as Record<string, unknown>)[key];
     if (typeof fn !== 'function') {
-        throw new BindNotSubscribableError(host.tagName, parsed.raw, `"${segments.join('.')}" is not a method`);
+        throw new BindingNotSubscribableError(host.tagName, bindingPath.raw, `"${segments.join('.')}" is not a method`);
     }
     return {
         invoke: (event: Event): void => {
-            const args = parsed.call ? resolveArgs(host, parsed, event) : [event];
+            const args = bindingPath.call ? resolveArgs(host, bindingPath, event) : [event];
             (fn as (...a: unknown[]) => unknown).apply(thisArg, args);
         },
     };
 };
 
-export const resolveRefTarget = (host: Element, parsed: ParsedBind): { scope: Element; key: string } => {
-    if (parsed.call) throw new BindParseError(parsed.raw, 'ref cannot be a method call');
-    if (parsed.path.length !== 1) throw new BindParseError(parsed.raw, 'ref must be a single identifier');
-    return { scope: walkScope(host, parsed.carets, parsed.raw), key: parsed.path[0]! };
+export const resolveRefTarget = (host: Element, bindingPath: ParsedBinding): { scope: Element; key: string } => {
+    if (bindingPath.call) throw new BindingParseError(bindingPath.raw, 'ref cannot be a method call');
+    if (bindingPath.path.length !== 1) throw new BindingParseError(bindingPath.raw, 'ref must be a single identifier');
+    return { scope: walkScope(host, bindingPath.carets, bindingPath.raw), key: bindingPath.path[0]! };
 };
 
-export const resolveValue = (host: Element, parsed: ParsedBind): unknown => {
-    if (parsed.call) throw new BindParseError(parsed.raw, 'cannot read value from a method call');
-    return resolveRef(host, parsed, parsed.raw);
+export const resolveValue = (host: Element, bindingPath: ParsedBinding): unknown => {
+    if (bindingPath.call) throw new BindingParseError(bindingPath.raw, 'cannot read value from a method call');
+    return resolveRef(host, bindingPath, bindingPath.raw);
 };
 
-export const resolveWriteTarget = (host: Element, parsed: ParsedBind): (value: unknown) => void => {
-    if (parsed.call) throw new BindParseError(parsed.raw, 'tap binding cannot be a method call');
-    const root = walkScope(host, parsed.carets, parsed.raw);
-    const target = walkPath(root, parsed.path.slice(0, -1));
-    const key = parsed.path.at(-1);
-    if (key === undefined) throw new BindParseError(parsed.raw, 'empty path');
+export const resolveWriteTarget = (host: Element, bindingPath: ParsedBinding): (value: unknown) => void => {
+    if (bindingPath.call) throw new BindingParseError(bindingPath.raw, 'tap binding cannot be a method call');
+    const root = walkScope(host, bindingPath.carets, bindingPath.raw);
+    const target = walkPath(root, bindingPath.path.slice(0, -1));
+    const key = bindingPath.path.at(-1);
+    if (key === undefined) throw new BindingParseError(bindingPath.raw, 'empty path');
     return (value: unknown): void => { (target as Record<string, unknown>)[key] = value; };
 };

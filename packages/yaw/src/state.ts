@@ -1,46 +1,85 @@
+/**
+ * state.ts - the @state decorator and reactive property infrastructure.
+ *
+ * Authors write `@state foo = 0`. The yaw-transformer plugin injects
+ * `accessor` before the property name at compile time, turning it into
+ * a TC39 auto-accessor. This decorator then receives the accessor's
+ * get/set target and wraps it.
+ *
+ * Two WeakMaps hold per-instance state:
+ *   - `subjects`: maps each instance to a Map<string, StateSubject>.
+ *     One StateSubject per @state field, keyed by property name.
+ *   - `stateKeys`: maps each prototype to the Set of @state property
+ *     names declared on it. Used by the SSG serializer (getStateKeys
+ *     walks the prototype chain to collect inherited keys).
+ *
+ * During the addInitializer callback (runs at instance construction):
+ *   1. The property name is registered in stateKeys.
+ *   2. The initial value is resolved: getAttribute(key) overrides the
+ *      hydration blob, which overrides the declared default. Both
+ *      attribute and blob values are decoded via the attribute codec
+ *      if a __stateTypes entry exists for the key.
+ *   3. A StateSubject is created with the resolved initial value and
+ *      stored in subjects.
+ *   4. A non-enumerable `foo$` property is defined on the instance,
+ *      pointing to the subject.
+ *
+ * The returned accessor result intercepts get (returns subject.value)
+ * and set (calls target.set then subject.next, with Object.is
+ * equality check for primitives to suppress no-op emissions).
+ */
 import { BehaviorSubject } from 'rxjs';
-import { getComponentHydrateState } from './ssg/hydrate/get-component-hydrate-state.js';
-import { getServiceHydrateState } from './ssg/hydrate/get-service-hydrate-state.js';
+import { getComponentHydrationState, getServiceHydrationState } from './hydrate/resolve.js';
 import { decodeAttribute } from './attribute-codec/decode.js';
 
+/**
+ * A BehaviorSubject that backs each `@state` field. One per field per
+ * instance, keyed by property name in the `subjects` WeakMap.
+ * @template T - The type of the state value.
+ */
 export class StateSubject<T> extends BehaviorSubject<T> {
+    /**
+     * Re-emits the current value. Use when a mutation has changed
+     * the contents of the value without replacing the reference.
+     * @returns {void}
+     */
     touch(): void {
         this.next(this.value);
     }
 }
 
 const subjects = new WeakMap<object, Map<string, StateSubject<unknown>>>();
-const observableKeys = new WeakMap<object, Set<string>>();
+const stateKeys = new WeakMap<object, Set<string>>();
 
-const hydrateCache = new WeakMap<object, Record<string, unknown>>();
+const hydrationCache = new WeakMap<object, Record<string, unknown>>();
 
-const getHydrateState = (instance: object): Record<string, unknown> | undefined => {
-    if (hydrateCache.has(instance)) return hydrateCache.get(instance);
+const getHydrationState = (instance: object): Record<string, unknown> | undefined => {
+    if (hydrationCache.has(instance)) return hydrationCache.get(instance);
     let state: Record<string, unknown> | undefined;
     if (instance instanceof HTMLElement) {
         const ssgId = instance.getAttribute('data-ssg-id');
-        if (ssgId !== null) state = getComponentHydrateState(ssgId);
+        if (ssgId !== null) state = getComponentHydrationState(ssgId);
     } else {
-        state = getServiceHydrateState(instance.constructor.name);
+        state = getServiceHydrationState(instance.constructor.name);
     }
-    if (state !== undefined) hydrateCache.set(instance, state);
+    if (state !== undefined) hydrationCache.set(instance, state);
     return state;
 };
 
-const trackKey = (proto: object, key: string): void => {
-    let keys = observableKeys.get(proto);
+const addStateKey = (proto: object, key: string): void => {
+    let keys = stateKeys.get(proto);
     if (keys === undefined) {
         keys = new Set();
-        observableKeys.set(proto, keys);
+        stateKeys.set(proto, keys);
     }
     keys.add(key);
 };
 
-export const getObservableKeys = (proto: object): ReadonlySet<string> => {
+export const getStateKeys = (proto: object): ReadonlySet<string> => {
     let all: Set<string> | undefined;
     let cur: object | null = proto;
     while (cur !== null && cur !== Object.prototype) {
-        const keys = observableKeys.get(cur);
+        const keys = stateKeys.get(cur);
         if (keys !== undefined) {
             if (all === undefined) all = new Set(keys);
             else for (const k of keys) all.add(k);
@@ -50,13 +89,13 @@ export const getObservableKeys = (proto: object): ReadonlySet<string> => {
     return all ?? new Set();
 };
 
-const bagFor = (instance: object): Map<string, StateSubject<unknown>> => {
-    let bag = subjects.get(instance);
-    if (bag === undefined) {
-        bag = new Map();
-        subjects.set(instance, bag);
+const subjectsFor = (instance: object): Map<string, StateSubject<unknown>> => {
+    let map = subjects.get(instance);
+    if (map === undefined) {
+        map = new Map();
+        subjects.set(instance, map);
     }
-    return bag;
+    return map;
 };
 
 export const getSubject = (instance: object, key: string): BehaviorSubject<unknown> | undefined =>
@@ -67,12 +106,23 @@ const getStateTypeName = (ctor: Function, key: string): string | undefined => {
     return map?.[key];
 };
 
-const parseRaw = (current: unknown, raw: string): unknown => {
+const coerceAttributeValue = (current: unknown, raw: string): unknown => {
     if (typeof current === 'number') return Number(raw);
     if (typeof current === 'boolean') return raw !== 'false';
     return raw;
 };
 
+/**
+ * TC39 auto-accessor decorator for reactive state fields.
+ * The yaw-transformer plugin injects `accessor` at compile time;
+ * this decorator wraps the get/set target with a StateSubject.
+ *
+ * @template This - The class instance type.
+ * @template V - The type of the decorated field.
+ * @param {ClassAccessorDecoratorTarget<This, V>} target - The accessor's get/set pair.
+ * @param {ClassAccessorDecoratorContext<This, V>} context - Decorator context with name and addInitializer.
+ * @returns {ClassAccessorDecoratorResult<This, V>} Wrapped get/set that reads from and writes to the StateSubject.
+ */
 export const state = <This extends object, V>(
     target: ClassAccessorDecoratorTarget<This, V>,
     context: ClassAccessorDecoratorContext<This, V>,
@@ -80,13 +130,13 @@ export const state = <This extends object, V>(
     const key = String(context.name);
 
     context.addInitializer(function (this: This) {
-        trackKey(Object.getPrototypeOf(this) as object, key);
+        addStateKey(Object.getPrototypeOf(this) as object, key);
 
         const declaredDefault = target.get.call(this);
         let initial: unknown = declaredDefault;
         const typeName = getStateTypeName(this.constructor, key);
 
-        const hs = getHydrateState(this as object);
+        const hs = getHydrationState(this as object);
         if (hs?.[key] !== undefined) {
             initial = typeName !== undefined
                 ? decodeAttribute(typeName, key, hs[key] as string)
@@ -99,15 +149,15 @@ export const state = <This extends object, V>(
             if (raw !== null) {
                 initial = typeName !== undefined
                     ? decodeAttribute(typeName, key, raw)
-                    : parseRaw(declaredDefault, raw);
+                    : coerceAttributeValue(declaredDefault, raw);
                 target.set.call(this, initial as V);
             }
         }
 
-        bagFor(this as object).set(key, new StateSubject<unknown>(initial));
+        subjectsFor(this as object).set(key, new StateSubject<unknown>(initial));
 
         Object.defineProperty(this, `${key}$`, {
-            value: bagFor(this as object).get(key)!,
+            value: subjectsFor(this as object).get(key)!,
             enumerable: false,
             configurable: true,
         });

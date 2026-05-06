@@ -1,14 +1,14 @@
 import { Directive } from '@yaw-rx/core';
-import type { ParsedExpr, RxElementLike } from '@yaw-rx/core';
+import type { ParsedBindingPath, RxElementLike } from '@yaw-rx/core';
 
 @Directive({ selector: '[scroll-reveal]' })
 export class ScrollReveal {
     node!: RxElementLike;
-    parsed?: ParsedExpr;
+    bindingPath?: ParsedBindingPath;
     private observer: IntersectionObserver | undefined;
 
     onInit(): void {
-        const threshold = this.parsed?.expr ? parseFloat(this.parsed.expr) : 0.15;
+        const threshold = this.bindingPath?.raw ? parseFloat(this.bindingPath.raw) : 0.15;
 
         this.node.classList.add('reveal');
 

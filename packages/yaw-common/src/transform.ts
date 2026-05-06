@@ -34,39 +34,32 @@ export const transformStyles = (css: string, host?: string): string => {
 
 const KEYWORDS = new Set(['true', 'false', 'null', '$event']);
 
-const PARENT_REF_PREFIX = /^(\s*)((?:parentRef\s*\.\s*)+)(.*)$/s;
-
-const injectCarets = (expr: string, depth: number): string => {
-    const m = PARENT_REF_PREFIX.exec(expr);
-    const lead = m?.[1] ?? '';
-    const extraHops = m !== null ? (m[2]!.match(/parentRef/g) ?? []).length : 0;
-    const body = m?.[3] ?? expr;
-    const totalDepth = depth + extraHops;
-    if (totalDepth === 0) return expr;
-    const caret = '^'.repeat(totalDepth);
-    const n = body.length;
-    let out = lead;
+const injectCarets = (bindingPath: string, depth: number): string => {
+    if (depth === 0) return bindingPath;
+    const caret = '^'.repeat(depth);
+    const n = bindingPath.length;
+    let out = '';
     let i = 0;
     while (i < n) {
-        const c = body[i]!;
+        const c = bindingPath[i]!;
         if (/\s/.test(c)) { out += c; i++; continue; }
         if (c === "'" || c === '"') {
             const quote = c;
             out += c; i++;
-            while (i < n && body[i] !== quote) { out += body[i]; i++; }
-            if (i < n) { out += body[i]; i++; }
+            while (i < n && bindingPath[i] !== quote) { out += bindingPath[i]; i++; }
+            if (i < n) { out += bindingPath[i]; i++; }
             continue;
         }
-        if (/\d/.test(c) || (c === '-' && i + 1 < n && /\d/.test(body[i + 1]!))) {
+        if (/\d/.test(c) || (c === '-' && i + 1 < n && /\d/.test(bindingPath[i + 1]!))) {
             if (c === '-') { out += c; i++; }
-            while (i < n && /[\d.]/.test(body[i]!)) { out += body[i]; i++; }
+            while (i < n && /[\d.]/.test(bindingPath[i]!)) { out += bindingPath[i]; i++; }
             continue;
         }
         if (/[a-zA-Z_$]/.test(c)) {
             const start = i;
             i++;
-            while (i < n && /[\w$]/.test(body[i]!)) i++;
-            const ident = body.slice(start, i);
+            while (i < n && /[\w$]/.test(bindingPath[i]!)) i++;
+            const ident = bindingPath.slice(start, i);
             const lastMeaningful = out.replace(/\s+$/, '').slice(-1);
             const isContinuation = lastMeaningful === '.';
             if (!KEYWORDS.has(ident) && !isContinuation) out += caret;
@@ -91,16 +84,16 @@ const transformTextNode = (node: Text, depth: number): void => {
     let m: RegExpExecArray | null;
     let found = false;
     while ((m = re.exec(text)) !== null) {
-        const expr = m[1]!;
-        if (expr.trim() === '') {
+        const bindingPath = m[1]!;
+        if (bindingPath.trim() === '') {
             throw new TemplateWalkError(
-                `empty binding "{{${expr}}}" -- wrap the literal with escape\`...\` to display, or provide an expression to bind.`
+                `empty binding path "{{${bindingPath}}}" -- wrap the literal with escape\`...\` to display, or provide a binding path.`
             );
         }
         found = true;
         if (m.index > last) frag.appendChild(doc.createTextNode(text.slice(last, m.index)));
         const span = doc.createElement('span');
-        span.setAttribute(marshaller.encode('text', []), injectCarets(expr, depth));
+        span.setAttribute(marshaller.encode('text', []), injectCarets(bindingPath, depth));
         frag.appendChild(span);
         last = m.index + m[0].length;
     }
@@ -187,16 +180,21 @@ export class TemplateWalkError extends Error {
 /**
  * Compiles a template string into its runtime form.
  *
- * The walker performs these rewrites on the parsed DOM:
- *   - Text nodes:  {{expr}}              => <span data-rx-bind-text="expr">
- *   - Attributes:  [attr]="expr"         => data-rx-bind-{attr}
- *                  [class.name]="expr"   => data-rx-class-{name}
- *                  onEvent="handler"     => data-rx-on-{event}
- *                  #ref                  => data-rx-ref="ref"
- *   - Expressions: up-walk carets "^" are injected for nested custom-element scopes.
+ * Parses the template via DOMParser, then rewrites each node
+ * depth-first:
  *
- * To display content verbatim (without any of the above), wrap it with {@link escape}
- * and read it with {@link readInert}. The walker does not traverse <template>.content.
+ *   - Text:       {{path}}              => <span data-rx-bind-text="path">
+ *   - Property:   [prop]="path"         => data-rx-bind-prop-{prop}
+ *   - Class:      [class.name]="path"   => data-rx-bind-class-{name}
+ *   - Style:      [style.prop]="path"   => data-rx-bind-style-{prop}
+ *   - Tap:        [(prop)]="path"       => data-rx-bind-tap-{prop}
+ *   - Event:      onEvent="handler"     => data-rx-bind-on-{event}
+ *   - Ref:        #name                 => data-rx-bind-ref-{name}
+ *   - Carets:     "^" prefixed per host boundary depth in nested custom elements.
+ *
+ * To display content verbatim, wrap with {@link escape} and read
+ * with {@link readInert}. The walker does not traverse template
+ * element content.
  */
 export const transformTemplate = (template: string): string => {
     const doc = new DOMParser().parseFromString(`<body>${template}</body>`, 'text/html');

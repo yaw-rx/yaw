@@ -155,7 +155,7 @@ const walkScope = (host, carets) => {
                    <code class="inline">calendar-day</code>, two custom-element layers away
                    from the grid. Authored with explicit carets since the day component itself
                    owns that binding. Could equivalently be written
-                   <code class="inline">parentRef.parentRef.selectDate(date)</code> — pure
+                   <code class="inline">hostNode.hostNode.selectDate(date)</code> -
                    spelling choice.</li>
             </ul>
         </section>

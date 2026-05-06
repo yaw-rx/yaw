@@ -1,14 +1,50 @@
+/**
+ * rx-element.ts - base class for all yaw components.
+ *
+ * Every @Component-decorated class extends RxElement, which extends
+ * HTMLElement. Instance state lives in private fields:
+ *   - `hostNode`: nearest ancestor with `data-rx-host`, set during
+ *     connectedCallback by walking up with closest().
+ *   - `__injector`: a child Injector, created only if the component
+ *     declares providers.
+ *   - `#initialized`: gate flag - _initBindings is a one-shot.
+ *   - `#directives` / `#bindingTeardown`: populated during init,
+ *     cleaned up during disconnectedCallback.
+ *
+ * Initialization (_initBindings):
+ *   1. Resolve DI: create child injector if providers exist, then
+ *      resolve @Inject fields from the injector tree.
+ *   2. Wire bindings: setupBindings reads data-rx-bind-* attributes
+ *      and subscribes to the resolved observables.
+ *   3. Instantiate directives: setupDirectivesFor matches directive
+ *      selectors against the element's attributes.
+ *   4. Render template: replace innerHTML with the compiled template,
+ *      projecting existing children into the <slot> position.
+ *      Skipped during hydration - the SSG DOM is already present.
+ *   5. Call onInit().
+ *
+ * Teardown (disconnectedCallback): unsubscribes bindings, calls
+ * onDestroy on each directive, destroys injector instances, then
+ * calls the component's onDestroy hook.
+ */
 import { getTemplate, getProviders, isComponent } from './component.js';
 import { Injector } from './di/injector.js';
-import { getPropDeps } from './di/inject.js';
+import { getInjectMetadata } from './di/inject.js';
 import { resolveInjector } from './di/resolve.js';
 import { setupDirectivesFor } from './directives/setup.js';
 import type { Directive } from './directive.js';
-import { setupBindings } from './setupBindings.js';
-import { isHydrating } from './ssg/hydrate/hydration-state.js';
+import { setupBindings } from './binding/setup.js';
+import { isHydrating } from './hydrate/state.js';
 
-export class RxElementBase extends HTMLElement {
-    declare hostNode: RxElementBase;
+/**
+ * Base class for all yaw components. Extend this in any
+ * @Component-decorated class. Handles DI resolution, binding
+ * setup, directive instantiation, template rendering, and
+ * content projection via `<slot>`.
+ */
+export class RxElement extends HTMLElement {
+    /** The closest `[data-rx-host]` element in the DOM tree. */
+    declare hostNode: RxElement;
     __injector: Injector | undefined;
     #initialized = false;
     #directives: Directive[] = [];
@@ -17,7 +53,7 @@ export class RxElementBase extends HTMLElement {
     #setupHostNode(): void {
         if (isComponent(this.constructor)) { this.setAttribute('data-rx-host', ''); }
         if (!Object.prototype.hasOwnProperty.call(this, 'hostNode')) {
-            const host = this.parentElement?.closest('[data-rx-host]') as RxElementBase | null;
+            const host = this.parentElement?.closest('[data-rx-host]') as RxElement | null;
             if (host !== null) { this.hostNode = host; }
         }
     }
@@ -27,10 +63,10 @@ export class RxElementBase extends HTMLElement {
         if (providers !== undefined) {
             this.__injector = resolveInjector(this).child(providers);
         }
-        const propDeps = getPropDeps(this.constructor);
-        if (propDeps !== undefined) {
+        const injectMetadata = getInjectMetadata(this.constructor);
+        if (injectMetadata !== undefined) {
             const injector = resolveInjector(this);
-            for (const [prop, token] of propDeps) {
+            for (const [prop, token] of injectMetadata) {
                 (this as unknown as Record<string | symbol, unknown>)[prop] = injector.resolve(token);
             }
         }
@@ -47,6 +83,13 @@ export class RxElementBase extends HTMLElement {
         if (slot !== null) { slot.replaceWith(projected); }
     }
 
+    /**
+     * One-shot initialization. Resolves DI, wires bindings,
+     * instantiates directives, renders template, calls onInit().
+     * Called by the MutationObserver in native.ts.
+     * @internal
+     * @returns {void}
+     */
     _initBindings(): void {
         if (this.#initialized) return;
         this.#initialized = true;
@@ -57,10 +100,12 @@ export class RxElementBase extends HTMLElement {
         this.onInit();
     }
 
+    /** @internal */
     connectedCallback(): void {
         this.#setupHostNode();
     }
 
+    /** @internal */
     disconnectedCallback(): void {
         this.#bindingTeardown?.();
         for (const directive of this.#directives) { directive.onDestroy(); }
@@ -69,9 +114,27 @@ export class RxElementBase extends HTMLElement {
         this.onDestroy();
     }
 
+    /**
+     * Called after bindings, DI, and template are live.
+     * Override in subclass to run setup logic.
+     * @returns {void}
+     */
     onInit(): void {}
+
+    /**
+     * Called one microtask after onInit. Child elements and
+     * `#ref` captures are available. Override in subclass to
+     * work with rendered DOM.
+     * @returns {void}
+     */
     onRender(): void {}
+
+    /**
+     * Called on removal after the framework has torn down
+     * bindings and directives. Override in subclass to clean
+     * up subscriptions or external resources you own.
+     * @returns {void}
+     */
     onDestroy(): void {}
 }
 
-export { RxElementBase as RxElement };

@@ -1,5 +1,5 @@
 /**
- * rx-for — list rendering directive.
+ * rx-for - list rendering directive.
  *
  * Attach `rx-for="expression"` to any element. The expression must resolve
  * to an Observable that emits arrays. On each emission the directive creates,
@@ -8,53 +8,53 @@
  * Two modes, determined by the presence of `of` in the expression:
  *
  * Splat mode (no `of`):
- *   `rx-for="rows by id"` — existing behaviour. Each item's properties are
+ *   `rx-for="rows by id"` - existing behaviour. Each item's properties are
  *   assigned directly onto the child element. The child is typically a
  *   component with @state fields, and setting a property triggers its
  *   BehaviorSubject. The key field defaults to "id" if omitted.
  *
  * Scope mode (`of` present):
- *   `rx-for="row of rows by id"` — declares loop variables. `row` is a
+ *   `rx-for="row of rows by id"` - declares loop variables. `row` is a
  *   name the author introduces. Inside the rx-for, bindings that start
  *   with `row` resolve through a per-item BehaviorSubject owned by the
  *   directive. Bindings that don't match a loop variable fall through to
  *   the host as normal. The host-is-scope rule is unchanged.
  *
  *   Accepted forms:
- *     row of rows              — item variable, no key
- *     row, i of rows           — item + index variable
- *     row of rows by id        — item + keyed reconciliation
- *     row, i of rows by id     — item + index + keyed
- *     { a, b } of rows by id   — destructured fields as loop variables
- *     { a, b }, i of rows by id — destructured + index
+ *     row of rows              - item variable, no key
+ *     row, i of rows           - item + index variable
+ *     row of rows by id        - item + keyed reconciliation
+ *     row, i of rows by id     - item + index + keyed
+ *     { a, b } of rows by id   - destructured fields as loop variables
+ *     { a, b }, i of rows by id - destructured + index
  *
  * Scope mode integrates with the binding system via a hook exported by
- * bind.ts (registerScopeHook). The directive registers a function at
+ * path.ts (registerScopeHook). The directive registers a function at
  * module import time that checks whether a binding's first path segment
- * is a loop variable. This keeps the directive modular — the core binding
+ * is a loop variable. This keeps the directive modular - the core binding
  * system has no dependency on rx-for.
  *
  * Reconciliation:
- *   Keyed (by <field>) — items matched by key, DOM reordered to match
+ *   Keyed (by <field>) - items matched by key, DOM reordered to match
  *   source order. Identity-preserving across emissions.
- *   Keyless — items matched by position. Reordering updates in place,
+ *   Keyless - items matched by position. Reordering updates in place,
  *   no DOM moves. data-rx-key carries the positional index.
  *
  * Clone attributes (scope mode only):
- *   data-rx-item — structural marker on every item element.
- *   data-rx-key  — always present. Derived from key field or position.
+ *   data-rx-item - structural marker on every item element.
+ *   data-rx-key  - always present. Derived from key field or position.
  *
- * The directive is optional — include it in the directives array at
+ * The directive is optional - include it in the directives array at
  * bootstrap, or omit it entirely. The core framework has no dependency
  * on it.
  */
 import { BehaviorSubject, type Subscription } from 'rxjs';
 import { isObservable } from '../is-observable.js';
 import { Directive } from '../directive.js';
-import { BindParseError } from '../errors.js';
-import { parseBind, subscribeBind, deferredBind, resolveValue, registerScopeHook, type ParsedBind, type ScopeHookResult } from '../expression/bind.js';
+import { BindingParseError } from '../errors.js';
+import { parseBindingPath, subscribeToBinding, deferredBinding, resolveValue, registerScopeHook, type ParsedBinding, type ScopeHookResult } from '../binding/path.js';
 import type { RxElementLike } from '../directive.js';
-import { isHydrating } from '../ssg/hydrate/hydration-state.js';
+import { isHydrating } from '../hydrate/state.js';
 import { getTemplate } from '../component.js';
 
 // ---------------------------------------------------------------------------
@@ -63,7 +63,7 @@ import { getTemplate } from '../component.js';
 
 interface RxForParsed {
     mode: 'splat' | 'scope';
-    source: ParsedBind;
+    source: ParsedBinding;
     keyField: string | undefined;
     itemName: string | undefined;
     destructuredFields: string[] | undefined;
@@ -84,15 +84,15 @@ const parseRxFor = (raw: string): RxForParsed => {
     const byIdx = expr.lastIndexOf(' by ');
     if (byIdx !== -1) {
         keyField = expr.slice(byIdx + 4).trim();
-        if (keyField === '') throw new BindParseError(raw, 'rx-for expected key identifier after "by"');
+        if (keyField === '') throw new BindingParseError(raw, 'rx-for expected key identifier after "by"');
         expr = expr.slice(0, byIdx).trim();
     }
 
     // detect scope mode: look for " of "
     const ofIdx = expr.indexOf(' of ');
     if (ofIdx === -1) {
-        // splat mode — the whole expression (minus "by") is the source
-        const source = parseBind(expr);
+        // splat mode - the whole expression (minus "by") is the source
+        const source = parseBindingPath(expr);
         return { mode: 'splat', source, keyField, itemName: undefined, destructuredFields: undefined, indexName: undefined, loopVariables: [] };
     }
 
@@ -100,10 +100,10 @@ const parseRxFor = (raw: string): RxForParsed => {
     const declPart = expr.slice(0, ofIdx).trim();
     const sourcePart = expr.slice(ofIdx + 4).trim();
 
-    if (sourcePart === '') throw new BindParseError(raw, 'rx-for expected source after "of"');
-    if (declPart === '') throw new BindParseError(raw, 'rx-for expected item identifier or destructure');
+    if (sourcePart === '') throw new BindingParseError(raw, 'rx-for expected source after "of"');
+    if (declPart === '') throw new BindingParseError(raw, 'rx-for expected item identifier or destructure');
 
-    const source = parseBind(sourcePart);
+    const source = parseBindingPath(sourcePart);
     let itemName: string | undefined;
     let destructuredFields: string[] | undefined;
     let indexName: string | undefined;
@@ -114,14 +114,14 @@ const parseRxFor = (raw: string): RxForParsed => {
     if (remaining.startsWith('{')) {
         // destructure mode
         const closeIdx = remaining.indexOf('}');
-        if (closeIdx === -1) throw new BindParseError(raw, 'rx-for destructure expected "}"');
+        if (closeIdx === -1) throw new BindingParseError(raw, 'rx-for destructure expected "}"');
         const inner = remaining.slice(1, closeIdx).trim();
-        if (inner === '') throw new BindParseError(raw, 'rx-for destructure must declare at least one field');
+        if (inner === '') throw new BindingParseError(raw, 'rx-for destructure must declare at least one field');
         destructuredFields = inner.split(',').map(s => s.trim()).filter(s => s !== '');
-        if (destructuredFields.length === 0) throw new BindParseError(raw, 'rx-for destructure must declare at least one field');
+        if (destructuredFields.length === 0) throw new BindingParseError(raw, 'rx-for destructure must declare at least one field');
         remaining = remaining.slice(closeIdx + 1).trim();
     } else {
-        // single ident mode — read the first identifier
+        // single ident mode - read the first identifier
         const commaIdx = remaining.indexOf(',');
         if (commaIdx !== -1) {
             itemName = remaining.slice(0, commaIdx).trim();
@@ -130,17 +130,17 @@ const parseRxFor = (raw: string): RxForParsed => {
             itemName = remaining.trim();
             remaining = '';
         }
-        if (itemName === '') throw new BindParseError(raw, 'rx-for expected item identifier or destructure');
+        if (itemName === '') throw new BindingParseError(raw, 'rx-for expected item identifier or destructure');
     }
 
     // check for index: ", i"
     if (remaining.startsWith(',')) {
         remaining = remaining.slice(1).trim();
-        if (remaining === '') throw new BindParseError(raw, 'rx-for expected index identifier after ","');
-        if (remaining.includes(',')) throw new BindParseError(raw, 'rx-for accepts at most one index identifier after the item');
+        if (remaining === '') throw new BindingParseError(raw, 'rx-for expected index identifier after ","');
+        if (remaining.includes(',')) throw new BindingParseError(raw, 'rx-for accepts at most one index identifier after the item');
         indexName = remaining.trim();
     } else if (remaining !== '') {
-        throw new BindParseError(raw, `rx-for accepts at most "item, index" — use { … } to destructure fields`);
+        throw new BindingParseError(raw, `rx-for accepts at most "item, index" - use { ... } to destructure fields`);
     }
 
     // build declared idents list
@@ -156,7 +156,7 @@ const parseRxFor = (raw: string): RxForParsed => {
 };
 
 // ---------------------------------------------------------------------------
-// Scope hook — registered once at module load
+// Scope hook - registered once at module load
 // ---------------------------------------------------------------------------
 
 interface ScopeEntry {
@@ -193,13 +193,13 @@ registerScopeHook((host: Element, segment: string): ScopeHookResult | undefined 
                 }
 
                 // item variable (e.g. "row" in "row of rows"): return the item subject,
-                // consumed = 1 — subscribeBind skips "row" and processes remaining segments
+                // consumed = 1 - subscribeToBinding skips "row" and processes remaining segments
                 if (segment === directive.itemName) {
                     return { stream: entry.subject, consumed: 1 };
                 }
 
                 // destructured field (e.g. "name" from "{ name, status } of rows"):
-                // return the item subject, consumed = 0 — subscribeBind processes "name"
+                // return the item subject, consumed = 0 - subscribeToBinding processes "name"
                 // as a path segment on the item object via segmentStream
                 return { stream: entry.subject, consumed: 0 };
             }
@@ -214,6 +214,13 @@ registerScopeHook((host: Element, segment: string): ScopeHookResult | undefined 
 // Directive
 // ---------------------------------------------------------------------------
 
+/**
+ * List rendering directive. Parses the expression in the `rx-for`
+ * attribute, subscribes to the source observable, and stamps/removes
+ * child elements to match the emitted array. Supports splat mode
+ * (properties assigned directly onto children) and scope mode
+ * (loop variables resolved through the binding system via a scope hook).
+ */
 @Directive({ selector: '[rx-for]' })
 export class RxFor {
     node!: RxElementLike;
@@ -225,7 +232,7 @@ export class RxFor {
 
     itemName: string | undefined;
 
-    private source!: ParsedBind;
+    private source!: ParsedBinding;
     private keyField: string | undefined;
     private sub: Subscription | undefined;
     private content = '';
@@ -233,9 +240,14 @@ export class RxFor {
 
     private assertArray(v: unknown): asserts v is unknown[] {
         if (!Array.isArray(v))
-            throw new BindParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
+            throw new BindingParseError(this.source.raw, `rx-for expected array, got ${typeof v}`);
     }
 
+    /**
+     * Parses the rx-for expression, determines the mode, and subscribes
+     * to the source observable.
+     * @returns {void}
+     */
     onInit(): void {
         const raw = this.node.getAttribute('rx-for') ?? '';
         const p = parseRxFor(raw);
@@ -257,14 +269,14 @@ export class RxFor {
     private initSplat(): void {
         if (isHydrating()) {
             this.hydrateSplat();
-            this.sub = deferredBind(this.node, this.source).subscribe((v) => {
+            this.sub = deferredBinding(this.node, this.source).subscribe((v) => {
                 this.assertArray(v);
                 this.updateSplat(v);
             });
         } else {
             this.content = this.node.innerHTML;
             this.node.replaceChildren();
-            this.sub = subscribeBind(this.node, this.source, (v) => {
+            this.sub = subscribeToBinding(this.node, this.source, (v) => {
                 this.assertArray(v);
                 this.updateSplat(v);
             });
@@ -318,14 +330,14 @@ export class RxFor {
 
         if (isHydrating()) {
             this.hydrateScope();
-            this.sub = deferredBind(this.node, this.source).subscribe((v) => {
+            this.sub = deferredBinding(this.node, this.source).subscribe((v) => {
                 this.assertArray(v);
                 this.updateScope(v);
             });
         } else {
             this.content = this.node.innerHTML;
             while (this.node.firstChild) this.node.removeChild(this.node.firstChild);
-            this.sub = subscribeBind(this.node, this.source, (v) => {
+            this.sub = subscribeToBinding(this.node, this.source, (v) => {
                 this.assertArray(v);
                 this.updateScope(v);
             });
@@ -418,7 +430,7 @@ export class RxFor {
 
                 this.node.appendChild(frag);
 
-                // after appendChild, itemEl is now in the DOM — update entry ref
+                // after appendChild, itemEl is now in the DOM - update entry ref
                 // (the element reference stays valid after appendChild from fragment)
             }
         }
@@ -436,6 +448,11 @@ export class RxFor {
         }
     }
 
+    /**
+     * Unsubscribes from the source, completes all scope subjects,
+     * and clears the node maps.
+     * @returns {void}
+     */
     onDestroy(): void {
         this.sub?.unsubscribe();
         if (this.mode === 'scope') {

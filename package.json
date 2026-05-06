@@ -25,10 +25,10 @@
     "build:watch": "tsc --build --watch --preserveWatchOutput",
     "dev": "trap 'kill 0' EXIT; npm run build:watch & npm run dev --prefix packages/yaw-example & wait",
     "typecheck": "tsc --build --dry packages/yaw-common packages/yaw packages/yaw-transformer",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint:fix --workspaces --if-present",
+    "format": "npm run format --workspaces --if-present",
+    "format:fix": "npm run format:fix --workspaces --if-present"
   },
   "devDependencies": {
     "@eslint/js": "^9.1.1",

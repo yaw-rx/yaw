@@ -1,16 +1,16 @@
 /**
- * component.ts — component registration and application bootstrap.
+ * component.ts - component registration and application bootstrap.
  *
  * The @Component decorator defines a component. When it runs:
  *
- *   1. The template is compiled via transformTemplate — mustache bindings
+ *   1. The template is compiled via transformTemplate - mustache bindings
  *      become <span data-rx-bind-text>, attribute bindings become
  *      data-rx-bind-*, event handlers become data-rx-on-*, and carets
  *      are injected based on custom-element nesting depth.
  *
  *   2. The compiled template, selector, providers, and directives are
  *      stored in Maps keyed by constructor. These are the framework's
- *      metadata — populated at decoration time, read during rendering.
+ *      metadata - populated at decoration time, read during rendering.
  *
  *   3. Styles are scoped to the component's tag and added to
  *      document.adoptedStyleSheets.
@@ -21,10 +21,10 @@
  *
  * Initialization order:
  *
- *   Rendering is top-down. A parent's connectedCallback runs setupHostNode,
+ *   Rendering is top-down. A host's connectedCallback runs setupHostNode,
  *   setupInjectorAndDeps, and setupDirectives before renderTemplate creates
- *   its children via innerHTML. Children only exist after the parent is
- *   fully initialized. This guarantees parent-first ordering for the DI
+ *   its children via innerHTML. Children only exist after the host is
+ *   fully initialized. This guarantees host-first ordering for the DI
  *   tree, hostNode, and directive setup.
  *
  * Recursive components:
@@ -32,22 +32,31 @@
  *   A component can contain its own tag in its template. The tag is
  *   registered during the decorator, before any template renders. The
  *   browser creates the nested instance on innerHTML, its connectedCallback
- *   fires, and it renders its own children — recursing until the data
+ *   fires, and it renders its own children - recursing until the data
  *   runs out.
  */
 import { Injector } from './di/injector.js';
 import type { Provider } from './di/types.js';
 import type { DirectiveCtor, RxElementLike } from './directive.js';
 import { BootstrapError, HydrationError } from './errors.js';
-import { setHydrating, isHydrating } from './ssg/hydrate/hydration-state.js';
+import { setHydrating, isHydrating } from './hydrate/state.js';
 import { transformTemplate, transformStyles } from '@yaw-rx/common/transform';
 import type { AttributeCodec } from './attribute-codec/types.js';
 import { registerAttributeCodecs } from './attribute-codec/registry.js';
-import { startObserver, flushExistingBindings } from './native-bindings.js';
-import { getObservableKeys } from './state.js';
+import { startObserver, flushExistingBindings } from './binding/native.js';
+import { getStateKeys } from './state.js';
 import { isObservable } from './is-observable.js';
 import { encodeAttribute } from './attribute-codec/encode.js';
 
+/**
+ * Configuration for the @Component decorator.
+ * @property {string} selector - The custom element tag name (e.g. 'my-app').
+ * @property {string} [template] - HTML template string, compiled by transformTemplate.
+ * @property {string} [styles] - CSS string, scoped to the selector via transformStyles.
+ * @property {readonly Provider[]} [providers] - DI providers local to this component.
+ * @property {readonly DirectiveCtor[]} [directives] - Directive constructors active in this component's subtree.
+ * @property {Record<string, AttributeCodec>} [attributeCodecs] - Custom codecs for typed attribute marshalling.
+ */
 export interface ComponentOptions {
     readonly selector: string;
     readonly template?: string;
@@ -57,6 +66,12 @@ export interface ComponentOptions {
     readonly attributeCodecs?: Record<string, AttributeCodec>;
 }
 
+/**
+ * A route entry for the router.
+ * @property {string} path - The URL path to match (e.g. '/docs').
+ * @property {() => Promise<CustomElementConstructor>} [load] - Lazy loader returning the page component.
+ * @property {string} [redirect] - Redirect target path.
+ */
 export interface Route {
     readonly path: string;
     readonly load?: () => Promise<CustomElementConstructor>;
@@ -72,12 +87,17 @@ const stylesCache = new Map<Function, CSSStyleSheet>();
 const codecsCache = new Map<Function, Record<string, AttributeCodec>>();
 
 export const getTemplate = (ctor: Function): string | undefined => templateCache.get(ctor);
+/**
+ * Returns the original (pre-transformation) template string for a component.
+ * @param {CustomElementConstructor} ctor - The component constructor.
+ * @returns {string | undefined} The raw template, or undefined if none was declared.
+ */
 export const getRawTemplate = (ctor: CustomElementConstructor): string | undefined => rawTemplateCache.get(ctor);
 export const getSelector = (ctor: Function): string | undefined => selectorCache.get(ctor);
 export const getProviders = (ctor: Function): readonly Provider[] | undefined => providersCache.get(ctor);
 export const getDirectives = (ctor: Function): readonly DirectiveCtor[] | undefined => directivesCache.get(ctor);
 export const getStyles = (ctor: Function): CSSStyleSheet | undefined => stylesCache.get(ctor);
-export const getCodecs = (ctor: Function): Record<string, AttributeCodec> | undefined => codecsCache.get(ctor);
+export const getAttributeCodecs = (ctor: Function): Record<string, AttributeCodec> | undefined => codecsCache.get(ctor);
 
 export const getComponentOptions = (ctor: Function): ComponentOptions | undefined => {
     const selector = selectorCache.get(ctor);
@@ -100,6 +120,13 @@ const hydrateMode = (globalThis as Record<string, unknown>)['__yaw_hydrate'] ===
 
 export const isComponent = (ctor: Function): boolean => componentCtors.has(ctor);
 
+/**
+ * Class decorator that registers a custom element. Compiles the
+ * template, scopes styles, stores metadata, and calls
+ * customElements.define.
+ * @param {ComponentOptions} options - Component configuration.
+ * @returns {(ctor: CustomElementConstructor, context: ClassDecoratorContext) => void} The decorator function.
+ */
 export const Component = (options: ComponentOptions) =>
     (ctor: CustomElementConstructor, _context: ClassDecoratorContext): void => {
         componentCtors.add(ctor);
@@ -119,10 +146,10 @@ export const Component = (options: ComponentOptions) =>
             (ctor as unknown as Record<string, unknown>)['styles'] = options.styles;
         }
         const inherited: string[] = [];
-        let parent = Object.getPrototypeOf(ctor);
-        while (parent !== null) {
-            if ('styles' in parent && typeof parent.styles === 'string') inherited.push(parent.styles);
-            parent = Object.getPrototypeOf(parent);
+        let proto = Object.getPrototypeOf(ctor);
+        while (proto !== null) {
+            if ('styles' in proto && typeof proto.styles === 'string') inherited.push(proto.styles);
+            proto = Object.getPrototypeOf(proto);
         }
         const combined = inherited.length > 0
             ? inherited.reverse().join('\n') + (options.styles ? '\n' + options.styles : '')
@@ -145,8 +172,14 @@ let globalDirectives: readonly DirectiveCtor[] = [];
 let ssgMode = false;
 
 export const getGlobalDirectives = (): readonly DirectiveCtor[] => globalDirectives;
-export const isSSG = (): boolean => ssgMode;
+export const isSSGCapture = (): boolean => ssgMode;
 
+/**
+ * Global configuration passed to bootstrap.
+ * @property {readonly DirectiveCtor[]} [directives] - Directives available in every component's subtree.
+ * @property {Record<string, AttributeCodec>} [attributeCodecs] - Codecs registered globally for attribute marshalling.
+ * @property {string} [styles] - Global CSS applied to document.adoptedStyleSheets.
+ */
 export interface BootstrapGlobals {
     readonly directives?: readonly DirectiveCtor[];
     readonly attributeCodecs?: Record<string, AttributeCodec>;
@@ -161,6 +194,14 @@ interface BootstrapOptions {
     readonly hydrate?: boolean;
 }
 
+/**
+ * Initializes the application. Creates the root injector, registers
+ * global codecs and styles, starts the MutationObserver, and appends
+ * the root component to document.body. In hydration mode, loads the
+ * SSG state blob and flushes existing bindings instead.
+ * @param {BootstrapOptions} options - Root component, providers, globals, and SSG/hydration flags.
+ * @returns {Promise<void>} Resolves when initialization is complete.
+ */
 export const bootstrap = async (options: BootstrapOptions): Promise<void> => {
     const selector = getSelector(options.root);
     if (selector === undefined) { throw new BootstrapError(`${options.root.name} has no @Component decorator`); }
@@ -174,7 +215,7 @@ export const bootstrap = async (options: BootstrapOptions): Promise<void> => {
     ssgMode = options.ssg === true || (globalThis as Record<string, unknown>)['__yaw_ssg'] === true;
     if (ssgMode) {
         (globalThis as Record<string, unknown>)['__yaw_ssg_internals'] = {
-            getObservableKeys,
+            getStateKeys,
             isObservable,
             encodeAttribute,
             Injector,
@@ -183,8 +224,8 @@ export const bootstrap = async (options: BootstrapOptions): Promise<void> => {
     const injector = new Injector(options.providers);
     (document.body as RxElementLike).__injector = injector;
     if (hydrateMode) {
-        const { loadHydrateState } = await import('./ssg/hydrate/load-hydrate-state.js');
-        loadHydrateState();
+        const { loadHydrationState } = await import('./hydrate/bootstrap.js');
+        loadHydrationState();
         setHydrating(true);
         if (document.body.querySelector(selector) === null) { throw new HydrationError(`no existing <${selector}> found in DOM`); }
         const raw = window.location.pathname;
@@ -204,7 +245,7 @@ export const bootstrap = async (options: BootstrapOptions): Promise<void> => {
             ?? routes.find(r => r.load !== undefined && r.path !== '*' && path.startsWith(r.path + '/'));
         const endHydration = async (): Promise<void> => {
             setHydrating(false);
-            const { stripSsgAttributes } = await import('./ssg/hydrate/strip-ssg-attributes.js');
+            const { stripSsgAttributes } = await import('./hydrate/bootstrap.js');
             stripSsgAttributes();
         };
         if (match?.load !== undefined) {

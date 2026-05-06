@@ -1,15 +1,24 @@
 import { type Subscription, switchMap } from 'rxjs';
 import { Component, getSelector } from '../component.js';
-import { RxElementBase } from '../rx-element.js';
+import { RxElement } from '../rx-element.js';
 import { Inject } from '../di/inject.js';
 import { Router } from '../router.js';
 
+/**
+ * Router outlet component. Subscribes to Router.route$, lazy-loads
+ * the matched page component, swaps it into the DOM, and emits
+ * Router.pageReady$ after the new subtree has initialized.
+ */
 @Component({ selector: 'rx-router-outlet' })
-export class RxRouterOutlet extends RxElementBase {
+export class RxRouterOutlet extends RxElement {
     @Inject(Router) private readonly router!: Router;
     private sub: Subscription | undefined;
     private current: Element | undefined;
 
+    /**
+     * Subscribes to route changes and swaps in the resolved page component.
+     * @returns {void}
+     */
     override onInit(): void {
         this.sub = this.router.route$.pipe(
             switchMap(path => this.router.resolve(path)),
@@ -29,6 +38,10 @@ export class RxRouterOutlet extends RxElementBase {
         });
     }
 
+    /**
+     * Unsubscribes from route changes.
+     * @returns {void}
+     */
     override onDestroy(): void {
         this.sub?.unsubscribe();
     }

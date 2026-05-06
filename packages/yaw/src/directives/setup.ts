@@ -28,7 +28,7 @@ export const setupDirectivesFor = (el: Element): Directive[] => {
         if (!selector.endsWith('*]')) {
             const attrName = selector.slice(1, -1);
             const raw = el.getAttribute(attrName) ?? '';
-            directive.parsed = directive.parseExpr ? directive.parseExpr(raw) : { expr: raw };
+            directive.bindingPath = directive.parseBindingPath ? directive.parseBindingPath(raw) : { raw };
         }
         directive.onInit();
         directives.push(directive);

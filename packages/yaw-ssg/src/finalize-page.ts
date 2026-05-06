@@ -11,13 +11,13 @@ import type { Page } from 'puppeteer-core';
 export async function finalizePage(page: Page): Promise<void> {
     await page.evaluate(() => {
         const internals = (globalThis as Record<string, unknown>)['__yaw_ssg_internals'] as {
-            getObservableKeys: (proto: object) => ReadonlySet<string>;
+            getStateKeys: (proto: object) => ReadonlySet<string>;
             isObservable: (obj: unknown) => boolean;
             encodeAttribute: (typeName: string, key: string, value: unknown) => string;
             Injector: { new (...args: unknown[]): { forEachInstance: (cb: (instance: unknown) => void) => void } };
         };
 
-        const { getObservableKeys, isObservable, encodeAttribute } = internals;
+        const { getStateKeys, isObservable, encodeAttribute } = internals;
 
         const unwrapObservables = (value: unknown): unknown => {
             if (isObservable(value)) {
@@ -41,7 +41,7 @@ export async function finalizePage(page: Page): Promise<void> {
         let nextId = 0;
 
         for (const el of document.querySelectorAll('[data-rx-host]')) {
-            const keys = getObservableKeys(Object.getPrototypeOf(el));
+            const keys = getStateKeys(Object.getPrototypeOf(el));
             if (keys.size === 0) continue;
             const id = String(nextId++);
             el.setAttribute('data-ssg-id', id);
@@ -62,7 +62,7 @@ export async function finalizePage(page: Page): Promise<void> {
                 if (instance instanceof HTMLElement) return;
                 if (seen.has(instance as object)) return;
                 seen.add(instance as object);
-                const keys = getObservableKeys(Object.getPrototypeOf(instance));
+                const keys = getStateKeys(Object.getPrototypeOf(instance));
                 if (keys.size === 0) return;
                 const ctor = (instance as object).constructor;
                 const name = ctor.name;

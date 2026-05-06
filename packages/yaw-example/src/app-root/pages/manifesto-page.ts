@@ -254,8 +254,16 @@ const YAW_SNIPPET = ts`
 
             <manifesto-section heading="The Numbers">
                 <p>The core runtime — <code>state.ts</code>, <code>rx-element.ts</code>,
-                <code>setupBindings.ts</code>, <code>bind.ts</code> — is 681 lines.
-                The whole framework including compile-time transforms and SSG is about 3,500.</p>
+                <code>binding/setup.ts</code>, <code>binding/path.ts</code> — is 560 lines.</p>
+                <p>The whole framework across all packages is 4,712. That includes
+                <code>yaw-common</code>, a shared template and style transform library (722 lines),
+                <code>yaw-transformer</code>, a TypeScript build-time transformer (567 lines),
+                <code>yaw-ts-plugin</code>, a TypeScript language service plugin (464 lines),
+                <code>yaw-ssg</code>, an SSG renderer (261 lines),
+                <code>yaw-vscode</code>, a VSCode extension for inline template and style
+                highlighting (150 lines), and four bundler plugins —
+                <code>yaw-vite</code> (64 lines), <code>yaw-esbuild</code> (59 lines),
+                <code>yaw-rollup</code> (42 lines), <code>yaw-webpack</code> (13 lines).</p>
                 <p>React's runtime alone is 245,000 lines. Angular's is 305,000+.</p>
             </manifesto-section>
 

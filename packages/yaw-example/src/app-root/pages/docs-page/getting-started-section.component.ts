@@ -312,6 +312,55 @@ export default {
                trailing commas — adjust to taste.</p>
             <code-block syntax="json">${escape`${PRETTIER_CONFIG_SOURCE}`}</code-block>
         </section>
+
+        <section class="host" toc-section="getting-started/vscode-extension">
+            <h2 toc-anchor="getting-started/vscode-extension">VSCode extension</h2>
+            <p class="note">Yaw components define their templates and styles
+               as inline string literals in the
+               <code class="inline">@Component</code> decorator. Without
+               editor support these are opaque strings — no syntax
+               highlighting, no auto-complete, no hover documentation.</p>
+            <p class="note">The <code class="inline">@yaw-rx/vscode</code>
+               extension fixes this. It injects TextMate grammars for HTML,
+               CSS, TypeScript, and WGSL into
+               <code class="inline">template</code> and
+               <code class="inline">styles</code> literals, and provides
+               auto-completion and hover information via the
+               <code class="inline">vscode-html-languageservice</code> and
+               <code class="inline">vscode-css-languageservice</code>
+               packages. Tagged template literals
+               (<code class="inline">${escape`html\`...\``}</code>,
+               <code class="inline">${escape`css\`...\``}</code>,
+               <code class="inline">${escape`wgsl\`...\``}</code>) are also
+               recognised.</p>
+            <p class="note">Build the extension and symlink it into
+               your VSCode extensions directory, then reload VSCode.</p>
+            <code-block syntax="bash">${escape`# macOS / Linux
+cd packages/yaw-vscode && npm run build && ln -sfn "$(pwd)" "$HOME/.vscode/extensions/yaw-rx.yaw-vscode"
+
+# Windows (run as admin)
+cd packages\\yaw-vscode && npm run build && mklink /D "%USERPROFILE%\\.vscode\\extensions\\yaw-rx.yaw-vscode" "%cd%"`}</code-block>
+            <p class="note">If you use WGSL templates, also install the
+               WGSL grammar extension:</p>
+            <code-block syntax="bash">${escape`code --install-extension PolyMeilex.wgsl`}</code-block>
+            <p class="note">Add a
+               <code class="inline">.vscode/extensions.json</code> to
+               recommend the extension to contributors who open the
+               project.</p>
+            <code-block syntax="json">${escape`{
+  "recommendations": [
+    "yaw-rx.yaw-vscode"
+  ]
+}`}</code-block>
+            <p class="note">Add a
+               <code class="inline">.vscode/settings.json</code> to
+               point VSCode at the workspace TypeScript and enable
+               the extension.</p>
+            <code-block syntax="json">${escape`{
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "yaw-rx.yaw.enable": true
+}`}</code-block>
+        </section>
     `,
     styles: `
         :host { display: block; }

@@ -150,7 +150,7 @@ export const visitClass = (node: ts.ClassDeclaration, checker: ts.TypeChecker, f
                         undefined,
                         factory.createCallExpression(
                             factory.createPropertyAccessExpression(
-                                factory.createIdentifier('RxElementBase'),
+                                factory.createIdentifier('RxElement'),
                                 'resolveInjector',
                             ),
                             undefined,
