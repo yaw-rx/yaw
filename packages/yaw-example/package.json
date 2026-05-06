@@ -12,6 +12,7 @@
     "build:esbuild": "rm -rf dist/esbuild && node esbuild.config.js",
     "build:webpack": "rm -rf dist/webpack && webpack --config webpack.config.js",
     "build:ssg": "yaw-ssg dist public",
+    "build:ssg:deep-routes": "yaw-ssg dist public && node scripts/deep-routes.mjs public",
     "ssl:generate": "mkdir -p ssl && openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ssl/key.pem -out ssl/cert.pem -subj '/CN=localhost'",
     "docker:build:dev": "docker compose -f compose.dev.yaml build --no-cache",
     "docker:build:prod": "docker compose build --no-cache",
