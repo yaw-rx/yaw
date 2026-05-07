@@ -163,7 +163,62 @@ interface ScopeEntry {
     el: Element;
     subject: BehaviorSubject<unknown>;
     index$: BehaviorSubject<unknown> | undefined;
+    pos: number;
 }
+
+const enum DiffOp { Clear, CreateAll, ReplaceAll, DataOnly, Reorder, AppendOnly, RemoveOnly, Mixed }
+
+interface DiffResult { op: DiffOp; keys: string[] }
+
+const classifyDiff = (
+    incoming: unknown[],
+    scopeNodes: Map<string, ScopeEntry>,
+    keyField: string | undefined,
+): DiffResult => {
+    if (incoming.length === 0) return { op: DiffOp.Clear, keys: [] };
+
+    const keys: string[] = new Array(incoming.length);
+
+    if (scopeNodes.size === 0) {
+        for (let i = 0; i < incoming.length; i++) {
+            keys[i] = keyField
+                ? String((incoming[i] as Record<string, unknown>)[keyField])
+                : String(i);
+        }
+        return { op: DiffOp.CreateAll, keys };
+    }
+
+    let newCount = 0;
+    let orderOk = true;
+    let lastPos = -1;
+
+    for (let i = 0; i < incoming.length; i++) {
+        const key = keyField
+            ? String((incoming[i] as Record<string, unknown>)[keyField])
+            : String(i);
+        keys[i] = key;
+
+        const entry = scopeNodes.get(key);
+        if (entry === undefined) {
+            newCount++;
+        } else {
+            if (entry.pos <= lastPos) orderOk = false;
+            lastPos = entry.pos;
+        }
+    }
+
+    if (newCount === incoming.length) return { op: DiffOp.ReplaceAll, keys };
+
+    const kept = incoming.length - newCount;
+    const removedCount = scopeNodes.size - kept;
+
+    if (newCount === 0 && removedCount === 0 && orderOk) return { op: DiffOp.DataOnly, keys };
+    if (newCount === 0 && removedCount === 0) return { op: DiffOp.Reorder, keys };
+    if (newCount > 0 && removedCount === 0 && orderOk) return { op: DiffOp.AppendOnly, keys };
+    if (newCount === 0 && removedCount > 0 && orderOk) return { op: DiffOp.RemoveOnly, keys };
+
+    return { op: DiffOp.Mixed, keys };
+};
 
 const SCOPE_PROP = '__rxForScope';
 
@@ -236,6 +291,7 @@ export class RxFor {
     private keyField: string | undefined;
     private sub: Subscription | undefined;
     private content = '';
+    private tpl: HTMLTemplateElement | undefined;
     private splatNodes = new Map<unknown, Element>();
 
     private assertArray(v: unknown): asserts v is unknown[] {
@@ -266,6 +322,11 @@ export class RxFor {
         }
     }
 
+    private cacheTemplate(): void {
+        this.tpl = document.createElement('template');
+        this.tpl.innerHTML = this.content;
+    }
+
     private initSplat(): void {
         if (isHydrating()) {
             this.hydrateSplat();
@@ -275,6 +336,7 @@ export class RxFor {
             });
         } else {
             this.content = this.node.innerHTML;
+            this.cacheTemplate();
             this.node.replaceChildren();
             this.sub = subscribeToBinding(this.node, this.source, (v) => {
                 this.assertArray(v);
@@ -292,7 +354,10 @@ export class RxFor {
         const tpl = document.createElement('template');
         tpl.innerHTML = rawTemplate;
         const rxForEl = tpl.content.querySelector('[rx-for]');
-        if (rxForEl !== null) this.content = rxForEl.innerHTML;
+        if (rxForEl !== null) {
+            this.content = rxForEl.innerHTML;
+            this.cacheTemplate();
+        }
     }
 
     private hydrateSplat(): void {
@@ -310,8 +375,9 @@ export class RxFor {
             const k = String((item as Record<string, unknown>)[key]);
             let el = this.splatNodes.get(k);
             if (el === undefined) {
-                this.node.insertAdjacentHTML('beforeend', this.content);
-                el = this.node.lastElementChild!;
+                const frag = this.tpl!.content.cloneNode(true) as DocumentFragment;
+                el = frag.firstElementChild!;
+                this.node.appendChild(frag);
             }
             for (const [prop, val] of Object.entries(item as Record<string, unknown>)) {
                 (el as unknown as Record<string, unknown>)[prop] = val;
@@ -336,6 +402,7 @@ export class RxFor {
             });
         } else {
             this.content = this.node.innerHTML;
+            this.cacheTemplate();
             while (this.node.firstChild) this.node.removeChild(this.node.firstChild);
             this.sub = subscribeToBinding(this.node, this.source, (v) => {
                 this.assertArray(v);
@@ -372,79 +439,145 @@ export class RxFor {
             const match = itemByKey.get(key);
             const subject = new BehaviorSubject<unknown>(match?.item);
             const index$ = this.indexName ? new BehaviorSubject<unknown>(match?.index) : undefined;
-            this.scopeNodes.set(key, { el: child, subject, index$ });
+            this.scopeNodes.set(key, { el: child, subject, index$, pos: this.scopeNodes.size });
+        }
+    }
+
+    private stampItem(item: unknown, key: string, i: number, target: DocumentFragment | Element): void {
+        const subject = new BehaviorSubject<unknown>(item);
+        const index$ = this.indexName ? new BehaviorSubject<unknown>(i) : undefined;
+        const frag = this.tpl!.content.cloneNode(true) as DocumentFragment;
+        const itemEl = frag.firstElementChild!;
+        let el: Element | null = itemEl;
+        while (el !== null) {
+            el.setAttribute('data-rx-item', '');
+            el.setAttribute('data-rx-key', key);
+            el = el.nextElementSibling;
+        }
+        this.scopeNodes.set(key, { el: itemEl, subject, index$, pos: i });
+        target.appendChild(frag);
+    }
+
+    private batchCreate(incoming: unknown[], keys: string[]): void {
+        const batch = document.createDocumentFragment();
+        for (let i = 0; i < incoming.length; i++) {
+            this.stampItem(incoming[i]!, keys[i]!, i, batch);
+        }
+        this.node.appendChild(batch);
+    }
+
+    private updateData(incoming: unknown[], keys: string[]): void {
+        for (let i = 0; i < incoming.length; i++) {
+            const entry = this.scopeNodes.get(keys[i]!)!;
+            entry.subject.next(incoming[i]!);
+            if (entry.index$) entry.index$.next(i);
+            entry.pos = i;
+        }
+    }
+
+    private reorder(incoming: unknown[], keys: string[]): void {
+        this.updateData(incoming, keys);
+        let cursor = this.node.firstElementChild;
+        for (let i = 0; i < keys.length; i++) {
+            const entry = this.scopeNodes.get(keys[i]!)!;
+            if (entry.el !== cursor) {
+                this.node.insertBefore(entry.el, cursor);
+            } else {
+                cursor = cursor.nextElementSibling;
+            }
+        }
+    }
+
+    private appendOnly(incoming: unknown[], keys: string[]): void {
+        const batch = document.createDocumentFragment();
+        for (let i = 0; i < incoming.length; i++) {
+            const key = keys[i]!;
+            const entry = this.scopeNodes.get(key);
+            if (entry !== undefined) {
+                if (incoming[i] !== entry.subject.value) entry.subject.next(incoming[i]!);
+                if (entry.index$) entry.index$.next(i);
+                entry.pos = i;
+            } else {
+                this.stampItem(incoming[i]!, key, i, batch);
+            }
+        }
+        this.node.appendChild(batch);
+    }
+
+    private removeOnly(incoming: unknown[], keys: string[]): void {
+        const keep = new Set(keys);
+        for (const [key, entry] of this.scopeNodes) {
+            if (!keep.has(key)) {
+                entry.el.remove();
+                this.scopeNodes.delete(key);
+            }
+        }
+        this.updateData(incoming, keys);
+    }
+
+    private mixed(incoming: unknown[], keys: string[]): void {
+        const keep = new Set(keys);
+        for (const [key, entry] of this.scopeNodes) {
+            if (!keep.has(key)) {
+                entry.el.remove();
+                this.scopeNodes.delete(key);
+            }
+        }
+
+        for (let i = 0; i < incoming.length; i++) {
+            const key = keys[i]!;
+            const entry = this.scopeNodes.get(key);
+            if (entry !== undefined) {
+                entry.subject.next(incoming[i]!);
+                if (entry.index$) entry.index$.next(i);
+                entry.pos = i;
+            } else {
+                this.stampItem(incoming[i]!, key, i, this.node);
+            }
+        }
+
+        let cursor = this.node.firstElementChild;
+        for (let i = 0; i < keys.length; i++) {
+            const entry = this.scopeNodes.get(keys[i]!)!;
+            if (entry.el !== cursor) {
+                this.node.insertBefore(entry.el, cursor);
+            } else {
+                cursor = cursor.nextElementSibling;
+            }
         }
     }
 
     private updateScope(incoming: unknown[]): void {
-        const seen = new Set<string>();
+        const { op, keys } = classifyDiff(incoming, this.scopeNodes, this.keyField);
 
-        for (let i = 0; i < incoming.length; i++) {
-            const item = incoming[i]!;
-            const key = this.keyField
-                ? String((item as Record<string, unknown>)[this.keyField])
-                : String(i);
-            seen.add(key);
-
-            const existing = this.scopeNodes.get(key);
-            if (existing !== undefined) {
-                // update existing item
-                existing.subject.next(item);
-                if (existing.index$) existing.index$.next(i);
-                // reorder if needed (keyed mode)
-                if (this.keyField) {
-                    const expectedPrev = i > 0
-                        ? this.scopeNodes.get(
-                            this.keyField
-                                ? String((incoming[i - 1] as Record<string, unknown>)[this.keyField])
-                                : String(i - 1)
-                        )?.el ?? null
-                        : null;
-                    if (existing.el.previousElementSibling !== expectedPrev) {
-                        for (const el of this.node.querySelectorAll(`:scope > [data-rx-key="${key}"]`)) {
-                            this.node.appendChild(el);
-                        }
-                    }
-                }
-            } else {
-                // stamp new item
-                const subject = new BehaviorSubject<unknown>(item);
-                const index$ = this.indexName ? new BehaviorSubject<unknown>(i) : undefined;
-
-                // parse template into a DocumentFragment so we can set attributes
-                // before connecting to the DOM (children's connectedCallback needs
-                // data-rx-item and data-rx-key to be present)
-                const tpl = document.createElement('template');
-                tpl.innerHTML = this.content;
-                const frag = tpl.content;
-                const itemEl = frag.firstElementChild!;
-                let el: Element | null = itemEl;
-                while (el !== null) {
-                    el.setAttribute('data-rx-item', '');
-                    el.setAttribute('data-rx-key', key);
-                    el = el.nextElementSibling;
-                }
-
-                const entry: ScopeEntry = { el: itemEl, subject, index$ };
-                this.scopeNodes.set(key, entry);
-
-                this.node.appendChild(frag);
-
-                // after appendChild, itemEl is now in the DOM - update entry ref
-                // (the element reference stays valid after appendChild from fragment)
-            }
-        }
-
-        // remove items no longer in the array
-        for (const [key, entry] of this.scopeNodes) {
-            if (!seen.has(key)) {
-                entry.subject.complete();
-                entry.index$?.complete();
-                for (const el of this.node.querySelectorAll(`:scope > [data-rx-key="${key}"]`)) {
-                    el.remove();
-                }
-                this.scopeNodes.delete(key);
-            }
+        switch (op) {
+            case DiffOp.Clear:
+                this.scopeNodes.clear();
+                this.node.textContent = '';
+                return;
+            case DiffOp.CreateAll:
+                this.batchCreate(incoming, keys);
+                return;
+            case DiffOp.ReplaceAll:
+                this.scopeNodes.clear();
+                this.node.textContent = '';
+                this.batchCreate(incoming, keys);
+                return;
+            case DiffOp.DataOnly:
+                this.updateData(incoming, keys);
+                return;
+            case DiffOp.Reorder:
+                this.reorder(incoming, keys);
+                return;
+            case DiffOp.AppendOnly:
+                this.appendOnly(incoming, keys);
+                return;
+            case DiffOp.RemoveOnly:
+                this.removeOnly(incoming, keys);
+                return;
+            case DiffOp.Mixed:
+                this.mixed(incoming, keys);
+                return;
         }
     }
 

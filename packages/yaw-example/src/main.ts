@@ -12,6 +12,7 @@ await bootstrap({
             { path: '/showcase', load: () => import('./app-root/pages/showcase-page.js').then(m => m.ShowcasePage) },
             { path: '/examples', load: () => import('./app-root/pages/examples-page.js').then(m => m.ExamplesPage) },
             { path: '/docs',     load: () => import('./app-root/pages/docs-page.js').then(m => m.DocsPage) },
+            { path: '/bench',    load: () => import('./app-root/pages/bench-page.js').then(m => m.BenchPage) },
         ] },
         Router,
     ],

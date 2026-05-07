@@ -221,7 +221,7 @@ export const bootstrap = async (options: BootstrapOptions): Promise<void> => {
             Injector,
         };
     }
-    const injector = new Injector(options.providers);
+    const injector = new Injector(options.providers ?? []);
     (document.body as RxElementLike).__injector = injector;
     if (hydrateMode) {
         const { loadHydrationState } = await import('./hydrate/bootstrap.js');
