@@ -13,13 +13,12 @@ let nextId = 1;
 interface Row {
     id: number;
     label: string;
-    selected: boolean;
 }
 
 const buildRows = (count: number): Row[] => {
     const rows: Row[] = new Array(count);
     for (let i = 0; i < count; i++) {
-        rows[i] = { id: nextId++, label: `${pick(ADJECTIVES)} ${pick(COLOURS)} ${pick(NOUNS)}`, selected: false };
+        rows[i] = { id: nextId++, label: `${pick(ADJECTIVES)} ${pick(COLOURS)} ${pick(NOUNS)}` };
     }
     return rows;
 };
@@ -42,7 +41,7 @@ const TEMPLATE = html`
     </div>
     <table class="bench-table">
         <tbody rx-for="row of rows by id">
-            <tr [class.danger]="row.selected">
+            <tr>
                 <td class="col-md-1">{{row.id}}</td>
                 <td class="col-md-4"><a onclick="select" data-action="select">{{row.label}}</a></td>
                 <td class="col-md-1"><a onclick="del" data-action="delete"><span class="remove-icon" aria-hidden="true">x</span></a></td>
@@ -89,16 +88,16 @@ const STYLES = css`
 export class BenchPage extends RxElement {
     @state rows: Row[] = [];
 
-    private selectedIdx = -1;
+    private selectedTr: Element | null = null;
 
     run(): void {
         this.rows = buildRows(1_000);
-        this.selectedIdx = -1;
+        this.selectedTr = null;
     }
 
     runLots(): void {
         this.rows = buildRows(10_000);
-        this.selectedIdx = -1;
+        this.selectedTr = null;
     }
 
     add(): void {
@@ -115,7 +114,7 @@ export class BenchPage extends RxElement {
 
     clear(): void {
         this.rows = [];
-        this.selectedIdx = -1;
+        this.selectedTr = null;
     }
 
     swapRows(): void {

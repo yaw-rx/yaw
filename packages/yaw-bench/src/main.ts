@@ -1,26 +1,26 @@
 import { Component, RxElement, state } from '@yaw-rx/core';
 import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import { bootstrap } from '@yaw-rx/core';
+import './bench-row.component.js';
+import type { BenchRow } from './bench-row.component.js';
 
 const adjectives = ['pretty', 'large', 'big', 'small', 'tall', 'short', 'long', 'handsome', 'plain', 'quaint', 'clean', 'elegant', 'easy', 'angry', 'crazy', 'helpful', 'mushy', 'odd', 'unsightly', 'adorable', 'important', 'inexpensive', 'cheap', 'expensive', 'fancy'];
 const colours = ['red', 'yellow', 'blue', 'green', 'pink', 'brown', 'purple', 'brown', 'white', 'black', 'orange'];
 const nouns = ['table', 'chair', 'house', 'bbq', 'desk', 'car', 'pony', 'cookie', 'sandwich', 'burger', 'pizza', 'mouse', 'keyboard'];
 
 const pick = (list: string[]) => list[Math.round(Math.random() * 1000) % list.length]!;
-const label = () => `${pick(adjectives)} ${pick(colours)} ${pick(nouns)}`;
 
 let nextId = 1;
 
 interface Row {
-    id: number;
+    rowId: number;
     label: string;
-    selected: boolean;
 }
 
 const buildRows = (count: number): Row[] => {
     const rows: Row[] = new Array(count);
     for (let i = 0; i < count; i++) {
-        rows[i] = { id: nextId++, label: label(), selected: false };
+        rows[i] = { rowId: nextId++, label: `${pick(adjectives)} ${pick(colours)} ${pick(nouns)}` };
     }
     return rows;
 };
@@ -60,16 +60,9 @@ const buildRows = (count: number): Row[] => {
                         </div>
                     </div>
                 </div>
-                <table class="table table-hover table-striped test-data">
-                    <tbody id="tbody" rx-for="row of rows by id">
-                        <tr [class.danger]="row.selected">
-                            <td class="col-md-1">{{row.id}}</td>
-                            <td class="col-md-4"><a onclick="select">{{row.label}}</a></td>
-                            <td class="col-md-1"><a onclick="del"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></td>
-                            <td class="col-md-6"></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table table-hover table-striped test-data" rx-for="row of rows by rowId">
+                    <bench-row [rowId]="row.rowId" [label]="row.label"></bench-row>
+                </div>
                 <span class="preloadicon glyphicon glyphicon-remove" aria-hidden="true"></span>
             </div>
         </div>
@@ -79,82 +72,57 @@ const buildRows = (count: number): Row[] => {
 class BenchRoot extends RxElement {
     @state rows: Row[] = [];
 
-    private selectedIdx = -1;
+    private selectedRow: BenchRow | null = null;
 
     run(): void {
-        const t = performance.now();
         this.rows = buildRows(1_000);
-        this.selectedIdx = -1;
-        console.log('run: done', (performance.now() - t).toFixed(1) + 'ms');
+        this.selectedRow = null;
     }
 
     runLots(): void {
-        const t = performance.now();
         this.rows = buildRows(10_000);
-        this.selectedIdx = -1;
-        console.log('runLots: done', (performance.now() - t).toFixed(1) + 'ms');
+        this.selectedRow = null;
     }
 
     add(): void {
-        const t = performance.now();
-        this.rows.push(...buildRows(1_000));
-        this.rows$.touch();
-        console.log('add: done', (performance.now() - t).toFixed(1) + 'ms');
+        this.rows = this.rows.concat(buildRows(1_000));
     }
 
     update(): void {
-        const t = performance.now();
-        for (let i = 0; i < this.rows.length; i += 10) {
-            this.rows[i]!.label += ' !!!';
+        const rows = this.querySelectorAll<BenchRow>('bench-row');
+        for (let i = 0; i < rows.length; i += 10) {
+            rows[i]!.label += ' !!!';
         }
-        this.rows$.touch();
-        console.log('update: done', (performance.now() - t).toFixed(1) + 'ms');
     }
 
     clear(): void {
-        const t = performance.now();
         this.rows = [];
-        this.selectedIdx = -1;
-        console.log('clear: done', (performance.now() - t).toFixed(1) + 'ms');
+        this.selectedRow = null;
     }
 
     swapRows(): void {
-        const t = performance.now();
         if (this.rows.length > 998) {
             const tmp = this.rows[1]!;
             this.rows[1] = this.rows[998]!;
             this.rows[998] = tmp;
             this.rows$.touch();
         }
-        console.log('swap: done', (performance.now() - t).toFixed(1) + 'ms');
     }
 
-    select(e: Event): void {
-        const itemEl = (e.target as Element).closest('[data-rx-key]');
-        if (!itemEl) return;
-        const id = Number(itemEl.getAttribute('data-rx-key'));
-        const idx = this.rows.findIndex(r => r.id === id);
-        if (idx === -1) return;
-        const t = performance.now();
-        if (this.selectedIdx >= 0) this.rows[this.selectedIdx]!.selected = false;
-        this.selectedIdx = idx;
-        this.rows[idx]!.selected = true;
-        this.rows$.touch();
-        console.log('select: done', (performance.now() - t).toFixed(1) + 'ms');
+    select(row: BenchRow): void {
+        if (this.selectedRow !== null) {
+            this.selectedRow.deselect();
+        }
+        this.selectedRow = row;
     }
 
-    del(e: Event): void {
-        const itemEl = (e.target as Element).closest('[data-rx-key]');
-        if (!itemEl) return;
-        const id = Number(itemEl.getAttribute('data-rx-key'));
-        const idx = this.rows.findIndex(r => r.id === id);
+    del(row: BenchRow): void {
+        const id = row.rowId;
+        const idx = this.rows.findIndex(r => r.rowId === id);
         if (idx === -1) return;
-        const t = performance.now();
         this.rows.splice(idx, 1);
-        if (this.selectedIdx === idx) this.selectedIdx = -1;
-        else if (this.selectedIdx > idx) this.selectedIdx--;
+        if (this.selectedRow === row) this.selectedRow = null;
         this.rows$.touch();
-        console.log('delete: done', (performance.now() - t).toFixed(1) + 'ms');
     }
 }
 

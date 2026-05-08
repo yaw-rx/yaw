@@ -48,11 +48,18 @@
  * bootstrap, or omit it entirely. The core framework has no dependency
  * on it.
  */
-import { BehaviorSubject, type Subscription } from 'rxjs';
-import { isObservable } from '../is-observable.js';
+import { BehaviorSubject, skip, type Subscription } from 'rxjs';
+import { isObservable } from '../classify/is-observable.js';
 import { Directive } from '../directive.js';
 import { BindingParseError } from '../errors.js';
-import { parseBindingPath, subscribeToBinding, deferredBinding, resolveValue, registerScopeHook, type ParsedBinding, type ScopeHookResult } from '../binding/path.js';
+import { parseBindingPath, subscribeToBinding, deferredBinding, resolveValue, type ParsedBinding } from '../binding/path.js';
+import { registerScopeHook, type ScopeHookResult } from '../binding/hooks/scope.js';
+import { registerMutationHook } from '../binding/hooks/mutation.js';
+import { registerBindingHook } from '../binding/hooks/binding.js';
+import { initElement, destroyElement } from '../binding/native.js';
+import { resolveStamp, type StampSource } from '../stamp/resolve.js';
+import { analyseTemplate, type StampInstruction } from '../stamp/analyse.js';
+import { writeStamp, collectElements } from '../stamp/write.js';
 import type { RxElementLike } from '../directive.js';
 import { isHydrating } from '../hydrate/state.js';
 import { getTemplate } from '../component.js';
@@ -170,34 +177,52 @@ const enum DiffOp { Clear, CreateAll, ReplaceAll, DataOnly, Reorder, AppendOnly,
 
 interface DiffResult { op: DiffOp; keys: string[] }
 
+const keyOf = (item: unknown, keyField: string | undefined, index: number): string =>
+    keyField ? String((item as Record<string, unknown>)[keyField]) : String(index);
+
+const buildKeys = (incoming: unknown[], keyField: string | undefined): string[] => {
+    const keys: string[] = new Array(incoming.length);
+    for (let i = 0; i < incoming.length; i++) keys[i] = keyOf(incoming[i], keyField, i);
+    return keys;
+};
+
 const classifyDiff = (
     incoming: unknown[],
     scopeNodes: Map<string, ScopeEntry>,
     keyField: string | undefined,
 ): DiffResult => {
     if (incoming.length === 0) return { op: DiffOp.Clear, keys: [] };
+    if (scopeNodes.size === 0) return { op: DiffOp.CreateAll, keys: buildKeys(incoming, keyField) };
 
-    const keys: string[] = new Array(incoming.length);
+    const firstKey = keyOf(incoming[0], keyField, 0);
 
-    if (scopeNodes.size === 0) {
-        for (let i = 0; i < incoming.length; i++) {
-            keys[i] = keyField
-                ? String((incoming[i] as Record<string, unknown>)[keyField])
-                : String(i);
+    // all new keys -- no overlap with existing
+    if (!scopeNodes.has(firstKey)) {
+        const lastKey = keyOf(incoming[incoming.length - 1], keyField, incoming.length - 1);
+        if (!scopeNodes.has(lastKey)) {
+            const keys = buildKeys(incoming, keyField);
+            return { op: DiffOp.ReplaceAll, keys };
         }
-        return { op: DiffOp.CreateAll, keys };
     }
 
+    // append: same count of existing keys at the front, new keys at the tail
+    if (incoming.length > scopeNodes.size) {
+        const existingCount = scopeNodes.size;
+        const lastExistingKey = keyOf(incoming[existingCount - 1], keyField, existingCount - 1);
+        const firstNewKey = keyOf(incoming[existingCount], keyField, existingCount);
+        if (scopeNodes.has(lastExistingKey) && !scopeNodes.has(firstNewKey)) {
+            const keys = buildKeys(incoming, keyField);
+            return { op: DiffOp.AppendOnly, keys };
+        }
+    }
+
+    // full scan for remaining cases
+    const keys = buildKeys(incoming, keyField);
     let newCount = 0;
     let orderOk = true;
     let lastPos = -1;
 
-    for (let i = 0; i < incoming.length; i++) {
-        const key = keyField
-            ? String((incoming[i] as Record<string, unknown>)[keyField])
-            : String(i);
-        keys[i] = key;
-
+    for (const key of keys) {
         const entry = scopeNodes.get(key);
         if (entry === undefined) {
             newCount++;
@@ -266,6 +291,63 @@ registerScopeHook((host: Element, segment: string): ScopeHookResult | undefined 
 });
 
 // ---------------------------------------------------------------------------
+// Binding hook -- skip(1) for stamped elements so the first
+// subscription emission does not overwrite stamped values.
+// ---------------------------------------------------------------------------
+
+const stampedElements = new WeakSet<Element>();
+
+registerBindingHook((el, binding$) =>
+    stampedElements.has(el) ? binding$.pipe(skip(1)) : binding$
+);
+
+// ---------------------------------------------------------------------------
+// Mutation hook -- splices records targeting rx-for elements,
+// defers binding setup (added) and teardown (removed) to after paint.
+// rAF syncs with the frame, schedule pushes past paint.
+// ---------------------------------------------------------------------------
+
+// The way schedulers were meant to be written ;)
+const schedule =
+    typeof scheduler !== 'undefined' && scheduler.postTask
+        ? (cb: () => void) => { void scheduler.postTask(cb); }
+        : (cb: () => void) => { setTimeout(cb, 0); };
+
+let pendingAdded: Element[] = [];
+let pendingRemoved: Element[] = [];
+let scheduled = false;
+
+const flushPending = (): void => {
+    scheduled = false;
+    const removed = pendingRemoved;
+    const added = pendingAdded;
+    pendingRemoved = [];
+    pendingAdded = [];
+    for (const el of removed) destroyElement(el);
+    for (const el of added) initElement(el);
+};
+
+registerMutationHook((records) => {
+    let claimed = false;
+    for (let i = records.length - 1; i >= 0; i--) {
+        const target = records[i]!.target;
+        if (!(target instanceof Element) || !target.hasAttribute('rx-for')) continue;
+        for (const node of records[i]!.addedNodes) {
+            if (node.nodeType === 1) pendingAdded.push(node as Element);
+        }
+        for (const node of records[i]!.removedNodes) {
+            if (node.nodeType === 1) pendingRemoved.push(node as Element);
+        }
+        records.splice(i, 1);
+        claimed = true;
+    }
+    if (claimed && !scheduled) {
+        scheduled = true;
+        requestAnimationFrame(() => schedule(flushPending));
+    }
+});
+
+// ---------------------------------------------------------------------------
 // Directive
 // ---------------------------------------------------------------------------
 
@@ -292,7 +374,55 @@ export class RxFor {
     private sub: Subscription | undefined;
     private content = '';
     private tpl: HTMLTemplateElement | undefined;
+    private stampInstructions: StampInstruction[] | undefined;
     private splatNodes = new Map<unknown, Element>();
+    private ancestorCache = new Map<number, Element>();
+    private parentRxFor: RxFor | undefined;
+    private parentEntry: ScopeEntry | undefined;
+
+    resolveAncestor(carets: number): Element | undefined {
+        const cached = this.ancestorCache.get(carets);
+        if (cached !== undefined) return cached;
+        let host: Element | null = this.node.parentElement?.closest('[data-rx-host]') ?? null;
+        for (let i = 0; i < carets; i++) {
+            if (host === null) return undefined;
+            host = host.parentElement?.closest('[data-rx-host]') ?? null;
+        }
+        if (host === null) return undefined;
+        this.ancestorCache.set(carets, host);
+        return host;
+    }
+
+    classifySource(instruction: StampInstruction): StampSource {
+        const path = instruction.bindingPath.path;
+        const segment = path[0]!;
+
+        if (this.loopVariables.includes(segment)) {
+            if (segment === this.indexName) {
+                return { kind: 'index' };
+            }
+            if (segment === this.itemName) {
+                return { kind: 'item', segments: path.slice(1) };
+            }
+            return { kind: 'item', segments: path };
+        }
+
+        // check cached parent rx-for
+        if (this.parentRxFor !== undefined && this.parentRxFor.loopVariables.includes(segment)) {
+            if (segment === this.parentRxFor.indexName) {
+                return { kind: 'shared', root: this.parentEntry?.index$?.value, segments: [] };
+            }
+            const root = this.parentEntry?.subject.value;
+            if (segment === this.parentRxFor.itemName) {
+                return { kind: 'shared', root, segments: path.slice(1) };
+            }
+            return { kind: 'shared', root, segments: path };
+        }
+
+        // host binding
+        const host = this.resolveAncestor(instruction.bindingPath.carets);
+        return { kind: 'shared', root: host, segments: path };
+    }
 
     private assertArray(v: unknown): asserts v is unknown[] {
         if (!Array.isArray(v))
@@ -325,6 +455,12 @@ export class RxFor {
     private cacheTemplate(): void {
         this.tpl = document.createElement('template');
         this.tpl.innerHTML = this.content;
+        if (this.mode === 'scope') {
+            const host = this.resolveAncestor(0);
+            if (host !== undefined) {
+                this.stampInstructions = analyseTemplate(this.tpl, host);
+            }
+        }
     }
 
     private initSplat(): void {
@@ -391,8 +527,20 @@ export class RxFor {
         this.splatNodes = next;
     }
 
+    private resolveParent(): void {
+        const parentEl = this.node.parentElement?.closest('[rx-for]') ?? null;
+        if (parentEl === null) return;
+        const parent = (parentEl as any)[SCOPE_PROP] as RxFor | undefined;
+        if (parent === undefined || parent.mode !== 'scope') return;
+        this.parentRxFor = parent;
+        const itemEl = (this.node as Element).closest('[data-rx-key]');
+        const key = itemEl?.getAttribute('data-rx-key');
+        if (key !== null && key !== undefined) this.parentEntry = parent.scopeNodes.get(key);
+    }
+
     private initScope(): void {
         (this.node as any)[SCOPE_PROP] = this;
+        this.resolveParent();
 
         if (isHydrating()) {
             this.hydrateScope();
@@ -443,7 +591,7 @@ export class RxFor {
         }
     }
 
-    private stampItem(item: unknown, key: string, i: number, target: DocumentFragment | Element): void {
+    private cloneItem(item: unknown, key: string, i: number): DocumentFragment {
         const subject = new BehaviorSubject<unknown>(item);
         const index$ = this.indexName ? new BehaviorSubject<unknown>(i) : undefined;
         const frag = this.tpl!.content.cloneNode(true) as DocumentFragment;
@@ -455,15 +603,48 @@ export class RxFor {
             el = el.nextElementSibling;
         }
         this.scopeNodes.set(key, { el: itemEl, subject, index$, pos: i });
-        target.appendChild(frag);
+        return frag;
+    }
+
+    private stampBatch(items: unknown[], keys: string[], startIndex: number): DocumentFragment | Promise<DocumentFragment> {
+        const batch = document.createDocumentFragment();
+        const instructions = this.stampInstructions;
+        const N = items.length;
+
+        const elementArrays: Element[][] = new Array(N);
+        for (let i = 0; i < N; i++) {
+            const frag = this.cloneItem(items[i]!, keys[i]!, startIndex + i);
+            elementArrays[i] = collectElements(frag);
+            batch.appendChild(frag);
+        }
+
+        if (instructions === undefined || instructions.length === 0) return batch;
+
+        const K = instructions.length;
+        const classifier = (inst: StampInstruction): StampSource => this.classifySource(inst);
+        const resolved = resolveStamp(instructions, items, classifier);
+
+        const finish = (values: unknown[]): DocumentFragment => {
+            for (let i = 0; i < N; i++) {
+                writeStamp(elementArrays[i]!, instructions, values, i * K);
+                for (const el of elementArrays[i]!) stampedElements.add(el);
+            }
+            return batch;
+        };
+
+        return resolved instanceof Promise ? resolved.then(finish) : finish(resolved);
+    }
+
+    private appendBatch(result: DocumentFragment | Promise<DocumentFragment>): void {
+        if (result instanceof Promise) {
+            void result.then(batch => this.node.appendChild(batch));
+        } else {
+            this.node.appendChild(result);
+        }
     }
 
     private batchCreate(incoming: unknown[], keys: string[]): void {
-        const batch = document.createDocumentFragment();
-        for (let i = 0; i < incoming.length; i++) {
-            this.stampItem(incoming[i]!, keys[i]!, i, batch);
-        }
-        this.node.appendChild(batch);
+        this.appendBatch(this.stampBatch(incoming, keys, 0));
     }
 
     private updateData(incoming: unknown[], keys: string[]): void {
@@ -475,11 +656,11 @@ export class RxFor {
         }
     }
 
-    private reorder(incoming: unknown[], keys: string[]): void {
-        this.updateData(incoming, keys);
+    private reorder(keys: string[]): void {
         let cursor = this.node.firstElementChild;
         for (let i = 0; i < keys.length; i++) {
             const entry = this.scopeNodes.get(keys[i]!)!;
+            entry.pos = i;
             if (entry.el !== cursor) {
                 this.node.insertBefore(entry.el, cursor);
             } else {
@@ -489,7 +670,9 @@ export class RxFor {
     }
 
     private appendOnly(incoming: unknown[], keys: string[]): void {
-        const batch = document.createDocumentFragment();
+        const newItems: unknown[] = [];
+        const newKeys: string[] = [];
+        let firstNewIndex = 0;
         for (let i = 0; i < incoming.length; i++) {
             const key = keys[i]!;
             const entry = this.scopeNodes.get(key);
@@ -498,10 +681,14 @@ export class RxFor {
                 if (entry.index$) entry.index$.next(i);
                 entry.pos = i;
             } else {
-                this.stampItem(incoming[i]!, key, i, batch);
+                if (newItems.length === 0) firstNewIndex = i;
+                newItems.push(incoming[i]!);
+                newKeys.push(key);
             }
         }
-        this.node.appendChild(batch);
+        if (newItems.length > 0) {
+            this.appendBatch(this.stampBatch(newItems, newKeys, firstNewIndex));
+        }
     }
 
     private removeOnly(incoming: unknown[], keys: string[]): void {
@@ -524,6 +711,9 @@ export class RxFor {
             }
         }
 
+        const newItems: unknown[] = [];
+        const newKeys: string[] = [];
+        let firstNewIndex = 0;
         for (let i = 0; i < incoming.length; i++) {
             const key = keys[i]!;
             const entry = this.scopeNodes.get(key);
@@ -532,8 +722,13 @@ export class RxFor {
                 if (entry.index$) entry.index$.next(i);
                 entry.pos = i;
             } else {
-                this.stampItem(incoming[i]!, key, i, this.node);
+                if (newItems.length === 0) firstNewIndex = i;
+                newItems.push(incoming[i]!);
+                newKeys.push(key);
             }
+        }
+        if (newItems.length > 0) {
+            this.appendBatch(this.stampBatch(newItems, newKeys, firstNewIndex));
         }
 
         let cursor = this.node.firstElementChild;
@@ -567,7 +762,7 @@ export class RxFor {
                 this.updateData(incoming, keys);
                 return;
             case DiffOp.Reorder:
-                this.reorder(incoming, keys);
+                this.reorder(keys);
                 return;
             case DiffOp.AppendOnly:
                 this.appendOnly(incoming, keys);
@@ -588,6 +783,7 @@ export class RxFor {
      */
     onDestroy(): void {
         this.sub?.unsubscribe();
+        this.ancestorCache.clear();
         if (this.mode === 'scope') {
             delete (this.node as any)[SCOPE_PROP];
             for (const entry of this.scopeNodes.values()) {

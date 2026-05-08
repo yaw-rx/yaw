@@ -53,6 +53,20 @@ const stateKeys = new WeakMap<object, Set<string>>();
 
 const hydrationCache = new WeakMap<object, Record<string, unknown>>();
 
+/**
+ * Pre-populate the hydration cache for an instance. When the @state
+ * initializer runs, it checks this cache before falling back to SSG
+ * hydration blobs or declared defaults.
+ *
+ * @param instance - The object to seed hydration data for.
+ * @param data - Key-value pairs to use as initial @state values.
+ * @returns {void}
+ */
+export const seedHydrationCache = (instance: object, data: Record<string, unknown>): void => {
+    hydrationCache.set(instance, data);
+};
+
+
 const getHydrationState = (instance: object): Record<string, unknown> | undefined => {
     if (hydrationCache.has(instance)) return hydrationCache.get(instance);
     let state: Record<string, unknown> | undefined;
@@ -141,6 +155,8 @@ export const state = <This extends object, V>(
             initial = typeName !== undefined
                 ? decodeAttribute(typeName, key, hs[key] as string)
                 : hs[key];
+            delete hs[key];
+            if (Object.keys(hs).length === 0) hydrationCache.delete(this as object);
             target.set.call(this, initial as V);
         }
 

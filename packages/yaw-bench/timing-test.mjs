@@ -17,6 +17,10 @@ const URL = 'http://localhost:4000';
 const WARMUP = 1;
 const RUNS = 5;
 
+const ROW = 'bench-row';
+const ROW_1000 = `${ROW}:nth-of-type(1000)`;
+const ROW_2000 = `${ROW}:nth-of-type(2000)`;
+
 async function launch() {
     const browser = await puppeteer.launch({
         executablePath: CHROME,
@@ -24,12 +28,6 @@ async function launch() {
         args: ['--no-sandbox', '--disable-gpu', '--disable-extensions'],
     });
     return browser;
-}
-
-/** Wait for selector to appear, return elapsed ms since `t0`. */
-async function waitFor(page, selector, t0) {
-    await page.waitForSelector(selector, { timeout: 30_000 });
-    return await page.evaluate(() => performance.now()) - t0;
 }
 
 /** Get a high-res page timestamp. */
@@ -48,6 +46,16 @@ async function reset(page) {
     await page.waitForSelector('#run', { timeout: 10_000 });
 }
 
+/** Read the text of the first col-md-1 span inside a row element. */
+function rowIdText(row) {
+    return row?.querySelector('.col-md-1')?.textContent?.trim() ?? '';
+}
+
+/** Read the label text (col-md-4 a) inside a row element. */
+function rowLabelText(row) {
+    return row?.querySelector('.col-md-4 a')?.textContent?.trim() ?? '';
+}
+
 // ── Benchmark definitions ──────────────────────────────────────────
 
 const benchmarks = [
@@ -57,7 +65,7 @@ const benchmarks = [
         run: async (page) => {
             const t0 = await now(page);
             await click(page, '#run');
-            await waitFor(page, 'tbody tr:nth-of-type(1000)', t0);
+            await page.waitForSelector(ROW_1000, { timeout: 30_000 });
             const t1 = await now(page);
             return t1 - t0;
         },
@@ -67,21 +75,20 @@ const benchmarks = [
         setup: async (page) => {
             await reset(page);
             await click(page, '#run');
-            await page.waitForSelector('tbody tr:nth-of-type(1000)', { timeout: 30_000 });
+            await page.waitForSelector(ROW_1000, { timeout: 30_000 });
         },
         run: async (page) => {
-            // Snapshot the first row's id cell text so we can detect replacement
             const origId = await page.evaluate(() => {
-                return document.querySelector('tbody tr:nth-of-type(1) td:nth-of-type(1)')?.textContent ?? '';
+                const row = document.querySelector('bench-row');
+                return row?.querySelector('.col-md-1')?.textContent?.trim() ?? '';
             });
             const t0 = await now(page);
             await click(page, '#run');
-            // Wait until the first row's id changes (new data) and we still have 1000 rows
             await page.waitForFunction((prevId) => {
-                const rows = document.querySelectorAll('tbody tr');
+                const rows = document.querySelectorAll('bench-row');
                 if (rows.length !== 1000) return false;
-                const newId = rows[0]?.querySelector('td:nth-of-type(1)')?.textContent ?? '';
-                return newId !== prevId;
+                const newId = rows[0]?.querySelector('.col-md-1')?.textContent?.trim() ?? '';
+                return newId !== '' && newId !== '0' && newId !== prevId;
             }, { timeout: 30_000 }, origId);
             const t1 = await now(page);
             return t1 - t0;
@@ -92,13 +99,13 @@ const benchmarks = [
         setup: async (page) => {
             await reset(page);
             await click(page, '#run');
-            await page.waitForSelector('tbody tr:nth-of-type(1000)', { timeout: 30_000 });
+            await page.waitForSelector(ROW_1000, { timeout: 30_000 });
         },
         run: async (page) => {
             const t0 = await now(page);
             await click(page, '#clear');
             await page.waitForFunction(() => {
-                return document.querySelectorAll('tbody tr').length === 0;
+                return document.querySelectorAll('bench-row').length === 0;
             }, { timeout: 30_000 });
             const t1 = await now(page);
             return t1 - t0;
@@ -109,23 +116,21 @@ const benchmarks = [
         setup: async (page) => {
             await reset(page);
             await click(page, '#run');
-            await page.waitForSelector('tbody tr:nth-of-type(1000)', { timeout: 30_000 });
+            await page.waitForSelector(ROW_1000, { timeout: 30_000 });
         },
         run: async (page) => {
-            // Snapshot text of row 2 and row 999 before swap
             const before = await page.evaluate(() => {
-                const rows = document.querySelectorAll('tbody tr');
+                const rows = document.querySelectorAll('bench-row');
                 return {
-                    row2: rows[1]?.querySelector('td:nth-of-type(2) a')?.textContent ?? '',
-                    row999: rows[998]?.querySelector('td:nth-of-type(2) a')?.textContent ?? '',
+                    row2: rows[1]?.querySelector('.col-md-4 a')?.textContent?.trim() ?? '',
+                    row999: rows[998]?.querySelector('.col-md-4 a')?.textContent?.trim() ?? '',
                 };
             });
             const t0 = await now(page);
             await click(page, '#swaprows');
-            // Wait until row 2's text equals the old row 999 text
             await page.waitForFunction((expected) => {
-                const row2 = document.querySelectorAll('tbody tr')[1];
-                const text = row2?.querySelector('td:nth-of-type(2) a')?.textContent ?? '';
+                const row2 = document.querySelectorAll('bench-row')[1];
+                const text = row2?.querySelector('.col-md-4 a')?.textContent?.trim() ?? '';
                 return text === expected;
             }, { timeout: 30_000 }, before.row999);
             const t1 = await now(page);
@@ -137,14 +142,13 @@ const benchmarks = [
         setup: async (page) => {
             await reset(page);
             await click(page, '#run');
-            await page.waitForSelector('tbody tr:nth-of-type(1000)', { timeout: 30_000 });
+            await page.waitForSelector(ROW_1000, { timeout: 30_000 });
         },
         run: async (page) => {
-            // Pick a row in the middle (row 500)
             const t0 = await now(page);
-            await click(page, 'tbody tr:nth-of-type(500) td:nth-of-type(2) a');
+            await click(page, 'bench-row:nth-of-type(500) .col-md-4 a');
             await page.waitForFunction(() => {
-                const row = document.querySelectorAll('tbody tr')[499];
+                const row = document.querySelectorAll('bench-row')[499];
                 return row?.classList.contains('danger');
             }, { timeout: 30_000 });
             const t1 = await now(page);
@@ -156,12 +160,12 @@ const benchmarks = [
         setup: async (page) => {
             await reset(page);
             await click(page, '#run');
-            await page.waitForSelector('tbody tr:nth-of-type(1000)', { timeout: 30_000 });
+            await page.waitForSelector(ROW_1000, { timeout: 30_000 });
         },
         run: async (page) => {
             const t0 = await now(page);
             await click(page, '#add');
-            await page.waitForSelector('tbody tr:nth-of-type(2000)', { timeout: 30_000 });
+            await page.waitForSelector(ROW_2000, { timeout: 30_000 });
             const t1 = await now(page);
             return t1 - t0;
         },
@@ -171,17 +175,18 @@ const benchmarks = [
         setup: async (page) => {
             await reset(page);
             await click(page, '#run');
-            await page.waitForSelector('tbody tr:nth-of-type(1000)', { timeout: 30_000 });
+            await page.waitForSelector(ROW_1000, { timeout: 30_000 });
         },
         run: async (page) => {
-            // Snapshot text of row 1 (index 0, should get updated)
             const origText = await page.evaluate(() => {
-                return document.querySelector('tbody tr:nth-of-type(1) td:nth-of-type(2) a')?.textContent ?? '';
+                const row = document.querySelector('bench-row');
+                return row?.querySelector('.col-md-4 a')?.textContent?.trim() ?? '';
             });
             const t0 = await now(page);
             await click(page, '#update');
             await page.waitForFunction((orig) => {
-                const text = document.querySelector('tbody tr:nth-of-type(1) td:nth-of-type(2) a')?.textContent ?? '';
+                const row = document.querySelector('bench-row');
+                const text = row?.querySelector('.col-md-4 a')?.textContent?.trim() ?? '';
                 return text !== orig && text.endsWith(' !!!');
             }, { timeout: 30_000 }, origText);
             const t1 = await now(page);
@@ -195,9 +200,6 @@ const benchmarks = [
 async function main() {
     const browser = await launch();
     const page = await browser.newPage();
-
-    // Suppress console noise from the page
-    // page.on('console', () => {});
 
     console.log(`\nTiming benchmark — ${WARMUP} warmup, ${RUNS} measured runs each\n`);
     console.log(`${'Benchmark'.padEnd(20)} ${'Mean'.padStart(10)} ${'Min'.padStart(10)} ${'Max'.padStart(10)}`);

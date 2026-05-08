@@ -36,6 +36,30 @@
     "./hydrate/state": {
       "import": "./dist/hydrate/state.js",
       "types": "./dist/hydrate/state.d.ts"
+    },
+    "./binding/hooks/scope": {
+      "import": "./dist/binding/hooks/scope.js",
+      "types": "./dist/binding/hooks/scope.d.ts"
+    },
+    "./binding/hooks/mutation": {
+      "import": "./dist/binding/hooks/mutation.js",
+      "types": "./dist/binding/hooks/mutation.d.ts"
+    },
+    "./binding/hooks/binding": {
+      "import": "./dist/binding/hooks/binding.js",
+      "types": "./dist/binding/hooks/binding.d.ts"
+    },
+    "./stamp/analyse": {
+      "import": "./dist/stamp/analyse.js",
+      "types": "./dist/stamp/analyse.d.ts"
+    },
+    "./stamp/resolve": {
+      "import": "./dist/stamp/resolve.js",
+      "types": "./dist/stamp/resolve.d.ts"
+    },
+    "./stamp/write": {
+      "import": "./dist/stamp/write.js",
+      "types": "./dist/stamp/write.d.ts"
     }
   },
   "scripts": {

@@ -24,6 +24,7 @@ import { setupBindings } from './setup.js';
 import { setupDirectivesFor } from '../directives/setup.js';
 import { RxElement } from '../rx-element.js';
 import type { Directive } from '../directive.js';
+import { mutationHooks } from './hooks/mutation.js';
 
 const hasBinding = (el: Element): boolean => {
     for (let i = 0; i < el.attributes.length; i++) {
@@ -54,7 +55,22 @@ const destroy = (el: Element): void => {
     }
 };
 
-const processAdded = (el: Element): void => {
+/**
+ * Initialise an element and its subtree — wire up bindings, directives,
+ * and component lifecycle.
+ *
+ * RxElements: runs `_initBindings()` and queues `onRender()` as a
+ * microtask (so template children are fully connected first). Does NOT
+ * recurse — the MutationObserver picks up template children separately.
+ *
+ * Native elements: checks for `data-rx-bind-*` attributes and directive
+ * selector matches. If either is present, sets up bindings/directives and
+ * stores teardown references. Recurses depth-first into children.
+ *
+ * @param el - The element to initialise. Must be connected to the DOM.
+ * @returns {void}
+ */
+export const initElement = (el: Element): void => {
     if (!el.isConnected) return;
     if (el instanceof RxElement) {
         el._initBindings();
@@ -64,27 +80,36 @@ const processAdded = (el: Element): void => {
     initNativeBindings(el);
     let child = el.firstElementChild;
     while (child !== null) {
-        processAdded(child);
+        initElement(child);
         child = child.nextElementSibling;
     }
 };
 
-const processRemoved = (el: Element): void => {
+/**
+ * Tear down an element and its subtree — unsubscribe bindings, destroy
+ * directives, clean up WeakMap entries. Recurses depth-first into children.
+ *
+ * @param el - The element to tear down.
+ * @returns {void}
+ */
+export const destroyElement = (el: Element): void => {
     destroy(el);
     let child = el.firstElementChild;
     while (child !== null) {
-        processRemoved(child);
+        destroyElement(child);
         child = child.nextElementSibling;
     }
 };
 
-const observer = new MutationObserver((records) => {
+const observer = new MutationObserver((raw) => {
+    const records = Array.from(raw);
+    for (const hook of mutationHooks) hook(records);
     for (const record of records) {
         for (const node of record.removedNodes) {
-            if (node.nodeType === 1) processRemoved(node as Element);
+            if (node.nodeType === 1) destroyElement(node as Element);
         }
         for (const node of record.addedNodes) {
-            if (node.nodeType === 1) processAdded(node as Element);
+            if (node.nodeType === 1) initElement(node as Element);
         }
     }
 });
