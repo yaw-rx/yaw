@@ -83,8 +83,12 @@ export const collectElements = (root: Node): Element[] => {
         let child = node.firstChild;
         while (child !== null) {
             if (child.nodeType === 1) {
-                elements.push(child as Element);
-                walk(child);
+                const el = child as Element;
+                elements.push(el);
+                const tag = el.tagName.toLowerCase();
+                if (!tag.includes('-') || customElements.get(tag) === undefined) {
+                    walk(el);
+                }
             }
             child = child.nextSibling;
         }

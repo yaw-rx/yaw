@@ -50,7 +50,7 @@ export class RxElement extends HTMLElement {
     #directives: Directive[] = [];
     #bindingTeardown: (() => void) | undefined;
 
-    #setupHostNode(): void {
+    _setupHostNode(): void {
         if (isComponent(this.constructor)) { this.setAttribute('data-rx-host', ''); }
         if (!Object.prototype.hasOwnProperty.call(this, 'hostNode')) {
             const host = this.parentElement?.closest('[data-rx-host]') as RxElement | null;
@@ -58,7 +58,8 @@ export class RxElement extends HTMLElement {
         }
     }
 
-    #setupInjectorAndDeps(): void {
+    _setupInjectorAndDeps(): void {
+        if (this.__injector !== undefined) return;
         const providers = getProviders(this.constructor);
         if (providers !== undefined) {
             this.__injector = resolveInjector(this).child(providers);
@@ -72,8 +73,9 @@ export class RxElement extends HTMLElement {
         }
     }
 
-    #renderTemplate(): void {
+    _renderTemplate(): void {
         if (isHydrating()) return;
+        if (this.firstChild !== null) return;
         const template = getTemplate(this.constructor);
         if (template === undefined) { return; }
         const projected = document.createDocumentFragment();
@@ -93,16 +95,16 @@ export class RxElement extends HTMLElement {
     _initBindings(): void {
         if (this.#initialized) return;
         this.#initialized = true;
-        this.#setupInjectorAndDeps();
+        this._setupInjectorAndDeps();
         this.#bindingTeardown = setupBindings(this);
         this.#directives = setupDirectivesFor(this);
-        this.#renderTemplate();
+        this._renderTemplate();
         this.onInit();
     }
 
     /** @internal */
     connectedCallback(): void {
-        this.#setupHostNode();
+        this._setupHostNode();
     }
 
     /** @internal */

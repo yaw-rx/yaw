@@ -7,6 +7,9 @@
 export interface RxElementLike extends HTMLElement {
     hostNode: RxElementLike;
     __injector: unknown;
+    _setupHostNode(): void;
+    _setupInjectorAndDeps(): void;
+    _renderTemplate(): void;
 }
 
 /**

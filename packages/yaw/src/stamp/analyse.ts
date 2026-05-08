@@ -54,12 +54,12 @@ const STAMPABLE: ReadonlySet<BindKind> = new Set(['text', 'class', 'style', 'att
  * Stampable binding kinds: text, class, style, attr, prop.
  * Non-stampable kinds (on, ref, tap) are skipped.
  *
- * @param tpl - The template element to analyse.
+ * @param root - The root node to walk (template content, element, or fragment).
  * @param host - The host element, used to resolve encoders for
  *   text and attr bindings via __stateTypes.
  * @returns {StampInstruction[]} Ordered list of stamp instructions.
  */
-export const analyseTemplate = (tpl: HTMLTemplateElement, host: Element): StampInstruction[] => {
+export const analyseTemplate = (root: Node, host: Element): StampInstruction[] => {
     const instructions: StampInstruction[] = [];
     const elements: Element[] = [];
 
@@ -67,13 +67,17 @@ export const analyseTemplate = (tpl: HTMLTemplateElement, host: Element): StampI
         let child = node.firstChild;
         while (child !== null) {
             if (child.nodeType === 1) {
-                elements.push(child as Element);
-                walk(child);
+                const el = child as Element;
+                elements.push(el);
+                const tag = el.tagName.toLowerCase();
+                if (!tag.includes('-') || customElements.get(tag) === undefined) {
+                    walk(el);
+                }
             }
             child = child.nextSibling;
         }
     };
-    walk(tpl.content);
+    walk(root);
 
     for (let i = 0; i < elements.length; i++) {
         const el = elements[i]!;

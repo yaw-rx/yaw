@@ -61,8 +61,11 @@ import { resolveStamp, type StampSource } from '../stamp/resolve.js';
 import { analyseTemplate, type StampInstruction } from '../stamp/analyse.js';
 import { writeStamp, collectElements } from '../stamp/write.js';
 import type { RxElementLike } from '../directive.js';
+import type { Injector } from '../di/injector.js';
 import { isHydrating } from '../hydrate/state.js';
-import { getTemplate } from '../component.js';
+import { getTemplate, getProviders, isComponent } from '../component.js';
+import { getInjectMetadata } from '../di/inject.js';
+import { resolveInjector } from '../di/resolve.js';
 
 // ---------------------------------------------------------------------------
 // Parser
@@ -311,7 +314,7 @@ registerBindingHook((el, binding$) =>
 const schedule =
     typeof scheduler !== 'undefined' && scheduler.postTask
         ? (cb: () => void) => { void scheduler.postTask(cb); }
-        : (cb: () => void) => { setTimeout(cb, 0); };
+        : (cb: () => void) => { setTimeout(cb, 1); };
 
 let pendingAdded: Element[] = [];
 let pendingRemoved: Element[] = [];
@@ -377,6 +380,9 @@ export class RxFor {
     private stampInstructions: StampInstruction[] | undefined;
     private splatNodes = new Map<unknown, Element>();
     private ancestorCache = new Map<number, Element>();
+    private cachedHost: RxElementLike | null = null;
+    private cachedInjector: Injector | undefined;
+    private innerAnalysisCache = new Map<string, StampInstruction[]>();
     private parentRxFor: RxFor | undefined;
     private parentEntry: ScopeEntry | undefined;
 
@@ -452,13 +458,37 @@ export class RxFor {
         }
     }
 
+    private expandCustomElements(root: Node): void {
+        let child = root.firstChild;
+        while (child !== null) {
+            if (child.nodeType === 1) {
+                const el = child as Element;
+                const tag = el.tagName.toLowerCase();
+                const ctor = tag.includes('-') ? customElements.get(tag) : undefined;
+                if (ctor !== undefined) {
+                    const tpl = getTemplate(ctor);
+                    if (tpl !== undefined) {
+                        el.innerHTML = tpl;
+                        this.expandCustomElements(el);
+                    }
+                } else {
+                    this.expandCustomElements(el);
+                }
+            }
+            child = child.nextSibling;
+        }
+    }
+
     private cacheTemplate(): void {
         this.tpl = document.createElement('template');
         this.tpl.innerHTML = this.content;
+        this.expandCustomElements(this.tpl.content);
+        this.cachedHost = this.node.closest('[data-rx-host]') as RxElementLike | null;
+        this.cachedInjector = resolveInjector(this.node);
         if (this.mode === 'scope') {
             const host = this.resolveAncestor(0);
             if (host !== undefined) {
-                this.stampInstructions = analyseTemplate(this.tpl, host);
+                this.stampInstructions = analyseTemplate(this.tpl.content, host);
             }
         }
     }
@@ -591,6 +621,38 @@ export class RxFor {
         }
     }
 
+    private upgradeWalk(root: Node, host: RxElementLike | null, parentInjector: Injector): void {
+        let child = root.firstChild;
+        while (child !== null) {
+            if (child.nodeType === 1) {
+                const el = child as Element;
+                const tag = el.tagName.toLowerCase();
+                const ctor = tag.includes('-') ? customElements.get(tag) : undefined;
+                if (ctor !== undefined) {
+                    customElements.upgrade(el);
+                    const rxEl = el as unknown as RxElementLike;
+                    if (isComponent(ctor)) el.setAttribute('data-rx-host', '');
+                    if (host !== null) rxEl.hostNode = host;
+                    const providers = getProviders(ctor);
+                    const childInjector = providers !== undefined
+                        ? parentInjector.child(providers)
+                        : parentInjector;
+                    if (providers !== undefined) rxEl.__injector = childInjector;
+                    const injectMeta = getInjectMetadata(ctor);
+                    if (injectMeta !== undefined) {
+                        for (const [prop, token] of injectMeta) {
+                            (rxEl as unknown as Record<string | symbol, unknown>)[prop] = childInjector.resolve(token);
+                        }
+                    }
+                    this.upgradeWalk(el, rxEl, childInjector);
+                } else {
+                    this.upgradeWalk(el, host, parentInjector);
+                }
+            }
+            child = child.nextSibling;
+        }
+    }
+
     private cloneItem(item: unknown, key: string, i: number): DocumentFragment {
         const subject = new BehaviorSubject<unknown>(item);
         const index$ = this.indexName ? new BehaviorSubject<unknown>(i) : undefined;
@@ -602,8 +664,41 @@ export class RxFor {
             el.setAttribute('data-rx-key', key);
             el = el.nextElementSibling;
         }
+        this.upgradeWalk(frag, this.cachedHost, this.cachedInjector!);
         this.scopeNodes.set(key, { el: itemEl, subject, index$, pos: i });
         return frag;
+    }
+
+    private stampInner(root: Element): void {
+        const tag = root.tagName.toLowerCase();
+        let instructions = this.innerAnalysisCache.get(tag);
+        if (instructions === undefined) {
+            instructions = analyseTemplate(root, root);
+            this.innerAnalysisCache.set(tag, instructions);
+        }
+        if (instructions.length > 0) {
+            const elements = collectElements(root);
+            const values = resolveStamp(instructions, [root], (_inst) => {
+                return { kind: 'shared', root, segments: _inst.bindingPath.path };
+            });
+            const finish = (vals: unknown[]): void => {
+                writeStamp(elements, instructions!, vals, 0);
+                for (const el of elements) stampedElements.add(el);
+            };
+            if (values instanceof Promise) {
+                void values.then(finish);
+            } else {
+                finish(values);
+            }
+        }
+        let child = root.firstElementChild;
+        while (child !== null) {
+            const childTag = child.tagName.toLowerCase();
+            if (childTag.includes('-') && customElements.get(childTag) !== undefined) {
+                this.stampInner(child);
+            }
+            child = child.nextElementSibling;
+        }
     }
 
     private stampBatch(items: unknown[], keys: string[], startIndex: number): DocumentFragment | Promise<DocumentFragment> {
@@ -628,6 +723,14 @@ export class RxFor {
             for (let i = 0; i < N; i++) {
                 writeStamp(elementArrays[i]!, instructions, values, i * K);
                 for (const el of elementArrays[i]!) stampedElements.add(el);
+            }
+            for (let i = 0; i < N; i++) {
+                for (const el of elementArrays[i]!) {
+                    const tag = el.tagName.toLowerCase();
+                    if (tag.includes('-') && customElements.get(tag) !== undefined) {
+                        this.stampInner(el);
+                    }
+                }
             }
             return batch;
         };

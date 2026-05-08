@@ -181,8 +181,11 @@ export const parseBindingPath = (raw: string): ParsedBinding => {
     return bindingPath;
 };
 
-const nextHost = (el: Element): Element | undefined =>
-    (el.parentElement?.closest('[data-rx-host]') ?? undefined) as Element | undefined;
+const nextHost = (el: Element): Element | undefined => {
+    const hostNode = (el as unknown as { hostNode?: Element }).hostNode;
+    if (hostNode !== undefined) return hostNode;
+    return (el.parentElement?.closest('[data-rx-host]') ?? undefined) as Element | undefined;
+};
 
 const walkScope = (host: Element, carets: number, raw: string): Element => {
     let scope: Element | undefined = nextHost(host);
