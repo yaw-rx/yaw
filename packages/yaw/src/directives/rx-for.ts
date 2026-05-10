@@ -182,27 +182,27 @@ const buildKeys = (incoming: unknown[], keyField: string | undefined): string[] 
 
 const classifyDiff = (
     incoming: unknown[],
-    scopeNodes: Map<string, ScopeEntry>,
+    nodes: Map<string, { pos: number }>,
     keyField: string | undefined,
 ): DiffResult => {
     if (incoming.length === 0) return { op: DiffOp.Clear, keys: [] };
-    if (scopeNodes.size === 0) return { op: DiffOp.CreateAll, keys: buildKeys(incoming, keyField) };
+    if (nodes.size === 0) return { op: DiffOp.CreateAll, keys: buildKeys(incoming, keyField) };
 
     const firstKey = keyOf(incoming[0], keyField, 0);
 
-    if (!scopeNodes.has(firstKey)) {
+    if (!nodes.has(firstKey)) {
         const lastKey = keyOf(incoming[incoming.length - 1], keyField, incoming.length - 1);
-        if (!scopeNodes.has(lastKey)) {
+        if (!nodes.has(lastKey)) {
             const keys = buildKeys(incoming, keyField);
             return { op: DiffOp.ReplaceAll, keys };
         }
     }
 
-    if (incoming.length > scopeNodes.size) {
-        const existingCount = scopeNodes.size;
+    if (incoming.length > nodes.size) {
+        const existingCount = nodes.size;
         const lastExistingKey = keyOf(incoming[existingCount - 1], keyField, existingCount - 1);
         const firstNewKey = keyOf(incoming[existingCount], keyField, existingCount);
-        if (scopeNodes.has(lastExistingKey) && !scopeNodes.has(firstNewKey)) {
+        if (nodes.has(lastExistingKey) && !nodes.has(firstNewKey)) {
             const keys = buildKeys(incoming, keyField);
             return { op: DiffOp.AppendOnly, keys };
         }
@@ -214,7 +214,7 @@ const classifyDiff = (
     let lastPos = -1;
 
     for (const key of keys) {
-        const entry = scopeNodes.get(key);
+        const entry = nodes.get(key);
         if (entry === undefined) {
             newCount++;
         } else {
@@ -226,7 +226,7 @@ const classifyDiff = (
     if (newCount === incoming.length) return { op: DiffOp.ReplaceAll, keys };
 
     const kept = incoming.length - newCount;
-    const removedCount = scopeNodes.size - kept;
+    const removedCount = nodes.size - kept;
 
     if (newCount === 0 && removedCount === 0 && orderOk) return { op: DiffOp.DataOnly, keys };
     if (newCount === 0 && removedCount === 0) return { op: DiffOp.Reorder, keys };
@@ -313,7 +313,7 @@ export class RxFor {
     private keyField: string | undefined;
     private sub: Subscription | undefined;
     private content = '';
-    private splatNodes = new Map<unknown, Element>();
+    private splatNodes = new Map<string, { el: Element; pos: number }>();
 
     private assertArray(v: unknown): asserts v is unknown[] {
         if (!Array.isArray(v))
@@ -374,32 +374,145 @@ export class RxFor {
 
     private hydrateSplat(): void {
         this.recoverTemplate();
+        let pos = 0;
         for (const child of Array.from(this.node.children)) {
             const k = child.getAttribute('data-rx-key');
-            if (k !== null) this.splatNodes.set(k, child);
+            if (k !== null) this.splatNodes.set(k, { el: child, pos: pos++ });
         }
     }
 
     private updateSplat(incoming: unknown[]): void {
-        const key = this.keyField ?? 'id';
-        const next = new Map<unknown, Element>();
-        for (const item of incoming) {
-            const k = String((item as Record<string, unknown>)[key]);
-            let el = this.splatNodes.get(k);
-            if (el === undefined) {
-                this.node.insertAdjacentHTML('beforeend', this.content);
-                el = this.node.lastElementChild!;
+        const { op, keys } = classifyDiff(incoming, this.splatNodes, this.keyField ?? 'id');
+
+        switch (op) {
+            case DiffOp.Clear:
+                this.splatNodes.clear();
+                this.node.textContent = '';
+                return;
+            case DiffOp.CreateAll:
+                for (let i = 0; i < incoming.length; i++) {
+                    this.node.insertAdjacentHTML('beforeend', this.content);
+                    const el = this.node.lastElementChild!;
+                    for (const [prop, val] of Object.entries(incoming[i] as Record<string, unknown>)) {
+                        (el as unknown as Record<string, unknown>)[prop] = val;
+                    }
+                    el.setAttribute('data-rx-key', keys[i]!);
+                    this.splatNodes.set(keys[i]!, { el, pos: i });
+                }
+                return;
+            case DiffOp.ReplaceAll:
+                this.splatNodes.clear();
+                this.node.textContent = '';
+                for (let i = 0; i < incoming.length; i++) {
+                    this.node.insertAdjacentHTML('beforeend', this.content);
+                    const el = this.node.lastElementChild!;
+                    for (const [prop, val] of Object.entries(incoming[i] as Record<string, unknown>)) {
+                        (el as unknown as Record<string, unknown>)[prop] = val;
+                    }
+                    el.setAttribute('data-rx-key', keys[i]!);
+                    this.splatNodes.set(keys[i]!, { el, pos: i });
+                }
+                return;
+            case DiffOp.DataOnly:
+                for (let i = 0; i < incoming.length; i++) {
+                    const entry = this.splatNodes.get(keys[i]!)!;
+                    for (const [prop, val] of Object.entries(incoming[i] as Record<string, unknown>)) {
+                        (entry.el as unknown as Record<string, unknown>)[prop] = val;
+                    }
+                    entry.pos = i;
+                }
+                return;
+            case DiffOp.Reorder: {
+                let cursor = this.node.firstElementChild;
+                for (let i = 0; i < keys.length; i++) {
+                    const entry = this.splatNodes.get(keys[i]!)!;
+                    for (const [prop, val] of Object.entries(incoming[i] as Record<string, unknown>)) {
+                        (entry.el as unknown as Record<string, unknown>)[prop] = val;
+                    }
+                    entry.pos = i;
+                    if (entry.el !== cursor) {
+                        this.node.insertBefore(entry.el, cursor);
+                    } else {
+                        cursor = cursor!.nextElementSibling;
+                    }
+                }
+                return;
             }
-            for (const [prop, val] of Object.entries(item as Record<string, unknown>)) {
-                (el as unknown as Record<string, unknown>)[prop] = val;
+            case DiffOp.AppendOnly:
+                for (let i = 0; i < incoming.length; i++) {
+                    const key = keys[i]!;
+                    const entry = this.splatNodes.get(key);
+                    if (entry !== undefined) {
+                        for (const [prop, val] of Object.entries(incoming[i] as Record<string, unknown>)) {
+                            (entry.el as unknown as Record<string, unknown>)[prop] = val;
+                        }
+                        entry.pos = i;
+                    } else {
+                        this.node.insertAdjacentHTML('beforeend', this.content);
+                        const el = this.node.lastElementChild!;
+                        for (const [prop, val] of Object.entries(incoming[i] as Record<string, unknown>)) {
+                            (el as unknown as Record<string, unknown>)[prop] = val;
+                        }
+                        el.setAttribute('data-rx-key', key);
+                        this.splatNodes.set(key, { el, pos: i });
+                    }
+                }
+                return;
+            case DiffOp.RemoveOnly: {
+                const keep = new Set(keys);
+                for (const [key, entry] of this.splatNodes) {
+                    if (!keep.has(key)) {
+                        entry.el.remove();
+                        this.splatNodes.delete(key);
+                    }
+                }
+                for (let i = 0; i < incoming.length; i++) {
+                    const entry = this.splatNodes.get(keys[i]!)!;
+                    for (const [prop, val] of Object.entries(incoming[i] as Record<string, unknown>)) {
+                        (entry.el as unknown as Record<string, unknown>)[prop] = val;
+                    }
+                    entry.pos = i;
+                }
+                return;
             }
-            el.setAttribute('data-rx-key', k);
-            next.set(k, el);
+            case DiffOp.Mixed: {
+                const keep = new Set(keys);
+                for (const [key, entry] of this.splatNodes) {
+                    if (!keep.has(key)) {
+                        entry.el.remove();
+                        this.splatNodes.delete(key);
+                    }
+                }
+                for (let i = 0; i < incoming.length; i++) {
+                    const key = keys[i]!;
+                    const entry = this.splatNodes.get(key);
+                    if (entry !== undefined) {
+                        for (const [prop, val] of Object.entries(incoming[i] as Record<string, unknown>)) {
+                            (entry.el as unknown as Record<string, unknown>)[prop] = val;
+                        }
+                        entry.pos = i;
+                    } else {
+                        this.node.insertAdjacentHTML('beforeend', this.content);
+                        const el = this.node.lastElementChild!;
+                        for (const [prop, val] of Object.entries(incoming[i] as Record<string, unknown>)) {
+                            (el as unknown as Record<string, unknown>)[prop] = val;
+                        }
+                        el.setAttribute('data-rx-key', key);
+                        this.splatNodes.set(key, { el, pos: i });
+                    }
+                }
+                let cursor = this.node.firstElementChild;
+                for (let i = 0; i < keys.length; i++) {
+                    const entry = this.splatNodes.get(keys[i]!)!;
+                    if (entry.el !== cursor) {
+                        this.node.insertBefore(entry.el, cursor);
+                    } else {
+                        cursor = cursor!.nextElementSibling;
+                    }
+                }
+                return;
+            }
         }
-        for (const [k, el] of this.splatNodes) {
-            if (!next.has(k)) el.remove();
-        }
-        this.splatNodes = next;
     }
 
     private initScope(): void {
