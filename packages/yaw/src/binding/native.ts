@@ -154,11 +154,16 @@ const observer = new MutationObserver((raw) => {
             for (const node of record.removedNodes) {
                 if (node.nodeType === 1 && !node.isConnected) destroyElement(node as Element);
             }
+            const host = target instanceof RxElement
+                ? target
+                : target instanceof Element
+                    ? (target as any).hostNode ?? target.closest?.('[data-rx-host]') as Element ?? undefined
+                    : undefined;
             for (const node of record.addedNodes) {
                 if (node.nodeType !== 1) continue;
                 const el = node as Element;
                 if ((el as any).__rx_init) continue;
-                initElement(el);
+                initElement(el, host);
             }
         }
     }
