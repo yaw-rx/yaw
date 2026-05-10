@@ -273,7 +273,15 @@ export const observeBinding = (
             bindingCache.set(resolvedHost, hostCache);
         }
         const cached = hostCache.get(bindingPath.raw);
-        if (cached !== undefined) return cached;
+        if (cached !== undefined) {
+            if (!(cached as any).__rx_shared) {
+                const shared = cached.pipe(shareReplay({ bufferSize: 1, refCount: true }));
+                (shared as any).__rx_shared = true;
+                hostCache.set(bindingPath.raw, shared);
+                return shared;
+            }
+            return cached;
+        }
 
         let cur: unknown = root;
         for (let i = startIndex; i < segments.length; i++) {
@@ -292,9 +300,8 @@ export const observeBinding = (
             stream = stream.pipe(switchMap((v) => segmentStream(host, bindingPath, v, segment)));
         }
 
-        const shared = stream.pipe(shareReplay({ bufferSize: 1, refCount: true }));
-        hostCache.set(bindingPath.raw, shared);
-        return shared;
+        hostCache.set(bindingPath.raw, stream);
+        return stream;
     }
 
     for (let i = startIndex; i < segments.length; i++) {
