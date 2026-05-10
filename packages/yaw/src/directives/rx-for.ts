@@ -49,10 +49,11 @@
  * on it.
  */
 import { BehaviorSubject, type Subscription } from 'rxjs';
-import { isObservable } from '../is-observable.js';
+import { isObservable } from '../classify/is-observable.js';
 import { Directive } from '../directive.js';
 import { BindingParseError } from '../errors.js';
-import { parseBindingPath, subscribeToBinding, deferredBinding, resolveValue, registerScopeHook, type ParsedBinding, type ScopeHookResult } from '../binding/path.js';
+import { parseBindingPath, subscribeToBinding, deferredBinding, resolveValue, type ParsedBinding } from '../binding/path.js';
+import { registerScopeHook, type ScopeHookResult } from '../binding/hooks/scope.js';
 import type { RxElementLike } from '../directive.js';
 import { isHydrating } from '../hydrate/state.js';
 import { getTemplate } from '../component.js';
@@ -167,47 +168,53 @@ interface ScopeEntry {
 
 const SCOPE_PROP = '__rxForScope';
 
-registerScopeHook((host: Element, segment: string): ScopeHookResult | undefined => {
+let lastClaim: { host: Element; segment: string; directive: RxFor; el: Element } | undefined;
+
+const findDirective = (host: Element, segment: string): { directive: RxFor; el: Element } | undefined => {
+    if (lastClaim !== undefined && lastClaim.host === host && lastClaim.segment === segment) {
+        return { directive: lastClaim.directive, el: lastClaim.el };
+    }
     let rxForEl: Element | null = host.closest('[rx-for]');
     while (rxForEl !== null) {
         const directive = (rxForEl as any)[SCOPE_PROP] as RxFor | undefined;
-        if (directive !== undefined && directive.mode === 'scope') {
-            if (directive.loopVariables.includes(segment)) {
-                // find the item element: walk up from host to direct child of rxForEl
-                let itemEl: Element | null = host as Element;
-                while (itemEl !== null && itemEl.parentElement !== rxForEl) {
-                    itemEl = itemEl.parentElement;
-                }
-                if (itemEl === null) return undefined;
-
-                const key = itemEl.getAttribute('data-rx-key');
-                if (key === null) return undefined;
-
-                const entry = directive.scopeNodes.get(key);
-                if (entry === undefined) return undefined;
-
-                // index variable: return the index subject, consumed = 1 (skip the name)
-                if (segment === directive.indexName) {
-                    if (entry.index$ === undefined) return undefined;
-                    return { stream: entry.index$ as unknown as BehaviorSubject<unknown>, consumed: 1 };
-                }
-
-                // item variable (e.g. "row" in "row of rows"): return the item subject,
-                // consumed = 1 - subscribeToBinding skips "row" and processes remaining segments
-                if (segment === directive.itemName) {
-                    return { stream: entry.subject, consumed: 1 };
-                }
-
-                // destructured field (e.g. "name" from "{ name, status } of rows"):
-                // return the item subject, consumed = 0 - subscribeToBinding processes "name"
-                // as a path segment on the item object via segmentStream
-                return { stream: entry.subject, consumed: 0 };
-            }
+        if (directive !== undefined && directive.mode === 'scope' && directive.loopVariables.includes(segment)) {
+            lastClaim = { host, segment, directive, el: rxForEl };
+            return { directive, el: rxForEl };
         }
-        // hop to next rx-for outward
         rxForEl = rxForEl.parentElement?.closest('[rx-for]') ?? null;
     }
     return undefined;
+};
+
+registerScopeHook({
+    claim(host: Element, segment: string): boolean {
+        return findDirective(host, segment) !== undefined;
+    },
+    resolve(host: Element, segment: string): ScopeHookResult {
+        const { directive, el: rxForEl } = findDirective(host, segment)!;
+
+        let itemEl: Element | null = host as Element;
+        while (itemEl !== null && itemEl.parentElement !== rxForEl) {
+            itemEl = itemEl.parentElement;
+        }
+
+        const key = itemEl?.getAttribute('data-rx-key');
+        const entry = key !== null ? directive.scopeNodes.get(key!) : undefined;
+
+        if (entry === undefined) {
+            return { stream: new BehaviorSubject<unknown>(undefined), consumed: 1 };
+        }
+
+        if (segment === directive.indexName) {
+            return { stream: (entry.index$ ?? new BehaviorSubject<unknown>(undefined)) as BehaviorSubject<unknown>, consumed: 1 };
+        }
+
+        if (segment === directive.itemName) {
+            return { stream: entry.subject, consumed: 1 };
+        }
+
+        return { stream: entry.subject, consumed: 0 };
+    },
 });
 
 // ---------------------------------------------------------------------------

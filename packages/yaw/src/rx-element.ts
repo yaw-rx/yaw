@@ -2,13 +2,13 @@
  * rx-element.ts - base class for all yaw components.
  *
  * Every @Component-decorated class extends RxElement, which extends
- * HTMLElement. Instance state lives in private fields:
+ * HTMLElement. Instance state lives in internal fields:
  *   - `hostNode`: nearest ancestor with `data-rx-host`, set during
  *     connectedCallback by walking up with closest().
  *   - `__injector`: a child Injector, created only if the component
  *     declares providers.
- *   - `#initialized`: gate flag - _initBindings is a one-shot.
- *   - `#directives` / `#bindingTeardown`: populated during init,
+ *   - `_initialized`: gate flag - _initBindings is a one-shot.
+ *   - `_directives` / `_bindingTeardown`: populated during init,
  *     cleaned up during disconnectedCallback.
  *
  * Initialization (_initBindings):
@@ -46,11 +46,18 @@ export class RxElement extends HTMLElement {
     /** The closest `[data-rx-host]` element in the DOM tree. */
     declare hostNode: RxElement;
     __injector: Injector | undefined;
-    #initialized = false;
-    #directives: Directive[] = [];
-    #bindingTeardown: (() => void) | undefined;
+    _initialized = false;
+    _directives: Directive[] = [];
+    _bindingTeardown: (() => void) | undefined;
 
-    #setupHostNode(): void {
+    /**
+     * Set the `data-rx-host` attribute on components and resolve the
+     * nearest host ancestor into `hostNode`. Safe to call multiple
+     * times - skips if hostNode is already set.
+     * @internal
+     * @returns {void}
+     */
+    _setupHostNode(): void {
         if (isComponent(this.constructor)) { this.setAttribute('data-rx-host', ''); }
         if (!Object.prototype.hasOwnProperty.call(this, 'hostNode')) {
             const host = this.parentElement?.closest('[data-rx-host]') as RxElement | null;
@@ -58,7 +65,15 @@ export class RxElement extends HTMLElement {
         }
     }
 
-    #setupInjectorAndDeps(): void {
+    /**
+     * Create a child Injector if the component declares providers,
+     * then resolve @Inject fields from the injector tree. Safe to
+     * call multiple times - skips if the injector already exists.
+     * @internal
+     * @returns {void}
+     */
+    _setupInjectorAndDeps(): void {
+        if (this.__injector !== undefined) return;
         const providers = getProviders(this.constructor);
         if (providers !== undefined) {
             this.__injector = resolveInjector(this).child(providers);
@@ -72,8 +87,17 @@ export class RxElement extends HTMLElement {
         }
     }
 
-    #renderTemplate(): void {
+    /**
+     * Render the compiled template into the element, projecting
+     * existing children into the `<slot>` position. Safe to call
+     * multiple times - skips during hydration or if children are
+     * already present.
+     * @internal
+     * @returns {void}
+     */
+    _renderTemplate(): void {
         if (isHydrating()) return;
+        if (this.firstChild !== null) return;
         const template = getTemplate(this.constructor);
         if (template === undefined) { return; }
         const projected = document.createDocumentFragment();
@@ -91,25 +115,25 @@ export class RxElement extends HTMLElement {
      * @returns {void}
      */
     _initBindings(): void {
-        if (this.#initialized) return;
-        this.#initialized = true;
-        this.#setupInjectorAndDeps();
-        this.#bindingTeardown = setupBindings(this);
-        this.#directives = setupDirectivesFor(this);
-        this.#renderTemplate();
+        if (this._initialized) return;
+        this._initialized = true;
+        this._setupInjectorAndDeps();
+        this._bindingTeardown = setupBindings(this);
+        this._directives = setupDirectivesFor(this);
+        this._renderTemplate();
         this.onInit();
     }
 
     /** @internal */
     connectedCallback(): void {
-        this.#setupHostNode();
+        this._setupHostNode();
     }
 
     /** @internal */
     disconnectedCallback(): void {
-        this.#bindingTeardown?.();
-        for (const directive of this.#directives) { directive.onDestroy(); }
-        this.#directives.length = 0;
+        this._bindingTeardown?.();
+        for (const directive of this._directives) { directive.onDestroy(); }
+        this._directives.length = 0;
         this.__injector?.destroyInstances();
         this.onDestroy();
     }

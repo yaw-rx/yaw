@@ -45,7 +45,7 @@ import type { AttributeCodec } from './attribute-codec/types.js';
 import { registerAttributeCodecs } from './attribute-codec/registry.js';
 import { startObserver, flushExistingBindings } from './binding/native.js';
 import { getStateKeys } from './state.js';
-import { isObservable } from './is-observable.js';
+import { isObservable } from './classify/is-observable.js';
 import { encodeAttribute } from './attribute-codec/encode.js';
 
 /**
@@ -221,7 +221,7 @@ export const bootstrap = async (options: BootstrapOptions): Promise<void> => {
             Injector,
         };
     }
-    const injector = new Injector(options.providers);
+    const injector = new Injector(options.providers ?? []);
     (document.body as RxElementLike).__injector = injector;
     if (hydrateMode) {
         const { loadHydrationState } = await import('./hydrate/bootstrap.js');

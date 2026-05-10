@@ -41,20 +41,21 @@
  *
  *   resolveRefTarget - resolves #ref assignments.
  *
- * Extension point - registerScopeHook:
+ * Extension point - registerScopeHook (binding/hooks/scope.ts):
  *
- *   Any directive that introduces names into its subtree can install a
- *   hook via registerScopeHook. The hook is called before the host walk
- *   on every binding. It receives the binding element and the first path
- *   segment. Return a ScopeHookResult (BehaviorSubject + consumed count)
- *   to claim it, or undefined to pass. When no hook is installed, the
- *   check is a single null comparison.
+ *   Any directive that introduces names into its subtree registers a
+ *   hook via registerScopeHook. Hooks are checked in registration order
+ *   before the host walk on every binding. Each receives the binding
+ *   element and the first path segment. Return a ScopeHookResult
+ *   (BehaviorSubject + consumed count) to claim it, or undefined to
+ *   pass. The first hook to claim wins.
  */
-import { BehaviorSubject, of, Subscription, switchMap, skip, first, type Observable } from 'rxjs';
-import { isObservable } from '../is-observable.js';
+import { of, Subscription, switchMap, skip, first, type Observable } from 'rxjs';
+import { isObservable } from '../classify/is-observable.js';
 import { hydrationComplete$ } from '../hydrate/state.js';
-import { BindingNotSubscribableError, BindingParseError, BindingPathError, BindingScopeError } from '../errors.js';
+import { BindingNotSubscribableError, BindingParseError, BindingPathError, BindingScopeError, DuplicateHookClaimError } from '../errors.js';
 import { encodeAttribute } from '../attribute-codec/encode.js';
+import { scopeHooks } from './hooks/scope.js';
 
 const walkPath = (root: unknown, path: readonly string[]): unknown => {
     let cur = root;
@@ -152,16 +153,6 @@ const parseArg = (cur: Cursor, raw: string): ParsedArg => {
     return { kind: 'ref', ref: parseRef(cur, raw) };
 };
 
-export interface ScopeHookResult {
-    readonly stream: BehaviorSubject<unknown>;
-    readonly consumed: number;
-}
-
-type ScopeHook = (host: Element, segment: string) => ScopeHookResult | undefined;
-let scopeHook: ScopeHook | null = null;
-
-export const registerScopeHook = (hook: ScopeHook): void => { scopeHook = hook; };
-
 const cache = new Map<string, ParsedBinding>();
 
 export const parseBindingPath = (raw: string): ParsedBinding => {
@@ -189,8 +180,11 @@ export const parseBindingPath = (raw: string): ParsedBinding => {
     return bindingPath;
 };
 
-const nextHost = (el: Element): Element | undefined =>
-    (el.parentElement?.closest('[data-rx-host]') ?? undefined) as Element | undefined;
+const nextHost = (el: Element): Element | undefined => {
+    const hostNode = (el as unknown as { hostNode?: Element }).hostNode;
+    if (hostNode !== undefined) return hostNode;
+    return (el.parentElement?.closest('[data-rx-host]') ?? undefined) as Element | undefined;
+};
 
 const walkScope = (host: Element, carets: number, raw: string): Element => {
     let scope: Element | undefined = nextHost(host);
@@ -208,19 +202,27 @@ interface ResolvedScope {
 }
 
 const resolveScope = (host: Element, ref: ParsedRef, raw: string): ResolvedScope => {
-    if (scopeHook !== null) {
-        const claimed = scopeHook(host, ref.path[0]!);
-        if (claimed !== undefined) return { root: claimed.stream.value, startIndex: claimed.consumed };
+    let result: ResolvedScope | undefined;
+    for (const hook of scopeHooks) {
+        if (hook.claim(host, ref.path[0]!)) {
+            if (result !== undefined) throw new DuplicateHookClaimError('scope', `<${host.tagName.toLowerCase()}> segment "${ref.path[0]!}"`);
+            const claimed = hook.resolve(host, ref.path[0]!);
+            result = { root: claimed.stream.value, startIndex: claimed.consumed };
+        }
     }
-    return { root: walkScope(host, ref.carets, raw), startIndex: 0 };
+    return result ?? { root: walkScope(host, ref.carets, raw), startIndex: 0 };
 };
 
 const resolveScopeStream = (host: Element, ref: ParsedRef, raw: string): { stream: Observable<unknown>; startIndex: number; hooked: boolean } => {
-    if (scopeHook !== null) {
-        const claimed = scopeHook(host, ref.path[0]!);
-        if (claimed !== undefined) return { stream: claimed.stream, startIndex: claimed.consumed, hooked: true };
+    let result: { stream: Observable<unknown>; startIndex: number; hooked: boolean } | undefined;
+    for (const hook of scopeHooks) {
+        if (hook.claim(host, ref.path[0]!)) {
+            if (result !== undefined) throw new DuplicateHookClaimError('scope', `<${host.tagName.toLowerCase()}> segment "${ref.path[0]!}"`);
+            const claimed = hook.resolve(host, ref.path[0]!);
+            result = { stream: claimed.stream, startIndex: claimed.consumed, hooked: true };
+        }
     }
-    return { stream: of(walkScope(host, ref.carets, raw) as unknown), startIndex: 0, hooked: false };
+    return result ?? { stream: of(walkScope(host, ref.carets, raw) as unknown), startIndex: 0, hooked: false };
 };
 
 const resolveRef = (host: Element, ref: ParsedRef, raw: string): unknown => {

@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "plugins": [
+      { "name": "@yaw-rx/ts-plugin" },
+      { "transform": "@yaw-rx/transformer", "import": "programTransformer", "transformProgram": true }
+    ]
+  },
+  "references": [
+    { "path": "../yaw-common" },
+    { "path": "../yaw" },
+    { "path": "../yaw-transformer" }
+  ],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

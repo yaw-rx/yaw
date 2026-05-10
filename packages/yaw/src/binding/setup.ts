@@ -27,18 +27,31 @@
  */
 import { type Subscription } from 'rxjs';
 import { marshaller } from '@yaw-rx/common/marshaller';
-import { parseBindingPath, subscribeToBinding, deferredBinding, resolveEventHandler, resolveRefTarget, resolveValue, resolveWriteTarget, resolveEncoder } from './path.js';
+import { parseBindingPath, observeBinding, deferredBinding, resolveEventHandler, resolveRefTarget, resolveValue, resolveWriteTarget, resolveEncoder } from './path.js';
 import { BindingPathError } from '../errors.js';
 import { getSubject } from '../state.js';
 import { isHydrating } from '../hydrate/state.js';
+import { applyBindingHooks } from './hooks/binding.js';
 
+/**
+ * Read an element's data-rx-bind-* attributes and subscribe each
+ * binding to its resolved observable. Returns a teardown function
+ * that unsubscribes all subscriptions and removes event listeners.
+ *
+ * @param element - The element to wire bindings on.
+ * @returns A teardown function.
+ */
 export const setupBindings = (element: HTMLElement): () => void => {
     const subs: Subscription[] = [];
     const listeners: Array<{ event: string; fn: EventListener }> = [];
     let refTeardown: (() => void) | undefined;
     const hydrating = isHydrating();
-    const bind = (bindingPath: ReturnType<typeof parseBindingPath>, onValue: (v: unknown) => void): Subscription =>
-        hydrating ? deferredBinding(element, bindingPath).subscribe(onValue) : subscribeToBinding(element, bindingPath, onValue);
+    const bind = (bindingPath: ReturnType<typeof parseBindingPath>, onValue: (v: unknown) => void): Subscription => {
+        const binding$ = hydrating
+            ? deferredBinding(element, bindingPath)
+            : observeBinding(element, bindingPath);
+        return applyBindingHooks(element, binding$).subscribe(onValue);
+    };
 
     for (const attr of Array.from(element.attributes)) {
         const decoded = marshaller.decode(attr.name);

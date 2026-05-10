@@ -131,6 +131,21 @@ export class SSGError extends Error {
 }
 
 /**
+ * Thrown when two hooks both claim the same target in a hook dispatch.
+ * This indicates a directive misconfiguration - only one hook should
+ * own a given claim target (element, segment, etc.) per dispatch.
+ */
+export class DuplicateHookClaimError extends Error {
+    /**
+     * @param {string} hookType - The hook type ('mutation' | 'scope' | 'binding').
+     * @param {string} detail - Description of the duplicate claim.
+     */
+    constructor(hookType: string, detail: string) {
+        super(`${hookType} hook: duplicate claim - ${detail}`);
+    }
+}
+
+/**
  * Thrown when an attribute codec fails to encode or decode a value.
  */
 export class AttributeMarshalError extends Error {

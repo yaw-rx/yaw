@@ -3,6 +3,14 @@ import { getDirectiveSelector, matchesSelector, type Directive, type RxElementLi
 import { DirectiveInstantiationError, InvalidSelectorError } from '../errors.js';
 import { resolveInjector } from '../di/resolve.js';
 
+/**
+ * Match registered directive selectors against the element's
+ * attributes, instantiate each matching directive, and call
+ * onInit. Returns the array of directive instances.
+ *
+ * @param el - The element to set up directives on.
+ * @returns Array of instantiated directives.
+ */
 export const setupDirectivesFor = (el: Element): Directive[] => {
     const host = el.parentElement?.closest('[data-rx-host]') as RxElementLike | null ?? undefined;
     const hostCtor = host !== undefined ? host.constructor : el.constructor;

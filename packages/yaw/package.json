@@ -36,6 +36,34 @@
     "./hydrate/state": {
       "import": "./dist/hydrate/state.js",
       "types": "./dist/hydrate/state.d.ts"
+    },
+    "./binding/path": {
+      "import": "./dist/binding/path.js",
+      "types": "./dist/binding/path.d.ts"
+    },
+    "./binding/native": {
+      "import": "./dist/binding/native.js",
+      "types": "./dist/binding/native.d.ts"
+    },
+    "./binding/hooks/scope": {
+      "import": "./dist/binding/hooks/scope.js",
+      "types": "./dist/binding/hooks/scope.d.ts"
+    },
+    "./binding/hooks/mutation": {
+      "import": "./dist/binding/hooks/mutation.js",
+      "types": "./dist/binding/hooks/mutation.d.ts"
+    },
+    "./binding/hooks/binding": {
+      "import": "./dist/binding/hooks/binding.js",
+      "types": "./dist/binding/hooks/binding.d.ts"
+    },
+    "./binding/setup": {
+      "import": "./dist/binding/setup.js",
+      "types": "./dist/binding/setup.d.ts"
+    },
+    "./directives/setup": {
+      "import": "./dist/directives/setup.js",
+      "types": "./dist/directives/setup.d.ts"
     }
   },
   "scripts": {
