@@ -313,6 +313,7 @@ export class RxFor {
     private keyField: string | undefined;
     private sub: Subscription | undefined;
     private content = '';
+    private tpl: HTMLTemplateElement | undefined;
     private splatNodes = new Map<string, { el: Element; pos: number }>();
 
     private assertArray(v: unknown): asserts v is unknown[] {
@@ -352,12 +353,19 @@ export class RxFor {
             });
         } else {
             this.content = this.node.innerHTML;
+            this.parseContent();
             this.node.replaceChildren();
             this.sub = subscribeToBinding(this.node, this.source, (v) => {
                 this.assertArray(v);
                 this.updateSplat(v);
             });
         }
+    }
+
+    private parseContent(): void {
+        const tpl = document.createElement('template');
+        tpl.innerHTML = this.content;
+        this.tpl = tpl;
     }
 
     private recoverTemplate(): void {
@@ -369,7 +377,10 @@ export class RxFor {
         const tpl = document.createElement('template');
         tpl.innerHTML = rawTemplate;
         const rxForEl = tpl.content.querySelector('[rx-for]');
-        if (rxForEl !== null) this.content = rxForEl.innerHTML;
+        if (rxForEl !== null) {
+            this.content = rxForEl.innerHTML;
+            this.parseContent();
+        }
     }
 
     private hydrateSplat(): void {
@@ -526,6 +537,7 @@ export class RxFor {
             });
         } else {
             this.content = this.node.innerHTML;
+            this.parseContent();
             while (this.node.firstChild) this.node.removeChild(this.node.firstChild);
             this.sub = subscribeToBinding(this.node, this.source, (v) => {
                 this.assertArray(v);
@@ -569,9 +581,7 @@ export class RxFor {
     private cloneItem(item: unknown, key: string, i: number): DocumentFragment {
         const subject = new BehaviorSubject<unknown>(item);
         const index$ = this.indexName ? new BehaviorSubject<unknown>(i) : undefined;
-        const tpl = document.createElement('template');
-        tpl.innerHTML = this.content;
-        const frag = tpl.content;
+        const frag = this.tpl!.content.cloneNode(true) as DocumentFragment;
         const itemEl = frag.firstElementChild!;
         let el: Element | null = itemEl;
         while (el !== null) {

@@ -87,6 +87,19 @@ const stylesCache = new Map<Function, CSSStyleSheet>();
 const codecsCache = new Map<Function, Record<string, AttributeCodec>>();
 
 export const getTemplate = (ctor: Function): string | undefined => templateCache.get(ctor);
+
+const parsedTemplateCache = new Map<Function, HTMLTemplateElement>();
+
+export const getParsedTemplate = (ctor: Function): HTMLTemplateElement | undefined => {
+    let tpl = parsedTemplateCache.get(ctor);
+    if (tpl !== undefined) return tpl;
+    const html = templateCache.get(ctor);
+    if (html === undefined) return undefined;
+    tpl = document.createElement('template');
+    tpl.innerHTML = html;
+    parsedTemplateCache.set(ctor, tpl);
+    return tpl;
+};
 /**
  * Returns the original (pre-transformation) template string for a component.
  * @param {CustomElementConstructor} ctor - The component constructor.

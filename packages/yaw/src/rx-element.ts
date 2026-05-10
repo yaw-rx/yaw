@@ -27,7 +27,7 @@
  * onDestroy on each directive, destroys injector instances, then
  * calls the component's onDestroy hook.
  */
-import { getTemplate, getProviders, isComponent } from './component.js';
+import { getParsedTemplate, getProviders, isComponent } from './component.js';
 import { Injector } from './di/injector.js';
 import { getInjectMetadata } from './di/inject.js';
 import { resolveInjector } from './di/resolve.js';
@@ -97,11 +97,11 @@ export class RxElement extends HTMLElement {
      */
     _renderTemplate(): void {
         if (isHydrating()) return;
-        const template = getTemplate(this.constructor);
-        if (template === undefined) { return; }
+        const tpl = getParsedTemplate(this.constructor);
+        if (tpl === undefined) { return; }
         const projected = document.createDocumentFragment();
         while (this.firstChild !== null) { projected.appendChild(this.firstChild); }
-        this.innerHTML = template;
+        this.appendChild(tpl.content.cloneNode(true));
         const slot = this.querySelector('slot');
         if (slot !== null) { slot.replaceWith(projected); }
     }
