@@ -27,32 +27,54 @@ import type { Directive } from '../directive.js';
 import { mutationHooks } from './hooks/mutation.js';
 import { DuplicateHookClaimError } from '../errors.js';
 
-const hasBinding = (el: Element): boolean => {
+/**
+ * Returns true if the element has any `data-rx-bind-*` attributes.
+ * @param el - The element to check.
+ * @returns {boolean}
+ */
+export const hasBinding = (el: Element): boolean => {
     for (let i = 0; i < el.attributes.length; i++) {
         if (el.attributes[i]!.name.startsWith('data-rx-bind-')) return true;
     }
     return false;
 };
 
-const teardowns = new WeakMap<Element, () => void>();
-const directiveInstances = new WeakMap<Element, Directive[]>();
+
+/**
+ * Store a binding teardown and directive instances for an element so
+ * that {@link destroyElement} can clean them up later. Used by
+ * mutation hooks that take over child initialisation from the core
+ * observer.
+ *
+ * @param el - The element to register teardown for.
+ * @param teardown - Function that unsubscribes bindings.
+ * @param directives - Directive instances to destroy on removal.
+ */
+export const registerElementTeardown = (el: Element, teardown: () => void, directives: Directive[]): void => {
+    const e = el as any;
+    e.__rx_teardown = teardown;
+    if (directives.length > 0) e.__rx_directives = directives;
+};
 
 const initNativeBindings = (el: Element): void => {
-    if (teardowns.has(el)) return;
+    const e = el as any;
+    if (e.__rx_teardown) return;
     const directives = setupDirectivesFor(el);
     const hasBindings = hasBinding(el);
     if (directives.length === 0 && !hasBindings) return;
-    if (directives.length > 0) directiveInstances.set(el, directives);
-    teardowns.set(el, hasBindings ? setupBindings(el as HTMLElement) : () => {});
+    if (directives.length > 0) e.__rx_directives = directives;
+    e.__rx_teardown = hasBindings ? setupBindings(el as HTMLElement) : () => {};
 };
 
 const destroy = (el: Element): void => {
-    const td = teardowns.get(el);
-    if (td !== undefined) { td(); teardowns.delete(el); }
-    const dirs = directiveInstances.get(el);
+    const e = el as any;
+    e.__rx_init = false;
+    const td = e.__rx_teardown;
+    if (td !== undefined) { td(); e.__rx_teardown = undefined; }
+    const dirs = e.__rx_directives;
     if (dirs !== undefined) {
         for (const d of dirs) d.onDestroy();
-        directiveInstances.delete(el);
+        e.__rx_directives = undefined;
     }
 };
 
@@ -69,19 +91,28 @@ const destroy = (el: Element): void => {
  * stores teardown references. Recurses depth-first into children.
  *
  * @param el - The element to initialise. Must be connected to the DOM.
+ * @param host - Known host element to propagate, avoiding per-element `closest` walks.
  * @returns {void}
  */
-export const initElement = (el: Element): void => {
+export const initElement = (el: Element, host?: Element): void => {
     if (!el.isConnected) return;
     if (el instanceof RxElement) {
         el._initBindings();
+        (el as any).__rx_init = true;
         queueMicrotask(() => el.onRender());
         return;
     }
+    if (host === undefined) {
+        host = el.parentElement?.closest('[data-rx-host]') as Element ?? undefined;
+    }
+    if (host !== undefined) {
+        (el as any).hostNode = host;
+    }
     initNativeBindings(el);
+    (el as any).__rx_init = true;
     let child = el.firstElementChild;
     while (child !== null) {
-        initElement(child);
+        initElement(child, host);
         child = child.nextElementSibling;
     }
 };
@@ -114,17 +145,23 @@ const observer = new MutationObserver((raw) => {
                     const removed: Element[] = [];
                     for (const n of record.removedNodes) if (n.nodeType === 1) removed.push(n as Element);
                     for (const n of record.addedNodes) if (n.nodeType === 1) added.push(n as Element);
-                    hook.handle(added, removed);
+                    hook.handle(target, added, removed);
                     claimed = true;
                 }
             }
         }
         if (!claimed) {
-            for (const node of record.removedNodes) {
-                if (node.nodeType === 1) destroyElement(node as Element);
+            const hasRemovals = record.removedNodes.length > 0;
+            if (hasRemovals) {
+                for (const node of record.removedNodes) {
+                    if (node.nodeType === 1 && !node.isConnected) destroyElement(node as Element);
+                }
             }
             for (const node of record.addedNodes) {
-                if (node.nodeType === 1) initElement(node as Element);
+                if (node.nodeType !== 1) continue;
+                const el = node as Element;
+                if (hasRemovals && (el as any).__rx_init) continue;
+                initElement(el);
             }
         }
     }
@@ -138,9 +175,11 @@ export const flushExistingBindings = (): void => {
     const walk = (el: Element): void => {
         if (el instanceof RxElement) {
             el._initBindings();
+            (el as any).__rx_init = true;
             queueMicrotask(() => el.onRender());
         } else {
             initNativeBindings(el);
+            (el as any).__rx_init = true;
         }
         let child = el.firstElementChild;
         while (child !== null) {

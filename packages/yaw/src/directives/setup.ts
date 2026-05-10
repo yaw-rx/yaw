@@ -12,7 +12,8 @@ import { resolveInjector } from '../di/resolve.js';
  * @returns Array of instantiated directives.
  */
 export const setupDirectivesFor = (el: Element): Directive[] => {
-    const host = el.parentElement?.closest('[data-rx-host]') as RxElementLike | null ?? undefined;
+    const host = (el as unknown as { hostNode?: RxElementLike }).hostNode
+        ?? el.parentElement?.closest('[data-rx-host]') as RxElementLike | null ?? undefined;
     const hostCtor = host !== undefined ? host.constructor : el.constructor;
     const declaredDirectives = [
         ...getGlobalDirectives(),

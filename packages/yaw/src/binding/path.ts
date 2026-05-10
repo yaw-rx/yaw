@@ -50,7 +50,7 @@
  *   (BehaviorSubject + consumed count) to claim it, or undefined to
  *   pass. The first hook to claim wins.
  */
-import { of, Subscription, switchMap, skip, first, type Observable } from 'rxjs';
+import { of, Subscription, switchMap, skip, first, shareReplay, type Observable } from 'rxjs';
 import { isObservable } from '../classify/is-observable.js';
 import { hydrationComplete$ } from '../hydrate/state.js';
 import { BindingNotSubscribableError, BindingParseError, BindingPathError, BindingScopeError, DuplicateHookClaimError } from '../errors.js';
@@ -242,6 +242,8 @@ const resolveArgs = (host: Element, bindingPath: ParsedBinding, event: unknown):
         return resolveRef(host, arg.ref, bindingPath.raw);
     });
 
+const bindingCache = new WeakMap<Element, Map<string, Observable<unknown>>>();
+
 const segmentStream = (host: Element, bindingPath: ParsedBinding, value: unknown, segment: string): Observable<unknown> => {
     if (value === null || value === undefined) {
         throw new BindingPathError(host.tagName, bindingPath.raw, segment);
@@ -264,6 +266,15 @@ export const observeBinding = (
 
     if (!hooked && !bindingPath.call) {
         const { root } = resolveScope(host, bindingPath, bindingPath.raw);
+        const resolvedHost = root as Element;
+        let hostCache = bindingCache.get(resolvedHost);
+        if (hostCache === undefined) {
+            hostCache = new Map();
+            bindingCache.set(resolvedHost, hostCache);
+        }
+        const cached = hostCache.get(bindingPath.raw);
+        if (cached !== undefined) return cached;
+
         let cur: unknown = root;
         for (let i = startIndex; i < segments.length; i++) {
             if (cur === null || cur === undefined) break;
@@ -275,6 +286,15 @@ export const observeBinding = (
             }
             cur = obj[seg];
         }
+
+        for (let i = startIndex; i < segments.length; i++) {
+            const segment = segments[i]!;
+            stream = stream.pipe(switchMap((v) => segmentStream(host, bindingPath, v, segment)));
+        }
+
+        const shared = stream.pipe(shareReplay({ bufferSize: 1, refCount: true }));
+        hostCache.set(bindingPath.raw, shared);
+        return shared;
     }
 
     for (let i = startIndex; i < segments.length; i++) {

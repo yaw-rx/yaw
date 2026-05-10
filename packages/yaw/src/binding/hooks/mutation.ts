@@ -18,10 +18,11 @@ export interface MutationHookEntry {
     claim(target: Element): boolean;
     /**
      * Called with the element nodes claimed from matching records.
+     * @param target - The container element that was mutated.
      * @param added - Elements added to the claimed container.
      * @param removed - Elements removed from the claimed container.
      */
-    handle(added: Element[], removed: Element[]): void;
+    handle(target: Element, added: Element[], removed: Element[]): void;
 }
 
 /** Registered mutation hooks, checked via {@link MutationHookEntry.claim} on each record's target. */
