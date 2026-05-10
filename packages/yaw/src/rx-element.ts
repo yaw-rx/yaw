@@ -97,7 +97,6 @@ export class RxElement extends HTMLElement {
      */
     _renderTemplate(): void {
         if (isHydrating()) return;
-        if (this.firstChild !== null) return;
         const template = getTemplate(this.constructor);
         if (template === undefined) { return; }
         const projected = document.createDocumentFragment();
