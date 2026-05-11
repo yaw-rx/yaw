@@ -62,7 +62,17 @@ import { getTemplate } from '../component.js';
 // Parser
 // ---------------------------------------------------------------------------
 
-interface RxForParsed {
+/**
+ * Result of parsing an rx-for expression. Contains the resolved source
+ * binding, reconciliation key, and any declared loop variables.
+ *
+ * In splat mode only {@link source} and {@link keyField} are populated.
+ * In scope mode the declaration side is parsed into {@link itemName} or
+ * {@link destructuredFields}, plus an optional {@link indexName}.
+ * {@link loopVariables} is the flat list of all declared identifiers
+ * that the scope hook should claim.
+ */
+export interface RxForParsed {
     mode: 'splat' | 'scope';
     source: ParsedBinding;
     keyField: string | undefined;
@@ -72,7 +82,15 @@ interface RxForParsed {
     loopVariables: string[];
 }
 
-const parseRxFor = (raw: string): RxForParsed => {
+/**
+ * Parses an rx-for expression string into its constituent parts.
+ * Accepts both splat and scope forms, with optional keying and
+ * index variables.
+ *
+ * @param raw - The raw expression string from the rx-for attribute.
+ * @returns {RxForParsed} The parsed expression.
+ */
+export const parseRxFor = (raw: string): RxForParsed => {
     let expr = raw.trim();
 
     // strip leading const/let

@@ -12,6 +12,7 @@ import './directives-section/for-demo.component.js';
 import './directives-section/scope-demo.component.js';
 import './directives-section/blink-demo.component.js';
 import './directives-section/if-demo.component.js';
+import './directives-section/hooks-section.component.js';
 
 @Directive({ selector: '[bounce]' })
 export class Bounce {
@@ -336,6 +337,8 @@ Scope:  item of source
 
             </section>
         </section>
+
+        <hooks-section></hooks-section>
     `,
     styles: `
         :host { display: block; }
