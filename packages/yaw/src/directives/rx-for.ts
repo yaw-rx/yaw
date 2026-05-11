@@ -402,8 +402,9 @@ export class RxFor {
                 return;
             case DiffOp.CreateAll:
                 for (let i = 0; i < incoming.length; i++) {
-                    this.node.insertAdjacentHTML('beforeend', this.content);
-                    const el = this.node.lastElementChild!;
+                    const frag = this.tpl!.content.cloneNode(true) as DocumentFragment;
+                    const el = frag.firstElementChild!;
+                    this.node.appendChild(frag);
                     for (const [prop, val] of Object.entries(incoming[i] as Record<string, unknown>)) {
                         (el as unknown as Record<string, unknown>)[prop] = val;
                     }
@@ -415,8 +416,9 @@ export class RxFor {
                 this.splatNodes.clear();
                 this.node.textContent = '';
                 for (let i = 0; i < incoming.length; i++) {
-                    this.node.insertAdjacentHTML('beforeend', this.content);
-                    const el = this.node.lastElementChild!;
+                    const frag = this.tpl!.content.cloneNode(true) as DocumentFragment;
+                    const el = frag.firstElementChild!;
+                    this.node.appendChild(frag);
                     for (const [prop, val] of Object.entries(incoming[i] as Record<string, unknown>)) {
                         (el as unknown as Record<string, unknown>)[prop] = val;
                     }
@@ -459,8 +461,9 @@ export class RxFor {
                         }
                         entry.pos = i;
                     } else {
-                        this.node.insertAdjacentHTML('beforeend', this.content);
-                        const el = this.node.lastElementChild!;
+                        const frag = this.tpl!.content.cloneNode(true) as DocumentFragment;
+                        const el = frag.firstElementChild!;
+                        this.node.appendChild(frag);
                         for (const [prop, val] of Object.entries(incoming[i] as Record<string, unknown>)) {
                             (el as unknown as Record<string, unknown>)[prop] = val;
                         }
@@ -503,8 +506,9 @@ export class RxFor {
                         }
                         entry.pos = i;
                     } else {
-                        this.node.insertAdjacentHTML('beforeend', this.content);
-                        const el = this.node.lastElementChild!;
+                        const frag = this.tpl!.content.cloneNode(true) as DocumentFragment;
+                        const el = frag.firstElementChild!;
+                        this.node.appendChild(frag);
                         for (const [prop, val] of Object.entries(incoming[i] as Record<string, unknown>)) {
                             (el as unknown as Record<string, unknown>)[prop] = val;
                         }

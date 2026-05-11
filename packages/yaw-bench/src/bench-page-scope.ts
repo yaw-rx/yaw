@@ -25,7 +25,7 @@ const buildRows = (count: number): Row[] => {
 };
 
 @Component({
-    selector: 'bench-root',
+    selector: 'bench-root-scope',
     directives: [RxFor],
     template: `
         <div id="main">
@@ -33,7 +33,7 @@ const buildRows = (count: number): Row[] => {
                 <div class="jumbotron">
                     <div class="row">
                         <div class="col-md-6">
-                            <h1>YAW-"keyed"</h1>
+                            <h1>YAW-"keyed" (scope)</h1>
                         </div>
                         <div class="col-md-6">
                             <div class="row">
@@ -59,8 +59,8 @@ const buildRows = (count: number): Row[] => {
                         </div>
                     </div>
                 </div>
-                <div class="table table-hover table-striped test-data" rx-for="rows by rowId">
-                    <bench-row></bench-row>
+                <div class="table table-hover table-striped test-data" rx-for="row of rows by rowId">
+                    <bench-row [rowId]="row.rowId" [label]="row.label"></bench-row>
                 </div>
                 <span class="preloadicon glyphicon glyphicon-remove" aria-hidden="true"></span>
             </div>
@@ -68,7 +68,7 @@ const buildRows = (count: number): Row[] => {
     `,
     styles: ``,
 })
-export class BenchPage extends RxElement {
+export class BenchPageScope extends RxElement {
     @state rows: Row[] = [];
 
     private selectedRow: BenchRow | null = null;
@@ -96,7 +96,6 @@ export class BenchPage extends RxElement {
         const rows = this.querySelectorAll<BenchRow>('bench-row');
         for (let i = 0; i < rows.length; i += 10) {
             rows[i]!.label += ' !!!';
-            rows[i]!.refresh();
         }
     }
 

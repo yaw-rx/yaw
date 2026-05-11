@@ -102,45 +102,12 @@ const transformTextNode = (node: Text, depth: number): void => {
     parent.replaceChild(frag, node);
 };
 
-const transformAttributes = (el: Element, depth: number): void => {
-    const rewrites: Array<{ remove: string; add?: [string, string] }> = [];
+const injectCaretsOnBindings = (el: Element, depth: number): void => {
+    if (depth === 0) return;
     for (const attr of Array.from(el.attributes)) {
-        const name = attr.name;
-        const value = attr.value;
-
-        const classMatch = /^\[class\.(.+)\]$/.exec(name);
-        if (classMatch !== null) {
-            rewrites.push({ remove: name, add: [marshaller.encode('class', [classMatch[1]!]), injectCarets(value, depth)] });
-            continue;
-        }
-        const tapMatch = /^\[\((.+)\)\]$/.exec(name);
-        if (tapMatch !== null) {
-            rewrites.push({ remove: name, add: [marshaller.encode('tap', tapMatch[1]!.split('.')), injectCarets(value, depth)] });
-            continue;
-        }
-        const styleMatch = /^\[style\.(.+)\]$/.exec(name);
-        if (styleMatch !== null) {
-            rewrites.push({ remove: name, add: [marshaller.encode('style', [styleMatch[1]!]), injectCarets(value, depth)] });
-            continue;
-        }
-        const bindMatch = /^\[(.+)\]$/.exec(name);
-        if (bindMatch !== null) {
-            rewrites.push({ remove: name, add: [marshaller.encode('prop', bindMatch[1]!.split('.')), injectCarets(value, depth)] });
-            continue;
-        }
-        const onMatch = /^on(.+)$/.exec(name);
-        if (onMatch !== null && value !== '') {
-            rewrites.push({ remove: name, add: [marshaller.encode('on', [onMatch[1]!]), injectCarets(value, depth)] });
-            continue;
-        }
-        if (name.startsWith('#')) {
-            rewrites.push({ remove: name, add: [marshaller.encode('ref', [name.slice(1)]), injectCarets(name.slice(1), depth)] });
-            continue;
-        }
-    }
-    for (const { remove, add } of rewrites) {
-        el.removeAttribute(remove);
-        if (add !== undefined) el.setAttribute(add[0], add[1]);
+        if (!attr.name.startsWith('data-rx-bind-')) continue;
+        const injected = injectCarets(attr.value, depth);
+        if (injected !== attr.value) el.setAttribute(attr.name, injected);
     }
 };
 
@@ -160,7 +127,7 @@ const walk = (node: Node, depth: number): void => {
         return;
     }
 
-    transformAttributes(el, depth);
+    injectCaretsOnBindings(el, depth);
 
     const childDepth = tag.includes('-') ? depth + 1 : depth;
     for (const child of Array.from(el.childNodes)) { walk(child, childDepth); }
@@ -196,8 +163,18 @@ export class TemplateWalkError extends Error {
  * with {@link readInert}. The walker does not traverse template
  * element content.
  */
+const marshalBindings = (tag: string): string =>
+    tag
+        .replace(/\s\[class\.([^\]]+)\]=/g, (_, n: string) => ` ${marshaller.encode('class', [n])}=`)
+        .replace(/\s\[\(([^\)]+)\)\]=/g, (_, n: string) => ` ${marshaller.encode('tap', n.split('.'))}=`)
+        .replace(/\s\[style\.([^\]]+)\]=/g, (_, n: string) => ` ${marshaller.encode('style', [n])}=`)
+        .replace(/\s\[([^\]]+)\]=/g, (_, n: string) => ` ${marshaller.encode('prop', n.split('.'))}=`)
+        .replace(/\son([a-zA-Z]+)="([^"]+)"/g, (_, n: string, v: string) => ` ${marshaller.encode('on', [n])}="${v}"`)
+        .replace(/\s#([a-zA-Z]\w*)/g, (_, n: string) => ` ${marshaller.encode('ref', [n])}="${n}"`);
+
 export const transformTemplate = (template: string): string => {
-    const doc = new DOMParser().parseFromString(`<body>${template}</body>`, 'text/html');
+    const pre = template.replace(/<[a-zA-Z][\w-]*[^>]*>/g, marshalBindings);
+    const doc = new DOMParser().parseFromString(`<body>${pre}</body>`, 'text/html');
     for (const child of Array.from(doc.body.childNodes)) walk(child, 0);
     return doc.body.innerHTML;
 };
