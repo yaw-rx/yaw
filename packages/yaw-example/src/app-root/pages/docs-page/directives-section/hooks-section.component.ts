@@ -35,23 +35,6 @@ registerScopeHook({
     },
 });`;
 
-const GRAMMAR_SOURCE = ts`import { parseRxFor } from '@yaw-rx/core/directives/rx-for';
-import { subscribeToBinding } from '@yaw-rx/core/binding/path';
-
-// expression: "row, i of items by id; 36, 5"
-const [forExpr, settings] = raw.split(';').map(s => s.trim());
-const [heightStr, bufferStr] = (settings ?? '').split(',').map(s => s.trim());
-this.rowHeight = parseInt(heightStr ?? '36', 10);
-this.buffer = parseInt(bufferStr ?? '10', 10);
-
-const parsed = parseRxFor(forExpr);
-
-// subscribe through the binding system
-subscribeToBinding(this.node, parsed.source, (v) => {
-    this.data = v;
-    this.rebuild(v.length);
-});`;
-
 const FULL_SOURCE = ts`import { fromEvent, animationFrameScheduler, BehaviorSubject, type Subscription } from 'rxjs';
 import { throttleTime, map, distinctUntilChanged } from 'rxjs/operators';
 import { Directive } from '@yaw-rx/core';
@@ -339,33 +322,31 @@ const USAGE_SOURCE = html`<div virtual-scroll="row, i of items; 36">
                 <h3 toc-anchor="directives/hooks/example">Example: virtual scroll</h3>
                 <p class="note">A virtual scroll directive that reuses the
                    <code class="inline">rx-for</code> expression grammar
-                   (<code class="inline">parseRxFor</code>) and the binding
-                   system (<code class="inline">subscribeToBinding</code>),
-                   but renders only the visible window. It registers a mutation
+                   (<code class="inline">parseRxFor</code>) — the attribute
+                   is split on <code class="inline">;</code>, the left side
+                   is the <code class="inline">rx-for</code> expression, the
+                   right side is the row height and buffer size. It subscribes
+                   to data through the binding system
+                   (<code class="inline">subscribeToBinding</code>) but
+                   renders only the visible window. It registers a mutation
                    hook for element recycling and a scope hook for loop
                    variables.</p>
             </section>
 
-            <section class="host" toc-section="directives/hooks/grammar">
-                <h3 toc-anchor="directives/hooks/grammar">Reusing the grammar</h3>
-                <p class="note">The expression is split on
-                   <code class="inline">;</code>. The left side is an
-                   <code class="inline">rx-for</code> expression parsed by the
-                   exported <code class="inline">parseRxFor</code>. The right
-                   side is the row height in pixels.</p>
-                <code-block syntax="ts">${escape`${GRAMMAR_SOURCE}`}</code-block>
-            </section>
-
             <section class="host" toc-section="directives/hooks/mutation">
                 <h3 toc-anchor="directives/hooks/mutation">Mutation hook</h3>
-                <p class="note">The mutation hook claims the scroll container so
-                   the framework's default init/destroy path is bypassed. The
-                   handler is a no-op — the directive calls
-                   <code class="inline">initElement</code> and
-                   <code class="inline">destroyElement</code> synchronously in
-                   its own <code class="inline">stamp</code> and
-                   <code class="inline">recycle</code> methods, which avoids a
-                   flash between append and first paint.</p>
+                <p class="note">When a child element is added or removed, the
+                   framework normally calls
+                   <code class="inline">initElement</code> /
+                   <code class="inline">destroyElement</code> on it
+                   asynchronously via the MutationObserver. The mutation hook
+                   claims the container so the framework skips that default
+                   path. The handler is a no-op because the directive already
+                   calls <code class="inline">initElement</code> and
+                   <code class="inline">destroyElement</code> itself,
+                   synchronously inside <code class="inline">stamp</code> and
+                   <code class="inline">recycle</code> — bindings are wired
+                   up before the browser paints the new row.</p>
                 <code-block syntax="ts">${escape`${MUTATION_HOOK_SOURCE}`}</code-block>
             </section>
 
@@ -384,16 +365,15 @@ const USAGE_SOURCE = html`<div virtual-scroll="row, i of items; 36">
                 <p class="note">Here is the complete directive. The module-level
                    hook registrations run once on import. The directive class
                    handles the scroll viewport, element stamping and recycling,
-                   and per-row BehaviorSubject management. Everything plugs into
-                   the existing binding system with no changes to core.</p>
+                   and per-row BehaviorSubject management.</p>
                 <code-block syntax="ts">${escape`${FULL_SOURCE}`}</code-block>
             </section>
 
             <section class="host" toc-section="directives/hooks/usage">
                 <h3 toc-anchor="directives/hooks/usage">Usage</h3>
-                <p class="note">The user writes their row markup inside the
-                   directive's element. The directive captures it as a template,
-                   clones it for visible rows, and recycles it on scroll. Bindings
+                <p class="note">Row markup is written inside the directive's
+                   element. The directive captures it as a template, clones
+                   it for visible rows, and recycles it on scroll. Bindings
                    inside the content resolve through the scope hook.</p>
                 <code-block syntax="html">${escape`${USAGE_SOURCE}`}</code-block>
                 <section class="ex">
