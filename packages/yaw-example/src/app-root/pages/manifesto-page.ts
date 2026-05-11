@@ -34,6 +34,7 @@ const YAW_SNIPPET = ts`
                 and at the end of the day you still call <code>appendChild</code> like it's 1998.
                 All to solve a problem they invented: "What if direct DOM manipulation was unpredictable?"
                 It wasn't.</p>
+                <code-block syntax="ts">${escape`${REACT_SNIPPET}`}</code-block>
                 <p>Angular shipped a framework that downloads half the internet to render a button.
                 Zone.js monkey-patches every async API in the browser just to know when to check
                 if anything changed. They built a change detection system so complex it needs its own
@@ -42,7 +43,6 @@ const YAW_SNIPPET = ts`
                 They've since conceded by shipping signals — a second reactivity primitive bolted
                 onto a framework that wasn't designed for them. Two abstractions deep and Zone.js
                 still isn't gone.</p>
-                <code-block syntax="ts">${escape`${REACT_SNIPPET}`}</code-block>
                 <p>Both replaced <code>HTMLElement</code> with their own component model. The browser's
                 built-in tools — Elements panel, <code>querySelector</code>,
                 <code>connectedCallback</code>, <code>closest()</code> — stopped working.
