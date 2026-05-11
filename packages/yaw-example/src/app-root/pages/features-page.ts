@@ -21,7 +21,7 @@ const SAMPLE_MS = 80;
 
             <div class="flow">
                 <div class="demo right">
-                    <h2><a href="/examples#signal-meter">Signal meter</a></h2>
+                    <h2><a href="/examples/signal-meter">Signal meter</a></h2>
                     <signal-meter [strength]="meterStrength" hueStart="340" hueEnd="140" lightness="55" glow="14"></signal-meter>
                 </div>
 
@@ -66,7 +66,7 @@ const SAMPLE_MS = 80;
                 </ul>
 
                 <div class="demo left wide">
-                    <h2><a href="/examples#rx-graph">Reactive graph</a></h2>
+                    <h2><a href="/examples/rx-graph">Reactive graph</a></h2>
                     <rx-graph [config]="graphConfig" [series]="graphSeries"></rx-graph>
                 </div>
 
@@ -106,7 +106,7 @@ const SAMPLE_MS = 80;
                 </ul>
 
                 <div class="demo right wide">
-                    <h2><a href="/examples#reactive-palette">Color playground</a></h2>
+                    <h2><a href="/examples/reactive-palette">Color playground</a></h2>
                     <color-playground></color-playground>
                 </div>
 
@@ -202,8 +202,8 @@ const SAMPLE_MS = 80;
     `,
     styles: `
         :host { display: block; background: var(--black); min-height: 100vh;
-                color: var(--secondary); box-sizing: border-box; }
-        .content { max-width: 900px; margin: 0 auto; padding: 6rem 1.25rem 2.5rem; }
+                padding: 6rem 1.25rem 2.5rem; color: var(--secondary); box-sizing: border-box; }
+        .content { max-width: 1200px; margin: 0 auto; }
         h1 { color: var(--white); font-size: 2.5rem; font-weight: 900;
              letter-spacing: -1px; margin: 0 0 0.75rem; }
         .lede { color: var(--secondary); line-height: 1.7; margin: 0 0 1.5rem; }
@@ -218,7 +218,7 @@ const SAMPLE_MS = 80;
         .demo color-playground { display: grid; grid-template-columns: auto 1fr;
                 gap: 0.75rem 1rem; align-items: center; margin: 1rem 0.5rem 0.5rem; }
         .demo rx-graph { display: block; margin: 0.5rem 0 0; }
-        .demo rx-graph canvas { height: 17rem; }
+        .demo rx-graph canvas { height: 21rem; }
         .demo.right { float: right; margin-left: 2rem; }
         .demo.left { float: left; margin-right: 2rem; }
         .demo.wide { width: 360px; }
@@ -229,8 +229,7 @@ const SAMPLE_MS = 80;
                              border-radius: 3px; font-size: 0.9em; color: var(--accent); }
         .closer { color: var(--secondary); font-weight: 900; font-size: 1.15rem;
                   margin: 0; }
-        @media (max-width: 640px) {
-            .content { padding: 0 1rem 3rem; }
+        @media (max-width: 768px) {
             .demo { float: none; width: 100%; margin: 0 0 1.5rem; }
         }
     `,

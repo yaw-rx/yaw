@@ -42,7 +42,7 @@ import { TocMenuService } from '../../services/toc-menu.service.js';
                     max-height: 0; overflow: hidden; opacity: 0;
                     padding-left: 0.42rem; margin-left: 0.1rem;
                     border-left: var(--border-width) solid var(--bg-5); }
-        .children.expanded { max-height: 800px; opacity: 1;
+        .children.expanded { max-height: none; opacity: 1;
                              padding-top: 0.15rem; padding-bottom: 0.35rem; }
     `,
 })

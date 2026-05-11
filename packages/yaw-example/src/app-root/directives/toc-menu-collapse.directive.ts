@@ -1,4 +1,4 @@
-import { type Subscription } from 'rxjs';
+import { filter, type Subscription } from 'rxjs';
 import { Directive, Injectable } from '@yaw-rx/core';
 import type { RxElementLike } from '@yaw-rx/core';
 import { Router } from '@yaw-rx/core/router';
@@ -16,6 +16,7 @@ export class TocMenuCollapse {
     private readonly router: Router;
     private mobile = false;
     private sub: Subscription | undefined;
+    private scrollSub: Subscription | undefined;
     private mqHandler: (() => void) | undefined;
     private mq: MediaQueryList | undefined;
 
@@ -39,6 +40,8 @@ export class TocMenuCollapse {
             } else {
                 this.node.style.cssText = '';
                 this.sidebar.close();
+                this.toc.expandAll = false;
+                this.toc.resume();
             }
         };
         this.mqHandler = update;
@@ -57,10 +60,21 @@ export class TocMenuCollapse {
                 this.toc.resume();
             }
         });
+
+        this.scrollSub = this.sidebar.scrollToActive$.pipe(
+            filter(Boolean),
+        ).subscribe(() => {
+            requestAnimationFrame(() => {
+                const active = this.node.querySelector('a.active');
+                if (active) active.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                this.sidebar.scrollToActive = false;
+            });
+        });
     }
 
     onDestroy(): void {
         this.sub?.unsubscribe();
+        this.scrollSub?.unsubscribe();
         if (this.mq && this.mqHandler) this.mq.removeEventListener('change', this.mqHandler);
         this.sidebar.close();
     }

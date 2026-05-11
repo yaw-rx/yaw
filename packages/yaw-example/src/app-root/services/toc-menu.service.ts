@@ -5,6 +5,7 @@ import { Router } from '@yaw-rx/core/router';
 export class TocMenuService {
     @state open = false;
     @state available = new Map<string, boolean>();
+    @state scrollToActive = false;
 
     private readonly router: Router;
 
@@ -23,6 +24,7 @@ export class TocMenuService {
 
     toggle(): void {
         this.open = !this.open;
+        if (this.open) this.scrollToActive = true;
     }
 
     close(): void {
