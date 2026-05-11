@@ -74,6 +74,22 @@ const YAW_SNIPPET = ts`
                 The user doesn't care how cleverly your framework writes to the DOM. Layout is already lazy precisely because it's expensive —
                 it's not something you need a framework to optimise for you.</p>
                 <p>The performance pitch isn't ours. It's the browser's. We get out of its way.</p>
+                <hr style="border: none; border-top: var(--border-width) solid var(--bg-6); margin: 1.5rem 0;"/>
+                <p><strong>The principle:</strong> don't pay up front for a class of
+                optimisation until you're hitting a workload that actually needs it.</p>
+                <p>Premature deoptimisation is paying
+                for the rare expensive-cascade case in every write, including the
+                overwhelming majority of writes that are a single property assignment
+                where the suppression machinery costs more than what it's preventing.</p>
+                <p>Our inversion is the principled one. Default to no scheduler, no
+                suppression, no coalescing infrastructure. Pay only for the work that's
+                actually present. When you have a workload where intermediate values
+                matter — expensive derivations, wide fan-out, cascading computeds — you
+                reach for an operator that fits the case. The cost is local to the case that
+                needs it. Everything else stays cheap.</p>
+                <p>YAW refuses to inherit the cost of solving problems most apps don't
+                have, and pushes the few apps that do toward the platform-level tools
+                that solve them precisely.</p>
             </manifesto-section>
 
             <manifesto-section heading="Our Heresy">
@@ -320,7 +336,7 @@ const YAW_SNIPPET = ts`
     `,
     styles: `
         :host { display: block; background: var(--black); min-height: 100vh; }
-        .sections { padding: 2rem 0 0; }
+        .sections { padding: 0; }
         code-block { margin: 1rem 0; }
     `
 })

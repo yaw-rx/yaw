@@ -19,7 +19,7 @@ import { PerlinBg } from './hero-section/perlin-bg.directive.js';
     `,
     styles: `
         :host { display: block; min-height: calc(100vh / 1.75); display: flex; align-items: center;
-                justify-content: center; background: var(--black); padding: 6rem 2rem 4rem;
+                justify-content: center; background: var(--black); padding: 8rem 2rem 4rem;
                 position: relative; overflow: hidden; }
         .noise { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
         .hero { position: relative; z-index: 1; max-width: 800px; text-align: center; }
