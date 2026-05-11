@@ -11,6 +11,7 @@ import { TocMenuToggle } from '../directives/toc-menu-toggle.directive.js';
             <a class="logo" toc-menu-toggle><span class="logo-text">YAW</span></a>
             <div class="links">
                 <a [class.active]="isActive('/')" onclick="navigateHome">Manifesto</a>
+                <a [class.active]="isActive('/features')" onclick="navigateFeatures">Features</a>
                 <a [class.active]="isActive('/showcase')" onclick="navigateShowcase">Showcase</a>
                 <a [class.active]="isActive('/docs')" onclick="navigateDocs">Docs</a>
                 <a [class.active]="isActive('/examples')" onclick="navigateExamples">Examples</a>
@@ -91,6 +92,7 @@ export class NavBar extends RxElement {
     }
 
     navigateHome(): void { this.router.navigate('/'); }
+    navigateFeatures(): void { this.router.navigate('/features'); }
     navigateExamples(): void { this.router.navigate('/examples'); }
     navigateShowcase(): void { this.router.navigate('/showcase'); }
     navigateDocs(): void { this.router.navigate('/docs'); }

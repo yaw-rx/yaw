@@ -9,7 +9,7 @@ export const SIGNAL_METER_TEMPLATE = html`
             <circle cx="50" cy="50" r="42" class="fill"></circle>
         </svg>
         <div class="readout">
-            <div class="value">{{strength}}</div>
+            <div class="value">{{displayStrength}}</div>
             <div class="unit">%</div>
         </div>
     </div>
@@ -45,6 +45,13 @@ export class SignalMeter extends RxElement {
     @state hueEnd = 340;
     @state lightness = 62;
     @state glow = 14;
+    @state dp = 0;
+
+    get displayStrength$(): Observable<string> {
+        return combineLatest([this.strength$, this.dp$]).pipe(
+            map(([s, dp]) => Number(s).toFixed(dp)),
+        );
+    }
 
     get meterStyle$(): Observable<string> {
         return combineLatest([this.strength$, this.hueStart$, this.hueEnd$, this.lightness$, this.glow$]).pipe(
@@ -68,6 +75,13 @@ export class SignalMeter extends RxElement {
     @state hueEnd = 340;
     @state lightness = 62;
     @state glow = 14;
+    @state dp = 0;
+
+    get displayStrength$(): Observable<string> {
+        return combineLatest([this.strength$, this.dp$]).pipe(
+            map(([s, dp]) => Number(s).toFixed(dp)),
+        );
+    }
 
     get meterStyle$(): Observable<string> {
         return combineLatest([this.strength$, this.hueStart$, this.hueEnd$, this.lightness$, this.glow$]).pipe(

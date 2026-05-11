@@ -29,16 +29,20 @@ const WRAPPER_STYLES = css`
 
         <section class="host">
             <h2>The meter component</h2>
-            <p class="note">Five
+            <p class="note">Six
                <a href="/docs/components/state"><code class="inline">@state</code></a>
                fields —
                <code class="inline">strength</code>,
                <code class="inline">hueStart</code>,
                <code class="inline">hueEnd</code>,
-               <code class="inline">lightness</code>, and
-               <code class="inline">glow</code> — each settable via an attribute
+               <code class="inline">lightness</code>,
+               <code class="inline">glow</code>, and
+               <code class="inline">dp</code> — each settable via an attribute
                binding from the parent. The derived getter
-               <code class="inline">meterStyle$</code> joins all five
+               <code class="inline">displayStrength$</code> rounds the raw
+               strength to <code class="inline">dp</code> decimal places for the
+               readout text. <code class="inline">meterStyle$</code> joins the
+               five visual
                <a href="/docs/components/state/dollar"><code class="inline">$</code> streams</a>
                with <code class="inline">combineLatest</code> and maps them to four
                CSS custom properties
