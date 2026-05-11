@@ -248,25 +248,41 @@ export class FeaturesPage extends RxElement {
         }, new Array(POINTS).fill(50) as number[]),
     );
 
-    private io: IntersectionObserver | undefined;
-    private animSub = new Subscription();
+    private meterIO: IntersectionObserver | undefined;
+    private graphIO: IntersectionObserver | undefined;
+    private animSub: Subscription = Subscription.EMPTY;
 
-    override onInit(): void {
-        this.io = new IntersectionObserver(([entry]) => {
-            if (entry!.isIntersecting) this.resume();
-            else this.pause();
-        });
-        this.io.observe(this);
+    override onRender(): void {
+        const meterEl = this.querySelector('signal-meter');
+        const graphEl = this.querySelector('rx-graph');
+
+        if (meterEl) {
+            this.meterIO = new IntersectionObserver(([entry]) => {
+                if (entry!.isIntersecting) this.resumeMeter();
+                else this.pauseMeter();
+            });
+            this.meterIO.observe(meterEl);
+        }
+
+        if (graphEl) {
+            this.graphIO = new IntersectionObserver(([entry]) => {
+                if (entry!.isIntersecting) this.resumeGraph();
+                else this.pauseGraph();
+            });
+            this.graphIO.observe(graphEl);
+        }
     }
 
     override onDestroy(): void {
-        this.io?.disconnect();
-        this.pause();
+        this.meterIO?.disconnect();
+        this.graphIO?.disconnect();
+        this.pauseMeter();
+        this.pauseGraph();
     }
 
-    private resume(): void {
-        this.graphSeries = { walk: this.walk$ };
-
+    private resumeMeter(): void {
+        if (!this.animSub.closed) return;
+        this.animSub = new Subscription();
         this.animSub.add(
             interval(0, animationFrameScheduler).pipe(
                 scan((t) => t + 0.015, 0),
@@ -274,12 +290,17 @@ export class FeaturesPage extends RxElement {
                 map(t => 50 + 40 * Math.sin(t)),
             ).subscribe(v => { this.meterStrength = v; }),
         );
-
     }
 
-    private pause(): void {
-        this.graphSeries = {};
+    private pauseMeter(): void {
         this.animSub.unsubscribe();
-        this.animSub = new Subscription();
+    }
+
+    private resumeGraph(): void {
+        this.graphSeries = { walk: this.walk$ };
+    }
+
+    private pauseGraph(): void {
+        this.graphSeries = {};
     }
 }
