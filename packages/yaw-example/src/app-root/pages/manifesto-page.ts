@@ -143,7 +143,6 @@ const YAW_SNIPPET = ts`
                 <p>The platform is enough today. It will be more than enough tomorrow.</p>
                 <p>Custom elements instantiate faster every Chrome release.
                 <code>MutationObserver</code> is faster than it was two years ago.
-                The DOM API keeps getting engine specialisation work.
                 <code>Observable</code> is at WICG, on track to become a primitive —
                 RxJS is already preparing to be the polyfill rather than the implementation.
                 When it lands, our hot path moves into native code. We don't migrate to it.
