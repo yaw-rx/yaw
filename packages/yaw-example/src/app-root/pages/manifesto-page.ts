@@ -76,18 +76,15 @@ const YAW_SNIPPET = ts`
                 <p>The performance pitch isn't ours. It's the browser's. We get out of its way.</p>
                 <hr style="border: none; border-top: var(--border-width) solid var(--bg-6); margin: 1.5rem 0;"/>
                 <p><strong>The principle:</strong> don't pay up front for a class of
-                optimisation until you're hitting a workload that actually needs it.</p>
-                <p>Premature deoptimisation is paying
-                for the rare expensive-cascade case in every write, including the
-                overwhelming majority of writes that are a single property assignment
-                where the suppression machinery costs more than what it's preventing.</p>
-                <p>Our inversion is the principled one. Default to no scheduler, no
+                optimisation until you're hitting a workload that actually needs it.
+                Premature deoptimisation is paying for the pathological case in every ordinary one.</p>
+                <p>Default to no scheduler, no
                 suppression, no coalescing infrastructure. Pay only for the work that's
                 actually present. When you have a workload where intermediate values
                 matter — expensive derivations, wide fan-out, cascading computeds — you
                 reach for an operator that fits the case. The cost is local to the case that
                 needs it. Everything else stays cheap.</p>
-                <p>YAW refuses to inherit the cost of solving problems most apps don't
+                <p>YAW stubbornly refuses to inherit the cost of solving problems most apps don't
                 have, and pushes the few apps that do toward the platform-level tools
                 that solve them precisely.</p>
             </manifesto-section>
@@ -140,6 +137,27 @@ const YAW_SNIPPET = ts`
                 But the convention it's built on will
                 hopefully outlast them all: extend <code>HTMLElement</code>, scan your attributes,
                 subscribe to Observables, clean up when removed. And that's the API. That's the whole API.</p>
+            </manifesto-section>
+
+            <manifesto-section heading="Time Is On Our Side">
+                <p>The platform is enough today. It will be more than enough tomorrow.</p>
+                <p>Custom elements instantiate faster every Chrome release.
+                <code>MutationObserver</code> is faster than it was two years ago.
+                The DOM API keeps getting engine specialisation work.
+                <code>Observable</code> is at WICG, on track to become a primitive —
+                RxJS is already preparing to be the polyfill rather than the implementation.
+                When it lands, our hot path moves into native code. We don't migrate to it.
+                We don't release for it. We were already using it.
+                The code shipped last year gets faster while we sleep.</p>
+                <p>The frameworks racing each other on synthetic benchmarks today are racing
+                on userland JavaScript. A virtual DOM is not a primitive the engines are optimising.
+                A scheduler is not a primitive. Change detection is not a primitive. Those costs
+                stay where they were put — in framework code, optimised by hand, against a moving
+                target. The framework team keeps running. The numbers move a little, then stop
+                moving, then need rewriting.</p>
+                <p>The bet isn't that we're fastest today. The bet is that we built on the
+                right primitives — and they're the ones getting engine work.</p>
+                <p class="closer">Time will settle the argument.</p>
             </manifesto-section>
 
             <manifesto-section heading="To the Angular Dev">
