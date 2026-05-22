@@ -77,16 +77,6 @@ export class TocMenuItemsService {
 
         this.subscribeToBlob(router.route$.getValue());
 
-        // Reset blob race flags and resubscribe on route change.
-        this.subs.push(
-            router.route$.pipe(skip(1)).subscribe((route) => {
-                this.treeFromBlob = false;
-                this.treeFromRebuild = false;
-                for (const sub of this.blobSubs) sub.unsubscribe();
-                this.subscribeToBlob(route);
-            }),
-        );
-
         const rebuild$ = this.rebuildSubject.pipe(
             throttleTime(100, asyncScheduler, { trailing: true, leading: false }),
             share(),
