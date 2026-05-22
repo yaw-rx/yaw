@@ -8,9 +8,11 @@
  * cached previous path, and only collapses/expands the nodes that changed.
  * Shared ancestors stay expanded.
  */
-import { type Observable } from 'rxjs';
+import { type Observable, type Subscription } from 'rxjs';
 import { Component, Inject, RxElement } from '@yaw-rx/core';
-import { isPrerendered } from '@yaw-rx/core/hydrate/state';
+import { isPrerendered, isSSGCapture } from '@yaw-rx/core/hydrate/state';
+import { getGlobalSSGState, setGlobalSSGState } from '@yaw-rx/core/hydrate/global-blob';
+import { Router } from '@yaw-rx/core/router';
 import { RxFor } from '@yaw-rx/core/directives/rx-for';
 import { TocMenuItemsService, type TocEntry } from '../services/toc-menu-items.service.js';
 import { TocMenuItem } from './toc-menu/toc-menu-item.component.js';
@@ -50,13 +52,22 @@ import { TocMenuItem } from './toc-menu/toc-menu-item.component.js';
 })
 export class TocMenu extends RxElement {
     @Inject(TocMenuItemsService) private readonly toc!: TocMenuItemsService;
+    @Inject(Router) private readonly router!: Router;
 
     get nodes$(): Observable<readonly TocEntry[]> {
         return this.toc.tree$;
     }
 
+    private widthSub: Subscription | undefined;
+
     override onInit(): void {
-        if (isPrerendered()) return;
+        if (isPrerendered() && this.style.flexBasis) return;
+        const route = this.router.route$.getValue();
+        this.widthSub = getGlobalSSGState(route, 'toc-width').subscribe((value) => {
+            if (typeof value === 'number') {
+                this.style.flexBasis = `${String(value)}px`;
+            }
+        });
         let timer: number | undefined;
         const mo = new MutationObserver(() => {
             clearTimeout(timer);
@@ -68,8 +79,14 @@ export class TocMenu extends RxElement {
         mo.observe(this, { childList: true, subtree: true });
     }
 
+    override onDestroy(): void {
+        this.widthSub?.unsubscribe();
+    }
+
     // Baked intrinsics - self-measures flex-basis from content width.
-    // SSG captures the result; isPrerendered() skips re-measurement on the static site.
+    // SSG captures the result into the global SSG state blob so that
+    // client-side navigations can apply it without re-measuring.
+    // isPrerendered() skips re-measurement on the static site.
     #measureWidth(): void {
         const nodes = this.querySelectorAll<TocMenuItem>('toc-menu-item');
         const wasExpanded: boolean[] = [];
@@ -82,6 +99,7 @@ export class TocMenu extends RxElement {
         const width = this.scrollWidth;
         this.style.cssText = prev;
         this.style.flexBasis = `${width}px`;
+        if (isSSGCapture()) setGlobalSSGState(this.router.route$.getValue(), 'toc-width', width);
         for (let i = 0; i < nodes.length; i++) {
             nodes[i]!.expanded = wasExpanded[i]!;
         }

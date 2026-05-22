@@ -1,6 +1,7 @@
 import { ReplaySubject } from 'rxjs';
 
 const prerendered = (globalThis as Record<string, unknown>)['__yaw_hydrate'] === true;
+const ssgCapture = (globalThis as Record<string, unknown>)['__yaw_ssg'] === true;
 let hydrating = prerendered;
 
 /**
@@ -8,6 +9,12 @@ let hydrating = prerendered;
  * @returns {boolean} Whether the page is a prerendered SSG page.
  */
 export const isPrerendered = (): boolean => prerendered;
+
+/**
+ * Returns true if the page is being captured by the SSG pipeline.
+ * @returns {boolean} Whether this is an SSG capture run.
+ */
+export const isSSGCapture = (): boolean => ssgCapture;
 
 /**
  * Returns true while hydration is in progress. False before hydration

@@ -47,6 +47,7 @@ import { startObserver, flushExistingBindings } from './binding/native.js';
 import { getStateKeys } from './state.js';
 import { isObservable } from './classify/is-observable.js';
 import { encodeAttribute } from './attribute-codec/encode.js';
+import { serializeGlobalSSGState } from './hydrate/global-blob.js';
 
 /**
  * Configuration for the @Component decorator.
@@ -232,6 +233,7 @@ export const bootstrap = async (options: BootstrapOptions): Promise<void> => {
             isObservable,
             encodeAttribute,
             Injector,
+            serializeGlobalSSGState,
         };
     }
     const injector = new Injector(options.providers ?? []);
@@ -258,8 +260,9 @@ export const bootstrap = async (options: BootstrapOptions): Promise<void> => {
             ?? routes.find(r => r.load !== undefined && r.path !== '*' && path.startsWith(r.path + '/'));
         const endHydration = async (): Promise<void> => {
             setHydrating(false);
-            const { stripSsgAttributes } = await import('./hydrate/bootstrap.js');
+            const { stripSsgAttributes, loadGlobalSSGStateChunks } = await import('./hydrate/bootstrap.js');
             stripSsgAttributes();
+            loadGlobalSSGStateChunks();
         };
         if (match?.load !== undefined) {
             await match.load();

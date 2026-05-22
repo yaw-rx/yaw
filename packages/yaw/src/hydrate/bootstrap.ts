@@ -28,3 +28,14 @@ export const stripSsgAttributes = (): void => {
         el.removeAttribute('data-ssg-id');
     }
 };
+
+/**
+ * Imports all global SSG state chunk modules found in the document.
+ * Each chunk merges its scope into the in-memory blob via __yaw_global_merge.
+ * @returns {void}
+ */
+export const loadGlobalSSGStateChunks = (): void => {
+    for (const link of document.querySelectorAll<HTMLLinkElement>('link[rel="modulepreload"][href*="_gssb/"]')) {
+        import(link.href);
+    }
+};

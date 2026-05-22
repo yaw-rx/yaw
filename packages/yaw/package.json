@@ -37,6 +37,10 @@
       "import": "./dist/hydrate/state.js",
       "types": "./dist/hydrate/state.d.ts"
     },
+    "./hydrate/global-blob": {
+      "import": "./dist/hydrate/global-blob.js",
+      "types": "./dist/hydrate/global-blob.d.ts"
+    },
     "./binding/path": {
       "import": "./dist/binding/path.js",
       "types": "./dist/binding/path.d.ts"

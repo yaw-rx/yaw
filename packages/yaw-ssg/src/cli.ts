@@ -4,6 +4,7 @@ import { findBrowser } from './find-browser.js';
 import { serve } from './serve.js';
 import { discoverRoutes } from './discover.js';
 import { captureRoute } from './capture.js';
+import { renderPages } from './render.js';
 
 async function main(): Promise<void> {
     const distDir = process.argv[2];
@@ -31,7 +32,8 @@ async function main(): Promise<void> {
     try {
         const routes = await discoverRoutes(browser, url);
         console.log(`Discovered ${String(routes.length)} routes: ${routes.join(', ')}`);
-        await Promise.all(routes.map((route) => captureRoute(browser, url, route, outDir)));
+        const results = await Promise.all(routes.map((route) => captureRoute(browser, url, route)));
+        renderPages(results, outDir);
     } finally {
         await browser.close();
         close();

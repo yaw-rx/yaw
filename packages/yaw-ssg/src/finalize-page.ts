@@ -8,13 +8,14 @@ import type { Page } from 'puppeteer-core';
  * Reads framework internals from globalThis.__yaw_ssg_internals, which
  * the framework populates during bootstrap in SSG mode.
  */
-export async function finalizePage(page: Page): Promise<void> {
-    await page.evaluate(() => {
+export async function finalizePage(page: Page): Promise<string> {
+    return page.evaluate(() => {
         const internals = (globalThis as Record<string, unknown>)['__yaw_ssg_internals'] as {
             getStateKeys: (proto: object) => ReadonlySet<string>;
             isObservable: (obj: unknown) => boolean;
             encodeAttribute: (typeName: string, key: string, value: unknown) => string;
             Injector: { new (...args: unknown[]): { forEachInstance: (cb: (instance: unknown) => void) => void } };
+            serializeGlobalSSGState: () => string;
         };
 
         const { getStateKeys, isObservable, encodeAttribute } = internals;
@@ -117,5 +118,7 @@ export async function finalizePage(page: Page): Promise<void> {
         }
 
         document.body.setAttribute('data-ssg-ready', '');
+
+        return internals.serializeGlobalSSGState();
     });
 }

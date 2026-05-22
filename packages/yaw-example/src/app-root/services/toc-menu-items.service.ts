@@ -22,8 +22,11 @@
  * 4. Click navigation: smooth scroll + hard snap after a delay
  *    (smooth scrollIntoView is buggy during page load on some clients).
  */
-import { asyncScheduler, BehaviorSubject, share, skip, Subject, throttleTime } from 'rxjs';
+import { asyncScheduler, BehaviorSubject, type Subscription, share, skip, Subject, throttleTime } from 'rxjs';
 import { Injectable, state } from '@yaw-rx/core';
+import { getGlobalSSGState, setGlobalSSGState } from '@yaw-rx/core/hydrate/global-blob';
+import { isSSGCapture } from '@yaw-rx/core/hydrate/state';
+import { Router } from '@yaw-rx/core/router';
 
 const SNAP_DELAY = 400;
 
@@ -39,13 +42,14 @@ interface SectionRatioState {
     isIntersecting: boolean;
 }
 
-@Injectable()
+@Injectable([Router])
 export class TocMenuItemsService {
     @state activeId = '';
     @state expandAll = false;
     @state tree: readonly TocEntry[] = [];
     readonly paths = new Map<string, readonly string[]>();
 
+    private readonly router: Router;
     private readonly entries: { id: string; label: string; depth: number; path: string }[] = [];
     private readonly elements = new Map<string, HTMLElement>();
     private readonly idToPath = new Map<string, string>();
@@ -59,27 +63,66 @@ export class TocMenuItemsService {
     private ratioSubscription: { unsubscribe(): void } | undefined;
     private basePath: string | undefined;
     private restored = false;
+    private readonly subs: Subscription[] = [];
+    // First-writer-wins between SSG global blob chunks and rebuildTree.
+    // Both set tree/paths; whichever fires first claims authority and
+    // the other is suppressed to avoid redundant emissions on tree$.
+    private treeFromBlob = false;
+    private treeFromRebuild = false;
 
-    constructor() {
+    private blobSubs: Subscription[] = [];
+
+    constructor(router: Router) {
+        this.router = router;
+
+        this.subscribeToBlob(router.route$.getValue());
+
+        // Reset blob race flags and resubscribe on route change.
+        this.subs.push(
+            router.route$.pipe(skip(1)).subscribe((route) => {
+                this.treeFromBlob = false;
+                this.treeFromRebuild = false;
+                for (const sub of this.blobSubs) sub.unsubscribe();
+                this.subscribeToBlob(route);
+            }),
+        );
+
         const rebuild$ = this.rebuildSubject.pipe(
             throttleTime(100, asyncScheduler, { trailing: true, leading: false }),
             share(),
         );
 
-        rebuild$.subscribe(() => {
-            this.rebuildTree();
-            this.buildObservers();
-            this.restoreFromUrl();
-        });
+        this.subs.push(
+            rebuild$.subscribe(() => {
+                this.rebuildTree();
+                this.buildObservers();
+                this.restoreFromUrl();
+            }),
+            this.activeId$.pipe(skip(1)).subscribe((id) => {
+                if (!id || this.basePath === undefined) return;
+                const loc = window.location.pathname;
+                if (loc !== this.basePath && !loc.startsWith(this.basePath + '/')) return;
+                const path = this.idToPath.get(id) ?? id;
+                history.replaceState(null, '', this.basePath + '/' + path);
+            }),
+        );
+    }
 
-
-        this.activeId$.pipe(skip(1)).subscribe((id) => {
-            if (!id || this.basePath === undefined) return;
-            const loc = window.location.pathname;
-            if (loc !== this.basePath && !loc.startsWith(this.basePath + '/')) return;
-            const path = this.idToPath.get(id) ?? id;
-            history.replaceState(null, '', this.basePath + '/' + path);
-        });
+    private subscribeToBlob(route: string): void {
+        this.blobSubs = [
+            getGlobalSSGState(route, 'toc-tree').subscribe((value) => {
+                if (this.treeFromRebuild) return;
+                this.tree = value as unknown as TocEntry[];
+                this.treeFromBlob = true;
+            }),
+            getGlobalSSGState(route, 'toc-paths').subscribe((value) => {
+                if (this.treeFromRebuild) return;
+                const paths = value as unknown as Record<string, string[]>;
+                for (const [id, trail] of Object.entries(paths)) {
+                    this.paths.set(id, trail);
+                }
+            }),
+        ];
     }
 
     private restoreFromUrl(): void {
@@ -138,7 +181,6 @@ export class TocMenuItemsService {
         const el = this.elements.get(id);
         if (!el) return;
         el.scrollIntoView({ behavior: 'smooth' });
-        // setTimeout(() => el.scrollIntoView({ behavior: 'instant', block: 'start' }), SNAP_DELAY);
     }
 
     private scheduleRebuild(): void {
@@ -259,6 +301,27 @@ export class TocMenuItemsService {
             }
             this.paths.set(id, trail);
         }
+        // SSG blob chunk already provided the authoritative tree for this
+        // route - skip assignment to avoid a redundant emission on tree$.
+        if (this.treeFromBlob) return;
+        // Claim authority so a late-arriving blob chunk is suppressed.
+        this.treeFromRebuild = true;
         this.tree = root;
+        // Only capture into the global SSG state during SSG - at runtime
+        // the blob chunks own this data and would collide.
+        if (isSSGCapture()) {
+            const route = this.router.route$.getValue();
+            const pathsRecord: Record<string, readonly string[]> = {};
+            for (const [id, trail] of this.paths) pathsRecord[id] = trail;
+            setGlobalSSGState(route, 'toc-tree', root);
+            setGlobalSSGState(route, 'toc-paths', pathsRecord);
+        }
+    }
+
+    onDestroy(): void {
+        for (const sub of this.subs) sub.unsubscribe();
+        for (const sub of this.blobSubs) sub.unsubscribe();
+        this.ratioSubscription?.unsubscribe();
+        this.disconnectObservers();
     }
 }
