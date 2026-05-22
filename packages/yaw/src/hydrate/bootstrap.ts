@@ -35,7 +35,7 @@ export const stripSsgAttributes = (): void => {
  * @returns {void}
  */
 export const loadGlobalSSGStateChunks = (): void => {
-    for (const link of document.querySelectorAll<HTMLLinkElement>('link[rel="modulepreload"][href*="_gssb/"]')) {
+    for (const link of document.querySelectorAll<HTMLLinkElement>('link[rel="modulepreload"][href*="assets/gssb/"]')) {
         import(link.href);
     }
 };

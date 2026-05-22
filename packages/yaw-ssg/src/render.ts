@@ -3,7 +3,7 @@ import { join, dirname } from 'path';
 import type { CaptureResult } from './capture.js';
 
 const HYDRATE_SCRIPT = '<script>globalThis.__yaw_hydrate=true;</script>';
-const GSSB_DIR = '_gssb';
+const GSSB_DIR = 'assets/gssb';
 
 /**
  * Validates there are no scope + key collisions across captured pages.
