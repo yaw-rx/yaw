@@ -112,7 +112,6 @@ export class TocMenuItemsService {
             const prefix = full.slice(0, full.length - tocPath.length - 1);
             if (!prefix.startsWith('/')) continue;
             this.basePath = prefix;
-            console.log('restoreFromUrl → scrollTo:', id, 'path:', tocPath);
             this.scrollTo(id);
             return;
         }
@@ -162,7 +161,11 @@ export class TocMenuItemsService {
     scrollTo(id: string): void {
         const el = this.anchorElements.get(id);
         if (!el) return;
-        el.scrollIntoView({ behavior: 'smooth' });
+        const ro = new ResizeObserver(() => {
+            el.scrollIntoView({ behavior: 'smooth' });
+        });
+        ro.observe(document.documentElement);
+        window.addEventListener('scrollend', () => ro.disconnect(), { once: true });
     }
 
     private scheduleRebuild(): void {
