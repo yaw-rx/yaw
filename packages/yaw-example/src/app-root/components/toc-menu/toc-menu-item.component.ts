@@ -52,7 +52,7 @@ export class TocMenuItem extends RxElement {
     @state depth = 0;
     @state expanded = false;
     @state active = false;
-
+    
     @Inject(TocMenuItemsService) private readonly toc!: TocMenuItemsService;
     @Inject(TocMenuService) private readonly sidebar!: TocMenuService;
 

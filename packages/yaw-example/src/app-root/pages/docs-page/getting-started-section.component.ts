@@ -354,10 +354,10 @@ cd packages\\yaw-vscode && npm run build && mklink /D "%USERPROFILE%\\.vscode\\e
 }`}</code-block>
             <p class="note">Add a
                <code class="inline">.vscode/settings.json</code> to
-               point VSCode at the workspace TypeScript and enable
-               the extension.</p>
+               prompt VSCode to use the workspace TypeScript (which
+               has the plugins patched in) and enable the extension.</p>
             <code-block syntax="json">${escape`{
-  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "js/ts.tsdk.promptToUseWorkspaceVersion": true,
   "yaw-rx.yaw.enable": true
 }`}</code-block>
         </section>

@@ -17,7 +17,7 @@ export class TocSection {
         const path = node.getAttribute('toc-section') || '';
         const depth = path ? path.split('/').length - 1 : 0;
         node.style.setProperty('--toc-depth', String(depth));
-        this.toc.registerSection(path, depth);
+        this.toc.registerSection(path, depth, node as HTMLElement);
     }
 
     onDestroy(): void {

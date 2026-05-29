@@ -22,7 +22,7 @@
  * 4. Click navigation: smooth scroll + hard snap after a delay
  *    (smooth scrollIntoView is buggy during page load on some clients).
  */
-import { asyncScheduler, BehaviorSubject, type Subscription, share, skip, Subject, throttleTime } from 'rxjs';
+import { asyncScheduler, type Subscription, share, skip, Subject, throttleTime } from 'rxjs';
 import { Injectable, state } from '@yaw-rx/core';
 import { getGlobalSSGState, setGlobalSSGState } from '@yaw-rx/core/hydrate/global-blob';
 import { isSSGCapture } from '@yaw-rx/core/hydrate/state';
@@ -37,10 +37,6 @@ export interface TocEntry {
     readonly childEntries: TocEntry[];
 }
 
-interface SectionRatioState {
-    viewableArea: number;
-    isIntersecting: boolean;
-}
 
 @Injectable([Router])
 export class TocMenuItemsService {
@@ -51,16 +47,13 @@ export class TocMenuItemsService {
 
     private readonly router: Router;
     private readonly entries: { id: string; label: string; depth: number; path: string }[] = [];
-    private readonly elements = new Map<string, HTMLElement>();
+    private readonly anchorElements = new Map<string, HTMLElement>();
+    private readonly bodies: { id: string; element: HTMLElement; depth: number }[] = [];
     private readonly idToPath = new Map<string, string>();
     private readonly pathToId = new Map<string, string>();
-    private observers: Record<string, IntersectionObserver> = {};
-    private ratioState: Record<string, SectionRatioState> = {};
-    private ratioSubject: BehaviorSubject<Record<string, SectionRatioState>> | undefined;
-    private lastAreaState: Record<string, number> = {};
-    private lastWinner = '';
+    private bodyObservers: Record<string, IntersectionObserver> = {};
+    private anchorObservers: Record<string, IntersectionObserver> = {};
     private rebuildSubject = new Subject<void>();
-    private ratioSubscription: { unsubscribe(): void } | undefined;
     private basePath: string | undefined;
     private restored = false;
     private readonly subs: Subscription[] = [];
@@ -130,10 +123,11 @@ export class TocMenuItemsService {
         this.basePath = full;
     }
 
-    registerSection(path: string, depth: number): void {
+    registerSection(path: string, depth: number, element: HTMLElement): void {
         const id = path.replace(/\//g, '-');
         const label = path.split('/').pop()!;
         this.entries.push({ id, label, depth, path });
+        this.bodies.push({ id, element, depth });
         if (path) {
             this.idToPath.set(id, path);
             this.pathToId.set(path, id);
@@ -143,7 +137,10 @@ export class TocMenuItemsService {
 
     unregisterSection(path: string): void {
         const id = path.replace(/\//g, '-');
-        this.elements.delete(id);
+        this.anchorElements.delete(id);
+        const bodyIdx = this.bodies.findIndex((b) => b.id === id);
+        if (bodyIdx !== -1) this.bodies.splice(bodyIdx, 1);
+        this.intersectingBodiesSet.delete(id);
         this.idToPath.delete(id);
         this.pathToId.delete(path);
         const idx = this.entries.findIndex((e) => e.path === path);
@@ -154,7 +151,7 @@ export class TocMenuItemsService {
 
     registerAnchor(path: string, label: string, element: HTMLElement): void {
         const id = path.replace(/\//g, '-');
-        this.elements.set(id, element);
+        this.anchorElements.set(id, element);
         const entry = this.entries.find((e) => e.path === path);
         if (entry) entry.label = label;
         this.scheduleRebuild();
@@ -162,13 +159,13 @@ export class TocMenuItemsService {
 
     unregisterAnchor(path: string): void {
         const id = path.replace(/\//g, '-');
-        this.elements.delete(id);
+        this.anchorElements.delete(id);
         this.disconnectObservers();
         this.scheduleRebuild();
     }
 
     scrollTo(id: string): void {
-        const el = this.elements.get(id);
+        const el = this.anchorElements.get(id);
         if (!el) return;
         el.scrollIntoView({ behavior: 'smooth' });
     }
@@ -186,78 +183,112 @@ export class TocMenuItemsService {
     }
 
     private disconnectObservers(): void {
-        for (const id of Object.keys(this.observers)) {
-            this.observers[id]!.disconnect();
+        for (const id of Object.keys(this.bodyObservers)) {
+            this.bodyObservers[id]!.disconnect();
         }
-        this.observers = {};
+        for (const id of Object.keys(this.anchorObservers)) {
+            this.anchorObservers[id]!.disconnect();
+        }
+        this.bodyObservers = {};
+        this.anchorObservers = {};
+    }
+
+    private readonly intersectingBodiesSet = new Set<string>();
+    private readonly intersectingAnchorsSet = new Set<string>();
+    private readonly invisibleAnchorsSet = new Set<string>();
+    private firstVisibleIndex = -1;
+    private lastVisibleIndex = -1;
+
+    private updateEffective(): void {
+        if (this.intersectingBodiesSet.size === 0) return;
+        let effective: { id: string; depth: number }[];
+        if (this.intersectingBodiesSet.size === 1) {
+            effective = this.bodies.filter((b) => this.intersectingBodiesSet.has(b.id));
+        } else {
+            effective = [...this.intersectingBodiesSet].filter((id) => !this.invisibleAnchorsSet.has(id)).map((id) => this.bodies.find((b) => b.id === id)!);
+        }
+        console.log('effective:', effective.map((b) => `${b.id}(d${b.depth})`));
+        const active = effective[0];
+        if (active && active.id !== this.activeId) {
+            this.activeId = active.id;
+        }
+    }
+
+    private updateBounds(): void {
+        const prevFirst = this.firstVisibleIndex;
+        const prevLast = this.lastVisibleIndex;
+        this.firstVisibleIndex = -1;
+        this.lastVisibleIndex = -1;
+        for (let i = 0; i < this.bodies.length; i++) {
+            if (this.intersectingBodiesSet.has(this.bodies[i]!.id)) {
+                if (this.firstVisibleIndex === -1) this.firstVisibleIndex = i;
+                this.lastVisibleIndex = i;
+            }
+        }
+        if (this.firstVisibleIndex !== prevFirst || this.lastVisibleIndex !== prevLast) {
+            console.log('bounds changed — first:', this.firstVisibleIndex, '(' + this.bodies[this.firstVisibleIndex]?.id + ')', 'last:', this.lastVisibleIndex, '(' + this.bodies[this.lastVisibleIndex]?.id + ')');
+        }
     }
 
     private buildObservers(): void {
-        this.ratioSubscription?.unsubscribe();
         this.disconnectObservers();
+        this.intersectingBodiesSet.clear();
+        this.intersectingAnchorsSet.clear();
+        this.invisibleAnchorsSet.clear();
+        for (const [id] of this.anchorElements) {
+            this.invisibleAnchorsSet.add(id);
+        }
+        this.firstVisibleIndex = -1;
+        this.lastVisibleIndex = -1;
 
-        this.ratioState = {};
-        this.lastAreaState = {};
-        this.lastWinner = '';
+        console.log('bodies in order:', this.bodies.map((b) => b.id));
 
-        this.ratioSubject = new BehaviorSubject<Record<string, SectionRatioState>>(this.ratioState);
-
-        this.ratioSubscription = this.ratioSubject.subscribe((state) => {
-            const currentArea: Record<string, number> = {};
-            for (const id of Object.keys(state)) {
-                currentArea[id] = state[id]!.viewableArea;
-            }
-
-            const diff: Record<string, boolean> = {};
-            for (const id of Object.keys(currentArea)) {
-                if (currentArea[id] !== this.lastAreaState[id]) diff[id] = true;
-            }
-            const stateChanged = Object.keys(diff).length > 0;
-            if (!stateChanged) return;
-
-            let maxRatio = 0;
-            let winner = '';
-
-            for (const id of Object.keys(currentArea)) {
-                const ratio = currentArea[id]!;
-                if (ratio > maxRatio && stateChanged) {
-                    maxRatio = ratio;
-                    winner = id;
-                } else if (ratio === maxRatio && ratio > 0) {
-                    if (id !== this.lastWinner && stateChanged && diff[id]) {
-                        maxRatio = ratio;
-                        winner = id;
-                    }
-                }
-            }
-
-            if (winner && (diff[winner] || diff[this.lastWinner])) {
-                this.lastWinner = winner;
-                this.lastAreaState = currentArea;
-                if (winner !== this.activeId) {
-                    this.activeId = winner;
-                }
-            }
-        });
-
-        for (const [id, element] of this.elements) {
-            this.ratioState[id] = { viewableArea: 0, isIntersecting: false };
+        for (let i = 0; i < this.bodies.length; i++) {
+            const { id, element } = this.bodies[i]!;
 
             const observer = new IntersectionObserver(
                 (entries) => {
                     const entry = entries[0];
                     if (!entry) return;
-                    this.ratioState[id] = {
-                        viewableArea: entry.intersectionRatio,
-                        isIntersecting: entry.isIntersecting,
-                    };
-                    this.ratioSubject!.next(this.ratioState);
-                },
-                { rootMargin: '0px', threshold: [0, 0.25, 0.5, 0.75, 1] },
-            );
 
+                    if (entry.isIntersecting) {
+                        this.intersectingBodiesSet.add(id);
+                    } else {
+                        this.intersectingBodiesSet.delete(id);
+                    }
+
+                    console.log('intersecting:', [...this.intersectingBodiesSet].map((sid) => { const b = this.bodies.find((x) => x.id === sid); return `${sid}(d${b?.depth})`; }));
+                    this.updateBounds();
+                    this.updateEffective();
+                },
+                { threshold: [0] },
+            );
             observer.observe(element);
-            this.observers[id] = observer;
+            this.bodyObservers[id] = observer;
+
+            const anchor = this.anchorElements.get(id);
+            if (!anchor) continue;
+
+            const anchorObs = new IntersectionObserver(
+                (entries) => {
+                    const entry = entries[0];
+                    if (!entry) return;
+
+                    if (entry.isIntersecting) {
+                        this.intersectingAnchorsSet.add(id);
+                        this.invisibleAnchorsSet.delete(id);
+                    } else {
+                        this.intersectingAnchorsSet.delete(id);
+                        this.invisibleAnchorsSet.add(id);
+                    }
+                    console.log('anchors visible:', [...this.intersectingAnchorsSet].map((sid) => { const b = this.bodies.find((x) => x.id === sid); return `${sid}(d${b?.depth})`; }));
+                    //console.log('anchors invisible:', [...this.invisibleAnchorsSet].map((sid) => { const b = this.bodies.find((x) => x.id === sid); return `${sid}(d${b?.depth})`; }));
+                    this.updateEffective();
+                },
+                { threshold: [0] },
+            );
+            anchorObs.observe(anchor);
+            this.anchorObservers[id] = anchorObs;
         }
     }
 
@@ -311,7 +342,6 @@ export class TocMenuItemsService {
     onDestroy(): void {
         for (const sub of this.subs) sub.unsubscribe();
         for (const sub of this.blobSubs) sub.unsubscribe();
-        this.ratioSubscription?.unsubscribe();
         this.disconnectObservers();
     }
 }
