@@ -1,34 +1,30 @@
 /**
- * toc.ts — table of contents service and directive for the docs page.
+ * toc.ts — table of contents service for the docs page.
  *
- * The TocService is the single source of truth for the docs navigation.
- * Content sections register themselves via the toc-section directive.
- * The service builds a tree and tracks which section is most visible.
+ * Single source of truth for docs navigation. Content sections register
+ * themselves via the toc-section directive; the service builds a tree
+ * and tracks which section is active.
  *
- * Adapted from jk89/personal-website NavigationService. The approach:
+ * Algorithm — center-line intersection:
  *
- * 1. Sections register with their element reference (like Angular's
- *    linkElementToNavigation directive).
+ * 1. Sections register their body element via the toc-section directive.
  *
- * 2. After all sections register (batched via microtask), the service
- *    builds intersection observers for ALL sections at once — not one
- *    by one. Each observer uses thresholds [0, 0.25, 0.5, 0.75, 1].
+ * 2. Each body gets an IntersectionObserver with rootMargin
+ *    '-50% 0px -50% 0px'. This shrinks the observation zone to a
+ *    zero-height line at the viewport's vertical center.
  *
- * 3. Observer callbacks merge their ratio into a shared state object
- *    and push to a single BehaviorSubject. One subscription on that
- *    subject computes the winner — highest viewable area. State
- *    diffing prevents redundant updates.
+ * 3. When a body crosses that center line the observer fires an enter
+ *    event and that body becomes the active section.
  *
- * 4. Click navigation: smooth scroll + hard snap after a delay
- *    (smooth scrollIntoView is buggy during page load on some clients).
+ * 4. Only enter events are used. The last body to enter the center
+ *    line wins. Sections taller than the viewport remain active for
+ *    the entire duration they span the midpoint.
  */
 import { asyncScheduler, type Subscription, share, skip, Subject, throttleTime } from 'rxjs';
 import { Injectable, state } from '@yaw-rx/core';
 import { getGlobalSSGState, setGlobalSSGState } from '@yaw-rx/core/hydrate/global-blob';
 import { isSSGCapture } from '@yaw-rx/core/hydrate/state';
 import { Router } from '@yaw-rx/core/router';
-
-const SNAP_DELAY = 400;
 
 export interface TocEntry {
     readonly id: string;
@@ -52,7 +48,6 @@ export class TocMenuItemsService {
     private readonly idToPath = new Map<string, string>();
     private readonly pathToId = new Map<string, string>();
     private bodyObservers: Record<string, IntersectionObserver> = {};
-    private anchorObservers: Record<string, IntersectionObserver> = {};
     private rebuildSubject = new Subject<void>();
     private basePath: string | undefined;
     private restored = false;
@@ -117,6 +112,7 @@ export class TocMenuItemsService {
             const prefix = full.slice(0, full.length - tocPath.length - 1);
             if (!prefix.startsWith('/')) continue;
             this.basePath = prefix;
+            console.log('restoreFromUrl → scrollTo:', id, 'path:', tocPath);
             this.scrollTo(id);
             return;
         }
@@ -140,7 +136,6 @@ export class TocMenuItemsService {
         this.anchorElements.delete(id);
         const bodyIdx = this.bodies.findIndex((b) => b.id === id);
         if (bodyIdx !== -1) this.bodies.splice(bodyIdx, 1);
-        this.intersectingBodiesSet.delete(id);
         this.idToPath.delete(id);
         this.pathToId.delete(path);
         const idx = this.entries.findIndex((e) => e.path === path);
@@ -186,62 +181,11 @@ export class TocMenuItemsService {
         for (const id of Object.keys(this.bodyObservers)) {
             this.bodyObservers[id]!.disconnect();
         }
-        for (const id of Object.keys(this.anchorObservers)) {
-            this.anchorObservers[id]!.disconnect();
-        }
         this.bodyObservers = {};
-        this.anchorObservers = {};
-    }
-
-    private readonly intersectingBodiesSet = new Set<string>();
-    private readonly intersectingAnchorsSet = new Set<string>();
-    private readonly invisibleAnchorsSet = new Set<string>();
-    private firstVisibleIndex = -1;
-    private lastVisibleIndex = -1;
-
-    private updateEffective(): void {
-        if (this.intersectingBodiesSet.size === 0) return;
-        let effective: { id: string; depth: number }[];
-        if (this.intersectingBodiesSet.size === 1) {
-            effective = this.bodies.filter((b) => this.intersectingBodiesSet.has(b.id));
-        } else {
-            effective = [...this.intersectingBodiesSet].filter((id) => !this.invisibleAnchorsSet.has(id)).map((id) => this.bodies.find((b) => b.id === id)!);
-        }
-        console.log('effective:', effective.map((b) => `${b.id}(d${b.depth})`));
-        const active = effective[0];
-        if (active && active.id !== this.activeId) {
-            this.activeId = active.id;
-        }
-    }
-
-    private updateBounds(): void {
-        const prevFirst = this.firstVisibleIndex;
-        const prevLast = this.lastVisibleIndex;
-        this.firstVisibleIndex = -1;
-        this.lastVisibleIndex = -1;
-        for (let i = 0; i < this.bodies.length; i++) {
-            if (this.intersectingBodiesSet.has(this.bodies[i]!.id)) {
-                if (this.firstVisibleIndex === -1) this.firstVisibleIndex = i;
-                this.lastVisibleIndex = i;
-            }
-        }
-        if (this.firstVisibleIndex !== prevFirst || this.lastVisibleIndex !== prevLast) {
-            console.log('bounds changed — first:', this.firstVisibleIndex, '(' + this.bodies[this.firstVisibleIndex]?.id + ')', 'last:', this.lastVisibleIndex, '(' + this.bodies[this.lastVisibleIndex]?.id + ')');
-        }
     }
 
     private buildObservers(): void {
         this.disconnectObservers();
-        this.intersectingBodiesSet.clear();
-        this.intersectingAnchorsSet.clear();
-        this.invisibleAnchorsSet.clear();
-        for (const [id] of this.anchorElements) {
-            this.invisibleAnchorsSet.add(id);
-        }
-        this.firstVisibleIndex = -1;
-        this.lastVisibleIndex = -1;
-
-        console.log('bodies in order:', this.bodies.map((b) => b.id));
 
         for (let i = 0; i < this.bodies.length; i++) {
             const { id, element } = this.bodies[i]!;
@@ -252,43 +196,15 @@ export class TocMenuItemsService {
                     if (!entry) return;
 
                     if (entry.isIntersecting) {
-                        this.intersectingBodiesSet.add(id);
-                    } else {
-                        this.intersectingBodiesSet.delete(id);
+                        if (id !== this.activeId) {
+                            this.activeId = id;
+                        }
                     }
-
-                    console.log('intersecting:', [...this.intersectingBodiesSet].map((sid) => { const b = this.bodies.find((x) => x.id === sid); return `${sid}(d${b?.depth})`; }));
-                    this.updateBounds();
-                    this.updateEffective();
                 },
-                { threshold: [0] },
+                { rootMargin: '-50% 0px -50% 0px' },
             );
             observer.observe(element);
             this.bodyObservers[id] = observer;
-
-            const anchor = this.anchorElements.get(id);
-            if (!anchor) continue;
-
-            const anchorObs = new IntersectionObserver(
-                (entries) => {
-                    const entry = entries[0];
-                    if (!entry) return;
-
-                    if (entry.isIntersecting) {
-                        this.intersectingAnchorsSet.add(id);
-                        this.invisibleAnchorsSet.delete(id);
-                    } else {
-                        this.intersectingAnchorsSet.delete(id);
-                        this.invisibleAnchorsSet.add(id);
-                    }
-                    console.log('anchors visible:', [...this.intersectingAnchorsSet].map((sid) => { const b = this.bodies.find((x) => x.id === sid); return `${sid}(d${b?.depth})`; }));
-                    //console.log('anchors invisible:', [...this.invisibleAnchorsSet].map((sid) => { const b = this.bodies.find((x) => x.id === sid); return `${sid}(d${b?.depth})`; }));
-                    this.updateEffective();
-                },
-                { threshold: [0] },
-            );
-            anchorObs.observe(anchor);
-            this.anchorObservers[id] = anchorObs;
         }
     }
 
