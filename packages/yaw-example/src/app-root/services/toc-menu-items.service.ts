@@ -189,9 +189,53 @@ export class TocMenuItemsService {
 
     private buildObservers(): void {
         this.disconnectObservers();
+        this.bodies.sort((a, b) => a.element.compareDocumentPosition(b.element) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
 
-        for (let i = 0; i < this.bodies.length; i++) {
+        if (this.bodies.length === 0) return;
+
+        // The first section sits at the top of the page and can be too short
+        // to reach the center line. It gets a full viewport observer
+        // instead: active while visible, center line observers for the
+        // rest only connect once it leaves.
+        const first = this.bodies[0]!;
+        // Margin and padding are not visible content. Exclude them so
+        // the section exits when its content scrolls out, not its spacing.
+        const style = getComputedStyle(first.element);
+        const bottomInset = parseFloat(style.marginBottom) + parseFloat(style.paddingBottom);
+        // The fixed nav bar covers the top of the viewport. Content
+        // scrolled behind it should count as gone.
+        const nav = document.querySelector('nav');
+        const topInset = nav ? nav.getBoundingClientRect().height : 0;
+        const firstObserver = new IntersectionObserver(
+            (entries) => {
+                const entry = entries[0];
+                if (!entry) return;
+
+                if (entry.isIntersecting) {
+                    this.activeId = first.id;
+                    this.disconnectCenterLineObservers();
+                } else {
+                    this.buildCenterLineObservers();
+                }
+            },
+            { rootMargin: `-${topInset}px 0px -${bottomInset}px 0px` },
+        );
+        firstObserver.observe(first.element);
+        this.bodyObservers[first.id] = firstObserver;
+    }
+
+    private disconnectCenterLineObservers(): void {
+        for (const [id, obs] of Object.entries(this.bodyObservers)) {
+            if (id === this.bodies[0]?.id) continue;
+            obs.disconnect();
+            delete this.bodyObservers[id];
+        }
+    }
+
+    private buildCenterLineObservers(): void {
+        for (let i = 1; i < this.bodies.length; i++) {
             const { id, element } = this.bodies[i]!;
+            if (this.bodyObservers[id]) continue;
 
             const observer = new IntersectionObserver(
                 (entries) => {
