@@ -1,94 +1,95 @@
 {
-  "name": "@yaw-rx/core",
-  "version": "0.1.0",
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
-  "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+    "name": "@yaw-rx/core",
+    "version": "0.1.0",
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
     },
-    "./router": {
-      "import": "./dist/router.js",
-      "types": "./dist/router.d.ts"
+    "files": ["dist"],
+    "type": "module",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        },
+        "./router": {
+            "import": "./dist/router.js",
+            "types": "./dist/router.d.ts"
+        },
+        "./router/outlet": {
+            "import": "./dist/components/rx-router-outlet.js",
+            "types": "./dist/components/rx-router-outlet.d.ts"
+        },
+        "./directives/rx-if": {
+            "import": "./dist/directives/rx-if.js",
+            "types": "./dist/directives/rx-if.d.ts"
+        },
+        "./directives/rx-for": {
+            "import": "./dist/directives/rx-for.js",
+            "types": "./dist/directives/rx-for.d.ts"
+        },
+        "./hydrate/bootstrap": {
+            "import": "./dist/hydrate/bootstrap.js",
+            "types": "./dist/hydrate/bootstrap.d.ts"
+        },
+        "./hydrate/resolve": {
+            "import": "./dist/hydrate/resolve.js",
+            "types": "./dist/hydrate/resolve.d.ts"
+        },
+        "./hydrate/state": {
+            "import": "./dist/hydrate/state.js",
+            "types": "./dist/hydrate/state.d.ts"
+        },
+        "./hydrate/global-blob": {
+            "import": "./dist/hydrate/global-blob.js",
+            "types": "./dist/hydrate/global-blob.d.ts"
+        },
+        "./binding/path": {
+            "import": "./dist/binding/path.js",
+            "types": "./dist/binding/path.d.ts"
+        },
+        "./binding/native": {
+            "import": "./dist/binding/native.js",
+            "types": "./dist/binding/native.d.ts"
+        },
+        "./binding/hooks/scope": {
+            "import": "./dist/binding/hooks/scope.js",
+            "types": "./dist/binding/hooks/scope.d.ts"
+        },
+        "./binding/hooks/mutation": {
+            "import": "./dist/binding/hooks/mutation.js",
+            "types": "./dist/binding/hooks/mutation.d.ts"
+        },
+        "./binding/hooks/binding": {
+            "import": "./dist/binding/hooks/binding.js",
+            "types": "./dist/binding/hooks/binding.d.ts"
+        },
+        "./binding/setup": {
+            "import": "./dist/binding/setup.js",
+            "types": "./dist/binding/setup.d.ts"
+        },
+        "./arc": {
+            "import": "./dist/arc.js",
+            "types": "./dist/arc.d.ts"
+        },
+        "./directives/setup": {
+            "import": "./dist/directives/setup.js",
+            "types": "./dist/directives/setup.d.ts"
+        }
     },
-    "./router/outlet": {
-      "import": "./dist/components/rx-router-outlet.js",
-      "types": "./dist/components/rx-router-outlet.d.ts"
+    "scripts": {
+        "build": "tsc",
+        "build:watch": "tsc --watch --preserveWatchOutput",
+        "typecheck": "tsc --noEmit",
+        "lint": "eslint src/",
+        "lint:fix": "eslint src/ --fix",
+        "format": "prettier --check src/",
+        "format:fix": "prettier --write src/"
     },
-    "./directives/rx-if": {
-      "import": "./dist/directives/rx-if.js",
-      "types": "./dist/directives/rx-if.d.ts"
-    },
-    "./directives/rx-for": {
-      "import": "./dist/directives/rx-for.js",
-      "types": "./dist/directives/rx-for.d.ts"
-    },
-    "./hydrate/bootstrap": {
-      "import": "./dist/hydrate/bootstrap.js",
-      "types": "./dist/hydrate/bootstrap.d.ts"
-    },
-    "./hydrate/resolve": {
-      "import": "./dist/hydrate/resolve.js",
-      "types": "./dist/hydrate/resolve.d.ts"
-    },
-    "./hydrate/state": {
-      "import": "./dist/hydrate/state.js",
-      "types": "./dist/hydrate/state.d.ts"
-    },
-    "./hydrate/global-blob": {
-      "import": "./dist/hydrate/global-blob.js",
-      "types": "./dist/hydrate/global-blob.d.ts"
-    },
-    "./binding/path": {
-      "import": "./dist/binding/path.js",
-      "types": "./dist/binding/path.d.ts"
-    },
-    "./binding/native": {
-      "import": "./dist/binding/native.js",
-      "types": "./dist/binding/native.d.ts"
-    },
-    "./binding/hooks/scope": {
-      "import": "./dist/binding/hooks/scope.js",
-      "types": "./dist/binding/hooks/scope.d.ts"
-    },
-    "./binding/hooks/mutation": {
-      "import": "./dist/binding/hooks/mutation.js",
-      "types": "./dist/binding/hooks/mutation.d.ts"
-    },
-    "./binding/hooks/binding": {
-      "import": "./dist/binding/hooks/binding.js",
-      "types": "./dist/binding/hooks/binding.d.ts"
-    },
-    "./binding/setup": {
-      "import": "./dist/binding/setup.js",
-      "types": "./dist/binding/setup.d.ts"
-    },
-    "./arc": {
-      "import": "./dist/arc.js",
-      "types": "./dist/arc.d.ts"
-    },
-    "./directives/setup": {
-      "import": "./dist/directives/setup.js",
-      "types": "./dist/directives/setup.d.ts"
+    "dependencies": {
+        "@yaw-rx/common": "*",
+        "rxjs": "8.0.0-alpha.14"
     }
-  },
-  "scripts": {
-    "build": "tsc",
-    "build:watch": "tsc --watch --preserveWatchOutput",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
-    "format": "prettier --check src/",
-    "format:fix": "prettier --write src/"
-  },
-  "dependencies": {
-    "@yaw-rx/common": "*",
-    "rxjs": "8.0.0-alpha.14"
-  }
 }

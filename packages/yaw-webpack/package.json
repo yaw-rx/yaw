@@ -1,34 +1,35 @@
 {
-  "name": "@yaw-rx/webpack",
-  "version": "0.1.0",
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
-  "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+    "name": "@yaw-rx/webpack",
+    "version": "0.1.0",
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
     },
-    "./loader": {
-      "types": "./dist/loader.d.ts",
-      "import": "./dist/loader.js",
-      "require": "./dist/cjs/loader.js"
+    "files": ["dist"],
+    "type": "module",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./loader": {
+            "types": "./dist/loader.d.ts",
+            "import": "./dist/loader.js",
+            "require": "./dist/cjs/loader.js"
+        }
+    },
+    "scripts": {
+        "build": "tsc && tsc -p tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+        "build:watch": "tsc --watch --preserveWatchOutput",
+        "typecheck": "tsc --noEmit",
+        "lint": "eslint src/",
+        "lint:fix": "eslint src/ --fix",
+        "format": "prettier --check src/",
+        "format:fix": "prettier --write src/"
+    },
+    "dependencies": {
+        "@yaw-rx/transformer": "*"
     }
-  },
-  "scripts": {
-    "build": "tsc && tsc -p tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
-    "build:watch": "tsc --watch --preserveWatchOutput",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
-    "format": "prettier --check src/",
-    "format:fix": "prettier --write src/"
-  },
-  "dependencies": {
-    "@yaw-rx/transformer": "*"
-  }
 }

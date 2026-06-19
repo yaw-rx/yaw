@@ -1,37 +1,38 @@
 {
-  "name": "@yaw-rx/esbuild",
-  "version": "0.1.0",
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
-  "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+    "name": "@yaw-rx/esbuild",
+    "version": "0.1.0",
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
     },
-    "./transform": {
-      "types": "./dist/transform.d.ts",
-      "import": "./dist/transform.js"
+    "files": ["dist"],
+    "type": "module",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./transform": {
+            "types": "./dist/transform.d.ts",
+            "import": "./dist/transform.js"
+        },
+        "./assets": {
+            "types": "./dist/assets.d.ts",
+            "import": "./dist/assets.js"
+        }
     },
-    "./assets": {
-      "types": "./dist/assets.d.ts",
-      "import": "./dist/assets.js"
+    "scripts": {
+        "build": "tsc",
+        "build:watch": "tsc --watch --preserveWatchOutput",
+        "typecheck": "tsc --noEmit",
+        "lint": "eslint src/",
+        "lint:fix": "eslint src/ --fix",
+        "format": "prettier --check src/",
+        "format:fix": "prettier --write src/"
+    },
+    "dependencies": {
+        "@yaw-rx/transformer": "*"
     }
-  },
-  "scripts": {
-    "build": "tsc",
-    "build:watch": "tsc --watch --preserveWatchOutput",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
-    "format": "prettier --check src/",
-    "format:fix": "prettier --write src/"
-  },
-  "dependencies": {
-    "@yaw-rx/transformer": "*"
-  }
 }

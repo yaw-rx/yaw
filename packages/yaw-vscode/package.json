@@ -1,58 +1,86 @@
 {
-  "name": "@yaw-rx/vscode",
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
-  "displayName": "YAW",
-  "description": "HTML and CSS highlighting and intellisense inside @Component template and styles",
-  "version": "0.1.0",
-  "publisher": "yaw-rx",
-  "engines": { "vscode": "^1.80.0" },
-  "categories": ["Programming Languages"],
-  "main": "./dist/extension.js",
-  "activationEvents": ["onLanguage:typescript", "onLanguage:typescriptreact"],
-  "contributes": {
-    "grammars": [
-      {
-        "scopeName": "yaw.template.html",
-        "path": "./syntaxes/yaw-template-html.tmLanguage.json",
-        "injectTo": ["source.ts", "source.tsx"],
-        "embeddedLanguages": { "meta.embedded.block.html": "html" }
-      },
-      {
-        "scopeName": "yaw.template.css",
-        "path": "./syntaxes/yaw-template-css.tmLanguage.json",
-        "injectTo": ["source.ts", "source.tsx"],
-        "embeddedLanguages": { "meta.embedded.block.css": "css" }
-      },
-      {
-        "scopeName": "yaw.template.ts",
-        "path": "./syntaxes/yaw-template-ts.tmLanguage.json",
-        "injectTo": ["source.ts", "source.tsx"],
-        "embeddedLanguages": { "meta.embedded.block.typescript": "typescript" }
-      },
-      {
-        "scopeName": "yaw.template.wgsl",
-        "path": "./syntaxes/yaw-template-wgsl.tmLanguage.json",
-        "injectTo": ["source.ts", "source.tsx"],
-        "embeddedLanguages": { "meta.embedded.block.wgsl": "wgsl" }
-      }
-    ]
-  },
-  "scripts": {
-    "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --main-fields=module,main",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
-    "format": "prettier --check src/",
-    "format:fix": "prettier --write src/"
-  },
-  "dependencies": {
-    "vscode-html-languageservice": "^5.3.0",
-    "vscode-css-languageservice": "^6.3.0"
-  },
-  "devDependencies": {
-    "@types/vscode": "^1.80.0",
-    "esbuild": "^0.25.0"
-  }
+    "name": "@yaw-rx/vscode",
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
+    },
+    "files": ["dist", "syntaxes"],
+    "displayName": "YAW",
+    "description": "HTML and CSS highlighting and intellisense inside @Component template and styles",
+    "version": "0.1.0",
+    "publisher": "yaw-rx",
+    "engines": {
+        "vscode": "^1.80.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "main": "./dist/extension.js",
+    "activationEvents": [
+        "onLanguage:typescript",
+        "onLanguage:typescriptreact"
+    ],
+    "contributes": {
+        "grammars": [
+            {
+                "scopeName": "yaw.template.html",
+                "path": "./syntaxes/yaw-template-html.tmLanguage.json",
+                "injectTo": [
+                    "source.ts",
+                    "source.tsx"
+                ],
+                "embeddedLanguages": {
+                    "meta.embedded.block.html": "html"
+                }
+            },
+            {
+                "scopeName": "yaw.template.css",
+                "path": "./syntaxes/yaw-template-css.tmLanguage.json",
+                "injectTo": [
+                    "source.ts",
+                    "source.tsx"
+                ],
+                "embeddedLanguages": {
+                    "meta.embedded.block.css": "css"
+                }
+            },
+            {
+                "scopeName": "yaw.template.ts",
+                "path": "./syntaxes/yaw-template-ts.tmLanguage.json",
+                "injectTo": [
+                    "source.ts",
+                    "source.tsx"
+                ],
+                "embeddedLanguages": {
+                    "meta.embedded.block.typescript": "typescript"
+                }
+            },
+            {
+                "scopeName": "yaw.template.wgsl",
+                "path": "./syntaxes/yaw-template-wgsl.tmLanguage.json",
+                "injectTo": [
+                    "source.ts",
+                    "source.tsx"
+                ],
+                "embeddedLanguages": {
+                    "meta.embedded.block.wgsl": "wgsl"
+                }
+            }
+        ]
+    },
+    "scripts": {
+        "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --main-fields=module,main",
+        "lint": "eslint src/",
+        "lint:fix": "eslint src/ --fix",
+        "format": "prettier --check src/",
+        "format:fix": "prettier --write src/"
+    },
+    "dependencies": {
+        "vscode-html-languageservice": "^5.3.0",
+        "vscode-css-languageservice": "^6.3.0"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.80.0",
+        "esbuild": "^0.25.0"
+    }
 }
