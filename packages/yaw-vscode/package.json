@@ -4,10 +4,13 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "files": ["dist", "syntaxes"],
+    "files": [
+        "dist",
+        "syntaxes"
+    ],
     "displayName": "YAW",
     "description": "HTML and CSS highlighting and intellisense inside @Component template and styles",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "publisher": "yaw-rx",
     "engines": {
         "vscode": "^1.80.0"

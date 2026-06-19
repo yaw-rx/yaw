@@ -1,11 +1,13 @@
 {
     "name": "@yaw-rx/transformer",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "publishConfig": {
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "files": ["dist"],
+    "files": [
+        "dist"
+    ],
     "type": "module",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
