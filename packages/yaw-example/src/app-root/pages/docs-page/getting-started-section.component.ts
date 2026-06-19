@@ -360,6 +360,17 @@ cd packages\\yaw-vscode && npm run build && mklink /D "%USERPROFILE%\\.vscode\\e
   "js/ts.tsdk.promptToUseWorkspaceVersion": true,
   "yaw-rx.yaw.enable": true
 }`}</code-block>
+            <p class="note"><strong>Important:</strong> after opening the
+               workspace, press
+               <code class="inline">Ctrl+Shift+P</code> (or
+               <code class="inline">Cmd+Shift+P</code> on macOS), type
+               <strong>Select TypeScript Version</strong>, and choose
+               <strong>Use Workspace Version</strong>. This tells VSCode
+               to use the project's patched TypeScript instead of its
+               built-in copy. The settings above point VSCode at the
+               right path, but this manual step is required to activate
+               it. You only need to do this once per workspace — VSCode
+               remembers the choice.</p>
         </section>
     `,
     styles: `
