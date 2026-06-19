@@ -6,7 +6,8 @@
     },
     "files": [
         "dist",
-        "syntaxes"
+        "syntaxes",
+        "src"
     ],
     "displayName": "YAW",
     "description": "HTML and CSS highlighting and intellisense inside @Component template and styles",
