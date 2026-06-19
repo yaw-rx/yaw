@@ -1,5 +1,9 @@
 {
   "name": "@yaw-rx/vscode",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "displayName": "YAW",
   "description": "HTML and CSS highlighting and intellisense inside @Component template and styles",
   "version": "0.1.0",

@@ -1,6 +1,10 @@
 {
   "name": "@yaw-rx/rollup",
   "version": "0.1.0",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
