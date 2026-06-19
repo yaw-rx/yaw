@@ -7,33 +7,52 @@ import { ts, html } from '@yaw-rx/common/tags';
 import '../../../components/code-block.component.js';
 import './hooks-section/virtual-scroll-demo.component.js';
 
-const MUTATION_HOOK_SOURCE = ts`import { registerMutationHook } from '@yaw-rx/core/binding/hooks/mutation';
+const ARC_SOURCE = ts`import { createArc } from '@yaw-rx/core/arc';
+import { registerScopeHook, unregisterScopeHook } from '@yaw-rx/core/binding/hooks/scope';
+
+const MY_DIRECTIVE = Symbol('my-directive');
+
+const arc = createArc(MY_DIRECTIVE, {
+    acquire: () => { registerScopeHook(scopeHook); },
+    release: () => { unregisterScopeHook(scopeHook); },
+});
+
+class MyDirective {
+    onInit()    { arc.retain(); }
+    onDestroy() { arc.dispose(); }
+}`;
+
+const MUTATION_HOOK_SOURCE = ts`import { type MutationHookEntry } from '@yaw-rx/core/binding/hooks/mutation';
 
 // Claim the container so the framework delegates lifecycle to the directive.
 // The directive calls initElement/destroyElement directly in stamp/recycle
 // for synchronous binding setup — no flash between append and first paint.
-registerMutationHook({
+const mutationHook: MutationHookEntry = {
+    // True when the element is a virtual scroll container.
     claim(target: Element): boolean {
         return (target as any)['__virtualScroll'] !== undefined;
     },
+    // No-op — the directive calls initElement/destroyElement itself.
     handle(): void {},
-});`;
+};`;
 
-const SCOPE_HOOK_SOURCE = ts`import { registerScopeHook } from '@yaw-rx/core/binding/hooks/scope';
+const SCOPE_HOOK_SOURCE = ts`import { type ScopeHookEntry } from '@yaw-rx/core/binding/hooks/scope';
 
-registerScopeHook({
+const scopeHook: ScopeHookEntry = {
+    // True when the binding segment is a loop variable owned by this directive.
     claim(host: Element, segment: string): boolean {
         const r = resolveVs(host);
         if (r === undefined) return false;
         return r.vs.loopVariables.includes(segment);
     },
+    // Return the per-row BehaviorSubject for the claimed segment.
     resolve(host: Element, segment: string) {
         const r = resolveVs(host);
         if (segment === r.vs.indexName)
             return { stream: r.vs.getIndexSubject(r.idx), consumed: 1 };
         return { stream: r.vs.getRowSubject(r.idx), consumed: 1 };
     },
-});`;
+};`;
 
 const FULL_SOURCE = ts`import { fromEvent, animationFrameScheduler, BehaviorSubject, type Subscription } from 'rxjs';
 import { throttleTime, map, distinctUntilChanged } from 'rxjs/operators';
@@ -42,19 +61,20 @@ import type { RxElementLike } from '@yaw-rx/core';
 import { subscribeToBinding } from '@yaw-rx/core/binding/path';
 import { parseRxFor, type RxForParsed } from '@yaw-rx/core/directives/rx-for';
 import { isHydrating } from '@yaw-rx/core/hydrate/state';
-import { registerMutationHook } from '@yaw-rx/core/binding/hooks/mutation';
-import { registerScopeHook } from '@yaw-rx/core/binding/hooks/scope';
+import { registerMutationHook, unregisterMutationHook, type MutationHookEntry } from '@yaw-rx/core/binding/hooks/mutation';
+import { registerScopeHook, unregisterScopeHook, type ScopeHookEntry } from '@yaw-rx/core/binding/hooks/scope';
 import { initElement, destroyElement } from '@yaw-rx/core/binding/native';
+import { createArc } from '@yaw-rx/core/arc';
 
 const SELECTOR = '[virtual-scroll]';
 const PROP = '__virtualScroll';
 
-registerMutationHook({
+const mutationHook: MutationHookEntry = {
     claim(target: Element): boolean {
         return (target as any)[PROP] !== undefined;
     },
     handle(): void {},
-});
+};
 
 const resolveVs = (host: Element): { vs: VirtualScroll; idx: number } | undefined => {
     const container = host.closest(SELECTOR);
@@ -66,7 +86,7 @@ const resolveVs = (host: Element): { vs: VirtualScroll; idx: number } | undefine
     return { vs, idx };
 };
 
-registerScopeHook({
+const scopeHook: ScopeHookEntry = {
     claim(host: Element, segment: string): boolean {
         const r = resolveVs(host);
         if (r === undefined) return false;
@@ -77,6 +97,19 @@ registerScopeHook({
         if (r === undefined) return { stream: new BehaviorSubject<unknown>(undefined), consumed: 1 };
         if (segment === r.vs.indexName) return { stream: r.vs.getIndexSubject(r.idx), consumed: 1 };
         return { stream: r.vs.getRowSubject(r.idx), consumed: 1 };
+    },
+};
+
+const VS = Symbol('virtual-scroll');
+
+const vsArc = createArc(VS, {
+    acquire: () => {
+        registerMutationHook(mutationHook);
+        registerScopeHook(scopeHook);
+    },
+    release: () => {
+        unregisterMutationHook(mutationHook);
+        unregisterScopeHook(scopeHook);
     },
 });
 
@@ -124,6 +157,8 @@ export class VirtualScroll {
     }
 
     onInit(): void {
+        vsArc.retain();
+
         const raw = this.node.getAttribute('virtual-scroll') ?? '';
         const [forExpr, settings] = raw.split(';').map(s => s.trim());
         const [heightStr, bufferStr] = (settings ?? '').split(',').map(s => s.trim());
@@ -209,6 +244,7 @@ export class VirtualScroll {
         this.indexSubjects.length = 0;
         this.rowSubjects.length = 0;
         delete (this.node as any)[PROP];
+        vsArc.dispose();
     }
 
     private rebuild(count: number): void {
@@ -297,9 +333,16 @@ const USAGE_SOURCE = html`<div virtual-scroll="row, i of items; 36">
         <section class="host" toc-section="directives/hooks">
             <h2 toc-anchor="directives/hooks">Advanced: hooks</h2>
             <p class="note">Hooks let directives extend the framework's binding and
-               DOM lifecycle without patching core code. Three types exist, each
-               registered at <strong>module level</strong> (not inside
-               <code class="inline">onInit</code>):</p>
+               DOM lifecycle without patching core code. Three types exist,
+               each lifecycle-managed via an
+               <code class="inline">ARC</code> (Atomic Reference Counter).
+               An ARC can be used to track how many directive instances are alive. The
+               first instance to call
+               <code class="inline">retain</code> registers the hooks with
+               the framework. The last instance to call
+               <code class="inline">dispose</code> unregisters them. Between
+               those transitions the hooks exist exactly once, shared by all
+               instances:</p>
             <ul class="hook-list">
                 <li><strong>Mutation hooks</strong> let a directive manage its own
                     children. A virtual scroll needs to recycle DOM nodes and
@@ -317,6 +360,21 @@ const USAGE_SOURCE = html`<div virtual-scroll="row, i of items; 36">
                     elements already have the right initial state and the
                     first observable emission would be a redundant DOM write.</li>
             </ul>
+
+            <section class="host" toc-section="directives/hooks/arc">
+                <h3 toc-anchor="directives/hooks/arc">Lifecycle with ARC</h3>
+                <p class="note">Hooks are global — they apply to all elements,
+                   not just the directive's own. A hook must exist while at
+                   least one directive instance is alive, and be removed when
+                   the last instance is destroyed. An
+                   <code class="inline">ARC</code> manages this: hook objects
+                   are declared as typed module-level constants, and the ARC
+                   registers them on the first
+                   <code class="inline">retain</code> and unregisters them on
+                   the last <code class="inline">dispose</code>. Each
+                   directive type declares a Symbol as its unique identity.</p>
+                <code-block syntax="ts">${escape`${ARC_SOURCE}`}</code-block>
+            </section>
 
             <section class="host" toc-section="directives/hooks/example">
                 <h3 toc-anchor="directives/hooks/example">Example: virtual scroll</h3>
@@ -362,10 +420,11 @@ const USAGE_SOURCE = html`<div virtual-scroll="row, i of items; 36">
 
             <section class="host" toc-section="directives/hooks/full">
                 <h3 toc-anchor="directives/hooks/full">Putting it together</h3>
-                <p class="note">Here is the complete directive. The module-level
-                   hook registrations run once on import. The directive class
-                   handles the scroll viewport, element stamping and recycling,
-                   and per-row BehaviorSubject management.</p>
+                <p class="note">Here is the complete directive. The ARC acquires
+                   the hooks on the first instance and releases them when the
+                   last is destroyed. The directive class handles the scroll
+                   viewport, element stamping and recycling, and per-row
+                   BehaviorSubject management.</p>
                 <code-block syntax="ts">${escape`${FULL_SOURCE}`}</code-block>
             </section>
 

@@ -65,6 +65,10 @@
       "import": "./dist/binding/setup.js",
       "types": "./dist/binding/setup.d.ts"
     },
+    "./arc": {
+      "import": "./dist/arc.js",
+      "types": "./dist/arc.d.ts"
+    },
     "./directives/setup": {
       "import": "./dist/directives/setup.js",
       "types": "./dist/directives/setup.d.ts"

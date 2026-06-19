@@ -5,19 +5,20 @@ import type { RxElementLike } from '@yaw-rx/core';
 import { subscribeToBinding } from '@yaw-rx/core/binding/path';
 import { parseRxFor, type RxForParsed } from '@yaw-rx/core/directives/rx-for';
 import { isHydrating } from '@yaw-rx/core/hydrate/state';
-import { registerMutationHook } from '@yaw-rx/core/binding/hooks/mutation';
-import { registerScopeHook } from '@yaw-rx/core/binding/hooks/scope';
+import { registerMutationHook, unregisterMutationHook, type MutationHookEntry } from '@yaw-rx/core/binding/hooks/mutation';
+import { registerScopeHook, unregisterScopeHook, type ScopeHookEntry } from '@yaw-rx/core/binding/hooks/scope';
 import { initElement, destroyElement } from '@yaw-rx/core/binding/native';
+import { createArc } from '@yaw-rx/core/arc';
 
 const SELECTOR = '[virtual-scroll]';
 const PROP = '__virtualScroll';
 
-registerMutationHook({
+const mutationHook: MutationHookEntry = {
     claim(target: Element): boolean {
         return (target as any)[PROP] !== undefined;
     },
     handle(): void {},
-});
+};
 
 const resolveVs = (host: Element): { vs: VirtualScroll; idx: number } | undefined => {
     const container = host.closest(SELECTOR);
@@ -29,7 +30,7 @@ const resolveVs = (host: Element): { vs: VirtualScroll; idx: number } | undefine
     return { vs, idx };
 };
 
-registerScopeHook({
+const scopeHook: ScopeHookEntry = {
     claim(host: Element, segment: string): boolean {
         const r = resolveVs(host);
         if (r === undefined) return false;
@@ -40,6 +41,19 @@ registerScopeHook({
         if (r === undefined) return { stream: new BehaviorSubject<unknown>(undefined), consumed: 1 };
         if (segment === r.vs.indexName) return { stream: r.vs.getIndexSubject(r.idx), consumed: 1 };
         return { stream: r.vs.getRowSubject(r.idx), consumed: 1 };
+    },
+};
+
+const VS = Symbol('virtual-scroll');
+
+const vsArc = createArc(VS, {
+    acquire: () => {
+        registerMutationHook(mutationHook);
+        registerScopeHook(scopeHook);
+    },
+    release: () => {
+        unregisterMutationHook(mutationHook);
+        unregisterScopeHook(scopeHook);
     },
 });
 
@@ -87,6 +101,8 @@ export class VirtualScroll {
     }
 
     onInit(): void {
+        vsArc.retain();
+
         const raw = this.node.getAttribute('virtual-scroll') ?? '';
         const [forExpr, settings] = raw.split(';').map(s => s.trim());
         const [heightStr, bufferStr] = (settings ?? '').split(',').map(s => s.trim());
@@ -172,6 +188,7 @@ export class VirtualScroll {
         this.indexSubjects.length = 0;
         this.rowSubjects.length = 0;
         delete (this.node as any)[PROP];
+        vsArc.dispose();
     }
 
     private rebuild(count: number): void {

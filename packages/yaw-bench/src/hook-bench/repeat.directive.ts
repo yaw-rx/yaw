@@ -1,10 +1,11 @@
 import { BehaviorSubject, type Subscription } from 'rxjs';
 import { Directive, type ParsedBindingPath, type RxElementLike } from '@yaw-rx/core';
 import { parseBindingPath, subscribeToBinding, type ParsedBinding } from '@yaw-rx/core/binding/path';
-import { registerScopeHook, type ScopeHookResult } from '@yaw-rx/core/binding/hooks/scope';
-import { registerBindingHook } from '@yaw-rx/core/binding/hooks/binding';
-import { registerMutationHook } from '@yaw-rx/core/binding/hooks/mutation';
+import { registerScopeHook, unregisterScopeHook, type ScopeHookEntry, type ScopeHookResult } from '@yaw-rx/core/binding/hooks/scope';
+import { registerBindingHook, unregisterBindingHook, type BindingHookEntry } from '@yaw-rx/core/binding/hooks/binding';
+import { registerMutationHook, unregisterMutationHook, type MutationHookEntry } from '@yaw-rx/core/binding/hooks/mutation';
 import { initElement, destroyElement } from '@yaw-rx/core/binding/native';
+import { createArc } from '@yaw-rx/core/arc';
 
 interface RepeatEntry {
     el: Element;
@@ -36,7 +37,7 @@ const findDirective = (host: Element, segment: string): { dir: Repeat; el: Eleme
     return undefined;
 };
 
-registerScopeHook({
+const scopeHook: ScopeHookEntry = {
     claim(host: Element, segment: string): boolean {
         return findDirective(host, segment) !== undefined;
     },
@@ -61,7 +62,7 @@ registerScopeHook({
 
         return { stream: entry.subject, consumed: segment === dir.itemName ? 1 : 0 };
     },
-});
+};
 
 // ---------------------------------------------------------------------------
 // Binding hook
@@ -69,7 +70,7 @@ registerScopeHook({
 
 const stampedEls = new WeakSet<Element>();
 
-registerBindingHook({
+const bindingHook: BindingHookEntry = {
     claim(el: Element): boolean {
         return stampedEls.has(el);
     },
@@ -77,7 +78,7 @@ registerBindingHook({
         stampedEls.delete(el);
         return binding$;
     },
-});
+};
 
 // ---------------------------------------------------------------------------
 // Mutation hook
@@ -97,17 +98,36 @@ const flushMutations = (): void => {
     for (const el of added) initElement(el);
 };
 
-registerMutationHook({
+const mutationHook: MutationHookEntry = {
     claim(target: Element): boolean {
         return target.hasAttribute('repeat');
     },
-    handle(added: Element[], removed: Element[]): void {
+    handle(_target: Element, added: Element[], removed: Element[]): void {
         pendingAdded.push(...added);
         pendingRemoved.push(...removed);
         if (!mutScheduled) {
             mutScheduled = true;
             requestAnimationFrame(() => setTimeout(flushMutations, 0));
         }
+    },
+};
+
+// ---------------------------------------------------------------------------
+// Arc - lifecycle-managed hook registration
+// ---------------------------------------------------------------------------
+
+const REPEAT = Symbol('repeat');
+
+const repeatArc = createArc(REPEAT, {
+    acquire: () => {
+        registerScopeHook(scopeHook);
+        registerBindingHook(bindingHook);
+        registerMutationHook(mutationHook);
+    },
+    release: () => {
+        unregisterScopeHook(scopeHook);
+        unregisterBindingHook(bindingHook);
+        unregisterMutationHook(mutationHook);
     },
 });
 
@@ -154,6 +174,7 @@ export class Repeat {
     }
 
     onInit(): void {
+        repeatArc.retain();
         (this.node as any)[PROP] = this;
         this.content = this.node.innerHTML;
         while (this.node.firstChild) this.node.removeChild(this.node.firstChild);
@@ -206,5 +227,6 @@ export class Repeat {
             entry.index$.complete();
         }
         this.entries.clear();
+        repeatArc.dispose();
     }
 }

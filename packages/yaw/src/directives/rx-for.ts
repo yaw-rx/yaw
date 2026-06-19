@@ -29,9 +29,11 @@
  *     { a, b }, i of rows by id - destructured + index
  *
  * Scope mode integrates with the binding system via a hook exported by
- * path.ts (registerScopeHook). The directive registers a function at
- * module import time that checks whether a binding's first path segment
- * is a loop variable. This keeps the directive modular - the core binding
+ * path.ts (registerScopeHook). The hook is lifecycle-managed via an
+ * {@link @yaw-rx/core/arc!Arc} - acquired on the first directive
+ * instance's onInit and released when the last instance's onDestroy
+ * fires. The hook checks whether a binding's first path segment is a
+ * loop variable. This keeps the directive modular - the core binding
  * system has no dependency on rx-for.
  *
  * Reconciliation:
@@ -53,7 +55,8 @@ import { isObservable } from '../classify/is-observable.js';
 import { Directive } from '../directive.js';
 import { BindingParseError } from '../errors.js';
 import { parseBindingPath, subscribeToBinding, deferredBinding, resolveValue, type ParsedBinding } from '../binding/path.js';
-import { registerScopeHook, type ScopeHookResult } from '../binding/hooks/scope.js';
+import { registerScopeHook, unregisterScopeHook, type ScopeHookEntry, type ScopeHookResult } from '../binding/hooks/scope.js';
+import { createArc } from '../arc.js';
 import type { RxElementLike } from '../directive.js';
 import { isHydrating } from '../hydrate/state.js';
 import { getTemplate } from '../component.js';
@@ -175,7 +178,7 @@ export const parseRxFor = (raw: string): RxForParsed => {
 };
 
 // ---------------------------------------------------------------------------
-// Scope hook - registered once at module load
+// Scope hook - lifecycle-managed via Arc
 // ---------------------------------------------------------------------------
 
 interface ScopeEntry {
@@ -274,7 +277,7 @@ const findDirective = (host: Element, segment: string): { directive: RxFor; el: 
     return undefined;
 };
 
-registerScopeHook({
+const scopeHook: ScopeHookEntry = {
     claim(host: Element, segment: string): boolean {
         return findDirective(host, segment) !== undefined;
     },
@@ -303,6 +306,13 @@ registerScopeHook({
 
         return { stream: entry.subject, consumed: 0 };
     },
+};
+
+const RX_FOR = Symbol('rx-for');
+
+const scopeArc = createArc(RX_FOR, {
+    acquire: () => { registerScopeHook(scopeHook); },
+    release: () => { unregisterScopeHook(scopeHook); },
 });
 
 // ---------------------------------------------------------------------------
@@ -345,6 +355,8 @@ export class RxFor {
      * @returns {void}
      */
     onInit(): void {
+        scopeArc.retain();
+
         const raw = this.node.getAttribute('rx-for') ?? '';
         const p = parseRxFor(raw);
 
@@ -776,5 +788,6 @@ export class RxFor {
         } else {
             this.splatNodes.clear();
         }
+        scopeArc.dispose();
     }
 }

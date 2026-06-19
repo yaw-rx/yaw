@@ -43,7 +43,35 @@ export const mutationHooks: MutationHookEntry[] = [];
  * order. Only one hook may claim a given target  - if two hooks both
  * claim the same target, a {@link DuplicateHookClaimError} is thrown.
  *
+ * For lifecycle-managed registration, pair with
+ * {@link unregisterMutationHook} via an {@link @yaw-rx/core/arc!Arc}.
+ * The Arc acquires the hook on the first directive instance's onInit
+ * and releases it when the last instance's onDestroy fires, avoiding
+ * module-level side effects that live beyond the directive's lifetime.
+ *
  * @param entry - The {@link MutationHookEntry} to register.
  * @returns {void}
  */
 export const registerMutationHook = (entry: MutationHookEntry): void => { mutationHooks.push(entry); };
+
+/**
+ * Remove a previously registered mutation hook.
+ *
+ * The entry must be the same object reference that was passed to
+ * {@link registerMutationHook}. If the entry is not found in the
+ * registry, this is a no-op - safe to call unconditionally during
+ * teardown without guarding against double-dispose.
+ *
+ * For lifecycle-managed registration, pair with
+ * {@link registerMutationHook} via an {@link @yaw-rx/core/arc!Arc}.
+ * The Arc acquires the hook on the first directive instance's onInit
+ * and releases it when the last instance's onDestroy fires, avoiding
+ * module-level side effects that live beyond the directive's lifetime.
+ *
+ * @param entry - The same {@link MutationHookEntry} reference passed to {@link registerMutationHook}.
+ * @returns {void}
+ */
+export const unregisterMutationHook = (entry: MutationHookEntry): void => {
+    const idx = mutationHooks.indexOf(entry);
+    if (idx !== -1) mutationHooks.splice(idx, 1);
+};

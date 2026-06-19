@@ -47,10 +47,38 @@ const bindingHooks: BindingHookEntry[] = [];
  * Register a binding hook to transform subscription observables
  * before setupBindings subscribes.
  *
+ * For lifecycle-managed registration, pair with
+ * {@link unregisterBindingHook} via an {@link @yaw-rx/core/arc!Arc}.
+ * The Arc acquires the hook on the first directive instance's onInit
+ * and releases it when the last instance's onDestroy fires, avoiding
+ * module-level side effects that live beyond the directive's lifetime.
+ *
  * @param entry - The {@link BindingHookEntry} to register.
  * @returns {void}
  */
 export const registerBindingHook = (entry: BindingHookEntry): void => { bindingHooks.push(entry); };
+
+/**
+ * Remove a previously registered binding hook.
+ *
+ * The entry must be the same object reference that was passed to
+ * {@link registerBindingHook}. If the entry is not found in the
+ * registry, this is a no-op - safe to call unconditionally during
+ * teardown without guarding against double-dispose.
+ *
+ * For lifecycle-managed registration, pair with
+ * {@link registerBindingHook} via an {@link @yaw-rx/core/arc!Arc}.
+ * The Arc acquires the hook on the first directive instance's onInit
+ * and releases it when the last instance's onDestroy fires, avoiding
+ * module-level side effects that live beyond the directive's lifetime.
+ *
+ * @param entry - The same {@link BindingHookEntry} reference passed to {@link registerBindingHook}.
+ * @returns {void}
+ */
+export const unregisterBindingHook = (entry: BindingHookEntry): void => {
+    const idx = bindingHooks.indexOf(entry);
+    if (idx !== -1) bindingHooks.splice(idx, 1);
+};
 
 /**
  * Run registered binding hooks on an observable. If a hook claims

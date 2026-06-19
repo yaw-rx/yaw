@@ -59,7 +59,35 @@ export const scopeHooks: ScopeHookEntry[] = [];
  * hooks are checked in registration order - the first to claim
  * wins and remaining hooks are skipped.
  *
+ * For lifecycle-managed registration, pair with
+ * {@link unregisterScopeHook} via an {@link @yaw-rx/core/arc!Arc}.
+ * The Arc acquires the hook on the first directive instance's onInit
+ * and releases it when the last instance's onDestroy fires, avoiding
+ * module-level side effects that live beyond the directive's lifetime.
+ *
  * @param entry - The {@link ScopeHookEntry} to register.
  * @returns {void}
  */
 export const registerScopeHook = (entry: ScopeHookEntry): void => { scopeHooks.push(entry); };
+
+/**
+ * Remove a previously registered scope hook.
+ *
+ * The entry must be the same object reference that was passed to
+ * {@link registerScopeHook}. If the entry is not found in the
+ * registry, this is a no-op - safe to call unconditionally during
+ * teardown without guarding against double-dispose.
+ *
+ * For lifecycle-managed registration, pair with
+ * {@link registerScopeHook} via an {@link @yaw-rx/core/arc!Arc}.
+ * The Arc acquires the hook on the first directive instance's onInit
+ * and releases it when the last instance's onDestroy fires, avoiding
+ * module-level side effects that live beyond the directive's lifetime.
+ *
+ * @param entry - The same {@link ScopeHookEntry} reference passed to {@link registerScopeHook}.
+ * @returns {void}
+ */
+export const unregisterScopeHook = (entry: ScopeHookEntry): void => {
+    const idx = scopeHooks.indexOf(entry);
+    if (idx !== -1) scopeHooks.splice(idx, 1);
+};
