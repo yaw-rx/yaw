@@ -6,7 +6,8 @@
         "registry": "https://registry.npmjs.org/"
     },
     "files": [
-        "dist"
+        "dist",
+        "src"
     ],
     "type": "module",
     "main": "./dist/index.js",
