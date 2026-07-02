@@ -258,6 +258,7 @@ const classifyDiff = (
 };
 
 const SCOPE_PROP = '__rxForScope';
+const CONTENT_PROP = '__rxForContent';
 
 let lastClaim: { host: Element; segment: string; directive: RxFor; el: Element } | undefined;
 
@@ -382,7 +383,8 @@ export class RxFor {
                 this.updateSplat(v);
             });
         } else {
-            this.content = this.node.innerHTML;
+            this.content = (this.node as any)[CONTENT_PROP] ?? this.node.innerHTML;
+            (this.node as any)[CONTENT_PROP] = this.content;
             this.parseContent();
             this.node.replaceChildren();
             this.sub = subscribeToBinding(this.node, this.source, (v) => {
@@ -570,7 +572,8 @@ export class RxFor {
                 this.updateScope(v);
             });
         } else {
-            this.content = this.node.innerHTML;
+            this.content = (this.node as any)[CONTENT_PROP] ?? this.node.innerHTML;
+            (this.node as any)[CONTENT_PROP] = this.content;
             this.parseContent();
             while (this.node.firstChild) this.node.removeChild(this.node.firstChild);
             this.sub = subscribeToBinding(this.node, this.source, (v) => {
