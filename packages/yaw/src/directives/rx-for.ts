@@ -396,7 +396,13 @@ export class RxFor {
 
     private parseContent(): void {
         const tpl = document.createElement('template');
-        tpl.innerHTML = this.content;
+        if (this.node.namespaceURI === 'http://www.w3.org/2000/svg') {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.innerHTML = this.content;
+            while (svg.firstChild) tpl.content.appendChild(svg.firstChild);
+        } else {
+            tpl.innerHTML = this.content;
+        }
         this.tpl = tpl;
     }
 
