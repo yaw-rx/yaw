@@ -23,7 +23,7 @@ export const viteTransform = (): Plugin => {
 
         async transform(code, id) {
             if (!id.endsWith('.ts') || id.includes('node_modules') || id.endsWith('.d.ts')) return null;
-            if (!code.includes('@Component') && !code.includes('@state')) return null;
+            if (!code.includes('@Component') && !code.includes('@state') && !code.includes('@Injectable') && !code.includes('@Inject')) return null;
             if (tp === undefined) return null;
 
             const output = tp.getSource(id);
