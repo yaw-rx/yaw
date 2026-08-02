@@ -1,5 +1,6 @@
 import { Component, RxElement } from '@yaw-rx/core';
 import './showcase-page/drum-sequencer-section.component.js';
+import './showcase-page/ystate-studio-section.component.js';
 
 @Component({
     selector: 'showcase-page',
@@ -11,6 +12,7 @@ import './showcase-page/drum-sequencer-section.component.js';
             </header>
 
             <drum-sequencer-section></drum-sequencer-section>
+            <ystate-studio-section></ystate-studio-section>
         </div>
     `,
     styles: `
