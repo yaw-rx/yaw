@@ -233,14 +233,24 @@ const classifyDiff = (
     let newCount = 0;
     let orderOk = true;
     let lastPos = -1;
+    // Tracks whether every new item comes after every kept item in
+    // `incoming`. orderOk alone only checks relative order *among existing
+    // entries* - it says nothing about where new entries fall, so a new
+    // item sorted ahead of existing ones (e.g. a caller re-sorting on each
+    // emission) would otherwise still satisfy orderOk and be misclassified
+    // as AppendOnly below, even though it doesn't belong at the tail.
+    let sawNew = false;
+    let newItemsTrailing = true;
 
     for (const key of keys) {
         const entry = nodes.get(key);
         if (entry === undefined) {
             newCount++;
+            sawNew = true;
         } else {
             if (entry.pos <= lastPos) orderOk = false;
             lastPos = entry.pos;
+            if (sawNew) newItemsTrailing = false;
         }
     }
 
@@ -251,7 +261,7 @@ const classifyDiff = (
 
     if (newCount === 0 && removedCount === 0 && orderOk) return { op: DiffOp.DataOnly, keys };
     if (newCount === 0 && removedCount === 0) return { op: DiffOp.Reorder, keys };
-    if (newCount > 0 && removedCount === 0 && orderOk) return { op: DiffOp.AppendOnly, keys };
+    if (newCount > 0 && removedCount === 0 && orderOk && newItemsTrailing) return { op: DiffOp.AppendOnly, keys };
     if (newCount === 0 && removedCount > 0 && orderOk) return { op: DiffOp.RemoveOnly, keys };
 
     return { op: DiffOp.Mixed, keys };
