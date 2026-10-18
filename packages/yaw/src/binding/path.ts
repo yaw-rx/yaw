@@ -50,7 +50,7 @@
  *   (BehaviorSubject + consumed count) to claim it, or undefined to
  *   pass. The first hook to claim wins.
  */
-import { of, Subscription, switchMap, skip, first, shareReplay, type Observable } from 'rxjs';
+import { of, Subscription, switchMap, skip, first, filter, shareReplay, type Observable } from 'rxjs';
 import { isObservable } from '../classify/is-observable.js';
 import { hydrationComplete$ } from '../hydrate/state.js';
 import { BindingNotSubscribableError, BindingParseError, BindingPathError, BindingScopeError, DuplicateHookClaimError } from '../errors.js';
@@ -350,17 +350,22 @@ export const resolveEncoder = (
     return (v) => encodeAttribute(typeName, key, v);
 };
 
+// An element removed before hydration completes (e.g. an SSG item dropped by
+// an rx-for update) is never resolved: its scope may be gone, and the
+// observer's teardown for it runs only after this emission.
 export const hydratedBinding = (
     host: Element,
     bindingPath: ParsedBinding,
 ): Observable<unknown> =>
-    hydrationComplete$.pipe(first(), switchMap(() => observeBinding(host, bindingPath).pipe(skip(1))));
+    hydrationComplete$.pipe(first(), filter(() => host.isConnected),
+        switchMap(() => observeBinding(host, bindingPath).pipe(skip(1))));
 
 export const deferredBinding = (
     host: Element,
     bindingPath: ParsedBinding,
 ): Observable<unknown> =>
-    hydrationComplete$.pipe(first(), switchMap(() => observeBinding(host, bindingPath)));
+    hydrationComplete$.pipe(first(), filter(() => host.isConnected),
+        switchMap(() => observeBinding(host, bindingPath)));
 
 export interface EventInvocation {
     invoke(event: Event): void;

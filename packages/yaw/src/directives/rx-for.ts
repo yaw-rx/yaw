@@ -424,7 +424,21 @@ export class RxFor {
         if (rawTemplate === undefined) return;
         const tpl = document.createElement('template');
         tpl.innerHTML = rawTemplate;
-        const rxForEl = tpl.content.querySelector('[rx-for]');
+        // The template can hold several rx-for elements: take the one with
+        // this node's expression, by position among the live nodes of the
+        // same host when the expression repeats.
+        const source = this.node.getAttribute('rx-for');
+        const candidates = Array.from(tpl.content.querySelectorAll('[rx-for]'))
+            .filter((el) => el.getAttribute('rx-for') === source);
+        let rxForEl = candidates[0] ?? null;
+        if (candidates.length > 1) {
+            const hostEl = (this.node as any).hostNode as Element | undefined;
+            const live = hostEl === undefined ? [] : Array.from(hostEl.querySelectorAll('[rx-for]'))
+                .filter((el) => el.getAttribute('rx-for') === source && (el as any).hostNode === hostEl);
+            if (live.length === candidates.length) {
+                rxForEl = candidates[live.indexOf(this.node)] ?? rxForEl;
+            }
+        }
         if (rxForEl !== null) {
             this.content = rxForEl.innerHTML;
             this.parseContent();

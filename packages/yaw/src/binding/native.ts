@@ -174,20 +174,26 @@ export const startObserver = (): void => {
 };
 
 export const flushExistingBindings = (): void => {
-    const walk = (el: Element): void => {
+    // `host` is the nearest [data-rx-host] ancestor, as in initElement, so
+    // native elements get the same hostNode they would outside hydration.
+    const walk = (el: Element, host: Element | undefined): void => {
         if (el instanceof RxElement) {
             el._initBindings();
             (el as any).__rx_init = true;
             queueMicrotask(() => el.onRender());
         } else {
+            if (host !== undefined) {
+                (el as any).hostNode = host;
+            }
             initNativeBindings(el);
             (el as any).__rx_init = true;
         }
+        const childHost = el.hasAttribute('data-rx-host') ? el : host;
         let child = el.firstElementChild;
         while (child !== null) {
-            walk(child);
+            walk(child, childHost);
             child = child.nextElementSibling;
         }
     };
-    walk(document.body);
+    walk(document.body, undefined);
 };
